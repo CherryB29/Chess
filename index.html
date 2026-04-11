@@ -20,12 +20,14 @@
             touch-action: manipulation; overflow: hidden; padding-top: 15px; box-sizing: border-box;
         }
 
-        .header { text-align: center; margin-bottom: 10px; z-index: 10; width: 100%; max-width: 420px; }
-        h1 { color: var(--primary); margin: 0 0 5px 0; text-shadow: 0 0 15px rgba(243, 156, 18, 0.6); font-size: 1.8rem; letter-spacing: 1px; }
+        .header { text-align: center; margin-bottom: 5px; z-index: 10; width: 100%; max-width: 420px; position: relative; }
+        h1 { color: var(--primary); margin: 0 0 5px 0; text-shadow: 0 0 15px rgba(243, 156, 18, 0.6); font-size: 1.6rem; letter-spacing: 1px; }
         
+        #btn-resign { position: absolute; top: 0px; right: 10px; width: auto; padding: 6px 12px; margin: 0; font-size: 0.9rem; z-index: 20; display: none; }
+
         .turn-wrapper { display: flex; justify-content: center; margin-bottom: 10px; }
         .turn-indicator {
-            padding: 6px 20px; border-radius: 30px; font-weight: 800; font-size: 1rem;
+            padding: 4px 15px; border-radius: 30px; font-weight: 800; font-size: 0.9rem;
             letter-spacing: 1px; transition: all 0.4s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
         .turn-indicator.white-turn { background: #fdfdfd; color: #222; box-shadow: 0 0 15px rgba(255,255,255,0.4); }
@@ -83,7 +85,11 @@
             transition: top 0.3s ease, left 0.3s ease, transform 0.3s, opacity 0.3s;
         }
         .piece-wrapper svg { width: 90%; height: 90%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); pointer-events: none; }
-        .piece-rooted::after { content: '🧊'; position: absolute; bottom: -2px; right: -2px; font-size: 1.2rem; filter: drop-shadow(0 0 3px #000); }
+        
+        /* 덩굴 및 무적 시각 효과 */
+        .piece-rooted::after { content: '🌿'; position: absolute; bottom: -2px; right: -2px; font-size: 1.2rem; filter: drop-shadow(0 0 3px #000); }
+        .piece-invincible { filter: drop-shadow(0 0 10px gold) brightness(1.2) !important; }
+        .piece-invincible::before { content: '🛡️'; position: absolute; top: -5px; left: -5px; font-size: 1rem; filter: drop-shadow(0 0 3px #000); z-index: 5;}
 
         .dot { position: absolute; width: 12.5%; height: 12.5%; display: flex; justify-content: center; align-items: center; pointer-events: none; }
         .dot::after { content: ''; width: 25%; height: 25%; background: rgba(243, 156, 18, 0.8); border-radius: 50%; box-shadow: 0 0 15px rgba(243, 156, 18, 0.9); }
@@ -150,6 +156,23 @@
         .piece-pop { animation: piecePop 0.5s ease; }
         @keyframes piecePop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 
+        /* 감정표현 애니메이션들 */
+        @keyframes animBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes animShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        @keyframes animExpand { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
+        @keyframes animVibrate { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 25% { transform: translate(-3px, 3px) rotate(-5deg); } 50% { transform: translate(3px, -3px) rotate(5deg); } 75% { transform: translate(-3px, -3px) rotate(-5deg); } }
+        @keyframes animTilt { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(15deg); } }
+        @keyframes animDrop { 0% { transform: translateY(-20px); opacity: 0; } 50% { transform: translateY(5px); opacity: 1; } 100% { transform: translateY(0); opacity: 1; } }
+        @keyframes animPulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); } }
+
+        .chat-bubble.anim-bounce { animation: animBounce 0.4s ease 2; }
+        .chat-bubble.anim-shake { animation: animShake 0.15s ease 3; }
+        .chat-bubble.anim-expand { animation: animExpand 0.4s ease 2; }
+        .chat-bubble.anim-vibrate { animation: animVibrate 0.1s linear 5; }
+        .chat-bubble.anim-tilt { animation: animTilt 0.4s ease 2; }
+        .chat-bubble.anim-drop { animation: animDrop 0.5s ease forwards; }
+        .chat-bubble.anim-pulse { animation: animPulse 0.8s ease 2; }
+
         /* 로비 및 하단 컨트롤 UI */
         .lobby-box { background: #1a1a2e; padding: 25px; border-radius: 15px; border: 2px solid var(--primary); text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.8); width: 90%; max-width: 350px; }
         .lobby-box h2 { margin-top: 0; }
@@ -159,15 +182,20 @@
         .lobby-btn.danger { background: var(--danger); }
         .lobby-input { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: #fff; font-size: 1rem; box-sizing: border-box; text-align: center;}
         
-        #game-controls { width: 100%; max-width: 420px; padding: 10px 10px; box-sizing: border-box; display: none; gap: 10px; margin-top: 5px; }
-        #chat-input { flex-grow: 1; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; font-size: 0.95rem; box-sizing: border-box; }
+        #game-controls { width: 100%; max-width: 420px; padding: 10px 10px; box-sizing: border-box; display: none; gap: 8px; margin-top: 5px; position: relative; justify-content: space-between;}
+        #chat-input { flex-grow: 1; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; font-size: 0.95rem; box-sizing: border-box; min-width: 0; }
         #chat-input:focus { outline: none; border-color: var(--primary); }
-        #btn-resign { margin: 0; width: 100px; flex-shrink: 0; }
+        .ctrl-btn { width: 50px; flex-shrink: 0; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 1.2rem; cursor: pointer; transition: 0.2s; padding: 0;}
+        .ctrl-btn.secondary { background: #34495e; }
+        
+        #emote-popup { display: none; position: absolute; bottom: 55px; left: 10px; background: rgba(20,20,30,0.95); padding: 10px; border-radius: 10px; gap: 8px; border: 1px solid var(--primary); z-index: 110; flex-wrap: wrap; width: 220px; box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
+        .emote-btn { font-size: 1.5rem; cursor: pointer; transition: transform 0.2s; background: rgba(255,255,255,0.1); border-radius: 8px; padding: 5px; text-align: center; flex: 1 1 30%; box-sizing: border-box;}
+        .emote-btn:hover { transform: scale(1.2); background: rgba(255,255,255,0.2); }
 
         .black-pov #board { transform: rotate(180deg); }
         .black-pov .piece-wrapper { transform: rotate(-180deg); }
 
-        /* 개선된 말풍선 채팅 UI (좌/우측 오버레이) */
+        /* 말풍선 채팅 UI */
         .chat-bubble {
             position: absolute; z-index: 100;
             background: rgba(255, 255, 255, 0.95); color: #111;
@@ -175,7 +203,6 @@
             max-width: 60%; word-break: break-word;
             box-shadow: 0 5px 15px rgba(0,0,0,0.6); 
             display: none; pointer-events: none; transition: opacity 0.2s ease;
-            animation: pop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
         /* 우측 하단 (내 말풍선) */
         .chat-bubble.mine {
@@ -204,14 +231,15 @@
     <div id="cast-text"></div>
 
     <div class="header">
+        <button id="btn-resign" class="lobby-btn danger">🏳️</button>
         <h1>증강 : 체스</h1>
-        <div id="player-info" style="font-size: 0.85rem; margin-bottom: 5px; color: #aaa;">연결 중...</div>
+        <div id="player-info" style="font-size: 0.8rem; margin-bottom: 5px; color: #aaa;">연결 중...</div>
         <div class="turn-wrapper">
-            <div id="turn-display" class="turn-indicator white-turn">백 차례</div>
+            <div id="turn-display" class="turn-indicator white-turn">백</div>
         </div>
         <div class="progress-container">
             <div class="progress-bar" id="augment-progress"></div>
-            <div class="progress-text" id="augment-text">다음 증강까지 6수</div>
+            <div class="progress-text" id="augment-text">증강: 7수</div>
         </div>
     </div>
 
@@ -229,32 +257,42 @@
     </div>
 
     <div id="game-controls">
-        <input type="text" id="chat-input" placeholder="엔터키로 채팅..." maxlength="40">
-        <button id="btn-resign" class="lobby-btn danger">🏳️ 기권</button>
+        <div id="emote-popup">
+            <span class="emote-btn">👍</span>
+            <span class="emote-btn">👎</span>
+            <span class="emote-btn">😲</span>
+            <span class="emote-btn">🤬</span>
+            <span class="emote-btn">🤔</span>
+            <span class="emote-btn">😭</span>
+            <span class="emote-btn" style="flex: 1 1 100%; font-size: 1.1rem; padding: 8px;">⏳ 빨리 좀 해라</span>
+        </div>
+        <button id="btn-emote" class="ctrl-btn secondary">😀</button>
+        <input type="text" id="chat-input" placeholder="채팅..." maxlength="40">
+        <button id="btn-send-chat" class="ctrl-btn">➤</button>
     </div>
 
     <div id="lobby-overlay" class="overlay" style="display: flex;">
         <div class="lobby-box">
-            <h2>멀티플레이어 로비</h2>
+            <h2>로비</h2>
             
             <div id="login-section">
-                <button id="btn-anon" class="lobby-btn secondary">익명으로 시작</button>
+                <button id="btn-anon" class="lobby-btn secondary">익명 시작</button>
                 <button id="btn-google" class="lobby-btn">Google 로그인</button>
                 <div style="margin-top: 20px; border-top: 1px solid #444; padding-top: 15px;">
-                    <button id="btn-bot" class="lobby-btn secondary" style="background: #27ae60;">🤖 컴퓨터와 연습</button>
+                    <button id="btn-bot" class="lobby-btn secondary" style="background: #27ae60;">🤖 봇 대전</button>
                 </div>
             </div>
             
             <div id="match-section" style="display: none;">
                 <p id="user-status" style="color: #2ecc71; font-weight: bold; margin-bottom: 15px;">접속 완료</p>
-                <button id="btn-random" class="lobby-btn">🎲 빠른 대전 (랜덤)</button>
+                <button id="btn-random" class="lobby-btn">🎲 랜덤 대전</button>
                 <div style="margin: 15px 0; border-top: 1px solid #444; padding-top: 15px;">
-                    <input type="text" id="room-input" class="lobby-input" placeholder="초대 코드 입력" maxlength="4">
-                    <button id="btn-join-room" class="lobby-btn secondary">방 참가하기</button>
-                    <button id="btn-create-room" class="lobby-btn secondary">새로운 방 만들기</button>
+                    <input type="text" id="room-input" class="lobby-input" placeholder="초대 코드" maxlength="4">
+                    <button id="btn-join-room" class="lobby-btn secondary">참가하기</button>
+                    <button id="btn-create-room" class="lobby-btn secondary">방 만들기</button>
                 </div>
                 <div style="margin-top: 15px; border-top: 1px solid #444; padding-top: 15px;">
-                    <button id="btn-bot-logged" class="lobby-btn secondary" style="background: #27ae60;">🤖 컴퓨터와 연습</button>
+                    <button id="btn-bot-logged" class="lobby-btn secondary" style="background: #27ae60;">🤖 봇 대전</button>
                 </div>
             </div>
             <p id="lobby-msg" style="color: #f1c40f; font-weight: bold; margin-top: 10px; min-height: 1.2rem; font-size: 0.9rem;"></p>
@@ -263,15 +301,15 @@
 
     <div id="augment-overlay" class="overlay"></div>
     <div id="promo-overlay" class="overlay">
-        <h2>프로모션 선택</h2>
+        <h2>승급 선택</h2>
         <div class="promo-container" id="promo-container"></div>
     </div>
     
     <div id="result-overlay" class="overlay" style="z-index: 300;">
         <div class="lobby-box">
-            <h2 id="result-title" style="font-size: 2.2rem; margin-bottom: 10px;">게임 종료</h2>
+            <h2 id="result-title" style="font-size: 2.2rem; margin-bottom: 10px;">종료</h2>
             <p id="result-desc" style="font-size: 1.2rem; margin-bottom: 25px; color: #ddd;"></p>
-            <button id="btn-return-lobby" class="lobby-btn">로비로 돌아가기</button>
+            <button id="btn-return-lobby" class="lobby-btn">로비로</button>
         </div>
     </div>
 
@@ -303,7 +341,7 @@
         onAuthStateChanged(auth, user => {
             if (user) {
                 myUid = user.uid; loginSection.style.display = 'none'; matchSection.style.display = 'block';
-                document.getElementById('user-status').innerText = `접속 완료 (UID: ${myUid.slice(0, 5)}...)`;
+                document.getElementById('user-status').innerText = `접속 완료`;
             } else { loginSection.style.display = 'block'; matchSection.style.display = 'none'; }
         });
 
@@ -313,10 +351,11 @@
         const startBotMode = () => {
             isBotMode = true; myColor = 'w'; isGameStarted = true;
             lobbyOverlay.style.display = 'none';
-            playerInfo.innerText = `🤖 컴퓨터와 연습 모드 (당신은 백입니다)`;
+            playerInfo.innerText = `🤖 봇 대전 (백)`;
             document.body.classList.remove('black-pov');
             document.getElementById('game-controls').style.display = 'flex';
-            showToast("게임 시작! (컴퓨터 모드)", "var(--primary)");
+            document.getElementById('btn-resign').style.display = 'block';
+            showToast("봇 대전 시작!", "var(--primary)");
             resetGameUI();
         };
         document.getElementById('btn-bot').onclick = startBotMode;
@@ -325,7 +364,7 @@
         function setLobbyMsg(msg) { lobbyMsg.innerText = msg; }
 
         document.getElementById('btn-random').onclick = async () => {
-            setLobbyMsg("대기 중인 플레이어를 찾는 중...");
+            setLobbyMsg("대기 중...");
             const queueRef = ref(db, 'matchmaking/random_queue');
             const snap = await get(queueRef);
             if (snap.exists()) {
@@ -334,21 +373,21 @@
             }
             const newRoomId = push(ref(db, 'rooms')).key;
             await set(queueRef, { uid: myUid, roomId: newRoomId });
-            createRoom(newRoomId, 'w'); setLobbyMsg("상대방을 기다리는 중...");
+            createRoom(newRoomId, 'w'); setLobbyMsg("상대방 대기 중...");
         };
 
         document.getElementById('btn-create-room').onclick = () => {
             const code = Math.floor(1000 + Math.random() * 9000).toString();
-            createRoom(code, 'w'); setLobbyMsg(`초대 코드: [ ${code} ] 상대를 대기 중...`);
+            createRoom(code, 'w'); setLobbyMsg(`코드: [ ${code} ] 대기 중...`);
         };
 
         document.getElementById('btn-join-room').onclick = async () => {
             const code = document.getElementById('room-input').value.trim();
-            if(!code) return setLobbyMsg("방 코드를 입력하세요.");
+            if(!code) return setLobbyMsg("코드 입력 요망.");
             const roomRef = ref(db, `rooms/${code}/players`);
             const snap = await get(roomRef);
             if (snap.exists() && snap.val().w) joinRoom(code, 'b');
-            else setLobbyMsg("존재하지 않거나 닫힌 방입니다.");
+            else setLobbyMsg("방이 없습니다.");
         };
 
         function setupPresence() {
@@ -357,16 +396,14 @@
             set(myStatusRef, 'online');
             onDisconnect(myStatusRef).set('offline'); 
             
-            // 연결 종료 처리
             const enemyColor = myColor === 'w' ? 'b' : 'w';
             const enemyStatusRef = ref(db, `rooms/${currentRoomId}/players/${enemyColor}_status`);
             onValue(enemyStatusRef, snap => {
                 if(isGameStarted && !game.game_over() && snap.val() === 'offline') {
-                    showEndScreen("승리", "상대방이 게임에서 나갔습니다.");
+                    showEndScreen("승리", "상대방 탈주.");
                 }
             });
 
-            // 상대방의 입력(타이핑) 상태 실시간 구독
             const enemyTypingRef = ref(db, `rooms/${currentRoomId}/players/${enemyColor}_typing`);
             onValue(enemyTypingRef, snap => {
                 if(snap.val() === true) {
@@ -393,12 +430,13 @@
 
         function startGame() {
             isGameStarted = true; lobbyOverlay.style.display = 'none';
-            playerInfo.innerText = `[방: ${currentRoomId}] 당신은 ${myColor === 'w' ? '백' : '흑'}입니다.`;
+            playerInfo.innerText = `[방:${currentRoomId}] ${myColor === 'w' ? '백' : '흑'}`;
             if(myColor === 'b') document.body.classList.add('black-pov');
             else document.body.classList.remove('black-pov');
             
             document.getElementById('game-controls').style.display = 'flex';
-            showToast("온라인 대전 시작!", "var(--primary)");
+            document.getElementById('btn-resign').style.display = 'block';
+            showToast("대전 시작!", "var(--primary)");
             resetGameUI();
             setupPresence();
             setupNetworkListeners();
@@ -431,21 +469,46 @@
                     setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, action.delay || 1200);
                 });
             } else if (action.type === 'resign') {
-                showEndScreen("승리", "상대방이 기권했습니다.");
+                showEndScreen("승리", "상대방 기권.");
             } else if (action.type === 'chat') {
                 showChatBubble('opponent', action.msg, false);
             }
         }
 
         // ==========================================
-        // 채팅 및 타이핑 상태 제어
+        // 채팅, 감정표현 및 상태 제어
         // ==========================================
         const chatInput = document.getElementById('chat-input');
+        const btnSendChat = document.getElementById('btn-send-chat');
+        const btnEmote = document.getElementById('btn-emote');
+        const emotePopup = document.getElementById('emote-popup');
+
+        const emoteAnimations = {
+            '👍': 'anim-bounce',
+            '👎': 'anim-shake',
+            '😲': 'anim-expand',
+            '🤬': 'anim-vibrate',
+            '🤔': 'anim-tilt',
+            '😭': 'anim-drop',
+            '⏳ 빨리 좀 해라': 'anim-pulse'
+        };
+
         let chatTimers = { mine: null, opponent: null };
         let isOpponentTyping = false;
         let typingDebounce = null;
 
-        // 사용자가 타이핑 중일 때 데이터베이스 업데이트
+        btnEmote.onclick = () => {
+            emotePopup.style.display = emotePopup.style.display === 'flex' ? 'none' : 'flex';
+        };
+
+        document.querySelectorAll('.emote-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                chatInput.value = e.target.innerText;
+                btnSendChat.click();
+                emotePopup.style.display = 'none';
+            };
+        });
+
         chatInput.addEventListener('input', () => {
             if (!isBotMode && currentRoomId) {
                 update(ref(db, `rooms/${currentRoomId}/players`), { [`${myColor}_typing`]: true });
@@ -459,13 +522,16 @@
         });
 
         chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && chatInput.value.trim() !== '') {
+            if (e.key === 'Enter') btnSendChat.click();
+        });
+
+        btnSendChat.onclick = () => {
+            if (chatInput.value.trim() !== '') {
                 const msg = chatInput.value.trim();
                 showChatBubble('mine', msg, false);
                 pushGameAction({ type: 'chat', msg: msg });
                 chatInput.value = '';
                 
-                // 타이핑 종료 즉시 반영
                 if(!isBotMode && currentRoomId) {
                     clearTimeout(typingDebounce);
                     update(ref(db, `rooms/${currentRoomId}/players`), { [`${myColor}_typing`]: false });
@@ -474,18 +540,28 @@
                 if (isBotMode) {
                     hideChatBubble('opponent', true);
                     setTimeout(() => {
-                        const botReplies = ["🤖 흥미롭군요.", "🤖 계산이 거의 끝났습니다.", "🤖 오호...", "🤖 삐리비리...", "🤖 쉽지 않군요."];
+                        const botReplies = ["🤖 흠...", "🤖 계산 중...", "🤖 오호...", "🤖 삐리비리...", "🤖 쉽지 않군요."];
                         showChatBubble('opponent', botReplies[Math.floor(Math.random() * botReplies.length)], false);
                     }, 800 + Math.random() * 1000);
                 }
             }
-        });
+        };
 
         function showChatBubble(side, msg, isTyping = false) {
             const bubble = document.getElementById(`chat-bubble-${side}`);
             bubble.innerHTML = msg; 
+            bubble.className = `chat-bubble ${side}`; // 클래스 초기화
             bubble.style.display = 'block';
             bubble.style.opacity = isTyping ? '0.7' : '1';
+
+            if (!isTyping && emoteAnimations[msg]) {
+                bubble.classList.add(emoteAnimations[msg]);
+            } else if (!isTyping) {
+                // 텍스트 채팅용 기본 팝업 애니메이션
+                bubble.style.animation = 'none';
+                void bubble.offsetWidth;
+                bubble.style.animation = 'pop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
+            }
 
             if (side === 'opponent') isOpponentTyping = isTyping;
 
@@ -499,7 +575,7 @@
         }
 
         function hideChatBubble(side, onlyIfTyping = false) {
-            if (side === 'opponent' && onlyIfTyping && !isOpponentTyping) return; // 실제 메시지가 떠있으면 숨기지 않음
+            if (side === 'opponent' && onlyIfTyping && !isOpponentTyping) return; 
             document.getElementById(`chat-bubble-${side}`).style.display = 'none';
         }
 
@@ -513,6 +589,7 @@
         document.getElementById('btn-return-lobby').onclick = () => {
             document.getElementById('result-overlay').style.display = 'none';
             document.getElementById('game-controls').style.display = 'none';
+            document.getElementById('btn-resign').style.display = 'none';
             lobbyOverlay.style.display = 'flex';
             setLobbyMsg("");
             isGameStarted = false; currentRoomId = null; isBotMode = false;
@@ -522,14 +599,14 @@
             return JSON.stringify({
                 board: game.board(), turn: game.turn(), castling: game.castling, ep_square: game.ep_square,
                 is_game_over: game.is_game_over, moveCount: moveCount, activePoison: activePoison,
-                rootedPieces: rootedPieces, pendingAugments: pendingAugments
+                rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, pendingAugments: pendingAugments
             });
         }
         function deserializeGameState(stateStr) {
             const state = JSON.parse(stateStr);
             game._board = state.board; game._turn = state.turn; game.castling = state.castling; game.ep_square = state.ep_square;
             game.is_game_over = state.is_game_over; moveCount = state.moveCount; activePoison = state.activePoison;
-            rootedPieces = state.rootedPieces; pendingAugments = state.pendingAugments;
+            rootedPieces = state.rootedPieces || {}; invinciblePieces = state.invinciblePieces || {}; pendingAugments = state.pendingAugments;
             updateProgressBar(); updateBoardVisuals(); updateTurnIndicator();
         }
 
@@ -578,22 +655,24 @@
                     if (this.isValidRC(nr, nc)) {
                         const t = boardState[nr][nc];
                         if (!t) { moves.push({ r: nr, c: nc }); return true; }
-                        if (t.color !== color) moves.push({ r: nr, c: nc });
+                        if (t.color !== color) {
+                            if (!invinciblePieces[t.uid]) moves.push({ r: nr, c: nc }); 
+                        }
                         return false; 
                     } return false;
                 };
 
                 switch (piece.type) {
                     case 'p':
-                        if (this.isValidRC(r + dir, c - 1)) { const t = boardState[r+dir][c-1]; if (attackOnly || (t && t.color === enemyColor) || this.ep_square === this.rcToSq(r+dir, c-1)) moves.push({ r: r+dir, c: c-1, flags: 'c' }); }
-                        if (this.isValidRC(r + dir, c + 1)) { const t = boardState[r+dir][c+1]; if (attackOnly || (t && t.color === enemyColor) || this.ep_square === this.rcToSq(r+dir, c+1)) moves.push({ r: r+dir, c: c+1, flags: 'c' }); }
+                        if (this.isValidRC(r + dir, c - 1)) { const t = boardState[r+dir][c-1]; if (attackOnly || (t && t.color === enemyColor && !invinciblePieces[t.uid]) || this.ep_square === this.rcToSq(r+dir, c-1)) moves.push({ r: r+dir, c: c-1, flags: 'c' }); }
+                        if (this.isValidRC(r + dir, c + 1)) { const t = boardState[r+dir][c+1]; if (attackOnly || (t && t.color === enemyColor && !invinciblePieces[t.uid]) || this.ep_square === this.rcToSq(r+dir, c+1)) moves.push({ r: r+dir, c: c+1, flags: 'c' }); }
                         if (!attackOnly && this.isValidRC(r + dir, c) && !boardState[r+dir][c]) { moves.push({ r: r+dir, c: c, flags: 'n' }); if (r === startRank && !boardState[r+dir*2][c]) moves.push({ r: r+dir*2, c: c, flags: 'b' }); }
                         break;
-                    case 'n': [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || t.color !== color) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
+                    case 'n': [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || (t.color !== color && !invinciblePieces[t.uid])) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
                     case 'b': [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(d => { let nr = r+d[0], nc = c+d[1]; while(addMove(nr, nc)) { nr+=d[0]; nc+=d[1]; } }); break;
                     case 'r': [[-1,0],[1,0],[0,-1],[0,1]].forEach(d => { let nr = r+d[0], nc = c+d[1]; while(addMove(nr, nc)) { nr+=d[0]; nc+=d[1]; } }); break;
                     case 'q': [[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]].forEach(d => { let nr = r+d[0], nc = c+d[1]; while(addMove(nr, nc)) { nr+=d[0]; nc+=d[1]; } }); break;
-                    case 'k': [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || t.color !== color) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
+                    case 'k': [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || (t.color !== color && !invinciblePieces[t.uid])) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
                 } return moves;
             }
 
@@ -665,7 +744,6 @@
         // UI 제어 및 초기화
         // ==========================================
         
-        // 고품질 SVG 기물 데이터 (iOS 문제 완벽 해결용)
         const svgPieces = {
             'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="none" stroke="{stroke}" stroke-width="1.5"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5"/></svg>',
             'Q': '<svg viewBox="0 0 45 45"><path d="M9 26c8.5-1.5 21-1.5 27 0l2-12-7 11V11l-5.5 13.5-3-15-3 15-5.5-14V25L7 14l2 12M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-21.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M11.5 30c3.5-1 18.5-1 22 0m-22 3.5c3.5-1 18.5-1 22 0m-22 3.5c3.5-1 18.5-1 22 0" fill="none" stroke="{stroke}" stroke-width="1.5"/></svg>',
@@ -681,8 +759,8 @@
         const boardEl = document.getElementById('board'); const turnDisplayEl = document.getElementById('turn-display');
         
         let selectedSquare = null; let legalMoves = []; let moveCount = 0;
-        const AUGMENT_INTERVAL = 6; let isSystemLocked = false; let pendingAugments = [];
-        let pendingMove = null; let activePoison = []; let rootedPieces = {}; 
+        const AUGMENT_INTERVAL = 7; let isSystemLocked = false; let pendingAugments = [];
+        let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {};
 
         function getCoords(sq) { const { r, c } = game.sqToRC(sq); return { x: c * 12.5, y: r * 12.5 }; }
 
@@ -695,15 +773,15 @@
         }
 
         function resetGameUI() {
-            game.reset(); moveCount = 0; activePoison = []; rootedPieces = {}; pendingAugments = [];
+            game.reset(); moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; pendingAugments = [];
             isSystemLocked = false; selectedSquare = null; legalMoves = []; drawDots();
             drawPieces(false); updateProgressBar(); updateTurnIndicator(); updateBoardVisuals(); updateCheckStatus();
             document.querySelectorAll('.floating-text').forEach(e => e.remove());
         }
 
         function updateTurnIndicator() {
-            if(game.turn() === 'w') { turnDisplayEl.className = 'turn-indicator white-turn'; turnDisplayEl.innerHTML = '백 차례'; } 
-            else { turnDisplayEl.className = 'turn-indicator black-turn'; turnDisplayEl.innerHTML = '흑 차례'; }
+            if(game.turn() === 'w') { turnDisplayEl.className = 'turn-indicator white-turn'; turnDisplayEl.innerHTML = '백'; } 
+            else { turnDisplayEl.className = 'turn-indicator black-turn'; turnDisplayEl.innerHTML = '흑'; }
             if(game.turn() === myColor) turnDisplayEl.classList.add('my-turn');
         }
 
@@ -720,7 +798,6 @@
                         piecesLayer.appendChild(el); 
                     }
                     
-                    // SVG 렌더링 검사 (색상과 테두리를 완벽하게 분리)
                     if (el.dataset.type !== piece.type || el.dataset.color !== piece.color) {
                         const svgStr = svgPieces[piece.type.toUpperCase()]
                             .replace(/{fill}/g, piece.color === 'w' ? '#ffffff' : '#222222')
@@ -731,6 +808,7 @@
                     }
 
                     if (rootedPieces[piece.uid] > 0) el.classList.add('piece-rooted'); else el.classList.remove('piece-rooted');
+                    if (invinciblePieces[piece.uid] > 0) el.classList.add('piece-invincible'); else el.classList.remove('piece-invincible');
                     el.dataset.square = sq; el.style.left = `${coords.x}%`; el.style.top = `${coords.y}%`;
                 }
             }
@@ -752,8 +830,8 @@
             const bar = document.getElementById('augment-progress'); const txt = document.getElementById('augment-text');
             const remain = AUGMENT_INTERVAL - (moveCount % AUGMENT_INTERVAL); const pct = (moveCount % AUGMENT_INTERVAL) / AUGMENT_INTERVAL * 100;
             bar.style.width = pct + '%';
-            if(remain === AUGMENT_INTERVAL && moveCount > 0) { bar.style.width = '100%'; txt.innerText = "증강 발동 중!"; bar.style.background = 'var(--primary)'; }
-            else { txt.innerText = `다음 증강까지 ${remain}수`; bar.style.background = 'linear-gradient(90deg, #ff9f43, #ee5253)'; }
+            if(remain === AUGMENT_INTERVAL && moveCount > 0) { bar.style.width = '100%'; txt.innerText = "증강 발동!"; bar.style.background = 'var(--primary)'; }
+            else { txt.innerText = `증강: ${remain}수`; bar.style.background = 'linear-gradient(90deg, #ff9f43, #ee5253)'; }
         }
 
         function showToast(msg, color = "#fff", duration = 3000) {
@@ -809,7 +887,7 @@
             if(!bKing) { showEndScreen(myColor === 'w' ? '승리' : '패배', "흑 킹이 파괴되었습니다."); return; }
 
             if (game.in_checkmate()) { showEndScreen(game.turn() === myColor ? '패배' : '승리', "체크메이트!"); }
-            else if (game.in_draw()) { showEndScreen("무승부", "진행 가능한 수가 없습니다 (스테일메이트)."); }
+            else if (game.in_draw()) { showEndScreen("무승부", "스테일메이트."); }
             else if (game.in_check()) {
                 const kSq = findPieces(game.turn(), 'k')[0];
                 if(kSq) document.querySelector(`.square[data-square="${kSq}"]`).classList.add('in-check');
@@ -872,7 +950,7 @@
             if (pieceNow) {
                 let poisoned = false;
                 activePoison.forEach(p => { if (p.squares.includes(to) && p.owner !== pieceNow.color) poisoned = true; });
-                if (poisoned && pieceNow.type !== 'k') { game.remove(to); spawnFloatingText(to, '☠️'); triggerVFX([to], 'vfx-explosion'); }
+                if (poisoned && pieceNow.type !== 'k' && !invinciblePieces[pieceNow.uid]) { game.remove(to); spawnFloatingText(to, '☠️'); triggerVFX([to], 'vfx-explosion'); }
             }
 
             drawPieces(); updateTurnIndicator(); updateCheckStatus();
@@ -883,11 +961,14 @@
             if(game.game_over()) return;
             moveCount++; 
             for (let uid in rootedPieces) { rootedPieces[uid]--; if (rootedPieces[uid] <= 0) delete rootedPieces[uid]; }
+            for (let uid in invinciblePieces) { invinciblePieces[uid]--; if (invinciblePieces[uid] <= 0) delete invinciblePieces[uid]; }
             drawPieces();
             activePoison.forEach(p => p.duration--); activePoison = activePoison.filter(p => p.duration > 0); updateBoardVisuals(); updateProgressBar();
 
             if (moveCount > 0 && moveCount % AUGMENT_INTERVAL === 0 && !game.game_over()) {
-                pendingAugments = ['w', 'b']; processNextAugmentPhase();
+                // 게임 턴 상태에 따라 다음 턴 플레이어가 증강 선택을 먼저 하도록 변경
+                pendingAugments = game.turn() === 'w' ? ['w', 'b'] : ['b', 'w']; 
+                processNextAugmentPhase();
             } else { 
                 isSystemLocked = false;
                 if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 800);
@@ -906,26 +987,51 @@
         // 증강 (Augments) 
         // ==========================================
         function findPieces(color, type = null) { let res = []; for(let r=0; r<8; r++) for(let c=0; c<8; c++) { const p = game.board()[r][c]; if(p && p.color === color && (!type || p.type === type)) res.push(game.rcToSq(r,c)); } return res; }
+        function findVulnerable(color) { return findPieces(color).filter(sq => { const p = game.get(sq); return p && p.type !== 'k' && !invinciblePieces[p.uid]; }); }
         function getEmptySquares() { let res = []; for(let f=97; f<=104; f++) for(let r=1; r<=8; r++) { const sq = String.fromCharCode(f)+r; if(!game.get(sq)) res.push(sq); } return res; }
         function getAdjEmptySquares(sq) { const res = []; const f=sq.charCodeAt(0), r=parseInt(sq[1]); for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) if(!(df===0 && dr===0)) { const c = String.fromCharCode(f+df)+(r+dr); if(game.isValidRC(8-r-dr, f-97+df) && !game.get(c)) res.push(c); } return res; }
         
+        // 체크메이트 위치가 아닌 안전한 빈칸을 반환하는 함수 (해당 자리에 소환했을 때 즉시 메이트가 되면 제외)
+        function getSafeEmptySquares(color, type) {
+            let res = [];
+            const eColor = color === 'w' ? 'b' : 'w';
+            for(let f=97; f<=104; f++) {
+                for(let r=1; r<=8; r++) {
+                    const sq = String.fromCharCode(f)+r;
+                    if(!game.get(sq)) {
+                        game.put({type: type, color: color}, sq);
+                        const origTurn = game._turn;
+                        game._turn = eColor;
+                        const mate = game.in_checkmate();
+                        game._turn = origTurn;
+                        game.remove(sq);
+                        if(!mate) res.push(sq);
+                    }
+                }
+            }
+            if(res.length === 0) return getEmptySquares(); // 모두 메이트가 되는 경우 fallback
+            return res;
+        }
+
         const pieceValue = { q: 9, r: 5, b: 3, n: 3, p: 1, k: 0 };
 
         const AUGMENT_POOL = [
-            { name: '운석 충돌', icon: '☄️', desc: '적 1개와 주변 영역을 초토화합니다.', globalVfx: 'vfx-global-explosion', condition: (m, e) => findPieces(e).filter(sq => game.get(sq).type !== 'k').length > 0, apply: (m, e) => { const tgts = findPieces(e).filter(sq => game.get(sq).type !== 'k'); const c = tgts[Math.floor(Math.random()*tgts.length)]; const f=c.charCodeAt(0), r=parseInt(c[1]), hit=[]; for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) if(f+df>=97&&f+df<=104&&r+dr>=1&&r+dr<=8) { const sq = String.fromCharCode(f+df)+(r+dr); const p=game.get(sq); if(p&&p.type!=='k'){game.remove(sq); hit.push(sq); spawnFloatingText(sq,'🔥');}} return { t: hit, vfx: 'vfx-explosion', msg: '🔥 운석이 떨어졌습니다!' }; } },
-            { name: '대학살', icon: '🩸', desc: '적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-explosion', condition: (m, e) => findPieces(e).filter(sq => !['k','p'].includes(game.get(sq).type)).length > 0, apply: (m, e) => { let tgts = findPieces(e).filter(sq => !['k','p'].includes(game.get(sq).type)).sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🩸'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🩸 대학살이 일어났습니다!' }; } },
-            { name: '네크로맨시', icon: '💀', desc: '무작위 빈칸에 아군 퀸을 소환합니다.', globalVfx: 'vfx-global-void', condition: () => getEmptySquares().length > 0, apply: (m, e) => { const sq = getEmptySquares().sort(()=>0.5-Math.random())[0]; game.put({type:'q', color:m}, sq); spawnFloatingText(sq,'💀'); return { t: [sq], vfx: 'vfx-void', msg: '💀 퀸이 부활했습니다!' }; } },
-            { name: '신의 심판', icon: '⚡', desc: '무작위 세로열을 번개로 내리칩니다.', globalVfx: null, delay: 600, condition: () => true, apply: (m, e) => { const fileIdx = Math.floor(Math.random() * 8); const f = String.fromCharCode(97 + fileIdx); let delayMs = 0; for(let r = 8; r >= 1; r--) { setTimeout(() => { const sq = f + r; const p = game.get(sq); triggerVFX([sq], 'vfx-lightning'); if(p && p.type !== 'k') { game.remove(sq); spawnFloatingText(sq,'⚡'); drawPieces(); } }, delayMs); delayMs += 50; } return { t: [], vfx: '', msg: `⚡ 신의 심판이 내렸습니다!` }; } },
-            { name: '독구름', icon: '☠️', desc: '6턴 유지 2x2 맹독 영역을 만듭니다.', globalVfx: 'vfx-global-void', condition: () => true, apply: (m, e) => { const fIdx = Math.floor(Math.random() * 7); const r = 2 + Math.floor(Math.random() * 6); const fChar = String.fromCharCode(97 + fIdx); const fNextChar = String.fromCharCode(98 + fIdx); const squares = [ fChar+r, fChar+(r+1), fNextChar+r, fNextChar+(r+1) ]; activePoison.push({ squares: squares, owner: m, duration: 12 }); squares.forEach(sq => { const p = game.get(sq); if (p && p.color !== m && p.type !== 'k') { game.remove(sq); spawnFloatingText(sq, '☠️'); } }); updateBoardVisuals(); return { t: squares, vfx: 'vfx-void', msg: '☠️ 맹독 지대가 형성되었습니다!' }; } },
-            { name: '저격수', icon: '🎯', desc: '가장 가치가 높은 적을 파괴합니다.', globalVfx: 'vfx-global-explosion', condition: (m, e) => findPieces(e).filter(sq => game.get(sq).type !== 'k').length > 0, apply: (m, e) => { let targets = findPieces(e).filter(sq => game.get(sq).type !== 'k'); targets.sort((a,b) => pieceValue[game.get(b).type] - pieceValue[game.get(a).type]); const target = targets[0]; game.remove(target); spawnFloatingText(target,'🎯'); return { t: [target], vfx: 'vfx-explosion', msg: '🎯 정확한 저격이 명중했습니다!' }; } },
-            { name: '혼란', icon: '🌀', desc: '적 기물 2개의 위치를 뒤바꿉니다.', globalVfx: 'vfx-global-void', condition: (m, e) => findPieces(e).filter(sq => game.get(sq).type !== 'k').length >= 2, apply: (m, e) => { let tgts = findPieces(e).filter(sq => game.get(sq).type !== 'k').sort(()=>0.5-Math.random()).slice(0,2); const p1 = game.get(tgts[0]); const p2 = game.get(tgts[1]); game.remove(tgts[0]); game.remove(tgts[1]); game.put(p2, tgts[0]); game.put(p1, tgts[1]); return { t: tgts, vfx: 'vfx-lightning', msg: '🌀 적들이 방향감각을 상실했습니다!' }; } },
-            
-            // 신규 추가 5종
-            { name: '지진', icon: '🌋', desc: '각 팀의 무작위 기물을 2개씩 파괴합니다.', globalVfx: 'vfx-global-explosion', condition: (m, e) => findPieces(m).filter(sq=>game.get(sq).type!=='k').length > 1 && findPieces(e).filter(sq=>game.get(sq).type!=='k').length > 1, apply: (m, e) => { let myTgts = findPieces(m).filter(sq=>game.get(sq).type!=='k').sort(()=>0.5-Math.random()).slice(0,2); let eTgts = findPieces(e).filter(sq=>game.get(sq).type!=='k').sort(()=>0.5-Math.random()).slice(0,2); const targets = [...myTgts, ...eTgts]; targets.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🌋'); }); return { t: targets, vfx: 'vfx-explosion', msg: '🌋 거대한 지진이 전장을 휩씁니다!' }; } },
-            { name: '축복', icon: '🕊️', desc: '무작위 빈칸에 아군 비숍이나 나이트를 소환합니다.', globalVfx: 'vfx-global-heal', condition: () => getEmptySquares().length > 0, apply: (m, e) => { const sq = getEmptySquares().sort(()=>0.5-Math.random())[0]; const type = Math.random() > 0.5 ? 'b' : 'n'; game.put({type: type, color: m}, sq); spawnFloatingText(sq,'✨'); return { t: [sq], vfx: 'vfx-heal', msg: '🕊️ 신성한 축복으로 기물이 합류했습니다!' }; } },
-            { name: '저주', icon: '🐸', desc: '무작위 적 기물 1개를 폰으로 변이시킵니다.', globalVfx: 'vfx-global-void', condition: (m, e) => findPieces(e).filter(sq => !['k','p'].includes(game.get(sq).type)).length > 0, apply: (m, e) => { let targets = findPieces(e).filter(sq => !['k','p'].includes(game.get(sq).type)).sort(()=>0.5-Math.random()); const tg = targets[0]; game.remove(tg); game.put({type: 'p', color: e}, tg); spawnFloatingText(tg,'🐸'); return { t: [tg], vfx: 'vfx-lightning', msg: '🐸 적 기물이 폰으로 변해버렸습니다!' }; } },
-            { name: '강제 이주', icon: '🌀', desc: '적 킹을 인접한 무작위 빈칸으로 강제 이동시킵니다.', globalVfx: 'vfx-global-void', condition: (m, e) => getAdjEmptySquares(findPieces(e, 'k')[0]).length > 0, apply: (m, e) => { const kingSq = findPieces(e, 'k')[0]; const empties = getAdjEmptySquares(kingSq).sort(()=>0.5-Math.random()); const tg = empties[0]; const kingInfo = game.get(kingSq); game.remove(kingSq); game.put(kingInfo, tg); spawnFloatingText(tg,'🌀'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🌀 적 킹이 차원 이동을 당했습니다!' }; } },
-            { name: '암살', icon: '🗡️', desc: '가장 가치가 낮은 적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-heal', condition: (m, e) => findPieces(e).filter(sq => game.get(sq).type !== 'k').length > 1, apply: (m, e) => { let targets = findPieces(e).filter(sq => game.get(sq).type !== 'k'); targets.sort((a,b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]); const tgts = targets.slice(0,2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🗡️'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🗡️ 어둠 속에서 암살자가 습격했습니다!' }; } }
+            { name: '운석 충돌', icon: '☄️', desc: '적 1개와 주변 영역을 초토화합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(e).length > 0, apply: (m, e) => { const tgts = findVulnerable(e); const c = tgts[Math.floor(Math.random()*tgts.length)]; const f=c.charCodeAt(0), r=parseInt(c[1]), hit=[]; for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) if(f+df>=97&&f+df<=104&&r+dr>=1&&r+dr<=8) { const sq = String.fromCharCode(f+df)+(r+dr); const p=game.get(sq); if(p&&p.type!=='k' && !invinciblePieces[p.uid]){game.remove(sq); hit.push(sq); spawnFloatingText(sq,'🔥');}} return { t: hit, vfx: 'vfx-explosion', msg: '🔥 운석이 떨어졌습니다!' }; } },
+            { name: '대학살', icon: '🩸', desc: '적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(e).filter(sq => game.get(sq).type !== 'p').length > 0, apply: (m, e) => { let tgts = findVulnerable(e).filter(sq => game.get(sq).type !== 'p').sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🩸'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🩸 대학살이 일어났습니다!' }; } },
+            { name: '네크로맨시', icon: '💀', desc: '무작위 빈칸에 아군 퀸을 소환합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'q').length > 0, apply: (m, e) => { const sq = getSafeEmptySquares(m, 'q').sort(()=>0.5-Math.random())[0]; game.put({type:'q', color:m}, sq); spawnFloatingText(sq,'💀'); return { t: [sq], vfx: 'vfx-void', msg: '💀 퀸이 부활했습니다!' }; } },
+            { name: '신의 심판', icon: '⚡', desc: '무작위 세로열을 번개로 내리칩니다.', globalVfx: null, isKillType: true, delay: 600, condition: () => true, apply: (m, e) => { const fileIdx = Math.floor(Math.random() * 8); const f = String.fromCharCode(97 + fileIdx); let delayMs = 0; for(let r = 8; r >= 1; r--) { setTimeout(() => { const sq = f + r; const p = game.get(sq); triggerVFX([sq], 'vfx-lightning'); if(p && p.type !== 'k' && !invinciblePieces[p.uid]) { game.remove(sq); spawnFloatingText(sq,'⚡'); drawPieces(); } }, delayMs); delayMs += 50; } return { t: [], vfx: '', msg: `⚡ 신의 심판이 내렸습니다!` }; } },
+            { name: '독구름', icon: '☠️', desc: '6턴 유지 2x2 맹독 영역을 만듭니다.', globalVfx: 'vfx-global-void', isKillType: true, condition: () => true, apply: (m, e) => { const fIdx = Math.floor(Math.random() * 7); const r = 2 + Math.floor(Math.random() * 6); const fChar = String.fromCharCode(97 + fIdx); const fNextChar = String.fromCharCode(98 + fIdx); const squares = [ fChar+r, fChar+(r+1), fNextChar+r, fNextChar+(r+1) ]; activePoison.push({ squares: squares, owner: m, duration: 12 }); squares.forEach(sq => { const p = game.get(sq); if (p && p.color !== m && p.type !== 'k' && !invinciblePieces[p.uid]) { game.remove(sq); spawnFloatingText(sq, '☠️'); } }); updateBoardVisuals(); return { t: squares, vfx: 'vfx-void', msg: '☠️ 맹독 지대가 형성되었습니다!' }; } },
+            { name: '저격수', icon: '🎯', desc: '가장 가치가 높은 적을 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(e).length > 0, apply: (m, e) => { let targets = findVulnerable(e); targets.sort((a,b) => pieceValue[game.get(b).type] - pieceValue[game.get(a).type]); const target = targets[0]; game.remove(target); spawnFloatingText(target,'🎯'); return { t: [target], vfx: 'vfx-explosion', msg: '🎯 정확한 저격이 명중했습니다!' }; } },
+            { name: '혼란', icon: '🌀', desc: '적 기물 2개의 위치를 뒤바꿉니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).length >= 2, apply: (m, e) => { let tgts = findVulnerable(e).sort(()=>0.5-Math.random()).slice(0,2); const p1 = game.get(tgts[0]); const p2 = game.get(tgts[1]); game.remove(tgts[0]); game.remove(tgts[1]); game.put(p2, tgts[0]); game.put(p1, tgts[1]); return { t: tgts, vfx: 'vfx-lightning', msg: '🌀 적들이 위치를 상실했습니다!' }; } },
+            { name: '지진', icon: '🌋', desc: '각 팀의 무작위 기물을 2개씩 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(m).length > 1 && findVulnerable(e).length > 1, apply: (m, e) => { let myTgts = findVulnerable(m).sort(()=>0.5-Math.random()).slice(0,2); let eTgts = findVulnerable(e).sort(()=>0.5-Math.random()).slice(0,2); const targets = [...myTgts, ...eTgts]; targets.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🌋'); }); return { t: targets, vfx: 'vfx-explosion', msg: '🌋 거대한 지진이 휩씁니다!' }; } },
+            { name: '축복', icon: '🕊️', desc: '무작위 빈칸에 아군 비숍/나이트 소환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'b').length > 0, apply: (m, e) => { const type = Math.random() > 0.5 ? 'b' : 'n'; const sq = getSafeEmptySquares(m, type).sort(()=>0.5-Math.random())[0]; game.put({type: type, color: m}, sq); spawnFloatingText(sq,'✨'); return { t: [sq], vfx: 'vfx-heal', msg: '🕊️ 축복으로 기물이 합류했습니다!' }; } },
+            { name: '저주', icon: '🐸', desc: '무작위 적 기물 3개를 폰으로 변이시킵니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).filter(sq => !['p'].includes(game.get(sq).type)).length > 0, apply: (m, e) => { let targets = findVulnerable(e).filter(sq => !['p'].includes(game.get(sq).type)).sort(()=>0.5-Math.random()).slice(0, 3); targets.forEach(tg => { game.remove(tg); game.put({type: 'p', color: e}, tg); spawnFloatingText(tg,'🐸'); }); return { t: targets, vfx: 'vfx-lightning', msg: '🐸 적들이 폰으로 변했습니다!' }; } },
+            { name: '강제 이주', icon: '🌀', desc: '적 킹을 무작위 빈칸으로 강제 이동시킵니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => getAdjEmptySquares(findPieces(e, 'k')[0]).length > 0, apply: (m, e) => { const kingSq = findPieces(e, 'k')[0]; const empties = getAdjEmptySquares(kingSq).sort(()=>0.5-Math.random()); const tg = empties[0]; const kingInfo = game.get(kingSq); game.remove(kingSq); game.put(kingInfo, tg); spawnFloatingText(tg,'🌀'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🌀 적 킹이 이동당했습니다!' }; } },
+            { name: '암살', icon: '🗡️', desc: '가장 가치가 낮은 적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-heal', isKillType: true, condition: (m, e) => findVulnerable(e).length > 1, apply: (m, e) => { let targets = findVulnerable(e); targets.sort((a,b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]); const tgts = targets.slice(0,2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🗡️'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🗡️ 어둠 속 암살자가 습격했습니다!' }; } },
+            { name: '징집', icon: '🪖', desc: '무작위 빈칸 3곳에 아군 폰을 소환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'p').length >= 3, apply: (m, e) => { const sqs = getSafeEmptySquares(m, 'p').sort(()=>0.5-Math.random()).slice(0,3); sqs.forEach(sq => { game.put({type: 'p', color: m}, sq); spawnFloatingText(sq,'🪖'); }); return { t: sqs, vfx: 'vfx-heal', msg: '🪖 폰들이 징집되었습니다!' }; } },
+            { name: '빛의 수호', icon: '🛡️', desc: '아군 모든 폰에게 1수 동안 무적을 부여합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m, 'p').length > 0, apply: (m, e) => { let tgts = findPieces(m, 'p'); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq,'🛡️'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '🛡️ 폰들이 무적 상태가 되었습니다!' }; } },
+            { name: '여신의 가호', icon: '✨', desc: '무작위 아군 상위 기물 2개에 1수 무적 부여.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3).length > 0, apply: (m, e) => { let tgts = findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3).sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq,'✨'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '✨ 상위 기물들이 무적이 되었습니다!' }; } },
+            { name: '덩굴', icon: '🌿', desc: '적 기물 2개를 4수 동안 덩굴로 속박합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findVulnerable(e).length >= 2, apply: (m, e) => { let tgts = findVulnerable(e).sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { const p = game.get(sq); rootedPieces[p.uid] = 8; spawnFloatingText(sq,'🌿'); }); return { t: tgts, vfx: 'vfx-void', msg: '🌿 적들이 덩굴에 묶였습니다!' }; } }
         ];
 
         function processNextAugmentPhase() {
@@ -954,19 +1060,28 @@
                     setTimeout(() => applySelectedAugment(choice, playerColor, enemyColor), 1000); 
                     return;
                 }
-                overlay.innerHTML = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방이 증강을 선택 중입니다...</div>`;
+                overlay.innerHTML = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방 선택 중...</div>`;
                 overlay.style.display = 'flex';
                 return; 
             }
 
             const enemyColor = playerColor === 'w' ? 'b' : 'w';
             let available = AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
-            available.sort(() => 0.5 - Math.random()); const options = available.slice(0, 3);
+            
+            // 킬 증강 확률 하향 (가중치 기반 선택)
+            let weighted = [];
+            available.forEach(aug => {
+                let w = aug.isKillType ? 1 : 4; 
+                for(let i=0; i<w; i++) weighted.push(aug);
+            });
+            weighted.sort(() => 0.5 - Math.random()); 
+            const options = [];
+            for(let a of weighted) { if(options.length<3 && !options.find(o=>o.name===a.name)) options.push(a); }
 
             if(options.length === 0) { processNextAugmentPhase(); return; }
 
             const colorName = playerColor === 'w' ? '백' : '흑'; const badgeClass = playerColor === 'w' ? 'white' : 'black';
-            let html = `<div class="turn-badge ${badgeClass}">${colorName} 차례</div><h2>증강을 선택하세요</h2><div class="cards-container">`;
+            let html = `<div class="turn-badge ${badgeClass}">${colorName} 차례</div><h2>증강 선택</h2><div class="cards-container">`;
             options.forEach((aug, idx) => { html += `<div class="augment-card" data-idx="${idx}"><div class="augment-icon">${aug.icon}</div><div class="augment-title">${aug.name}</div><div class="augment-desc">${aug.desc}</div></div>`; });
             html += `</div>`; overlay.innerHTML = html; overlay.style.display = 'flex';
 
