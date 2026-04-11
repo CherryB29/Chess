@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>증강 : 체스</title>
+    <title>증강 : 체스 (Extreme Edition) - Online</title>
     <style>
         :root {
             --board-dark: #B58863;
@@ -331,6 +331,7 @@
 
         let myUid = null; let myColor = null; let currentRoomId = null; let isGameStarted = false;
         let isBotMode = false;
+        let disconnectTimer = null; // 30초 탈주 유예 타이머
 
         const lobbyOverlay = document.getElementById('lobby-overlay');
         const loginSection = document.getElementById('login-section');
@@ -398,9 +399,28 @@
             
             const enemyColor = myColor === 'w' ? 'b' : 'w';
             const enemyStatusRef = ref(db, `rooms/${currentRoomId}/players/${enemyColor}_status`);
+            
+            // 새로운 탈주 방지(유예) 시스템 
             onValue(enemyStatusRef, snap => {
-                if(isGameStarted && !game.game_over() && snap.val() === 'offline') {
-                    showEndScreen("승리", "상대방 탈주.");
+                if(isGameStarted && !game.game_over()) {
+                    if(snap.val() === 'offline') {
+                        playerInfo.innerText = `[방:${currentRoomId}] ⚠️ 상대 오프라인 (30초 후 승리)`;
+                        if(!disconnectTimer) {
+                            disconnectTimer = setTimeout(() => {
+                                if(!game.game_over()) {
+                                    pushGameAction({ type: 'resign' });
+                                    showEndScreen("승리", "상대방 탈주 (30초 경과).");
+                                }
+                            }, 30000);
+                        }
+                    } else {
+                        if(disconnectTimer) {
+                            clearTimeout(disconnectTimer);
+                            disconnectTimer = null;
+                            showToast("상대방이 재접속했습니다!", "var(--primary)");
+                        }
+                        playerInfo.innerText = `[방:${currentRoomId}] ${myColor === 'w' ? '백' : '흑'}`;
+                    }
                 }
             });
 
@@ -469,7 +489,7 @@
                     setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, action.delay || 1200);
                 });
             } else if (action.type === 'resign') {
-                showEndScreen("승리", "상대방 기권.");
+                showEndScreen("승리", "상대방 기권 또는 통신 두절.");
             } else if (action.type === 'chat') {
                 showChatBubble('opponent', action.msg, false);
             }
@@ -593,13 +613,15 @@
             lobbyOverlay.style.display = 'flex';
             setLobbyMsg("");
             isGameStarted = false; currentRoomId = null; isBotMode = false;
+            if(disconnectTimer) { clearTimeout(disconnectTimer); disconnectTimer = null; }
         };
 
         function serializeGameState() {
             return JSON.stringify({
                 board: game.board(), turn: game.turn(), castling: game.castling, ep_square: game.ep_square,
                 is_game_over: game.is_game_over, moveCount: moveCount, activePoison: activePoison,
-                rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, pendingAugments: pendingAugments
+                rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, pendingAugments: pendingAugments,
+                activeWalls: activeWalls
             });
         }
         function deserializeGameState(stateStr) {
@@ -607,6 +629,7 @@
             game._board = state.board; game._turn = state.turn; game.castling = state.castling; game.ep_square = state.ep_square;
             game.is_game_over = state.is_game_over; moveCount = state.moveCount; activePoison = state.activePoison;
             rootedPieces = state.rootedPieces || {}; invinciblePieces = state.invinciblePieces || {}; pendingAugments = state.pendingAugments;
+            activeWalls = state.activeWalls || [];
             updateProgressBar(); updateBoardVisuals(); updateTurnIndicator();
         }
 
@@ -654,6 +677,7 @@
                 const addMove = (nr, nc) => {
                     if (this.isValidRC(nr, nc)) {
                         const t = boardState[nr][nc];
+                        if (t && t.type === 'wall') return false; // 벽 통과/공격 불가
                         if (!t) { moves.push({ r: nr, c: nc }); return true; }
                         if (t.color !== color) {
                             if (!invinciblePieces[t.uid]) moves.push({ r: nr, c: nc }); 
@@ -664,15 +688,21 @@
 
                 switch (piece.type) {
                     case 'p':
-                        if (this.isValidRC(r + dir, c - 1)) { const t = boardState[r+dir][c-1]; if (attackOnly || (t && t.color === enemyColor && !invinciblePieces[t.uid]) || this.ep_square === this.rcToSq(r+dir, c-1)) moves.push({ r: r+dir, c: c-1, flags: 'c' }); }
-                        if (this.isValidRC(r + dir, c + 1)) { const t = boardState[r+dir][c+1]; if (attackOnly || (t && t.color === enemyColor && !invinciblePieces[t.uid]) || this.ep_square === this.rcToSq(r+dir, c+1)) moves.push({ r: r+dir, c: c+1, flags: 'c' }); }
-                        if (!attackOnly && this.isValidRC(r + dir, c) && !boardState[r+dir][c]) { moves.push({ r: r+dir, c: c, flags: 'n' }); if (r === startRank && !boardState[r+dir*2][c]) moves.push({ r: r+dir*2, c: c, flags: 'b' }); }
+                        if (this.isValidRC(r + dir, c - 1)) { const t = boardState[r+dir][c-1]; if (attackOnly || (t && t.type !== 'wall' && t.color === enemyColor && !invinciblePieces[t.uid]) || this.ep_square === this.rcToSq(r+dir, c-1)) moves.push({ r: r+dir, c: c-1, flags: 'c' }); }
+                        if (this.isValidRC(r + dir, c + 1)) { const t = boardState[r+dir][c+1]; if (attackOnly || (t && t.type !== 'wall' && t.color === enemyColor && !invinciblePieces[t.uid]) || this.ep_square === this.rcToSq(r+dir, c+1)) moves.push({ r: r+dir, c: c+1, flags: 'c' }); }
+                        if (!attackOnly && this.isValidRC(r + dir, c)) { 
+                            const t1 = boardState[r+dir][c];
+                            if(!t1) {
+                                moves.push({ r: r+dir, c: c, flags: 'n' }); 
+                                if (r === startRank && !boardState[r+dir*2][c]) moves.push({ r: r+dir*2, c: c, flags: 'b' }); 
+                            }
+                        }
                         break;
-                    case 'n': [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || (t.color !== color && !invinciblePieces[t.uid])) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
+                    case 'n': [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || (t.type !== 'wall' && t.color !== color && !invinciblePieces[t.uid])) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
                     case 'b': [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(d => { let nr = r+d[0], nc = c+d[1]; while(addMove(nr, nc)) { nr+=d[0]; nc+=d[1]; } }); break;
                     case 'r': [[-1,0],[1,0],[0,-1],[0,1]].forEach(d => { let nr = r+d[0], nc = c+d[1]; while(addMove(nr, nc)) { nr+=d[0]; nc+=d[1]; } }); break;
                     case 'q': [[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]].forEach(d => { let nr = r+d[0], nc = c+d[1]; while(addMove(nr, nc)) { nr+=d[0]; nc+=d[1]; } }); break;
-                    case 'k': [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || (t.color !== color && !invinciblePieces[t.uid])) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
+                    case 'k': [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || (t.type !== 'wall' && t.color !== color && !invinciblePieces[t.uid])) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
                 } return moves;
             }
 
@@ -689,8 +719,8 @@
                     if (piece.type === 'k' && !this.in_check(color)) {
                         const rights = this.castling[color]; const backRank = color === 'w' ? 7 : 0;
                         if (r === backRank && c === 4) {
-                            if (rights.k && !this._board[r][5] && !this._board[r][6] && !this.isSquareAttacked(r, 5, color==='w'?'b':'w') && !this.isSquareAttacked(r, 6, color==='w'?'b':'w')) pseudoMoves.push({ r: r, c: 6, flags: 'k' });
-                            if (rights.q && !this._board[r][3] && !this._board[r][2] && !this._board[r][1] && !this.isSquareAttacked(r, 3, color==='w'?'b':'w') && !this.isSquareAttacked(r, 2, color==='w'?'b':'w')) pseudoMoves.push({ r: r, c: 2, flags: 'q' });
+                            if (rights.k && (!this._board[r][5] || this._board[r][5].type !== 'wall') && (!this._board[r][6] || this._board[r][6].type !== 'wall') && !this._board[r][5] && !this._board[r][6] && !this.isSquareAttacked(r, 5, color==='w'?'b':'w') && !this.isSquareAttacked(r, 6, color==='w'?'b':'w')) pseudoMoves.push({ r: r, c: 6, flags: 'k' });
+                            if (rights.q && (!this._board[r][3] || this._board[r][3].type !== 'wall') && (!this._board[r][2] || this._board[r][2].type !== 'wall') && !this._board[r][3] && !this._board[r][2] && !this._board[r][1] && !this.isSquareAttacked(r, 3, color==='w'?'b':'w') && !this.isSquareAttacked(r, 2, color==='w'?'b':'w')) pseudoMoves.push({ r: r, c: 2, flags: 'q' });
                         }
                     }
                     pseudoMoves.forEach(m => {
@@ -750,7 +780,8 @@
             'R': '<svg viewBox="0 0 45 45"><path d="M9 39h27v-3H9v3zM12 36v-4h21v4H12zM11 14V9h4v2h5V9h5v2h5V9h4v5" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M34 14l-3 3H14l-3-3" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M31 17v12.5H14V17" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M31 29.5l1.5 2.5h-20l1.5-2.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M11 14h23" fill="none" stroke="{stroke}" stroke-width="1.5"/></svg>',
             'B': '<svg viewBox="0 0 45 45"><g fill="{fill}" stroke="{stroke}" stroke-width="1.5"><path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.354.49-2.323.47-3-.5 1.354-1.46 3-2 3-2zM15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2zM25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z"/></g><path d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5" fill="none" stroke="{stroke}" stroke-width="1.5"/></svg>',
             'N': '<svg viewBox="0 0 45 45"><path d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.16-.88-1.68-.5-3 1-3.5 1.61-4.43 2-6 1.5-6.5 4.5-9.5 9-11 3-1 6-2 9-2" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0z" fill="{stroke}"/><path d="M15 15.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0z" fill="{stroke}"/></svg>',
-            'P': '<svg viewBox="0 0 45 45"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/></svg>'
+            'P': '<svg viewBox="0 0 45 45"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/></svg>',
+            'WALL': '<svg viewBox="0 0 45 45"><rect x="5" y="5" width="35" height="35" fill="#6c7a89" stroke="#2c3e50" stroke-width="2" rx="4"/><line x1="5" y1="16.6" x2="40" y2="16.6" stroke="#2c3e50" stroke-width="2"/><line x1="5" y1="28.3" x2="40" y2="28.3" stroke="#2c3e50" stroke-width="2"/><line x1="16.6" y1="5" x2="16.6" y2="16.6" stroke="#2c3e50" stroke-width="2"/><line x1="28.3" y1="16.6" x2="28.3" y2="28.3" stroke="#2c3e50" stroke-width="2"/><line x1="16.6" y1="28.3" x2="16.6" y2="40" stroke="#2c3e50" stroke-width="2"/></svg>'
         };
 
         const game = new CustomChess(); 
@@ -761,6 +792,7 @@
         let selectedSquare = null; let legalMoves = []; let moveCount = 0;
         const AUGMENT_INTERVAL = 7; let isSystemLocked = false; let pendingAugments = [];
         let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {};
+        let activeWalls = [];
 
         function getCoords(sq) { const { r, c } = game.sqToRC(sq); return { x: c * 12.5, y: r * 12.5 }; }
 
@@ -774,7 +806,7 @@
 
         function resetGameUI() {
             game.reset(); moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; pendingAugments = [];
-            isSystemLocked = false; selectedSquare = null; legalMoves = []; drawDots();
+            activeWalls = []; isSystemLocked = false; selectedSquare = null; legalMoves = []; drawDots();
             drawPieces(false); updateProgressBar(); updateTurnIndicator(); updateBoardVisuals(); updateCheckStatus();
             document.querySelectorAll('.floating-text').forEach(e => e.remove());
         }
@@ -798,13 +830,21 @@
                         piecesLayer.appendChild(el); 
                     }
                     
-                    if (el.dataset.type !== piece.type || el.dataset.color !== piece.color) {
-                        const svgStr = svgPieces[piece.type.toUpperCase()]
-                            .replace(/{fill}/g, piece.color === 'w' ? '#ffffff' : '#222222')
-                            .replace(/{stroke}/g, piece.color === 'w' ? '#000000' : '#eeeeee');
-                        el.innerHTML = svgStr;
-                        el.dataset.type = piece.type; el.dataset.color = piece.color;
-                        if(isAnimate) { el.classList.remove('piece-pop'); void el.offsetWidth; el.classList.add('piece-pop'); }
+                    if (piece.type === 'wall') {
+                        if (el.dataset.type !== 'wall') {
+                            el.innerHTML = svgPieces['WALL'];
+                            el.dataset.type = 'wall'; el.dataset.color = 'none';
+                            if(isAnimate) { el.classList.remove('piece-pop'); void el.offsetWidth; el.classList.add('piece-pop'); }
+                        }
+                    } else {
+                        if (el.dataset.type !== piece.type || el.dataset.color !== piece.color) {
+                            const svgStr = svgPieces[piece.type.toUpperCase()]
+                                .replace(/{fill}/g, piece.color === 'w' ? '#ffffff' : '#222222')
+                                .replace(/{stroke}/g, piece.color === 'w' ? '#000000' : '#eeeeee');
+                            el.innerHTML = svgStr;
+                            el.dataset.type = piece.type; el.dataset.color = piece.color;
+                            if(isAnimate) { el.classList.remove('piece-pop'); void el.offsetWidth; el.classList.add('piece-pop'); }
+                        }
                     }
 
                     if (rootedPieces[piece.uid] > 0) el.classList.add('piece-rooted'); else el.classList.remove('piece-rooted');
@@ -950,7 +990,7 @@
             if (pieceNow) {
                 let poisoned = false;
                 activePoison.forEach(p => { if (p.squares.includes(to) && p.owner !== pieceNow.color) poisoned = true; });
-                if (poisoned && pieceNow.type !== 'k' && !invinciblePieces[pieceNow.uid]) { game.remove(to); spawnFloatingText(to, '☠️'); triggerVFX([to], 'vfx-explosion'); }
+                if (poisoned && pieceNow.type !== 'k' && pieceNow.type !== 'wall' && !invinciblePieces[pieceNow.uid]) { game.remove(to); spawnFloatingText(to, '☠️'); triggerVFX([to], 'vfx-explosion'); }
             }
 
             drawPieces(); updateTurnIndicator(); updateCheckStatus();
@@ -962,6 +1002,18 @@
             moveCount++; 
             for (let uid in rootedPieces) { rootedPieces[uid]--; if (rootedPieces[uid] <= 0) delete rootedPieces[uid]; }
             for (let uid in invinciblePieces) { invinciblePieces[uid]--; if (invinciblePieces[uid] <= 0) delete invinciblePieces[uid]; }
+            
+            // 벽 수명 차감 및 제거
+            activeWalls.forEach(w => w.duration--);
+            activeWalls = activeWalls.filter(w => {
+                if(w.duration <= 0) {
+                    game.remove(w.sq);
+                    spawnFloatingText(w.sq, '💨');
+                    return false;
+                }
+                return true;
+            });
+
             drawPieces();
             activePoison.forEach(p => p.duration--); activePoison = activePoison.filter(p => p.duration > 0); updateBoardVisuals(); updateProgressBar();
 
@@ -991,7 +1043,7 @@
         function getEmptySquares() { let res = []; for(let f=97; f<=104; f++) for(let r=1; r<=8; r++) { const sq = String.fromCharCode(f)+r; if(!game.get(sq)) res.push(sq); } return res; }
         function getAdjEmptySquares(sq) { const res = []; const f=sq.charCodeAt(0), r=parseInt(sq[1]); for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) if(!(df===0 && dr===0)) { const c = String.fromCharCode(f+df)+(r+dr); if(game.isValidRC(8-r-dr, f-97+df) && !game.get(c)) res.push(c); } return res; }
         
-        // 체크메이트 위치가 아닌 안전한 빈칸을 반환하는 함수 (해당 자리에 소환했을 때 즉시 메이트가 되면 제외)
+        // 소환 시 왕을 바로 공격(Check)하는 자리를 피하는 함수
         function getSafeEmptySquares(color, type) {
             let res = [];
             const eColor = color === 'w' ? 'b' : 'w';
@@ -1000,27 +1052,24 @@
                     const sq = String.fromCharCode(f)+r;
                     if(!game.get(sq)) {
                         game.put({type: type, color: color}, sq);
-                        const origTurn = game._turn;
-                        game._turn = eColor;
-                        const mate = game.in_checkmate();
-                        game._turn = origTurn;
+                        const causesCheck = game.in_check(eColor);
                         game.remove(sq);
-                        if(!mate) res.push(sq);
+                        if(!causesCheck) res.push(sq);
                     }
                 }
             }
-            if(res.length === 0) return getEmptySquares(); // 모두 메이트가 되는 경우 fallback
+            if(res.length === 0) return getEmptySquares(); // 전부 체크 자리면 fallback
             return res;
         }
 
         const pieceValue = { q: 9, r: 5, b: 3, n: 3, p: 1, k: 0 };
 
         const AUGMENT_POOL = [
-            { name: '운석 충돌', icon: '☄️', desc: '적 1개와 주변 영역을 초토화합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(e).length > 0, apply: (m, e) => { const tgts = findVulnerable(e); const c = tgts[Math.floor(Math.random()*tgts.length)]; const f=c.charCodeAt(0), r=parseInt(c[1]), hit=[]; for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) if(f+df>=97&&f+df<=104&&r+dr>=1&&r+dr<=8) { const sq = String.fromCharCode(f+df)+(r+dr); const p=game.get(sq); if(p&&p.type!=='k' && !invinciblePieces[p.uid]){game.remove(sq); hit.push(sq); spawnFloatingText(sq,'🔥');}} return { t: hit, vfx: 'vfx-explosion', msg: '🔥 운석이 떨어졌습니다!' }; } },
+            { name: '운석 충돌', icon: '☄️', desc: '적 1개와 주변 영역을 초토화합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(e).length > 0, apply: (m, e) => { const tgts = findVulnerable(e); const c = tgts[Math.floor(Math.random()*tgts.length)]; const f=c.charCodeAt(0), r=parseInt(c[1]), hit=[]; for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) if(f+df>=97&&f+df<=104&&r+dr>=1&&r+dr<=8) { const sq = String.fromCharCode(f+df)+(r+dr); const p=game.get(sq); if(p&&p.type!=='k' && p.type!=='wall' && !invinciblePieces[p.uid]){game.remove(sq); hit.push(sq); spawnFloatingText(sq,'🔥');}} return { t: hit, vfx: 'vfx-explosion', msg: '🔥 운석이 떨어졌습니다!' }; } },
             { name: '대학살', icon: '🩸', desc: '적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(e).filter(sq => game.get(sq).type !== 'p').length > 0, apply: (m, e) => { let tgts = findVulnerable(e).filter(sq => game.get(sq).type !== 'p').sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🩸'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🩸 대학살이 일어났습니다!' }; } },
             { name: '네크로맨시', icon: '💀', desc: '무작위 빈칸에 아군 퀸을 소환합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'q').length > 0, apply: (m, e) => { const sq = getSafeEmptySquares(m, 'q').sort(()=>0.5-Math.random())[0]; game.put({type:'q', color:m}, sq); spawnFloatingText(sq,'💀'); return { t: [sq], vfx: 'vfx-void', msg: '💀 퀸이 부활했습니다!' }; } },
-            { name: '신의 심판', icon: '⚡', desc: '무작위 세로열을 번개로 내리칩니다.', globalVfx: null, isKillType: true, delay: 600, condition: () => true, apply: (m, e) => { const fileIdx = Math.floor(Math.random() * 8); const f = String.fromCharCode(97 + fileIdx); let delayMs = 0; for(let r = 8; r >= 1; r--) { setTimeout(() => { const sq = f + r; const p = game.get(sq); triggerVFX([sq], 'vfx-lightning'); if(p && p.type !== 'k' && !invinciblePieces[p.uid]) { game.remove(sq); spawnFloatingText(sq,'⚡'); drawPieces(); } }, delayMs); delayMs += 50; } return { t: [], vfx: '', msg: `⚡ 신의 심판이 내렸습니다!` }; } },
-            { name: '독구름', icon: '☠️', desc: '6턴 유지 2x2 맹독 영역을 만듭니다.', globalVfx: 'vfx-global-void', isKillType: true, condition: () => true, apply: (m, e) => { const fIdx = Math.floor(Math.random() * 7); const r = 2 + Math.floor(Math.random() * 6); const fChar = String.fromCharCode(97 + fIdx); const fNextChar = String.fromCharCode(98 + fIdx); const squares = [ fChar+r, fChar+(r+1), fNextChar+r, fNextChar+(r+1) ]; activePoison.push({ squares: squares, owner: m, duration: 12 }); squares.forEach(sq => { const p = game.get(sq); if (p && p.color !== m && p.type !== 'k' && !invinciblePieces[p.uid]) { game.remove(sq); spawnFloatingText(sq, '☠️'); } }); updateBoardVisuals(); return { t: squares, vfx: 'vfx-void', msg: '☠️ 맹독 지대가 형성되었습니다!' }; } },
+            { name: '신의 심판', icon: '⚡', desc: '무작위 세로열을 번개로 내리칩니다.', globalVfx: null, isKillType: true, delay: 600, condition: () => true, apply: (m, e) => { const fileIdx = Math.floor(Math.random() * 8); const f = String.fromCharCode(97 + fileIdx); let delayMs = 0; for(let r = 8; r >= 1; r--) { setTimeout(() => { const sq = f + r; const p = game.get(sq); triggerVFX([sq], 'vfx-lightning'); if(p && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { game.remove(sq); spawnFloatingText(sq,'⚡'); drawPieces(); } }, delayMs); delayMs += 50; } return { t: [], vfx: '', msg: `⚡ 신의 심판이 내렸습니다!` }; } },
+            { name: '독구름', icon: '☠️', desc: '6턴 유지 2x2 맹독 영역을 만듭니다.', globalVfx: 'vfx-global-void', isKillType: true, condition: () => true, apply: (m, e) => { const fIdx = Math.floor(Math.random() * 7); const r = 2 + Math.floor(Math.random() * 6); const fChar = String.fromCharCode(97 + fIdx); const fNextChar = String.fromCharCode(98 + fIdx); const squares = [ fChar+r, fChar+(r+1), fNextChar+r, fNextChar+(r+1) ]; activePoison.push({ squares: squares, owner: m, duration: 12 }); squares.forEach(sq => { const p = game.get(sq); if (p && p.color !== m && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { game.remove(sq); spawnFloatingText(sq, '☠️'); } }); updateBoardVisuals(); return { t: squares, vfx: 'vfx-void', msg: '☠️ 맹독 지대가 형성되었습니다!' }; } },
             { name: '저격수', icon: '🎯', desc: '가장 가치가 높은 적을 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(e).length > 0, apply: (m, e) => { let targets = findVulnerable(e); targets.sort((a,b) => pieceValue[game.get(b).type] - pieceValue[game.get(a).type]); const target = targets[0]; game.remove(target); spawnFloatingText(target,'🎯'); return { t: [target], vfx: 'vfx-explosion', msg: '🎯 정확한 저격이 명중했습니다!' }; } },
             { name: '혼란', icon: '🌀', desc: '적 기물 2개의 위치를 뒤바꿉니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).length >= 2, apply: (m, e) => { let tgts = findVulnerable(e).sort(()=>0.5-Math.random()).slice(0,2); const p1 = game.get(tgts[0]); const p2 = game.get(tgts[1]); game.remove(tgts[0]); game.remove(tgts[1]); game.put(p2, tgts[0]); game.put(p1, tgts[1]); return { t: tgts, vfx: 'vfx-lightning', msg: '🌀 적들이 위치를 상실했습니다!' }; } },
             { name: '지진', icon: '🌋', desc: '각 팀의 무작위 기물을 2개씩 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(m).length > 1 && findVulnerable(e).length > 1, apply: (m, e) => { let myTgts = findVulnerable(m).sort(()=>0.5-Math.random()).slice(0,2); let eTgts = findVulnerable(e).sort(()=>0.5-Math.random()).slice(0,2); const targets = [...myTgts, ...eTgts]; targets.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🌋'); }); return { t: targets, vfx: 'vfx-explosion', msg: '🌋 거대한 지진이 휩씁니다!' }; } },
@@ -1031,7 +1080,8 @@
             { name: '징집', icon: '🪖', desc: '무작위 빈칸 3곳에 아군 폰을 소환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'p').length >= 3, apply: (m, e) => { const sqs = getSafeEmptySquares(m, 'p').sort(()=>0.5-Math.random()).slice(0,3); sqs.forEach(sq => { game.put({type: 'p', color: m}, sq); spawnFloatingText(sq,'🪖'); }); return { t: sqs, vfx: 'vfx-heal', msg: '🪖 폰들이 징집되었습니다!' }; } },
             { name: '빛의 수호', icon: '🛡️', desc: '아군 모든 폰에게 1수 동안 무적을 부여합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m, 'p').length > 0, apply: (m, e) => { let tgts = findPieces(m, 'p'); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq,'🛡️'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '🛡️ 폰들이 무적 상태가 되었습니다!' }; } },
             { name: '여신의 가호', icon: '✨', desc: '무작위 아군 상위 기물 2개에 1수 무적 부여.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3).length > 0, apply: (m, e) => { let tgts = findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3).sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq,'✨'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '✨ 상위 기물들이 무적이 되었습니다!' }; } },
-            { name: '덩굴', icon: '🌿', desc: '적 기물 2개를 4수 동안 덩굴로 속박합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findVulnerable(e).length >= 2, apply: (m, e) => { let tgts = findVulnerable(e).sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { const p = game.get(sq); rootedPieces[p.uid] = 8; spawnFloatingText(sq,'🌿'); }); return { t: tgts, vfx: 'vfx-void', msg: '🌿 적들이 덩굴에 묶였습니다!' }; } }
+            { name: '덩굴', icon: '🌿', desc: '적 기물 2개를 4수 동안 덩굴로 속박합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findVulnerable(e).length >= 2, apply: (m, e) => { let tgts = findVulnerable(e).sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { const p = game.get(sq); rootedPieces[p.uid] = 8; spawnFloatingText(sq,'🌿'); }); return { t: tgts, vfx: 'vfx-void', msg: '🌿 적들이 덩굴에 묶였습니다!' }; } },
+            { name: '차원 장벽', icon: '🧱', desc: '빈칸 한 곳에 10수 동안 모든 이동을 막는 장벽을 세웁니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: () => getEmptySquares().length > 0, apply: (m, e) => { const sq = getEmptySquares().sort(()=>0.5-Math.random())[0]; game.put({type: 'wall', color: 'none'}, sq); activeWalls.push({sq: sq, duration: 10}); spawnFloatingText(sq,'🧱'); return { t: [sq], vfx: 'vfx-heal', msg: '🧱 차원 장벽이 생성되었습니다!' }; } }
         ];
 
         function processNextAugmentPhase() {
