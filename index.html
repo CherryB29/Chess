@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>증강 : 체스 (Extreme Edition) - Online</title>
     <style>
-        /* 기존 스타일 유지 */
         :root {
             --board-dark: #B58863;
             --board-light: #F0D9B5;
@@ -18,20 +17,20 @@
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             min-height: 100vh; margin: 0; background-color: #121212;
             font-family: 'Malgun Gothic', sans-serif; color: #fff;
-            touch-action: manipulation; overflow: hidden; padding-top: 20px; box-sizing: border-box;
+            touch-action: manipulation; overflow: hidden; padding-top: 15px; box-sizing: border-box;
         }
 
         .header { text-align: center; margin-bottom: 10px; z-index: 10; width: 100%; max-width: 420px; }
-        h1 { color: var(--primary); margin: 0 0 10px 0; text-shadow: 0 0 15px rgba(243, 156, 18, 0.6); font-size: 2rem; letter-spacing: 2px; }
+        h1 { color: var(--primary); margin: 0 0 5px 0; text-shadow: 0 0 15px rgba(243, 156, 18, 0.6); font-size: 1.8rem; letter-spacing: 1px; }
         
-        .turn-wrapper { display: flex; justify-content: center; margin-bottom: 15px; }
+        .turn-wrapper { display: flex; justify-content: center; margin-bottom: 10px; }
         .turn-indicator {
-            padding: 6px 24px; border-radius: 30px; font-weight: 800; font-size: 1.1rem;
-            letter-spacing: 2px; transition: all 0.4s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            padding: 6px 20px; border-radius: 30px; font-weight: 800; font-size: 1rem;
+            letter-spacing: 1px; transition: all 0.4s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
         .turn-indicator.white-turn { background: #fdfdfd; color: #222; box-shadow: 0 0 15px rgba(255,255,255,0.4); }
         .turn-indicator.black-turn { background: #222; color: #fdfdfd; border: 1px solid #555; }
-        .turn-indicator.my-turn { outline: 3px solid #2ecc71; } /* 내 턴 강조 */
+        .turn-indicator.my-turn { outline: 3px solid #2ecc71; }
 
         .progress-container {
             width: 90%; margin: 0 auto; background: #2c2c3e; border-radius: 10px; padding: 4px;
@@ -47,19 +46,19 @@
             font-size: 0.75rem; font-weight: bold; text-align: center; pointer-events: none; text-shadow: 1px 1px 2px #000;
         }
 
-        #toast-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 200; pointer-events: none; }
+        #toast-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 200; pointer-events: none; width: 90%; align-items: center;}
         .toast {
-            background: rgba(20, 20, 30, 0.95); color: #fff; padding: 12px 25px; border-radius: 30px;
-            font-weight: bold; font-size: 1rem; text-align: center; white-space: nowrap;
+            background: rgba(20, 20, 30, 0.95); color: #fff; padding: 12px 20px; border-radius: 30px;
+            font-weight: bold; font-size: 0.9rem; text-align: center; white-space: nowrap;
             box-shadow: 0 5px 25px rgba(0,0,0,0.8); border: 1px solid #4a4a6a;
             animation: toastIn 0.4s ease; transition: opacity 0.4s ease, transform 0.4s ease;
         }
         @keyframes toastIn { from { transform: translateY(-30px) scale(0.8); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
 
-        #board-container { width: 100%; max-width: 420px; padding: 0 15px; box-sizing: border-box; position: relative; }
+        #board-container { width: 100%; max-width: 420px; padding: 0 10px; box-sizing: border-box; position: relative; margin-top: 5px; }
         #board {
             position: relative; width: 100%; aspect-ratio: 1 / 1;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 4px solid #1a1a2e; border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 4px solid #1a1a2e; border-radius: 8px;
             background-color: var(--board-dark); transition: transform 0.6s ease;
         }
         
@@ -80,15 +79,11 @@
         .piece-wrapper {
             position: absolute; width: 12.5%; height: 12.5%;
             display: flex; justify-content: center; align-items: center;
-            font-size: 2.6rem; line-height: 1; user-select: none; pointer-events: none;
+            user-select: none; pointer-events: none;
             transition: top 0.3s ease, left 0.3s ease, transform 0.3s, opacity 0.3s;
-            filter: drop-shadow(0 8px 6px rgba(0,0,0,0.6));
         }
-        .piece-wrapper.white { color: #fdfdfd; text-shadow: 0 -1px 3px rgba(255,255,255,0.8); }
-        .piece-wrapper.black { color: #000000; text-shadow: 0 1px 3px rgba(255,255,255,0.4); }
-
-        .piece-rooted::after { content: '🌿'; position: absolute; bottom: -2px; right: -2px; font-size: 1.2rem; filter: drop-shadow(0 0 3px #000); animation: rootSway 2s ease-in-out infinite; }
-        @keyframes rootSway { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(15deg); } }
+        .piece-wrapper svg { width: 90%; height: 90%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); pointer-events: none; }
+        .piece-rooted::after { content: '🧊'; position: absolute; bottom: -2px; right: -2px; font-size: 1.2rem; filter: drop-shadow(0 0 3px #000); }
 
         .dot { position: absolute; width: 12.5%; height: 12.5%; display: flex; justify-content: center; align-items: center; pointer-events: none; }
         .dot::after { content: ''; width: 25%; height: 25%; background: rgba(243, 156, 18, 0.8); border-radius: 50%; box-shadow: 0 0 15px rgba(243, 156, 18, 0.9); }
@@ -97,7 +92,7 @@
         @keyframes spinRing { 0% { transform: scale(0.9) rotate(0deg); opacity: 0.8; } 50% { transform: scale(1.1) rotate(180deg); opacity: 1; } 100% { transform: scale(0.9) rotate(360deg); opacity: 0.8; } }
 
         .floating-text {
-            position: absolute; font-size: 2.5rem; font-weight: bold; pointer-events: none; z-index: 50;
+            position: absolute; font-size: 2rem; font-weight: bold; pointer-events: none; z-index: 50;
             text-shadow: 0 0 15px #000; transform: translate(-50%, -50%);
             animation: floatUp 1s ease forwards;
         }
@@ -111,21 +106,21 @@
         .turn-badge { padding: 6px 18px; border-radius: 20px; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; animation: pop 0.4s; }
         .turn-badge.white { background: #fff; color: #000; box-shadow: 0 0 20px rgba(255,255,255,0.5); }
         .turn-badge.black { background: #222; color: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.8); border: 1px solid #555; }
-        .overlay h2 { color: var(--primary); margin-bottom: 25px; font-size: 2rem; text-shadow: 0 0 15px rgba(243, 156, 18, 0.6); animation: pop 0.4s; text-align: center; }
+        .overlay h2 { color: var(--primary); margin-bottom: 25px; font-size: 1.8rem; text-shadow: 0 0 15px rgba(243, 156, 18, 0.6); animation: pop 0.4s; text-align: center; }
 
-        .cards-container { display: flex; gap: 12px; padding: 10px; flex-wrap: wrap; justify-content: center; max-width: 500px; }
+        .cards-container { display: flex; gap: 10px; padding: 10px; flex-wrap: wrap; justify-content: center; max-width: 500px; }
         .augment-card {
             background: linear-gradient(145deg, #2b2b40, #161623); border: 1px solid #4a4a6a;
-            border-radius: 12px; padding: 20px 10px; width: 120px; text-align: center;
+            border-radius: 12px; padding: 15px 10px; width: 105px; text-align: center;
             cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.8); transition: all 0.2s; animation: pop 0.5s backwards;
         }
-        .augment-card:hover { transform: translateY(-10px) scale(1.05); border-color: var(--primary); box-shadow: 0 15px 30px rgba(243, 156, 18, 0.3); }
-        .augment-icon { font-size: 3rem; margin-bottom: 12px; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3)); }
-        .augment-title { color: #fff; font-size: 1.1rem; margin: 0 0 8px 0; font-weight: bold; }
-        .augment-desc { color: #aaa; font-size: 0.8rem; line-height: 1.4; margin: 0; word-break: keep-all; }
+        .augment-card:hover { transform: translateY(-5px) scale(1.05); border-color: var(--primary); }
+        .augment-icon { font-size: 2.5rem; margin-bottom: 10px; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3)); }
+        .augment-title { color: #fff; font-size: 1rem; margin: 0 0 8px 0; font-weight: bold; word-break: keep-all; }
+        .augment-desc { color: #aaa; font-size: 0.75rem; line-height: 1.3; margin: 0; word-break: keep-all; }
 
         .promo-container { display: flex; gap: 15px; background: #1a1a2e; padding: 20px; border-radius: 15px; border: 2px solid var(--primary); }
-        .promo-piece { font-size: 3rem; cursor: pointer; padding: 10px; border-radius: 10px; transition: 0.2s; position: relative; pointer-events: auto;}
+        .promo-piece { width: 50px; height: 50px; cursor: pointer; padding: 5px; border-radius: 10px; transition: 0.2s; position: relative; pointer-events: auto;}
         .promo-piece:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
 
         @keyframes pop { 0% { opacity: 0; transform: scale(0.8) translateY(30px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
@@ -146,7 +141,7 @@
         .vfx-lightning { animation: vfxLightningExp 0.4s ease-out forwards; }
         @keyframes vfxLightningExp { 0% { background-color: #f1c40f; box-shadow: 0 0 50px #f1c40f; filter: brightness(2); } 20% { background-color: #fff; box-shadow: 0 0 80px #fff; } 100% { background-color: transparent; box-shadow: none; filter: brightness(1); } }
 
-        #cast-text { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: 900; color: #fff; text-shadow: 0 0 30px var(--primary), 0 0 10px #000; z-index: 150; display: none; text-align: center; width: 100%; letter-spacing: 5px; }
+        #cast-text { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.5rem; font-weight: 900; color: #fff; text-shadow: 0 0 30px var(--primary), 0 0 10px #000; z-index: 150; display: none; text-align: center; width: 100%; letter-spacing: 2px; }
         .cast-anim { animation: castTextAnim 1s ease-in-out forwards; }
         @keyframes castTextAnim { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); filter: blur(10px); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); filter: blur(0px); } 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0px); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); filter: blur(10px); } }
 
@@ -155,25 +150,51 @@
         .piece-pop { animation: piecePop 0.5s ease; }
         @keyframes piecePop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 
-        /* 신규: 멀티플레이 로비 UI 스타일 */
-        .lobby-box { background: #1a1a2e; padding: 30px; border-radius: 15px; border: 2px solid var(--primary); text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.8); max-width: 90%; }
+        /* 로비 및 하단 컨트롤 UI */
+        .lobby-box { background: #1a1a2e; padding: 25px; border-radius: 15px; border: 2px solid var(--primary); text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.8); width: 90%; max-width: 350px; }
         .lobby-box h2 { margin-top: 0; }
-        .lobby-btn { display: block; width: 100%; padding: 12px; margin: 10px 0; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .lobby-btn:hover { background: #e67e22; transform: translateY(-2px); }
+        .lobby-btn { display: block; width: 100%; padding: 12px; margin: 10px 0; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
+        .lobby-btn:active { transform: scale(0.95); }
         .lobby-btn.secondary { background: #34495e; }
-        .lobby-btn.secondary:hover { background: #2c3e50; }
+        .lobby-btn.danger { background: var(--danger); }
         .lobby-input { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: #fff; font-size: 1rem; box-sizing: border-box; text-align: center;}
         
-        /* 흑돌일 때 보드 회전 (선택적) */
+        #game-controls { width: 100%; max-width: 420px; padding: 10px 10px; box-sizing: border-box; display: none; gap: 10px; margin-top: 5px; }
+        #chat-input { flex-grow: 1; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; font-size: 0.95rem; box-sizing: border-box; }
+        #chat-input:focus { outline: none; border-color: var(--primary); }
+        #btn-resign { margin: 0; width: 100px; flex-shrink: 0; }
+
         .black-pov #board { transform: rotate(180deg); }
         .black-pov .piece-wrapper { transform: rotate(-180deg); }
 
+        /* 개선된 말풍선 채팅 UI (좌/우측 오버레이) */
+        .chat-bubble {
+            position: absolute; z-index: 100;
+            background: rgba(255, 255, 255, 0.95); color: #111;
+            padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;
+            max-width: 60%; word-break: break-word;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6); 
+            display: none; pointer-events: none; transition: opacity 0.2s ease;
+            animation: pop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        /* 우측 하단 (내 말풍선) */
+        .chat-bubble.mine {
+            right: 15px; bottom: 15px; border: 2px solid var(--primary);
+            border-bottom-right-radius: 2px; text-align: right;
+        }
+        /* 좌측 상단 (상대 말풍선) */
+        .chat-bubble.opponent {
+            left: 15px; top: 15px; border: 2px solid var(--danger);
+            border-top-left-radius: 2px; text-align: left;
+        }
+
         @media (max-width: 400px) {
-            .piece-wrapper { font-size: 2.2rem; }
-            .augment-card { width: 100px; padding: 15px 5px; }
-            .augment-icon { font-size: 2.2rem; }
-            .augment-title { font-size: 0.95rem; }
-            #cast-text { font-size: 2rem; }
+            .augment-card { width: 90px; padding: 10px 5px; }
+            .augment-icon { font-size: 2rem; }
+            .augment-title { font-size: 0.85rem; }
+            .augment-desc { font-size: 0.7rem; }
+            #cast-text { font-size: 1.8rem; }
+            .overlay h2 { font-size: 1.5rem; }
         }
     </style>
 </head>
@@ -183,10 +204,10 @@
     <div id="cast-text"></div>
 
     <div class="header">
-        <h1>증강 : 체스 (Online)</h1>
-        <div id="player-info" style="font-size: 0.9rem; margin-bottom: 5px; color: #aaa;">연결 중...</div>
+        <h1>증강 : 체스</h1>
+        <div id="player-info" style="font-size: 0.85rem; margin-bottom: 5px; color: #aaa;">연결 중...</div>
         <div class="turn-wrapper">
-            <div id="turn-display" class="turn-indicator white-turn">🤍 백돌 차례</div>
+            <div id="turn-display" class="turn-indicator white-turn">백 차례</div>
         </div>
         <div class="progress-container">
             <div class="progress-bar" id="augment-progress"></div>
@@ -195,12 +216,21 @@
     </div>
 
     <div id="board-container">
+        <div id="chat-bubble-opponent" class="chat-bubble opponent"></div>
+        
         <div id="board">
             <div id="squares-layer" class="layer"></div>
             <div id="dots-layer" class="layer"></div>
             <div id="pieces-layer" class="layer" style="pointer-events: none;"></div>
             <div id="vfx-global-layer"></div>
         </div>
+        
+        <div id="chat-bubble-mine" class="chat-bubble mine"></div>
+    </div>
+
+    <div id="game-controls">
+        <input type="text" id="chat-input" placeholder="엔터키로 채팅..." maxlength="40">
+        <button id="btn-resign" class="lobby-btn danger">🏳️ 기권</button>
     </div>
 
     <div id="lobby-overlay" class="overlay" style="display: flex;">
@@ -208,24 +238,26 @@
             <h2>멀티플레이어 로비</h2>
             
             <div id="login-section">
-                <p>게임에 참여하려면 로그인하세요.</p>
                 <button id="btn-anon" class="lobby-btn secondary">익명으로 시작</button>
                 <button id="btn-google" class="lobby-btn">Google 로그인</button>
-            </div>
-            
-            <div id="match-section" style="display: none;">
-                <p id="user-status" style="color: #2ecc71; font-weight: bold; margin-bottom: 20px;">로그인 됨</p>
-                
-                <button id="btn-random" class="lobby-btn">🎲 빠른 대전 (랜덤)</button>
-                
-                <div style="margin: 20px 0; border-top: 1px solid #444; padding-top: 20px;">
-                    <input type="text" id="room-input" class="lobby-input" placeholder="초대 코드 입력">
-                    <button id="btn-join-room" class="lobby-btn secondary">방 참가하기</button>
-                    <button id="btn-create-room" class="lobby-btn secondary">새로운 방 만들기</button>
+                <div style="margin-top: 20px; border-top: 1px solid #444; padding-top: 15px;">
+                    <button id="btn-bot" class="lobby-btn secondary" style="background: #27ae60;">🤖 컴퓨터와 연습</button>
                 </div>
             </div>
             
-            <p id="lobby-msg" style="color: #f1c40f; font-weight: bold; margin-top: 15px; height: 1.5rem;"></p>
+            <div id="match-section" style="display: none;">
+                <p id="user-status" style="color: #2ecc71; font-weight: bold; margin-bottom: 15px;">접속 완료</p>
+                <button id="btn-random" class="lobby-btn">🎲 빠른 대전 (랜덤)</button>
+                <div style="margin: 15px 0; border-top: 1px solid #444; padding-top: 15px;">
+                    <input type="text" id="room-input" class="lobby-input" placeholder="초대 코드 입력" maxlength="4">
+                    <button id="btn-join-room" class="lobby-btn secondary">방 참가하기</button>
+                    <button id="btn-create-room" class="lobby-btn secondary">새로운 방 만들기</button>
+                </div>
+                <div style="margin-top: 15px; border-top: 1px solid #444; padding-top: 15px;">
+                    <button id="btn-bot-logged" class="lobby-btn secondary" style="background: #27ae60;">🤖 컴퓨터와 연습</button>
+                </div>
+            </div>
+            <p id="lobby-msg" style="color: #f1c40f; font-weight: bold; margin-top: 10px; min-height: 1.2rem; font-size: 0.9rem;"></p>
         </div>
     </div>
 
@@ -234,60 +266,61 @@
         <h2>프로모션 선택</h2>
         <div class="promo-container" id="promo-container"></div>
     </div>
+    
+    <div id="result-overlay" class="overlay" style="z-index: 300;">
+        <div class="lobby-box">
+            <h2 id="result-title" style="font-size: 2.2rem; margin-bottom: 10px;">게임 종료</h2>
+            <p id="result-desc" style="font-size: 1.2rem; margin-bottom: 25px; color: #ddd;"></p>
+            <button id="btn-return-lobby" class="lobby-btn">로비로 돌아가기</button>
+        </div>
+    </div>
 
     <script type="module">
-        // ==========================================
-        // 1. Firebase 모듈 설정 및 초기화
-        // ==========================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, get, onValue, update, push, remove, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, onValue, update, push, remove, onChildAdded, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC4_y7tCcL4A8MKhhJyx5ylAdDNhnXzNLw",
             authDomain: "chess-d9be3.firebaseapp.com",
             databaseURL: "https://chess-d9be3-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "chess-d9be3",
-            storageBucket: "chess-d9be3.firebasestorage.app",
-            messagingSenderId: "560611509083",
-            appId: "1:560611509083:web:c0cbdcce7df700a720507e",
-            measurementId: "G-54HK9YFG1V"
+            projectId: "chess-d9be3"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // 멀티플레이어 상태
-        let myUid = null;
-        let myColor = null; // 'w' or 'b'
-        let currentRoomId = null;
-        let isGameStarted = false;
+        let myUid = null; let myColor = null; let currentRoomId = null; let isGameStarted = false;
+        let isBotMode = false;
 
-        // UI 요소
         const lobbyOverlay = document.getElementById('lobby-overlay');
         const loginSection = document.getElementById('login-section');
         const matchSection = document.getElementById('match-section');
         const lobbyMsg = document.getElementById('lobby-msg');
         const playerInfo = document.getElementById('player-info');
 
-        // ==========================================
-        // 2. 인증 및 매치메이킹 로직
-        // ==========================================
         onAuthStateChanged(auth, user => {
             if (user) {
-                myUid = user.uid;
-                loginSection.style.display = 'none';
-                matchSection.style.display = 'block';
+                myUid = user.uid; loginSection.style.display = 'none'; matchSection.style.display = 'block';
                 document.getElementById('user-status').innerText = `접속 완료 (UID: ${myUid.slice(0, 5)}...)`;
-            } else {
-                loginSection.style.display = 'block';
-                matchSection.style.display = 'none';
-            }
+            } else { loginSection.style.display = 'block'; matchSection.style.display = 'none'; }
         });
 
         document.getElementById('btn-anon').onclick = () => { signInAnonymously(auth).catch(err => alert("로그인 실패: " + err.message)); };
         document.getElementById('btn-google').onclick = () => { signInWithPopup(auth, new GoogleAuthProvider()).catch(err => alert("로그인 실패: " + err.message)); };
+
+        const startBotMode = () => {
+            isBotMode = true; myColor = 'w'; isGameStarted = true;
+            lobbyOverlay.style.display = 'none';
+            playerInfo.innerText = `🤖 컴퓨터와 연습 모드 (당신은 백입니다)`;
+            document.body.classList.remove('black-pov');
+            document.getElementById('game-controls').style.display = 'flex';
+            showToast("게임 시작! (컴퓨터 모드)", "var(--primary)");
+            resetGameUI();
+        };
+        document.getElementById('btn-bot').onclick = startBotMode;
+        document.getElementById('btn-bot-logged').onclick = startBotMode;
 
         function setLobbyMsg(msg) { lobbyMsg.innerText = msg; }
 
@@ -295,90 +328,92 @@
             setLobbyMsg("대기 중인 플레이어를 찾는 중...");
             const queueRef = ref(db, 'matchmaking/random_queue');
             const snap = await get(queueRef);
-            
             if (snap.exists()) {
                 const data = snap.val();
-                if (data.uid !== myUid) {
-                    await remove(queueRef);
-                    joinRoom(data.roomId, 'b');
-                    return;
-                }
+                if (data.uid !== myUid) { await remove(queueRef); joinRoom(data.roomId, 'b'); return; }
             }
-            // 방 생성 후 큐에 등록
             const newRoomId = push(ref(db, 'rooms')).key;
             await set(queueRef, { uid: myUid, roomId: newRoomId });
-            createRoom(newRoomId, 'w');
-            setLobbyMsg("상대방을 기다리는 중...");
+            createRoom(newRoomId, 'w'); setLobbyMsg("상대방을 기다리는 중...");
         };
 
         document.getElementById('btn-create-room').onclick = () => {
-            const code = Math.floor(1000 + Math.random() * 9000).toString(); // 4자리 코드 생성
-            createRoom(code, 'w');
-            setLobbyMsg(`방이 생성되었습니다! 초대 코드: ${code} (대기 중...)`);
+            const code = Math.floor(1000 + Math.random() * 9000).toString();
+            createRoom(code, 'w'); setLobbyMsg(`초대 코드: [ ${code} ] 상대를 대기 중...`);
         };
 
         document.getElementById('btn-join-room').onclick = async () => {
             const code = document.getElementById('room-input').value.trim();
             if(!code) return setLobbyMsg("방 코드를 입력하세요.");
-            
             const roomRef = ref(db, `rooms/${code}/players`);
             const snap = await get(roomRef);
-            if (snap.exists() && snap.val().w) {
-                joinRoom(code, 'b');
-            } else {
-                setLobbyMsg("존재하지 않는 방입니다.");
-            }
+            if (snap.exists() && snap.val().w) joinRoom(code, 'b');
+            else setLobbyMsg("존재하지 않거나 닫힌 방입니다.");
         };
 
-        function createRoom(roomId, color) {
-            myColor = color; currentRoomId = roomId;
-            set(ref(db, `rooms/${roomId}/players/${color}`), myUid);
+        function setupPresence() {
+            if(isBotMode) return;
+            const myStatusRef = ref(db, `rooms/${currentRoomId}/players/${myColor}_status`);
+            set(myStatusRef, 'online');
+            onDisconnect(myStatusRef).set('offline'); 
             
-            onValue(ref(db, `rooms/${roomId}/players`), snap => {
-                const p = snap.val();
-                if (p && p.w && p.b && !isGameStarted) {
-                    startGame();
+            // 연결 종료 처리
+            const enemyColor = myColor === 'w' ? 'b' : 'w';
+            const enemyStatusRef = ref(db, `rooms/${currentRoomId}/players/${enemyColor}_status`);
+            onValue(enemyStatusRef, snap => {
+                if(isGameStarted && !game.game_over() && snap.val() === 'offline') {
+                    showEndScreen("승리", "상대방이 게임에서 나갔습니다.");
+                }
+            });
+
+            // 상대방의 입력(타이핑) 상태 실시간 구독
+            const enemyTypingRef = ref(db, `rooms/${currentRoomId}/players/${enemyColor}_typing`);
+            onValue(enemyTypingRef, snap => {
+                if(snap.val() === true) {
+                    showChatBubble('opponent', '💬 입력 중...', true);
+                } else {
+                    hideChatBubble('opponent', true);
                 }
             });
         }
 
+        function createRoom(roomId, color) {
+            myColor = color; currentRoomId = roomId; isBotMode = false;
+            set(ref(db, `rooms/${roomId}/players/${color}`), myUid);
+            onValue(ref(db, `rooms/${roomId}/players`), snap => {
+                const p = snap.val(); if (p && p.w && p.b && !isGameStarted) startGame();
+            });
+        }
+
         function joinRoom(roomId, color) {
-            myColor = color; currentRoomId = roomId;
+            myColor = color; currentRoomId = roomId; isBotMode = false;
             update(ref(db, `rooms/${roomId}/players`), { [color]: myUid });
             startGame();
         }
 
         function startGame() {
-            isGameStarted = true;
-            lobbyOverlay.style.display = 'none';
-            playerInfo.innerText = `[방: ${currentRoomId}] 당신은 ${myColor === 'w' ? '🤍 백돌' : '🖤 흑돌'}입니다.`;
+            isGameStarted = true; lobbyOverlay.style.display = 'none';
+            playerInfo.innerText = `[방: ${currentRoomId}] 당신은 ${myColor === 'w' ? '백' : '흑'}입니다.`;
+            if(myColor === 'b') document.body.classList.add('black-pov');
+            else document.body.classList.remove('black-pov');
             
-            if(myColor === 'b') {
-                document.body.classList.add('black-pov');
-            }
-            
-            showToast("게임 시작! 게이지가 가득 차면 증강이 발동됩니다.", "var(--primary)");
+            document.getElementById('game-controls').style.display = 'flex';
+            showToast("온라인 대전 시작!", "var(--primary)");
+            resetGameUI();
+            setupPresence();
             setupNetworkListeners();
         }
 
-        // ==========================================
-        // 3. 게임 상태 동기화 로직
-        // ==========================================
         function pushGameAction(payload) {
-            if (!currentRoomId) return;
-            push(ref(db, `rooms/${currentRoomId}/actions`), {
-                ...payload,
-                uid: myUid
-            });
+            if (isBotMode || !currentRoomId) return;
+            push(ref(db, `rooms/${currentRoomId}/actions`), { ...payload, uid: myUid });
         }
 
         function setupNetworkListeners() {
             const actionsRef = ref(db, `rooms/${currentRoomId}/actions`);
             onChildAdded(actionsRef, (data) => {
                 const action = data.val();
-                if (action.uid !== myUid) { // 내가 보낸 액션은 무시 (로컬에서 이미 처리됨)
-                    handleRemoteAction(action);
-                }
+                if (action.uid !== myUid) handleRemoteAction(action);
             });
         }
 
@@ -387,54 +422,126 @@
                 executeMoveLocal(action.from, action.to, action.promotion);
             } else if (action.type === 'augment_sync') {
                 document.getElementById('augment-overlay').style.display = 'none';
-                deserializeGameState(action.state); // RNG 결과에 따른 완전한 상태 강제 동기화
-                
-                showCastText("증강 발동", () => {
-                    drawPieces(true);
-                    updateCheckStatus();
+                deserializeGameState(action.state); 
+                showCastText(action.name || "증강", () => {
+                    drawPieces(true); updateCheckStatus();
                     if (action.globalVfx) playGlobalVFX(action.globalVfx);
                     if (action.t && action.t.length > 0) triggerVFX(action.t, action.vfx);
                     showToast(action.msg, "var(--primary)", 4000);
-                    
-                    setTimeout(() => {
-                        if(!game.game_over()) processNextAugmentPhase();
-                    }, action.delay || 1200);
+                    setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, action.delay || 1200);
                 });
+            } else if (action.type === 'resign') {
+                showEndScreen("승리", "상대방이 기권했습니다.");
+            } else if (action.type === 'chat') {
+                showChatBubble('opponent', action.msg, false);
             }
         }
 
+        // ==========================================
+        // 채팅 및 타이핑 상태 제어
+        // ==========================================
+        const chatInput = document.getElementById('chat-input');
+        let chatTimers = { mine: null, opponent: null };
+        let isOpponentTyping = false;
+        let typingDebounce = null;
+
+        // 사용자가 타이핑 중일 때 데이터베이스 업데이트
+        chatInput.addEventListener('input', () => {
+            if (!isBotMode && currentRoomId) {
+                update(ref(db, `rooms/${currentRoomId}/players`), { [`${myColor}_typing`]: true });
+                clearTimeout(typingDebounce);
+                typingDebounce = setTimeout(() => {
+                    update(ref(db, `rooms/${currentRoomId}/players`), { [`${myColor}_typing`]: false });
+                }, 1500);
+            } else if (isBotMode) {
+                if (Math.random() > 0.8) showChatBubble('opponent', '💬 입력 중...', true);
+            }
+        });
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && chatInput.value.trim() !== '') {
+                const msg = chatInput.value.trim();
+                showChatBubble('mine', msg, false);
+                pushGameAction({ type: 'chat', msg: msg });
+                chatInput.value = '';
+                
+                // 타이핑 종료 즉시 반영
+                if(!isBotMode && currentRoomId) {
+                    clearTimeout(typingDebounce);
+                    update(ref(db, `rooms/${currentRoomId}/players`), { [`${myColor}_typing`]: false });
+                }
+                
+                if (isBotMode) {
+                    hideChatBubble('opponent', true);
+                    setTimeout(() => {
+                        const botReplies = ["🤖 흥미롭군요.", "🤖 계산이 거의 끝났습니다.", "🤖 오호...", "🤖 삐리비리...", "🤖 쉽지 않군요."];
+                        showChatBubble('opponent', botReplies[Math.floor(Math.random() * botReplies.length)], false);
+                    }, 800 + Math.random() * 1000);
+                }
+            }
+        });
+
+        function showChatBubble(side, msg, isTyping = false) {
+            const bubble = document.getElementById(`chat-bubble-${side}`);
+            bubble.innerHTML = msg; 
+            bubble.style.display = 'block';
+            bubble.style.opacity = isTyping ? '0.7' : '1';
+
+            if (side === 'opponent') isOpponentTyping = isTyping;
+
+            if (chatTimers[side]) clearTimeout(chatTimers[side]);
+            
+            if (!isTyping) {
+                chatTimers[side] = setTimeout(() => {
+                    bubble.style.display = 'none';
+                }, 3500);
+            }
+        }
+
+        function hideChatBubble(side, onlyIfTyping = false) {
+            if (side === 'opponent' && onlyIfTyping && !isOpponentTyping) return; // 실제 메시지가 떠있으면 숨기지 않음
+            document.getElementById(`chat-bubble-${side}`).style.display = 'none';
+        }
+
+        document.getElementById('btn-resign').onclick = () => {
+            if(confirm("정말로 기권하시겠습니까?")) {
+                pushGameAction({ type: 'resign' });
+                showEndScreen("패배", "기권하셨습니다.");
+            }
+        };
+
+        document.getElementById('btn-return-lobby').onclick = () => {
+            document.getElementById('result-overlay').style.display = 'none';
+            document.getElementById('game-controls').style.display = 'none';
+            lobbyOverlay.style.display = 'flex';
+            setLobbyMsg("");
+            isGameStarted = false; currentRoomId = null; isBotMode = false;
+        };
+
         function serializeGameState() {
             return JSON.stringify({
-                board: game.board(), turn: game.turn(),
-                castling: game.castling, ep_square: game.ep_square,
-                is_game_over: game.is_game_over,
-                moveCount: moveCount, activePoison: activePoison,
+                board: game.board(), turn: game.turn(), castling: game.castling, ep_square: game.ep_square,
+                is_game_over: game.is_game_over, moveCount: moveCount, activePoison: activePoison,
                 rootedPieces: rootedPieces, pendingAugments: pendingAugments
             });
         }
-
         function deserializeGameState(stateStr) {
             const state = JSON.parse(stateStr);
-            game._board = state.board; game._turn = state.turn;
-            game.castling = state.castling; game.ep_square = state.ep_square;
-            game.is_game_over = state.is_game_over;
-            moveCount = state.moveCount; activePoison = state.activePoison;
+            game._board = state.board; game._turn = state.turn; game.castling = state.castling; game.ep_square = state.ep_square;
+            game.is_game_over = state.is_game_over; moveCount = state.moveCount; activePoison = state.activePoison;
             rootedPieces = state.rootedPieces; pendingAugments = state.pendingAugments;
-            
             updateProgressBar(); updateBoardVisuals(); updateTurnIndicator();
         }
 
         // ==========================================
-        // 4. 커스텀 체스 엔진 (기존 로직 유지)
+        // 커스텀 체스 엔진
         // ==========================================
         class CustomChess {
             constructor() { this.pieceUidCounter = 0; this.reset(); }
             reset() {
-                this._board = Array(8).fill(null).map(() => Array(8).fill(null));
-                this._turn = 'w';
+                this._board = Array(8).fill(null).map(() => Array(8).fill(null)); this._turn = 'w';
                 this.castling = { w: { k: true, q: true }, b: { k: true, q: true } };
-                this.ep_square = null; this.is_game_over = false;
-                this.setupInitialBoard();
+                this.ep_square = null; this.is_game_over = false; this.setupInitialBoard();
             }
             setupInitialBoard() {
                 const layout = [
@@ -442,62 +549,52 @@
                     Array(8).fill(null), Array(8).fill(null), Array(8).fill(null), Array(8).fill(null),
                     ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'], ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
                 ];
-                for (let r = 0; r < 8; r++) {
-                    for (let c = 0; c < 8; c++) {
-                        if (layout[r][c]) this._board[r][c] = { type: layout[r][c], color: r < 2 ? 'b' : 'w', uid: ++this.pieceUidCounter };
-                    }
-                }
+                for (let r=0; r<8; r++) for (let c=0; c<8; c++) if (layout[r][c]) this._board[r][c] = { type: layout[r][c], color: r < 2 ? 'b' : 'w', uid: ++this.pieceUidCounter };
             }
             sqToRC(sq) { return { c: sq.charCodeAt(0) - 97, r: 8 - parseInt(sq[1]) }; }
             rcToSq(r, c) { return String.fromCharCode(97 + c) + (8 - r); }
             isValidRC(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
-            board() { return this._board; }
-            turn() { return this._turn; }
+            board() { return this._board; } turn() { return this._turn; }
             get(sq) { const { r, c } = this.sqToRC(sq); return this.isValidRC(r, c) ? this._board[r][c] : null; }
             put(piece, sq) { const { r, c } = this.sqToRC(sq); if (this.isValidRC(r, c)) this._board[r][c] = { type: piece.type, color: piece.color, uid: piece.uid || ++this.pieceUidCounter }; }
             remove(sq) { const { r, c } = this.sqToRC(sq); if (this.isValidRC(r, c)) this._board[r][c] = null; }
 
             isSquareAttacked(r, c, attackerColor, boardState = this._board) {
-                for (let ir = 0; ir < 8; ir++) for (let ic = 0; ic < 8; ic++) {
+                for (let ir=0; ir<8; ir++) for (let ic=0; ic<8; ic++) {
                     const p = boardState[ir][ic];
                     if (p && p.color === attackerColor && this.getPseudoLegalMoves(ir, ic, p, boardState, true).some(m => m.r === r && m.c === c)) return true;
-                }
-                return false;
+                } return false;
             }
             in_check(color = this._turn) {
                 let kr = -1, kc = -1;
-                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const p = this._board[r][c]; if (p && p.type === 'k' && p.color === color) { kr = r; kc = c; break; } }
-                if (kr === -1) return false; 
-                return this.isSquareAttacked(kr, kc, color === 'w' ? 'b' : 'w');
+                for (let r=0; r<8; r++) for (let c=0; c<8; c++) { const p = this._board[r][c]; if (p && p.type === 'k' && p.color === color) { kr = r; kc = c; break; } }
+                if (kr === -1) return false; return this.isSquareAttacked(kr, kc, color === 'w' ? 'b' : 'w');
             }
 
             getPseudoLegalMoves(r, c, piece, boardState, attackOnly = false) {
-                let moves = [];
-                const color = piece.color; const enemyColor = color === 'w' ? 'b' : 'w';
+                let moves = []; const color = piece.color; const enemyColor = color === 'w' ? 'b' : 'w';
                 const dir = color === 'w' ? -1 : 1; const startRank = color === 'w' ? 6 : 1;
                 const addMove = (nr, nc) => {
                     if (this.isValidRC(nr, nc)) {
-                        const target = boardState[nr][nc];
-                        if (!target) { moves.push({ r: nr, c: nc }); return true; }
-                        if (target.color !== color) moves.push({ r: nr, c: nc });
+                        const t = boardState[nr][nc];
+                        if (!t) { moves.push({ r: nr, c: nc }); return true; }
+                        if (t.color !== color) moves.push({ r: nr, c: nc });
                         return false; 
-                    }
-                    return false;
+                    } return false;
                 };
 
                 switch (piece.type) {
                     case 'p':
-                        if (this.isValidRC(r + dir, c - 1)) { const t = boardState[r + dir][c - 1]; if (attackOnly || (t && t.color === enemyColor) || this.ep_square === this.rcToSq(r + dir, c - 1)) moves.push({ r: r + dir, c: c - 1, flags: 'c' }); }
-                        if (this.isValidRC(r + dir, c + 1)) { const t = boardState[r + dir][c + 1]; if (attackOnly || (t && t.color === enemyColor) || this.ep_square === this.rcToSq(r + dir, c + 1)) moves.push({ r: r + dir, c: c + 1, flags: 'c' }); }
-                        if (!attackOnly && this.isValidRC(r + dir, c) && !boardState[r + dir][c]) { moves.push({ r: r + dir, c: c, flags: 'n' }); if (r === startRank && !boardState[r + dir * 2][c]) moves.push({ r: r + dir * 2, c: c, flags: 'b' }); }
+                        if (this.isValidRC(r + dir, c - 1)) { const t = boardState[r+dir][c-1]; if (attackOnly || (t && t.color === enemyColor) || this.ep_square === this.rcToSq(r+dir, c-1)) moves.push({ r: r+dir, c: c-1, flags: 'c' }); }
+                        if (this.isValidRC(r + dir, c + 1)) { const t = boardState[r+dir][c+1]; if (attackOnly || (t && t.color === enemyColor) || this.ep_square === this.rcToSq(r+dir, c+1)) moves.push({ r: r+dir, c: c+1, flags: 'c' }); }
+                        if (!attackOnly && this.isValidRC(r + dir, c) && !boardState[r+dir][c]) { moves.push({ r: r+dir, c: c, flags: 'n' }); if (r === startRank && !boardState[r+dir*2][c]) moves.push({ r: r+dir*2, c: c, flags: 'b' }); }
                         break;
                     case 'n': [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || t.color !== color) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
                     case 'b': [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(d => { let nr = r+d[0], nc = c+d[1]; while(addMove(nr, nc)) { nr+=d[0]; nc+=d[1]; } }); break;
                     case 'r': [[-1,0],[1,0],[0,-1],[0,1]].forEach(d => { let nr = r+d[0], nc = c+d[1]; while(addMove(nr, nc)) { nr+=d[0]; nc+=d[1]; } }); break;
                     case 'q': [[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]].forEach(d => { let nr = r+d[0], nc = c+d[1]; while(addMove(nr, nc)) { nr+=d[0]; nc+=d[1]; } }); break;
                     case 'k': [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || t.color !== color) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
-                }
-                return moves;
+                } return moves;
             }
 
             moves(options = {}) {
@@ -510,7 +607,6 @@
                     if (!piece || piece.color !== color || rootedPieces[piece.uid] > 0) return;
 
                     let pseudoMoves = this.getPseudoLegalMoves(r, c, piece, this._board);
-                    
                     if (piece.type === 'k' && !this.in_check(color)) {
                         const rights = this.castling[color]; const backRank = color === 'w' ? 7 : 0;
                         if (r === backRank && c === 4) {
@@ -518,29 +614,21 @@
                             if (rights.q && !this._board[r][3] && !this._board[r][2] && !this._board[r][1] && !this.isSquareAttacked(r, 3, color==='w'?'b':'w') && !this.isSquareAttacked(r, 2, color==='w'?'b':'w')) pseudoMoves.push({ r: r, c: 2, flags: 'q' });
                         }
                     }
-
                     pseudoMoves.forEach(m => {
                         let tempBoard = this._board.map(row => [...row]);
-                        tempBoard[m.r][m.c] = piece; tempBoard[r][c] = null;
-                        let epCapture = false;
+                        tempBoard[m.r][m.c] = piece; tempBoard[r][c] = null; let epCapture = false;
                         if (piece.type === 'p' && m.c !== c && !this._board[m.r][m.c]) { tempBoard[r][m.c] = null; epCapture = true; }
-
                         if (!this.isSquareAttackedCheck(color, tempBoard)) {
                             const isPromo = piece.type === 'p' && (m.r === 0 || m.r === 7);
-                            legalMoves.push({
-                                from: this.rcToSq(r, c), to: this.rcToSq(m.r, m.c), piece: piece.type, color: color,
-                                captured: this._board[m.r][m.c] ? this._board[m.r][m.c].type : (epCapture ? 'p' : null),
-                                promotion: isPromo, flags: isPromo ? 'p' : (m.flags || 'n')
-                            });
+                            legalMoves.push({ from: this.rcToSq(r, c), to: this.rcToSq(m.r, m.c), piece: piece.type, color: color, captured: this._board[m.r][m.c] ? this._board[m.r][m.c].type : (epCapture ? 'p' : null), promotion: isPromo, flags: isPromo ? 'p' : (m.flags || 'n') });
                         }
                     });
-                });
-                return legalMoves;
+                }); return legalMoves;
             }
 
             isSquareAttackedCheck(color, boardState) {
                 let kr = -1, kc = -1;
-                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) if (boardState[r][c] && boardState[r][c].type === 'k' && boardState[r][c].color === color) { kr = r; kc = c; break; }
+                for (let r=0; r<8; r++) for (let c=0; c<8; c++) if (boardState[r][c] && boardState[r][c].type === 'k' && boardState[r][c].color === color) { kr = r; kc = c; break; }
                 if (kr === -1) return false; return this.isSquareAttacked(kr, kc, color === 'w' ? 'b' : 'w', boardState);
             }
 
@@ -574,57 +662,76 @@
         }
 
         // ==========================================
-        // 5. 게임 UI 및 공통 변수
+        // UI 제어 및 초기화
         // ==========================================
+        
+        // 고품질 SVG 기물 데이터 (iOS 문제 완벽 해결용)
+        const svgPieces = {
+            'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="none" stroke="{stroke}" stroke-width="1.5"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5"/></svg>',
+            'Q': '<svg viewBox="0 0 45 45"><path d="M9 26c8.5-1.5 21-1.5 27 0l2-12-7 11V11l-5.5 13.5-3-15-3 15-5.5-14V25L7 14l2 12M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-21.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M11.5 30c3.5-1 18.5-1 22 0m-22 3.5c3.5-1 18.5-1 22 0m-22 3.5c3.5-1 18.5-1 22 0" fill="none" stroke="{stroke}" stroke-width="1.5"/></svg>',
+            'R': '<svg viewBox="0 0 45 45"><path d="M9 39h27v-3H9v3zM12 36v-4h21v4H12zM11 14V9h4v2h5V9h5v2h5V9h4v5" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M34 14l-3 3H14l-3-3" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M31 17v12.5H14V17" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M31 29.5l1.5 2.5h-20l1.5-2.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M11 14h23" fill="none" stroke="{stroke}" stroke-width="1.5"/></svg>',
+            'B': '<svg viewBox="0 0 45 45"><g fill="{fill}" stroke="{stroke}" stroke-width="1.5"><path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.354.49-2.323.47-3-.5 1.354-1.46 3-2 3-2zM15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2zM25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z"/></g><path d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5" fill="none" stroke="{stroke}" stroke-width="1.5"/></svg>',
+            'N': '<svg viewBox="0 0 45 45"><path d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.16-.88-1.68-.5-3 1-3.5 1.61-4.43 2-6 1.5-6.5 4.5-9.5 9-11 3-1 6-2 9-2" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0z" fill="{stroke}"/><path d="M15 15.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0z" fill="{stroke}"/></svg>',
+            'P': '<svg viewBox="0 0 45 45"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/></svg>'
+        };
+
         const game = new CustomChess(); 
-        const squaresLayer = document.getElementById('squares-layer');
-        const piecesLayer = document.getElementById('pieces-layer');
-        const dotsLayer = document.getElementById('dots-layer');
-        const vfxGlobalLayer = document.getElementById('vfx-global-layer');
-        const boardEl = document.getElementById('board');
-        const turnDisplayEl = document.getElementById('turn-display');
+        const squaresLayer = document.getElementById('squares-layer'); const piecesLayer = document.getElementById('pieces-layer');
+        const dotsLayer = document.getElementById('dots-layer'); const vfxGlobalLayer = document.getElementById('vfx-global-layer');
+        const boardEl = document.getElementById('board'); const turnDisplayEl = document.getElementById('turn-display');
         
         let selectedSquare = null; let legalMoves = []; let moveCount = 0;
         const AUGMENT_INTERVAL = 6; let isSystemLocked = false; let pendingAugments = [];
         let pendingMove = null; let activePoison = []; let rootedPieces = {}; 
 
-        const pieceSymbols = { p: '♟', n: '♞', b: '♝', r: '♜', q: '♛', k: '♚' };
         function getCoords(sq) { const { r, c } = game.sqToRC(sq); return { x: c * 12.5, y: r * 12.5 }; }
 
         function initBoard() {
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                    const sq = String.fromCharCode(97 + c) + (8 - r);
-                    const cell = document.createElement('div');
-                    cell.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
-                    cell.dataset.square = sq;
-                    cell.addEventListener('click', () => onSquareClick(sq));
-                    squaresLayer.appendChild(cell);
-                }
+            for (let r=0; r<8; r++) for (let c=0; c<8; c++) {
+                const sq = String.fromCharCode(97 + c) + (8 - r); const cell = document.createElement('div');
+                cell.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`; cell.dataset.square = sq;
+                cell.addEventListener('click', () => onSquareClick(sq)); squaresLayer.appendChild(cell);
             }
-            drawPieces(false); updateProgressBar(); updateTurnIndicator();
+        }
+
+        function resetGameUI() {
+            game.reset(); moveCount = 0; activePoison = []; rootedPieces = {}; pendingAugments = [];
+            isSystemLocked = false; selectedSquare = null; legalMoves = []; drawDots();
+            drawPieces(false); updateProgressBar(); updateTurnIndicator(); updateBoardVisuals(); updateCheckStatus();
+            document.querySelectorAll('.floating-text').forEach(e => e.remove());
         }
 
         function updateTurnIndicator() {
-            if(game.turn() === 'w') { turnDisplayEl.className = 'turn-indicator white-turn'; turnDisplayEl.innerHTML = '🤍 백돌 차례'; } 
-            else { turnDisplayEl.className = 'turn-indicator black-turn'; turnDisplayEl.innerHTML = '🖤 흑돌 차례'; }
+            if(game.turn() === 'w') { turnDisplayEl.className = 'turn-indicator white-turn'; turnDisplayEl.innerHTML = '백 차례'; } 
+            else { turnDisplayEl.className = 'turn-indicator black-turn'; turnDisplayEl.innerHTML = '흑 차례'; }
             if(game.turn() === myColor) turnDisplayEl.classList.add('my-turn');
         }
 
         function drawPieces(isAnimate = false) {
             const boardState = game.board(); const currentIds = new Set();
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                    const piece = boardState[r][c];
-                    if (piece) {
-                        currentIds.add(piece.uid);
-                        const sq = game.rcToSq(r, c); const coords = getCoords(sq);
-                        let el = document.getElementById('piece-' + piece.uid);
-                        if (!el) { el = document.createElement('div'); el.id = 'piece-' + piece.uid; el.className = `piece-wrapper ${piece.color === 'w' ? 'white' : 'black'}`; if(isAnimate) el.classList.add('piece-pop'); piecesLayer.appendChild(el); }
-                        if (el.innerText !== pieceSymbols[piece.type]) { el.innerText = pieceSymbols[piece.type]; if(isAnimate) { el.classList.remove('piece-pop'); void el.offsetWidth; el.classList.add('piece-pop'); } }
-                        if (rootedPieces[piece.uid] > 0) el.classList.add('piece-rooted'); else el.classList.remove('piece-rooted');
-                        el.dataset.square = sq; el.style.left = `${coords.x}%`; el.style.top = `${coords.y}%`;
+            for (let r=0; r<8; r++) for (let c=0; c<8; c++) {
+                const piece = boardState[r][c];
+                if (piece) {
+                    currentIds.add(piece.uid); const sq = game.rcToSq(r, c); const coords = getCoords(sq);
+                    let el = document.getElementById('piece-' + piece.uid);
+                    if (!el) { 
+                        el = document.createElement('div'); el.id = 'piece-' + piece.uid; 
+                        el.className = `piece-wrapper`; 
+                        piecesLayer.appendChild(el); 
                     }
+                    
+                    // SVG 렌더링 검사 (색상과 테두리를 완벽하게 분리)
+                    if (el.dataset.type !== piece.type || el.dataset.color !== piece.color) {
+                        const svgStr = svgPieces[piece.type.toUpperCase()]
+                            .replace(/{fill}/g, piece.color === 'w' ? '#ffffff' : '#222222')
+                            .replace(/{stroke}/g, piece.color === 'w' ? '#000000' : '#eeeeee');
+                        el.innerHTML = svgStr;
+                        el.dataset.type = piece.type; el.dataset.color = piece.color;
+                        if(isAnimate) { el.classList.remove('piece-pop'); void el.offsetWidth; el.classList.add('piece-pop'); }
+                    }
+
+                    if (rootedPieces[piece.uid] > 0) el.classList.add('piece-rooted'); else el.classList.remove('piece-rooted');
+                    el.dataset.square = sq; el.style.left = `${coords.x}%`; el.style.top = `${coords.y}%`;
                 }
             }
             document.querySelectorAll('.piece-wrapper').forEach(el => { const uid = parseInt(el.id.replace('piece-', '')); if (!currentIds.has(uid)) { el.style.transform = 'scale(0) rotate(45deg)'; el.style.opacity = '0'; setTimeout(() => el.remove(), 300); } });
@@ -664,7 +771,6 @@
             boardEl.classList.remove('board-shake'); void boardEl.offsetWidth; boardEl.classList.add('board-shake');
             setTimeout(() => { vfxGlobalLayer.classList.remove(vfxClass); }, 1200); 
         }
-
         function triggerVFX(squares, vfxClass) {
             squares.forEach(sq => {
                 const cell = document.querySelector(`.square[data-square="${sq}"]`);
@@ -682,17 +788,28 @@
             activePoison.forEach(p => { p.squares.forEach(sq => { const el = document.querySelector(`.square[data-square="${sq}"]`); if(el) el.classList.add(p.owner === 'w' ? 'poison-zone-w' : 'poison-zone-b'); }); });
         }
 
+        function showEndScreen(resultType, reasonStr) {
+            game.set_game_over();
+            const title = document.getElementById('result-title');
+            if(resultType === '승리') { title.innerText = "🎉 승리!"; title.style.color = "#2ecc71"; }
+            else if(resultType === '패배') { title.innerText = "☠️ 패배"; title.style.color = "#ff4757"; }
+            else { title.innerText = "🤝 무승부"; title.style.color = "#f1c40f"; }
+            
+            document.getElementById('result-desc').innerText = reasonStr;
+            document.getElementById('result-overlay').style.display = 'flex';
+        }
+
         function updateCheckStatus() {
             document.querySelectorAll('.square').forEach(s => s.classList.remove('in-check'));
             let wKing = false, bKing = false;
             for(let r=0; r<8; r++) for(let c=0; c<8; c++) { const p = game.board()[r][c]; if(p && p.type === 'k') { if(p.color === 'w') wKing = true; if(p.color === 'b') bKing = true; } }
             
-            if(!wKing && !bKing) { showToast("🤝 양팀 킹 동시 파괴! 무승부", "#f1c40f", 5000); game.set_game_over(); return; }
-            if(!wKing) { showToast("👑 흑돌 승리! 백돌 킹 파괴", "#ff4757", 5000); game.set_game_over(); return; }
-            if(!bKing) { showToast("👑 백돌 승리! 흑돌 킹 파괴", "#ff4757", 5000); game.set_game_over(); return; }
+            if(!wKing && !bKing) { showEndScreen("무승부", "양팀 킹 동시 파괴"); return; }
+            if(!wKing) { showEndScreen(myColor === 'b' ? '승리' : '패배', "백 킹이 파괴되었습니다."); return; }
+            if(!bKing) { showEndScreen(myColor === 'w' ? '승리' : '패배', "흑 킹이 파괴되었습니다."); return; }
 
-            if (game.in_checkmate()) { showToast("⚔️ 체크메이트! 게임 종료", "#ff4757", 5000); game.set_game_over(); }
-            else if (game.in_draw()) { showToast("🤝 무승부! 게임 종료", "#f1c40f", 5000); game.set_game_over(); }
+            if (game.in_checkmate()) { showEndScreen(game.turn() === myColor ? '패배' : '승리', "체크메이트!"); }
+            else if (game.in_draw()) { showEndScreen("무승부", "진행 가능한 수가 없습니다 (스테일메이트)."); }
             else if (game.in_check()) {
                 const kSq = findPieces(game.turn(), 'k')[0];
                 if(kSq) document.querySelector(`.square[data-square="${kSq}"]`).classList.add('in-check');
@@ -701,7 +818,7 @@
         }
 
         // ==========================================
-        // 6. 플레이어 인터랙션 및 서버 통신
+        // 플레이어 액션 및 AI
         // ==========================================
         function onSquareClick(sq) {
             if (game.game_over() || isSystemLocked || !isGameStarted) return;
@@ -728,18 +845,20 @@
         }
 
         function showPromotionUI(from, to) {
-            isSystemLocked = true; pendingMove = { from, to }; const cClass = game.turn() === 'w' ? 'white' : 'black';
+            isSystemLocked = true; pendingMove = { from, to };
             const cont = document.getElementById('promo-container'); cont.innerHTML = '';
             ['q', 'r', 'b', 'n'].forEach(type => {
-                const el = document.createElement('div'); el.className = `promo-piece piece-wrapper ${cClass}`; el.innerText = pieceSymbols[type];
+                const el = document.createElement('div'); el.className = `promo-piece`; 
+                const svgStr = svgPieces[type.toUpperCase()]
+                            .replace(/{fill}/g, game.turn() === 'w' ? '#ffffff' : '#222222')
+                            .replace(/{stroke}/g, game.turn() === 'w' ? '#000000' : '#eeeeee');
+                el.innerHTML = svgStr;
                 el.onclick = () => { 
                     document.getElementById('promo-overlay').style.display = 'none'; 
                     pushGameAction({ type: 'move', from: pendingMove.from, to: pendingMove.to, promotion: type });
                     executeMoveLocal(pendingMove.from, pendingMove.to, type); 
-                };
-                cont.appendChild(el);
-            });
-            document.getElementById('promo-overlay').style.display = 'flex';
+                }; cont.appendChild(el);
+            }); document.getElementById('promo-overlay').style.display = 'flex';
         }
 
         function executeMoveLocal(from, to, promo) {
@@ -765,59 +884,79 @@
             moveCount++; 
             for (let uid in rootedPieces) { rootedPieces[uid]--; if (rootedPieces[uid] <= 0) delete rootedPieces[uid]; }
             drawPieces();
-
             activePoison.forEach(p => p.duration--); activePoison = activePoison.filter(p => p.duration > 0); updateBoardVisuals(); updateProgressBar();
 
             if (moveCount > 0 && moveCount % AUGMENT_INTERVAL === 0 && !game.game_over()) {
                 pendingAugments = ['w', 'b']; processNextAugmentPhase();
-            } else { isSystemLocked = false; }
+            } else { 
+                isSystemLocked = false;
+                if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 800);
+            }
+        }
+
+        function makeBotMove() {
+            if(game.game_over() || isSystemLocked) return;
+            const moves = game.moves(); if(moves.length === 0) return;
+            const captures = moves.filter(m => m.captured);
+            const move = captures.length > 0 ? captures[Math.floor(Math.random() * captures.length)] : moves[Math.floor(Math.random() * moves.length)];
+            executeMoveLocal(move.from, move.to, move.promotion ? 'q' : null);
         }
 
         // ==========================================
-        // 7. 증강 시스템 (Augments)
+        // 증강 (Augments) 
         // ==========================================
         function findPieces(color, type = null) { let res = []; for(let r=0; r<8; r++) for(let c=0; c<8; c++) { const p = game.board()[r][c]; if(p && p.color === color && (!type || p.type === type)) res.push(game.rcToSq(r,c)); } return res; }
         function getEmptySquares() { let res = []; for(let f=97; f<=104; f++) for(let r=1; r<=8; r++) { const sq = String.fromCharCode(f)+r; if(!game.get(sq)) res.push(sq); } return res; }
+        function getAdjEmptySquares(sq) { const res = []; const f=sq.charCodeAt(0), r=parseInt(sq[1]); for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) if(!(df===0 && dr===0)) { const c = String.fromCharCode(f+df)+(r+dr); if(game.isValidRC(8-r-dr, f-97+df) && !game.get(c)) res.push(c); } return res; }
+        
+        const pieceValue = { q: 9, r: 5, b: 3, n: 3, p: 1, k: 0 };
 
         const AUGMENT_POOL = [
             { name: '운석 충돌', icon: '☄️', desc: '적 1개와 주변 영역을 초토화합니다.', globalVfx: 'vfx-global-explosion', condition: (m, e) => findPieces(e).filter(sq => game.get(sq).type !== 'k').length > 0, apply: (m, e) => { const tgts = findPieces(e).filter(sq => game.get(sq).type !== 'k'); const c = tgts[Math.floor(Math.random()*tgts.length)]; const f=c.charCodeAt(0), r=parseInt(c[1]), hit=[]; for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) if(f+df>=97&&f+df<=104&&r+dr>=1&&r+dr<=8) { const sq = String.fromCharCode(f+df)+(r+dr); const p=game.get(sq); if(p&&p.type!=='k'){game.remove(sq); hit.push(sq); spawnFloatingText(sq,'🔥');}} return { t: hit, vfx: 'vfx-explosion', msg: '🔥 운석이 떨어졌습니다!' }; } },
-            { name: '대학살', icon: '🩸', desc: '적의 핵심 기물(킹, 폰 제외) 2개를 파괴합니다.', globalVfx: 'vfx-global-explosion', condition: (m, e) => findPieces(e).filter(sq => !['k','p'].includes(game.get(sq).type)).length > 0, apply: (m, e) => { let tgts = findPieces(e).filter(sq => !['k','p'].includes(game.get(sq).type)).sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🩸'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🩸 대학살이 일어났습니다!' }; } },
-            { name: '네크로맨시', icon: '💀', desc: '빈 칸에 무작위 아군 퀸을 소환합니다.', globalVfx: 'vfx-global-void', condition: () => getEmptySquares().length > 0, apply: (m, e) => { const sq = getEmptySquares().sort(()=>0.5-Math.random())[0]; game.put({type:'q', color:m}, sq); spawnFloatingText(sq,'💀'); return { t: [sq], vfx: 'vfx-void', msg: '💀 퀸이 부활했습니다!' }; } },
-            { name: '신의 심판', icon: '⚡', desc: '무작위 세로열을 번개로 내리칩니다.', globalVfx: null, delay: 600, condition: () => true, apply: (m, e) => { 
-                const fileIdx = Math.floor(Math.random() * 8); const f = String.fromCharCode(97 + fileIdx); let delayMs = 0;
-                for(let r = 8; r >= 1; r--) { setTimeout(() => { const sq = f + r; const p = game.get(sq); triggerVFX([sq], 'vfx-lightning'); if(p && p.type !== 'k') { game.remove(sq); spawnFloatingText(sq,'⚡'); drawPieces(); } }, delayMs); delayMs += 50; } return { t: [], vfx: '', msg: `⚡ 신의 심판이 내렸습니다!` }; 
-            } },
-            { name: '독구름', icon: '☠️', desc: '6턴 동안 2x2 맹독 영역을 생성합니다.', globalVfx: 'vfx-global-void', condition: () => true, apply: (m, e) => { 
-                const fIdx = Math.floor(Math.random() * 7); const r = 2 + Math.floor(Math.random() * 6); const fChar = String.fromCharCode(97 + fIdx); const fNextChar = String.fromCharCode(98 + fIdx); const squares = [ fChar+r, fChar+(r+1), fNextChar+r, fNextChar+(r+1) ];
-                activePoison.push({ squares: squares, owner: m, duration: 12 });
-                squares.forEach(sq => { const p = game.get(sq); if (p && p.color !== m && p.type !== 'k') { game.remove(sq); spawnFloatingText(sq, '☠️'); } }); updateBoardVisuals(); return { t: squares, vfx: 'vfx-void', msg: '☠️ 맹독 지대가 형성되었습니다!' }; 
-            } },
-            { name: '덩굴', icon: '🌿', desc: '상대 무작위 기물 2개를 묶어 4수 동안 이동 불가로 만듭니다.', globalVfx: 'vfx-global-heal', condition: (m, e) => findPieces(e).filter(sq => game.get(sq).type !== 'k').length > 0, apply: (m, e) => { 
-                let tgts = findPieces(e).filter(sq => game.get(sq).type !== 'k').sort(()=>0.5-Math.random()).slice(0,2); 
-                tgts.forEach(sq => { const p = game.get(sq); rootedPieces[p.uid] = 4; spawnFloatingText(sq,'🌿'); }); return { t: tgts, vfx: 'vfx-heal', msg: '🌿 덩굴이 적 기물을 속박합니다!' }; 
-            } },
-            { name: '성벽 타격', icon: '🏰', desc: '적의 룩(Rook)을 파괴합니다.', globalVfx: 'vfx-global-explosion', condition: (m, e) => findPieces(e, 'r').length > 0, apply: (m, e) => { const tgts = findPieces(e, 'r'); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'💥'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🏰 적의 성벽이 무너졌습니다!' }; } },
-            { name: '기병대 돌격', icon: '🐎', desc: '적진에 나이트 2개를 기습 소환합니다.', globalVfx: 'vfx-global-heal', condition: () => true, apply: (m, e) => { const ranks = e==='b'?[5,6,7,8]:[1,2,3,4]; let empty=[]; ranks.forEach(r => { for(let f=97; f<=104; f++) { const sq=String.fromCharCode(f)+r; if(!game.get(sq)) empty.push(sq); }}); let tgts = empty.sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq=>{ game.put({type:'n',color:m},sq); spawnFloatingText(sq,'🐎'); }); return { t: tgts, vfx: 'vfx-heal', msg: '🐎 기병대가 돌격합니다!' }; } },
-            { name: '저주받은 대지', icon: '😈', desc: '적 무작위 기물 3개를 폰으로 강제 퇴화시킵니다.', globalVfx: 'vfx-global-void', condition: (m, e) => findPieces(e).filter(sq => !['k','p'].includes(game.get(sq).type)).length > 0, apply: (m, e) => { let tgts = findPieces(e).filter(sq => !['k','p'].includes(game.get(sq).type)).sort(()=>0.5-Math.random()).slice(0,3); tgts.forEach(sq=>{ game.remove(sq); game.put({type:'p',color:e},sq); spawnFloatingText(sq,'📉'); }); return { t: tgts, vfx: 'vfx-void', msg: '😈 대지의 저주로 적이 약화되었습니다!' }; } },
-            { name: '강제 징집', icon: '🛡️', desc: '빈 곳에 방패막이 폰 3개를 소환합니다.', globalVfx: 'vfx-global-heal', condition: () => getEmptySquares().length >= 3, apply: (m, e) => { let empty = getEmptySquares().sort(()=>0.5-Math.random()).slice(0,3); empty.forEach(sq => { game.put({type:'p',color:m},sq); spawnFloatingText(sq,'🛡️'); }); return { t: empty, vfx: 'vfx-heal', msg: '🛡️ 강제 징집 발동!' }; } }
+            { name: '대학살', icon: '🩸', desc: '적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-explosion', condition: (m, e) => findPieces(e).filter(sq => !['k','p'].includes(game.get(sq).type)).length > 0, apply: (m, e) => { let tgts = findPieces(e).filter(sq => !['k','p'].includes(game.get(sq).type)).sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🩸'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🩸 대학살이 일어났습니다!' }; } },
+            { name: '네크로맨시', icon: '💀', desc: '무작위 빈칸에 아군 퀸을 소환합니다.', globalVfx: 'vfx-global-void', condition: () => getEmptySquares().length > 0, apply: (m, e) => { const sq = getEmptySquares().sort(()=>0.5-Math.random())[0]; game.put({type:'q', color:m}, sq); spawnFloatingText(sq,'💀'); return { t: [sq], vfx: 'vfx-void', msg: '💀 퀸이 부활했습니다!' }; } },
+            { name: '신의 심판', icon: '⚡', desc: '무작위 세로열을 번개로 내리칩니다.', globalVfx: null, delay: 600, condition: () => true, apply: (m, e) => { const fileIdx = Math.floor(Math.random() * 8); const f = String.fromCharCode(97 + fileIdx); let delayMs = 0; for(let r = 8; r >= 1; r--) { setTimeout(() => { const sq = f + r; const p = game.get(sq); triggerVFX([sq], 'vfx-lightning'); if(p && p.type !== 'k') { game.remove(sq); spawnFloatingText(sq,'⚡'); drawPieces(); } }, delayMs); delayMs += 50; } return { t: [], vfx: '', msg: `⚡ 신의 심판이 내렸습니다!` }; } },
+            { name: '독구름', icon: '☠️', desc: '6턴 유지 2x2 맹독 영역을 만듭니다.', globalVfx: 'vfx-global-void', condition: () => true, apply: (m, e) => { const fIdx = Math.floor(Math.random() * 7); const r = 2 + Math.floor(Math.random() * 6); const fChar = String.fromCharCode(97 + fIdx); const fNextChar = String.fromCharCode(98 + fIdx); const squares = [ fChar+r, fChar+(r+1), fNextChar+r, fNextChar+(r+1) ]; activePoison.push({ squares: squares, owner: m, duration: 12 }); squares.forEach(sq => { const p = game.get(sq); if (p && p.color !== m && p.type !== 'k') { game.remove(sq); spawnFloatingText(sq, '☠️'); } }); updateBoardVisuals(); return { t: squares, vfx: 'vfx-void', msg: '☠️ 맹독 지대가 형성되었습니다!' }; } },
+            { name: '저격수', icon: '🎯', desc: '가장 가치가 높은 적을 파괴합니다.', globalVfx: 'vfx-global-explosion', condition: (m, e) => findPieces(e).filter(sq => game.get(sq).type !== 'k').length > 0, apply: (m, e) => { let targets = findPieces(e).filter(sq => game.get(sq).type !== 'k'); targets.sort((a,b) => pieceValue[game.get(b).type] - pieceValue[game.get(a).type]); const target = targets[0]; game.remove(target); spawnFloatingText(target,'🎯'); return { t: [target], vfx: 'vfx-explosion', msg: '🎯 정확한 저격이 명중했습니다!' }; } },
+            { name: '혼란', icon: '🌀', desc: '적 기물 2개의 위치를 뒤바꿉니다.', globalVfx: 'vfx-global-void', condition: (m, e) => findPieces(e).filter(sq => game.get(sq).type !== 'k').length >= 2, apply: (m, e) => { let tgts = findPieces(e).filter(sq => game.get(sq).type !== 'k').sort(()=>0.5-Math.random()).slice(0,2); const p1 = game.get(tgts[0]); const p2 = game.get(tgts[1]); game.remove(tgts[0]); game.remove(tgts[1]); game.put(p2, tgts[0]); game.put(p1, tgts[1]); return { t: tgts, vfx: 'vfx-lightning', msg: '🌀 적들이 방향감각을 상실했습니다!' }; } },
+            
+            // 신규 추가 5종
+            { name: '지진', icon: '🌋', desc: '각 팀의 무작위 기물을 2개씩 파괴합니다.', globalVfx: 'vfx-global-explosion', condition: (m, e) => findPieces(m).filter(sq=>game.get(sq).type!=='k').length > 1 && findPieces(e).filter(sq=>game.get(sq).type!=='k').length > 1, apply: (m, e) => { let myTgts = findPieces(m).filter(sq=>game.get(sq).type!=='k').sort(()=>0.5-Math.random()).slice(0,2); let eTgts = findPieces(e).filter(sq=>game.get(sq).type!=='k').sort(()=>0.5-Math.random()).slice(0,2); const targets = [...myTgts, ...eTgts]; targets.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🌋'); }); return { t: targets, vfx: 'vfx-explosion', msg: '🌋 거대한 지진이 전장을 휩씁니다!' }; } },
+            { name: '축복', icon: '🕊️', desc: '무작위 빈칸에 아군 비숍이나 나이트를 소환합니다.', globalVfx: 'vfx-global-heal', condition: () => getEmptySquares().length > 0, apply: (m, e) => { const sq = getEmptySquares().sort(()=>0.5-Math.random())[0]; const type = Math.random() > 0.5 ? 'b' : 'n'; game.put({type: type, color: m}, sq); spawnFloatingText(sq,'✨'); return { t: [sq], vfx: 'vfx-heal', msg: '🕊️ 신성한 축복으로 기물이 합류했습니다!' }; } },
+            { name: '저주', icon: '🐸', desc: '무작위 적 기물 1개를 폰으로 변이시킵니다.', globalVfx: 'vfx-global-void', condition: (m, e) => findPieces(e).filter(sq => !['k','p'].includes(game.get(sq).type)).length > 0, apply: (m, e) => { let targets = findPieces(e).filter(sq => !['k','p'].includes(game.get(sq).type)).sort(()=>0.5-Math.random()); const tg = targets[0]; game.remove(tg); game.put({type: 'p', color: e}, tg); spawnFloatingText(tg,'🐸'); return { t: [tg], vfx: 'vfx-lightning', msg: '🐸 적 기물이 폰으로 변해버렸습니다!' }; } },
+            { name: '강제 이주', icon: '🌀', desc: '적 킹을 인접한 무작위 빈칸으로 강제 이동시킵니다.', globalVfx: 'vfx-global-void', condition: (m, e) => getAdjEmptySquares(findPieces(e, 'k')[0]).length > 0, apply: (m, e) => { const kingSq = findPieces(e, 'k')[0]; const empties = getAdjEmptySquares(kingSq).sort(()=>0.5-Math.random()); const tg = empties[0]; const kingInfo = game.get(kingSq); game.remove(kingSq); game.put(kingInfo, tg); spawnFloatingText(tg,'🌀'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🌀 적 킹이 차원 이동을 당했습니다!' }; } },
+            { name: '암살', icon: '🗡️', desc: '가장 가치가 낮은 적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-heal', condition: (m, e) => findPieces(e).filter(sq => game.get(sq).type !== 'k').length > 1, apply: (m, e) => { let targets = findPieces(e).filter(sq => game.get(sq).type !== 'k'); targets.sort((a,b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]); const tgts = targets.slice(0,2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🗡️'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🗡️ 어둠 속에서 암살자가 습격했습니다!' }; } }
         ];
 
         function processNextAugmentPhase() {
-            if (pendingAugments.length === 0) { isSystemLocked = false; updateCheckStatus(); updateProgressBar(); return; }
-            isSystemLocked = true; const activeColor = pendingAugments.shift(); showAugmentCards(activeColor);
+            if (pendingAugments.length === 0) { 
+                isSystemLocked = false; updateCheckStatus(); updateProgressBar(); 
+                if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 800);
+                return; 
+            }
+            isSystemLocked = true; const activeColor = pendingAugments.shift(); 
+            showAugmentCards(activeColor);
         }
 
         function showCastText(text, callback) {
             const el = document.getElementById('cast-text'); el.innerText = `${text} 발동!`; el.style.display = 'block';
-            el.classList.remove('cast-anim'); void el.offsetWidth; el.classList.add('cast-anim'); setTimeout(() => { el.style.display = 'none'; callback(); }, 1000);
+            el.classList.remove('cast-anim'); void el.offsetWidth; el.classList.add('cast-anim'); setTimeout(() => { el.style.display = 'none'; callback(); }, 1200);
         }
 
         function showAugmentCards(playerColor) {
             const overlay = document.getElementById('augment-overlay');
             if (playerColor !== myColor) {
+                if (isBotMode) {
+                    const enemyColor = playerColor === 'w' ? 'b' : 'w';
+                    let available = AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
+                    if(available.length === 0) { processNextAugmentPhase(); return; }
+                    const choice = available[Math.floor(Math.random() * available.length)];
+                    setTimeout(() => applySelectedAugment(choice, playerColor, enemyColor), 1000); 
+                    return;
+                }
                 overlay.innerHTML = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방이 증강을 선택 중입니다...</div>`;
                 overlay.style.display = 'flex';
-                return; // 상대방의 선택 결과(Firebase 이벤트)를 기다림
+                return; 
             }
 
             const enemyColor = playerColor === 'w' ? 'b' : 'w';
@@ -826,35 +965,36 @@
 
             if(options.length === 0) { processNextAugmentPhase(); return; }
 
-            const colorName = playerColor === 'w' ? '백(White)' : '흑(Black)'; const badgeClass = playerColor === 'w' ? 'white' : 'black';
+            const colorName = playerColor === 'w' ? '백' : '흑'; const badgeClass = playerColor === 'w' ? 'white' : 'black';
             let html = `<div class="turn-badge ${badgeClass}">${colorName} 차례</div><h2>증강을 선택하세요</h2><div class="cards-container">`;
             options.forEach((aug, idx) => { html += `<div class="augment-card" data-idx="${idx}"><div class="augment-icon">${aug.icon}</div><div class="augment-title">${aug.name}</div><div class="augment-desc">${aug.desc}</div></div>`; });
             html += `</div>`; overlay.innerHTML = html; overlay.style.display = 'flex';
 
             document.querySelectorAll('.augment-card').forEach(card => {
                 card.onclick = () => {
-                    const selectedAug = options[card.dataset.idx];
                     overlay.style.display = 'none';
-                    
-                    showCastText(selectedAug.name, () => {
-                        const res = selectedAug.apply(playerColor, enemyColor); // 로컬 연산
-                        
-                        // 서버에 연산 완료된 최종 상태 브로드캐스트
-                        pushGameAction({
-                            type: 'augment_sync', state: serializeGameState(),
-                            globalVfx: selectedAug.globalVfx || null,
-                            t: res.t || [], vfx: res.vfx || '', msg: res.msg || '', delay: selectedAug.delay || 1200
-                        });
-
-                        drawPieces(true); updateCheckStatus();
-                        if (selectedAug.globalVfx) playGlobalVFX(selectedAug.globalVfx);
-                        if (res.t && res.t.length > 0) triggerVFX(res.t, res.vfx);
-                        showToast(res.msg, "var(--primary)", 4000);
-                        
-                        const waitTime = selectedAug.delay || 1200;
-                        setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, waitTime); 
-                    });
+                    applySelectedAugment(options[card.dataset.idx], playerColor, enemyColor);
                 };
+            });
+        }
+
+        function applySelectedAugment(selectedAug, pColor, eColor) {
+            showCastText(selectedAug.name, () => {
+                const res = selectedAug.apply(pColor, eColor); 
+                
+                pushGameAction({
+                    type: 'augment_sync', name: selectedAug.name, state: serializeGameState(),
+                    globalVfx: selectedAug.globalVfx || null,
+                    t: res.t || [], vfx: res.vfx || '', msg: res.msg || '', delay: selectedAug.delay || 1200
+                });
+
+                drawPieces(true); updateCheckStatus();
+                if (selectedAug.globalVfx) playGlobalVFX(selectedAug.globalVfx);
+                if (res.t && res.t.length > 0) triggerVFX(res.t, res.vfx);
+                showToast(res.msg, "var(--primary)", 4000);
+                
+                const waitTime = selectedAug.delay || 1200;
+                setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, waitTime); 
             });
         }
 
