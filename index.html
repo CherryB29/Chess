@@ -105,7 +105,6 @@
         }
         .piece-wrapper svg { width: 90%; height: 90%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); pointer-events: none; }
         
-        /* 버프/디버프 아이콘 (덩굴, 무적, 자아분열) */
         .piece-rooted::after { content: '🌿'; position: absolute; bottom: -2px; right: -2px; font-size: 1.2rem; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5)); }
         .piece-invincible { filter: drop-shadow(0 0 10px gold) brightness(1.2) !important; }
         .piece-invincible::before { content: '🛡️'; position: absolute; top: -5px; left: -5px; font-size: 1rem; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5)); z-index: 5;}
@@ -458,6 +457,9 @@
         let botHurryTimer = null; 
         let statsRecorded = false; 
         let userProfile = { name: "Guest", icon: "👤", stats: { w:0, l:0, d:0 } };
+        
+        let isMatchmaking = false; // 매치 취소를 위한 상태 변수
+        let roomListenerUnsubscribe = null;
 
         // UI 오버레이 요소들
         const loginOverlay = document.getElementById('login-overlay');
@@ -524,9 +526,33 @@
             }
         });
 
-        // -------------------- 로비 및 UI 네비게이션 --------------------
+        // -------------------- 로비, 취소 및 UI 네비게이션 --------------------
+        async function cancelMatchmaking() {
+            isMatchmaking = false;
+            document.getElementById('btn-random').innerText = "🎲 빠른 대전";
+            setLobbyMsg("");
+            
+            if (roomListenerUnsubscribe) {
+                roomListenerUnsubscribe();
+                roomListenerUnsubscribe = null;
+            }
+
+            try {
+                const queueRef = ref(db, 'matchmaking/random_queue');
+                const snap = await get(queueRef);
+                if (snap.exists() && snap.val().uid === myUid) {
+                    await remove(queueRef);
+                }
+            } catch(e) {}
+            
+            if (currentRoomId && !isGameStarted) {
+                try { await remove(ref(db, `rooms/${currentRoomId}`)); } catch(e) {}
+            }
+            currentRoomId = null;
+        }
+
         document.getElementById('btn-play-main').addEventListener('click', () => { mainLobbyOverlay.style.display = 'none'; modeSelectOverlay.style.display = 'flex'; });
-        document.getElementById('btn-back-main').addEventListener('click', () => { modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'flex'; setLobbyMsg(""); });
+        document.getElementById('btn-back-main').addEventListener('click', async () => { await cancelMatchmaking(); modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'flex'; setLobbyMsg(""); });
         document.getElementById('btn-settings').addEventListener('click', () => { settingsOverlay.style.display = 'flex'; });
         document.getElementById('btn-close-settings').addEventListener('click', () => { settingsOverlay.style.display = 'none'; });
         document.getElementById('theme-toggle').addEventListener('change', (e) => { if(e.target.checked) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode'); });
@@ -545,12 +571,22 @@
         };
         document.getElementById('btn-google').onclick = () => { signInWithPopup(auth, new GoogleAuthProvider()).catch(err => alert("로그인 실패: " + err.message)); };
         document.getElementById('btn-anon').onclick = () => { signInAnonymously(auth).catch(err => alert("로그인 실패: " + err.message)); };
-        document.getElementById('btn-logout').onclick = () => { if(confirm("로그아웃 하시겠습니까?")) signOut(auth).then(() => { settingsOverlay.style.display = 'none'; }).catch(err => alert("로그아웃 실패: " + err.message)); };
+        
+        document.getElementById('btn-logout').onclick = async () => { 
+            if(confirm("로그아웃 하시겠습니까?")) {
+                await cancelMatchmaking();
+                signOut(auth).then(() => { settingsOverlay.style.display = 'none'; }).catch(err => alert("로그아웃 실패: " + err.message)); 
+            }
+        };
 
         // -------------------- 매치메이킹 및 봇 대전 --------------------
         function setLobbyMsg(msg) { lobbyMsg.innerText = msg; }
 
-        document.getElementById('btn-show-bot-diff').onclick = () => { modeSelectOverlay.style.display = 'none'; botDiffOverlay.style.display = 'flex'; };
+        document.getElementById('btn-show-bot-diff').onclick = async () => { 
+            await cancelMatchmaking();
+            modeSelectOverlay.style.display = 'none'; 
+            botDiffOverlay.style.display = 'flex'; 
+        };
         document.getElementById('btn-close-bot-diff').onclick = () => { botDiffOverlay.style.display = 'none'; modeSelectOverlay.style.display = 'flex'; };
 
         document.querySelectorAll('.btn-bot-diff').forEach(btn => {
@@ -586,24 +622,41 @@
         }
 
         document.getElementById('btn-random').onclick = async () => {
+            if (isMatchmaking) {
+                await cancelMatchmaking();
+                setLobbyMsg("매칭이 취소되었습니다.");
+                return;
+            }
+
+            isMatchmaking = true;
+            document.getElementById('btn-random').innerText = "❌ 매칭 취소";
             setLobbyMsg("대기 중인 상대를 찾는 중...");
+
             const queueRef = ref(db, 'matchmaking/random_queue');
             const snap = await get(queueRef);
             if (snap.exists()) {
                 const data = snap.val();
-                if (data.uid !== myUid) { await remove(queueRef); joinRoom(data.roomId, 'b'); return; }
+                if (data.uid !== myUid) { 
+                    isMatchmaking = false;
+                    document.getElementById('btn-random').innerText = "🎲 빠른 대전";
+                    await remove(queueRef); 
+                    joinRoom(data.roomId, 'b'); 
+                    return; 
+                }
             }
             const newRoomId = push(ref(db, 'rooms')).key;
             await set(queueRef, { uid: myUid, roomId: newRoomId });
-            createRoom(newRoomId, 'w'); setLobbyMsg("상대방을 기다리는 중...");
+            createRoom(newRoomId, 'w'); 
         };
 
-        document.getElementById('btn-create-room').onclick = () => {
+        document.getElementById('btn-create-room').onclick = async () => {
+            await cancelMatchmaking();
             const code = Math.floor(1000 + Math.random() * 9000).toString();
             createRoom(code, 'w'); setLobbyMsg(`초대 코드: [ ${code} ] 대기 중...`);
         };
 
         document.getElementById('btn-join-room').onclick = async () => {
+            await cancelMatchmaking();
             const code = document.getElementById('room-input').value.trim();
             if(!code) return setLobbyMsg("코드를 입력하세요.");
             const roomRef = ref(db, `rooms/${code}/players`);
@@ -661,8 +714,16 @@
         function createRoom(roomId, color) {
             myColor = color; currentRoomId = roomId; isBotMode = false; statsRecorded = false;
             set(ref(db, `rooms/${roomId}/players/${color}`), myUid);
-            onValue(ref(db, `rooms/${roomId}/players`), snap => {
-                const p = snap.val(); if (p && p.w && p.b && !isGameStarted) startGame(p);
+            
+            if (roomListenerUnsubscribe) roomListenerUnsubscribe();
+            roomListenerUnsubscribe = onValue(ref(db, `rooms/${roomId}/players`), snap => {
+                const p = snap.val(); 
+                if (p && p.w && p.b && !isGameStarted) {
+                    if (roomListenerUnsubscribe) { roomListenerUnsubscribe(); roomListenerUnsubscribe = null; }
+                    isMatchmaking = false;
+                    document.getElementById('btn-random').innerText = "🎲 빠른 대전";
+                    startGame(p);
+                }
             });
         }
 
@@ -792,11 +853,12 @@
             if(confirm("정말로 기권하시겠습니까?")) { pushGameAction({ type: 'resign' }); showEndScreen("패배", "기권하셨습니다."); }
         };
 
-        document.getElementById('btn-return-lobby').onclick = () => {
+        document.getElementById('btn-return-lobby').onclick = async () => {
             document.getElementById('result-overlay').style.display = 'none';
             document.getElementById('game-controls').style.display = 'none';
             document.getElementById('btn-resign').style.display = 'none';
             
+            await cancelMatchmaking(); // 안전 장치
             mainLobbyOverlay.style.display = 'flex'; 
             setLobbyMsg(""); isGameStarted = false; currentRoomId = null; isBotMode = false;
             clearTimeout(botHurryTimer);
@@ -1003,8 +1065,6 @@
         function updateTurnIndicator() {
             if(game.turn() === 'w') { turnDisplayEl.className = 'turn-indicator white-turn'; turnDisplayEl.innerHTML = '백'; } 
             else { turnDisplayEl.className = 'turn-indicator black-turn'; turnDisplayEl.innerHTML = '흑'; }
-            if(game.turn() === myColor) turnDisplayEl.classList.add('my-turn');
-            else turnDisplayEl.classList.remove('my-turn');
         }
 
         function drawPieces(isAnimate = false) {
@@ -1136,7 +1196,6 @@
                 if(kSq) document.querySelector(`.square[data-square="${kSq}"]`).classList.add('in-check');
                 showToast("⚠️ 체크!", "#ff4757");
                 
-                // 봇의 체크 반응 추가
                 if (isBotMode && !game.game_over()) {
                     let evalMsg = Math.random() > 0.5 ? "제법 위협적이군요!" : "크윽... 체크라니!";
                     setTimeout(() => showChatBubble('opponent', evalMsg, false), 800);
@@ -1206,7 +1265,6 @@
             
             if (isBotMode && moveResult.color === myColor && !game.game_over()) {
                 clearTimeout(botHurryTimer);
-                // 체크는 updateCheckStatus에서 처리함. 킬 발생 시 10% 확률 리액션
                 if (!game.in_check() && moveResult.captured && pieceValue[moveResult.captured] >= 3 && Math.random() < 0.1) {
                     setTimeout(() => showChatBubble('opponent', "날카로운 수입니다.", false), 800);
                 }
