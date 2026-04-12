@@ -52,6 +52,7 @@
         }
         .turn-indicator.white-turn { background: #fdfdfd; color: #222; border: 1px solid #ccc; }
         .turn-indicator.black-turn { background: #222; color: #fdfdfd; border: 1px solid #555; }
+        .turn-indicator.my-turn { outline: 3px solid #2ecc71; }
 
         .progress-container {
             width: 90%; margin: 0 auto; background: var(--panel-border); border-radius: 10px; padding: 4px;
@@ -458,7 +459,7 @@
         let statsRecorded = false; 
         let userProfile = { name: "Guest", icon: "👤", stats: { w:0, l:0, d:0 } };
         
-        let isMatchmaking = false; // 매치 취소를 위한 상태 변수
+        let isMatchmaking = false; 
         let roomListenerUnsubscribe = null;
 
         // UI 오버레이 요소들
@@ -627,6 +628,9 @@
                 setLobbyMsg("매칭이 취소되었습니다.");
                 return;
             }
+
+            // 방을 만들어둔 상태에서 랜덤 매칭을 돌릴 경우 기존 방 제거 (버그 픽스)
+            await cancelMatchmaking();
 
             isMatchmaking = true;
             document.getElementById('btn-random').innerText = "❌ 매칭 취소";
@@ -1065,6 +1069,8 @@
         function updateTurnIndicator() {
             if(game.turn() === 'w') { turnDisplayEl.className = 'turn-indicator white-turn'; turnDisplayEl.innerHTML = '백'; } 
             else { turnDisplayEl.className = 'turn-indicator black-turn'; turnDisplayEl.innerHTML = '흑'; }
+            if(game.turn() === myColor) turnDisplayEl.classList.add('my-turn');
+            else turnDisplayEl.classList.remove('my-turn');
         }
 
         function drawPieces(isAnimate = false) {
