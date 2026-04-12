@@ -3,56 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>증강 : 체스 (Extreme Edition) - Online</title>
+    <title>증강 : 체스</title>
     <style>
         :root {
+            /* Board Colors */
             --board-dark: #B58863;
             --board-light: #F0D9B5;
+            --primary: #2980b9;     /* 오렌지색을 걷어내고 세련된 블루/모던 톤으로 변경 가능. 하지만 기존 f39c12을 유지하되 톤다운 */
             --primary: #f39c12; 
             --highlight: rgba(243, 156, 18, 0.5);
             --danger: #ff4757;
+            
+            /* Theme Variables (Default: Dark) */
+            --bg-color: #121212;
+            --text-color: #fff;
+            --panel-bg: #1e1e24;
+            --panel-border: #333344;
+            --overlay-bg: rgba(10, 10, 15, 0.9);
+            --input-bg: #2a2a35;
+        }
+
+        body.light-mode {
+            --bg-color: #f5f6fa;
+            --text-color: #2f3640;
+            --panel-bg: #ffffff;
+            --panel-border: #dcdde1;
+            --overlay-bg: rgba(255, 255, 255, 0.9);
+            --input-bg: #f1f2f6;
         }
 
         body {
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            min-height: 100vh; margin: 0; background-color: #121212;
-            font-family: 'Malgun Gothic', sans-serif; color: #fff;
+            min-height: 100vh; margin: 0; background-color: var(--bg-color); color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             touch-action: manipulation; overflow: hidden; padding-top: 15px; box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .header { text-align: center; margin-bottom: 5px; z-index: 10; width: 100%; max-width: 420px; position: relative; }
-        h1 { color: var(--primary); margin: 0 0 5px 0; text-shadow: 0 0 15px rgba(243, 156, 18, 0.6); font-size: 1.6rem; letter-spacing: 1px; }
+        h1 { color: var(--text-color); margin: 0 0 5px 0; font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; }
         
         #btn-resign { position: absolute; top: 0px; right: 10px; width: auto; padding: 6px 12px; margin: 0; font-size: 0.9rem; z-index: 20; display: none; }
 
         .turn-wrapper { display: flex; justify-content: center; margin-bottom: 10px; }
         .turn-indicator {
             padding: 4px 15px; border-radius: 30px; font-weight: 800; font-size: 0.9rem;
-            letter-spacing: 1px; transition: all 0.4s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            letter-spacing: 1px; transition: all 0.4s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        .turn-indicator.white-turn { background: #fdfdfd; color: #222; box-shadow: 0 0 15px rgba(255,255,255,0.4); }
+        .turn-indicator.white-turn { background: #fdfdfd; color: #222; border: 1px solid #ccc; }
         .turn-indicator.black-turn { background: #222; color: #fdfdfd; border: 1px solid #555; }
         .turn-indicator.my-turn { outline: 3px solid #2ecc71; }
 
         .progress-container {
-            width: 90%; margin: 0 auto; background: #2c2c3e; border-radius: 10px; padding: 4px;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); position: relative;
+            width: 90%; margin: 0 auto; background: var(--panel-border); border-radius: 10px; padding: 4px;
+            position: relative;
         }
         .progress-bar {
             height: 12px; background: linear-gradient(90deg, #ff9f43, #ee5253);
             border-radius: 8px; width: 0%; transition: width 0.4s ease;
-            box-shadow: 0 0 10px rgba(238, 82, 83, 0.8);
         }
         .progress-text {
             position: absolute; width: 100%; top: 50%; left: 0; transform: translateY(-50%);
-            font-size: 0.75rem; font-weight: bold; text-align: center; pointer-events: none; text-shadow: 1px 1px 2px #000;
+            font-size: 0.75rem; font-weight: bold; text-align: center; pointer-events: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); color: #fff;
         }
 
         #toast-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 200; pointer-events: none; width: 90%; align-items: center;}
         .toast {
-            background: rgba(20, 20, 30, 0.95); color: #fff; padding: 12px 20px; border-radius: 30px;
+            background: rgba(30, 30, 40, 0.95); color: #fff; padding: 12px 20px; border-radius: 30px;
             font-weight: bold; font-size: 0.9rem; text-align: center; white-space: nowrap;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.8); border: 1px solid #4a4a6a;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 1px solid #4a4a6a;
             animation: toastIn 0.4s ease; transition: opacity 0.4s ease, transform 0.4s ease;
         }
         @keyframes toastIn { from { transform: translateY(-30px) scale(0.8); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
@@ -60,7 +79,7 @@
         #board-container { width: 100%; max-width: 420px; padding: 0 10px; box-sizing: border-box; position: relative; margin-top: 5px; }
         #board {
             position: relative; width: 100%; aspect-ratio: 1 / 1;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 4px solid #1a1a2e; border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4); border: 4px solid var(--panel-bg); border-radius: 8px;
             background-color: var(--board-dark); transition: transform 0.6s ease;
         }
         
@@ -69,7 +88,7 @@
         .square { display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s; box-sizing: border-box;}
         .square.light { background-color: var(--board-light); }
         .square.dark { background-color: var(--board-dark); }
-        .square.selected { background-color: var(--highlight) !important; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+        .square.selected { background-color: var(--highlight) !important; box-shadow: inset 0 0 20px rgba(0,0,0,0.3); }
         .square.in-check { background-color: var(--danger) !important; box-shadow: inset 0 0 30px rgba(100,0,0,0.8); animation: pulseCheck 0.8s infinite alternate; }
         
         .square.poison-zone-w { background-color: rgba(46, 204, 113, 0.5) !important; box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.8); border: 2px dashed rgba(255,255,255,0.9) !important; animation: poisonPulseW 1.5s infinite alternate; }
@@ -84,52 +103,52 @@
             user-select: none; pointer-events: none;
             transition: top 0.3s ease, left 0.3s ease, transform 0.3s, opacity 0.3s;
         }
-        .piece-wrapper svg { width: 90%; height: 90%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); pointer-events: none; }
+        .piece-wrapper svg { width: 90%; height: 90%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); pointer-events: none; }
         
-        /* 덩굴 및 무적 시각 효과 */
-        .piece-rooted::after { content: '🌿'; position: absolute; bottom: -2px; right: -2px; font-size: 1.2rem; filter: drop-shadow(0 0 3px #000); }
+        .piece-rooted::after { content: '🌿'; position: absolute; bottom: -2px; right: -2px; font-size: 1.2rem; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5)); }
         .piece-invincible { filter: drop-shadow(0 0 10px gold) brightness(1.2) !important; }
-        .piece-invincible::before { content: '🛡️'; position: absolute; top: -5px; left: -5px; font-size: 1rem; filter: drop-shadow(0 0 3px #000); z-index: 5;}
+        .piece-invincible::before { content: '🛡️'; position: absolute; top: -5px; left: -5px; font-size: 1rem; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5)); z-index: 5;}
 
         .dot { position: absolute; width: 12.5%; height: 12.5%; display: flex; justify-content: center; align-items: center; pointer-events: none; }
-        .dot::after { content: ''; width: 25%; height: 25%; background: rgba(243, 156, 18, 0.8); border-radius: 50%; box-shadow: 0 0 15px rgba(243, 156, 18, 0.9); }
+        .dot::after { content: ''; width: 25%; height: 25%; background: rgba(243, 156, 18, 0.8); border-radius: 50%; box-shadow: 0 0 10px rgba(243, 156, 18, 0.5); }
         .capture-ring { position: absolute; width: 12.5%; height: 12.5%; display: flex; justify-content: center; align-items: center; pointer-events: none; }
-        .capture-ring::after { content: ''; width: 80%; height: 80%; border: 4px solid var(--danger); border-radius: 50%; box-sizing: border-box; box-shadow: 0 0 15px rgba(255, 71, 87, 0.8), inset 0 0 10px rgba(255, 71, 87, 0.5); animation: spinRing 2s linear infinite; }
+        .capture-ring::after { content: ''; width: 80%; height: 80%; border: 4px solid var(--danger); border-radius: 50%; box-sizing: border-box; box-shadow: 0 0 10px rgba(255, 71, 87, 0.5); animation: spinRing 2s linear infinite; }
         @keyframes spinRing { 0% { transform: scale(0.9) rotate(0deg); opacity: 0.8; } 50% { transform: scale(1.1) rotate(180deg); opacity: 1; } 100% { transform: scale(0.9) rotate(360deg); opacity: 0.8; } }
 
         .floating-text {
             position: absolute; font-size: 2rem; font-weight: bold; pointer-events: none; z-index: 50;
-            text-shadow: 0 0 15px #000; transform: translate(-50%, -50%);
+            text-shadow: 0 0 10px rgba(0,0,0,0.8); transform: translate(-50%, -50%);
             animation: floatUp 1s ease forwards;
         }
         @keyframes floatUp { 0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; } 40% { transform: translate(-50%, -80%) scale(1.2); } 100% { transform: translate(-50%, -150%) scale(1); opacity: 0; } }
 
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+            background: var(--overlay-bg); backdrop-filter: blur(5px);
             display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
+            transition: background 0.3s;
         }
         .turn-badge { padding: 6px 18px; border-radius: 20px; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; animation: pop 0.4s; }
-        .turn-badge.white { background: #fff; color: #000; box-shadow: 0 0 20px rgba(255,255,255,0.5); }
-        .turn-badge.black { background: #222; color: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.8); border: 1px solid #555; }
-        .overlay h2 { color: var(--primary); margin-bottom: 25px; font-size: 1.8rem; text-shadow: 0 0 15px rgba(243, 156, 18, 0.6); animation: pop 0.4s; text-align: center; }
+        .turn-badge.white { background: #fff; color: #000; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        .turn-badge.black { background: #222; color: #fff; box-shadow: 0 0 15px rgba(0,0,0,0.5); border: 1px solid #555; }
+        .overlay h2 { color: var(--text-color); margin-bottom: 25px; font-size: 1.5rem; animation: pop 0.4s; text-align: center; font-weight: 800;}
 
         .cards-container { display: flex; gap: 10px; padding: 10px; flex-wrap: wrap; justify-content: center; max-width: 500px; }
         .augment-card {
-            background: linear-gradient(145deg, #2b2b40, #161623); border: 1px solid #4a4a6a;
-            border-radius: 12px; padding: 15px 10px; width: 105px; text-align: center;
-            cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.8); transition: all 0.2s; animation: pop 0.5s backwards;
+            background: var(--panel-bg); border: 1px solid var(--panel-border);
+            border-radius: 12px; padding: 15px 10px; width: 105px; text-align: center; color: var(--text-color);
+            cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: all 0.2s; animation: pop 0.5s backwards;
         }
         .augment-card:hover { transform: translateY(-5px) scale(1.05); border-color: var(--primary); }
-        .augment-icon { font-size: 2.5rem; margin-bottom: 10px; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3)); }
-        .augment-title { color: #fff; font-size: 1rem; margin: 0 0 8px 0; font-weight: bold; word-break: keep-all; }
-        .augment-desc { color: #aaa; font-size: 0.75rem; line-height: 1.3; margin: 0; word-break: keep-all; }
+        .augment-icon { font-size: 2.5rem; margin-bottom: 10px; }
+        .augment-title { font-size: 1rem; margin: 0 0 8px 0; font-weight: bold; word-break: keep-all; }
+        .augment-desc { color: #888; font-size: 0.75rem; line-height: 1.3; margin: 0; word-break: keep-all; }
 
-        .promo-container { display: flex; gap: 15px; background: #1a1a2e; padding: 20px; border-radius: 15px; border: 2px solid var(--primary); }
+        .promo-container { display: flex; gap: 15px; background: var(--panel-bg); padding: 20px; border-radius: 15px; border: 2px solid var(--primary); }
         .promo-piece { width: 50px; height: 50px; cursor: pointer; padding: 5px; border-radius: 10px; transition: 0.2s; position: relative; pointer-events: auto;}
-        .promo-piece:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+        .promo-piece:hover { background: rgba(128,128,128,0.2); transform: scale(1.1); }
 
-        @keyframes pop { 0% { opacity: 0; transform: scale(0.8) translateY(30px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes pop { 0% { opacity: 0; transform: scale(0.8) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 
         #vfx-global-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 60; overflow: hidden; border-radius: 8px;}
         .vfx-global-explosion { animation: vfxGlobalExp 1.2s ease-out; background: radial-gradient(circle, rgba(255,63,52,0.8) 0%, rgba(0,0,0,0) 70%); }
@@ -143,13 +162,13 @@
         @keyframes boardShake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
 
         .vfx-explosion { animation: vfxTileExp 0.8s ease-out; }
-        @keyframes vfxTileExp { 0% { background-color: #ff3f34; box-shadow: 0 0 30px #ff3f34; } 100% { background-color: transparent; } }
+        @keyframes vfxTileExp { 0% { background-color: #ff3f34; box-shadow: 0 0 20px #ff3f34; } 100% { background-color: transparent; } }
         .vfx-lightning { animation: vfxLightningExp 0.4s ease-out forwards; }
-        @keyframes vfxLightningExp { 0% { background-color: #f1c40f; box-shadow: 0 0 50px #f1c40f; filter: brightness(2); } 20% { background-color: #fff; box-shadow: 0 0 80px #fff; } 100% { background-color: transparent; box-shadow: none; filter: brightness(1); } }
+        @keyframes vfxLightningExp { 0% { background-color: #f1c40f; box-shadow: 0 0 30px #f1c40f; filter: brightness(2); } 20% { background-color: #fff; box-shadow: 0 0 50px #fff; } 100% { background-color: transparent; box-shadow: none; filter: brightness(1); } }
 
-        #cast-text { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.5rem; font-weight: 900; color: #fff; text-shadow: 0 0 30px var(--primary), 0 0 10px #000; z-index: 150; display: none; text-align: center; width: 100%; letter-spacing: 2px; }
+        #cast-text { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px rgba(0,0,0,0.8); z-index: 150; display: none; text-align: center; width: 100%; letter-spacing: 1px; }
         .cast-anim { animation: castTextAnim 1s ease-in-out forwards; }
-        @keyframes castTextAnim { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); filter: blur(10px); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); filter: blur(0px); } 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0px); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); filter: blur(10px); } }
+        @keyframes castTextAnim { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); filter: blur(10px); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); filter: blur(0px); } 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0px); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.3); filter: blur(10px); } }
 
         .piece-shake { animation: pieceShake 0.5s; }
         @keyframes pieceShake { 0%, 100% { transform: translateX(0) scale(1); } 25% { transform: translateX(-10px) rotate(-15deg) scale(1.2); } 75% { transform: translateX(10px) rotate(15deg) scale(1.2); } }
@@ -173,24 +192,30 @@
         .chat-bubble.anim-drop { animation: animDrop 0.5s ease forwards; }
         .chat-bubble.anim-pulse { animation: animPulse 0.8s ease 2; }
 
-        /* 로비 및 하단 컨트롤 UI */
-        .lobby-box { background: #1a1a2e; padding: 25px; border-radius: 15px; border: 2px solid var(--primary); text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.8); width: 90%; max-width: 350px; }
-        .lobby-box h2 { margin-top: 0; }
-        .lobby-btn { display: block; width: 100%; padding: 12px; margin: 10px 0; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
-        .lobby-btn:active { transform: scale(0.95); }
+        /* 심플 모던 로비 스타일 */
+        .lobby-box { 
+            background: var(--panel-bg); color: var(--text-color); padding: 30px 25px; border-radius: 12px; 
+            border: 1px solid var(--panel-border); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+            width: 90%; max-width: 340px; transition: background 0.3s, border-color 0.3s;
+        }
+        .lobby-btn { display: block; width: 100%; padding: 14px; margin: 10px 0; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
+        .lobby-btn:hover { filter: brightness(1.1); }
+        .lobby-btn:active { transform: scale(0.97); }
         .lobby-btn.secondary { background: #34495e; }
         .lobby-btn.danger { background: var(--danger); }
-        .lobby-input { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: #fff; font-size: 1rem; box-sizing: border-box; text-align: center;}
+        .lobby-input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--input-bg); color: var(--text-color); font-size: 1rem; box-sizing: border-box; text-align: center; transition: background 0.3s, color 0.3s, border-color 0.3s;}
+        .lobby-input::placeholder { color: #888; font-weight: normal; }
+        .lobby-input:focus { outline: none; border-color: var(--primary); }
         
         #game-controls { width: 100%; max-width: 420px; padding: 10px 10px; box-sizing: border-box; display: none; gap: 8px; margin-top: 5px; position: relative; justify-content: space-between;}
-        #chat-input { flex-grow: 1; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; font-size: 0.95rem; box-sizing: border-box; min-width: 0; }
+        #chat-input { flex-grow: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--input-bg); color: var(--text-color); font-size: 0.95rem; box-sizing: border-box; min-width: 0; transition: all 0.3s;}
         #chat-input:focus { outline: none; border-color: var(--primary); }
         .ctrl-btn { width: 50px; flex-shrink: 0; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 1.2rem; cursor: pointer; transition: 0.2s; padding: 0;}
         .ctrl-btn.secondary { background: #34495e; }
         
-        #emote-popup { display: none; position: absolute; bottom: 55px; left: 10px; background: rgba(20,20,30,0.95); padding: 10px; border-radius: 10px; gap: 8px; border: 1px solid var(--primary); z-index: 110; flex-wrap: wrap; width: 220px; box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
-        .emote-btn { font-size: 1.5rem; cursor: pointer; transition: transform 0.2s; background: rgba(255,255,255,0.1); border-radius: 8px; padding: 5px; text-align: center; flex: 1 1 30%; box-sizing: border-box;}
-        .emote-btn:hover { transform: scale(1.2); background: rgba(255,255,255,0.2); }
+        #emote-popup { display: none; position: absolute; bottom: 55px; left: 10px; background: var(--panel-bg); padding: 10px; border-radius: 10px; gap: 8px; border: 1px solid var(--panel-border); z-index: 110; flex-wrap: wrap; width: 220px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        .emote-btn { font-size: 1.5rem; cursor: pointer; transition: transform 0.2s; background: transparent; border-radius: 8px; padding: 5px; text-align: center; flex: 1 1 30%; box-sizing: border-box;}
+        .emote-btn:hover { transform: scale(1.2); background: rgba(128,128,128,0.2); }
 
         .black-pov #board { transform: rotate(180deg); }
         .black-pov .piece-wrapper { transform: rotate(-180deg); }
@@ -198,30 +223,41 @@
         /* 말풍선 채팅 UI */
         .chat-bubble {
             position: absolute; z-index: 100;
-            background: rgba(255, 255, 255, 0.95); color: #111;
+            background: var(--panel-bg); color: var(--text-color); border: 1px solid var(--panel-border);
             padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;
             max-width: 60%; word-break: break-word;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.6); 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4); 
             display: none; pointer-events: none; transition: opacity 0.2s ease;
         }
-        /* 우측 하단 (내 말풍선) */
-        .chat-bubble.mine {
-            right: 15px; bottom: 15px; border: 2px solid var(--primary);
-            border-bottom-right-radius: 2px; text-align: right;
-        }
-        /* 좌측 상단 (상대 말풍선) */
-        .chat-bubble.opponent {
-            left: 15px; top: 15px; border: 2px solid var(--danger);
-            border-top-left-radius: 2px; text-align: left;
-        }
+        .chat-bubble.mine { right: 15px; bottom: 15px; border: 2px solid var(--primary); border-bottom-right-radius: 2px; text-align: right; }
+        .chat-bubble.opponent { left: 15px; top: 15px; border: 2px solid var(--danger); border-top-left-radius: 2px; text-align: left; }
+
+        /* 설정 토글 스위치 */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:focus + .slider { box-shadow: 0 0 1px var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+        .slider.round { border-radius: 34px; }
+        .slider.round:before { border-radius: 50%; }
+
+        /* VS Screen */
+        .vs-card { display: flex; flex-direction: column; align-items: center; flex: 1; opacity: 0; animation: slideIn 0.5s forwards;}
+        .vs-card.opp { animation-delay: 0.2s; }
+        .vs-icon { font-size: 4rem; margin-bottom: 10px; background: rgba(128,128,128,0.2); padding: 15px; border-radius: 50%; }
+        .vs-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
+        .vs-stats { font-size: 0.9rem; color: #aaa; }
+        .vs-center { display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: var(--primary); font-style: italic; opacity: 0; animation: pop 0.5s 0.4s forwards;}
+
+        @keyframes slideIn { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         @media (max-width: 400px) {
             .augment-card { width: 90px; padding: 10px 5px; }
             .augment-icon { font-size: 2rem; }
             .augment-title { font-size: 0.85rem; }
             .augment-desc { font-size: 0.7rem; }
-            #cast-text { font-size: 1.8rem; }
-            .overlay h2 { font-size: 1.5rem; }
         }
     </style>
 </head>
@@ -233,7 +269,7 @@
     <div class="header">
         <button id="btn-resign" class="lobby-btn danger">🏳️</button>
         <h1>증강 : 체스</h1>
-        <div id="player-info" style="font-size: 0.8rem; margin-bottom: 5px; color: #aaa;">연결 중...</div>
+        <div id="player-info" style="font-size: 0.8rem; margin-bottom: 5px; color: #888;">연결 중...</div>
         <div class="turn-wrapper">
             <div id="turn-display" class="turn-indicator white-turn">백</div>
         </div>
@@ -271,51 +307,114 @@
         <button id="btn-send-chat" class="ctrl-btn">➤</button>
     </div>
 
-    <div id="lobby-overlay" class="overlay" style="display: flex;">
+    <div id="login-overlay" class="overlay" style="display: flex;">
         <div class="lobby-box">
-            <h2>로비</h2>
+            <div style="font-size: 3rem; margin-bottom: 5px; animation: pop 0.8s;">♞</div>
+            <h1 style="font-size: 1.8rem; margin: 0 0 30px 0; color: var(--text-color); letter-spacing: 1px;">증강 : 체스</h1>
             
-            <div id="login-section">
-                <button id="btn-anon" class="lobby-btn secondary">익명 시작</button>
-                <button id="btn-google" class="lobby-btn">Google 로그인</button>
-                <div style="margin-top: 20px; border-top: 1px solid #444; padding-top: 15px;">
-                    <button id="btn-bot" class="lobby-btn secondary" style="background: #27ae60;">🤖 봇 대전</button>
+            <div id="email-login-form" style="display:none; margin-bottom: 15px;">
+                <input type="email" id="input-email" class="lobby-input" placeholder="이메일">
+                <input type="password" id="input-pw" class="lobby-input" placeholder="비밀번호">
+                <div style="display:flex; gap:10px;">
+                    <button id="btn-email-login" class="lobby-btn" style="margin:0; flex:1;">로그인</button>
+                    <button id="btn-email-signup" class="lobby-btn secondary" style="margin:0; flex:1;">회원가입</button>
                 </div>
             </div>
-            
-            <div id="match-section" style="display: none;">
-                <p id="user-status" style="color: #2ecc71; font-weight: bold; margin-bottom: 15px;">접속 완료</p>
-                <button id="btn-random" class="lobby-btn">🎲 랜덤 대전</button>
-                <div style="margin: 15px 0; border-top: 1px solid #444; padding-top: 15px;">
-                    <input type="text" id="room-input" class="lobby-input" placeholder="초대 코드" maxlength="4">
-                    <button id="btn-join-room" class="lobby-btn secondary">참가하기</button>
-                    <button id="btn-create-room" class="lobby-btn secondary">방 만들기</button>
-                </div>
-                <div style="margin-top: 15px; border-top: 1px solid #444; padding-top: 15px;">
-                    <button id="btn-bot-logged" class="lobby-btn secondary" style="background: #27ae60;">🤖 봇 대전</button>
-                </div>
-            </div>
-            <p id="lobby-msg" style="color: #f1c40f; font-weight: bold; margin-top: 10px; min-height: 1.2rem; font-size: 0.9rem;"></p>
+
+            <button id="btn-show-email" class="lobby-btn secondary" style="background: transparent; border: 1px solid var(--panel-border); color: var(--text-color);">✉️ 이메일로 로그인</button>
+            <button id="btn-google" class="lobby-btn" style="background: #ea4335;">🌐 Google로 로그인</button>
+            <button id="btn-anon" class="lobby-btn secondary" style="background: transparent; border: 1px solid var(--panel-border); color: var(--text-color);">👻 게스트로 시작</button>
         </div>
     </div>
 
-    <div id="augment-overlay" class="overlay"></div>
-    <div id="promo-overlay" class="overlay">
+    <div id="main-lobby-overlay" class="overlay" style="display: none;">
+        <div id="btn-settings" style="position: absolute; top: 20px; left: 20px; font-size: 1.8rem; cursor: pointer; z-index: 101; transition: transform 0.2s;">⚙️</div>
+        
+        <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+            <div style="font-size: 3.5rem; margin-bottom: 5px; animation: pop 0.8s;">♞</div>
+            <h1 style="font-size: 2.2rem; margin: 0 0 50px 0; color: var(--text-color); font-weight: 800; letter-spacing: 1px; animation: pop 0.8s;">증강 : 체스</h1>
+            <button id="btn-play-main" style="background: var(--primary); color: #fff; border: none; padding: 15px 60px; font-size: 1.4rem; font-weight: 900; letter-spacing: 2px; border-radius: 40px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s; animation: pop 1s;">PLAY</button>
+        </div>
+    </div>
+
+    <div id="mode-select-overlay" class="overlay" style="display: none; z-index: 150;">
+        <div class="lobby-box">
+            <h2>게임 모드 선택</h2>
+            <button id="btn-random" class="lobby-btn">🎲 빠른 대전</button>
+            <div style="margin: 20px 0; border-top: 1px solid var(--panel-border); padding-top: 20px;">
+                <input type="text" id="room-input" class="lobby-input" placeholder="초대 코드 (4자리)" maxlength="4">
+                <div style="display: flex; gap: 10px;">
+                    <button id="btn-join-room" class="lobby-btn secondary" style="flex: 1; margin: 0;">방 참가</button>
+                    <button id="btn-create-room" class="lobby-btn secondary" style="flex: 1; margin: 0;">방 만들기</button>
+                </div>
+            </div>
+            <div style="margin-top: 20px; border-top: 1px solid var(--panel-border); padding-top: 20px;">
+                <button id="btn-bot" class="lobby-btn secondary">🤖 컴퓨터와 연습</button>
+            </div>
+            <p id="lobby-msg" style="color: var(--primary); font-weight: bold; margin-top: 15px; min-height: 1.2rem; font-size: 0.95rem;"></p>
+            <button id="btn-back-main" style="margin-top: 15px; background: none; border: none; color: #888; text-decoration: underline; cursor: pointer; font-size: 1rem;">← 뒤로가기</button>
+        </div>
+    </div>
+
+    <div id="settings-overlay" class="overlay" style="display: none; z-index: 300;">
+        <div class="lobby-box">
+            <h2 style="margin-bottom: 20px;">⚙️ 설정</h2>
+            
+            <div style="text-align: left; margin-bottom: 20px; background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--panel-border);">
+                <p style="margin: 0 0 10px 0; color: #888; font-size: 0.85rem; font-weight: bold;">프로필 설정 (<span id="settings-account-info"></span>)</p>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" id="profile-icon-input" class="lobby-input" style="margin:0; width: 60px; font-size: 1.5rem;" maxlength="2" placeholder="👤">
+                    <input type="text" id="profile-name-input" class="lobby-input" style="margin:0; flex: 1;" maxlength="10" placeholder="닉네임">
+                </div>
+                <button id="btn-save-profile" class="lobby-btn" style="padding: 8px; margin: 0;">프로필 저장</button>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 0 5px;">
+                <span style="font-weight: bold; font-size: 1.1rem;">다크 모드</span>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-logout" class="lobby-btn danger" style="flex: 1; margin: 0;">로그아웃</button>
+                <button id="btn-close-settings" class="lobby-btn secondary" style="flex: 1; margin: 0;">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="vs-overlay" class="overlay" style="display: none; z-index: 400; flex-direction: row; justify-content: center; gap: 15px; padding: 20px;">
+        <div id="vs-my-card" class="vs-card">
+            <div class="vs-icon" id="vs-my-icon">👤</div>
+            <div class="vs-name" id="vs-my-name">Player 1</div>
+            <div class="vs-stats" id="vs-my-stats">0W 0L 0D</div>
+        </div>
+        <div class="vs-center">VS</div>
+        <div id="vs-opp-card" class="vs-card opp">
+            <div class="vs-icon" id="vs-opp-icon">👤</div>
+            <div class="vs-name" id="vs-opp-name">Player 2</div>
+            <div class="vs-stats" id="vs-opp-stats">0W 0L 0D</div>
+        </div>
+    </div>
+
+    <div id="augment-overlay" class="overlay" style="z-index: 250;"></div>
+    <div id="promo-overlay" class="overlay" style="z-index: 250;">
         <h2>승급 선택</h2>
         <div class="promo-container" id="promo-container"></div>
     </div>
     
-    <div id="result-overlay" class="overlay" style="z-index: 300;">
+    <div id="result-overlay" class="overlay" style="z-index: 350;">
         <div class="lobby-box">
             <h2 id="result-title" style="font-size: 2.2rem; margin-bottom: 10px;">종료</h2>
-            <p id="result-desc" style="font-size: 1.2rem; margin-bottom: 25px; color: #ddd;"></p>
-            <button id="btn-return-lobby" class="lobby-btn">로비로</button>
+            <p id="result-desc" style="font-size: 1.2rem; margin-bottom: 25px; color: #888;"></p>
+            <button id="btn-return-lobby" class="lobby-btn">메인으로</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, get, onValue, update, push, remove, onChildAdded, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -331,41 +430,146 @@
 
         let myUid = null; let myColor = null; let currentRoomId = null; let isGameStarted = false;
         let isBotMode = false;
-        let disconnectTimer = null; // 30초 탈주 유예 타이머
+        let disconnectTimer = null;
+        let disconnectInterval = null;
+        let statsRecorded = false; // 전적 중복 기록 방지
+        let userProfile = { name: "Guest", icon: "👤", stats: { w:0, l:0, d:0 } };
 
-        const lobbyOverlay = document.getElementById('lobby-overlay');
-        const loginSection = document.getElementById('login-section');
-        const matchSection = document.getElementById('match-section');
+        // UI 오버레이 요소들
+        const loginOverlay = document.getElementById('login-overlay');
+        const mainLobbyOverlay = document.getElementById('main-lobby-overlay');
+        const modeSelectOverlay = document.getElementById('mode-select-overlay');
+        const settingsOverlay = document.getElementById('settings-overlay');
+        const vsOverlay = document.getElementById('vs-overlay');
         const lobbyMsg = document.getElementById('lobby-msg');
         const playerInfo = document.getElementById('player-info');
 
+        // 프로필 정보 불러오기 및 설정
+        async function loadUserProfile(uid, isAnon, email) {
+            const userRef = ref(db, `users/${uid}`);
+            const snap = await get(userRef);
+            if (snap.exists()) {
+                userProfile = snap.val();
+                if(!userProfile.stats) userProfile.stats = {w:0, l:0, d:0};
+            } else {
+                userProfile = { 
+                    name: isAnon ? `Guest_${uid.slice(0,4)}` : (email ? email.split('@')[0] : `User_${uid.slice(0,4)}`), 
+                    icon: "👤", 
+                    stats: { w:0, l:0, d:0 } 
+                };
+                await set(userRef, userProfile);
+            }
+            
+            document.getElementById('settings-account-info').innerText = isAnon ? "게스트" : (email ? "이메일" : "Google");
+            document.getElementById('profile-name-input').value = userProfile.name;
+            document.getElementById('profile-icon-input').value = userProfile.icon;
+        }
+
+        document.getElementById('btn-save-profile').onclick = () => {
+            const newName = document.getElementById('profile-name-input').value.trim() || "Guest";
+            const newIcon = document.getElementById('profile-icon-input').value.trim() || "👤";
+            userProfile.name = newName; userProfile.icon = newIcon;
+            if (myUid) {
+                update(ref(db, `users/${myUid}`), { name: newName, icon: newIcon });
+                showToast("프로필이 저장되었습니다.", "var(--primary)");
+            }
+        };
+
+        // 인증 상태 감지
         onAuthStateChanged(auth, user => {
             if (user) {
-                myUid = user.uid; loginSection.style.display = 'none'; matchSection.style.display = 'block';
-                document.getElementById('user-status').innerText = `접속 완료`;
-            } else { loginSection.style.display = 'block'; matchSection.style.display = 'none'; }
+                myUid = user.uid;
+                loginOverlay.style.display = 'none';
+                if(!isGameStarted && vsOverlay.style.display === 'none') {
+                    mainLobbyOverlay.style.display = 'flex';
+                }
+                loadUserProfile(user.uid, user.isAnonymous, user.email);
+            } else { 
+                myUid = null;
+                if(!isGameStarted) {
+                    loginOverlay.style.display = 'flex';
+                    mainLobbyOverlay.style.display = 'none';
+                    modeSelectOverlay.style.display = 'none';
+                    settingsOverlay.style.display = 'none';
+                    vsOverlay.style.display = 'none';
+                }
+            }
         });
 
-        document.getElementById('btn-anon').onclick = () => { signInAnonymously(auth).catch(err => alert("로그인 실패: " + err.message)); };
-        document.getElementById('btn-google').onclick = () => { signInWithPopup(auth, new GoogleAuthProvider()).catch(err => alert("로그인 실패: " + err.message)); };
+        // -------------------- 로비 및 UI 네비게이션 --------------------
+        document.getElementById('btn-play-main').addEventListener('click', () => {
+            mainLobbyOverlay.style.display = 'none';
+            modeSelectOverlay.style.display = 'flex';
+        });
 
-        const startBotMode = () => {
-            isBotMode = true; myColor = 'w'; isGameStarted = true;
-            lobbyOverlay.style.display = 'none';
-            playerInfo.innerText = `🤖 봇 대전 (백)`;
-            document.body.classList.remove('black-pov');
-            document.getElementById('game-controls').style.display = 'flex';
-            document.getElementById('btn-resign').style.display = 'block';
-            showToast("봇 대전 시작!", "var(--primary)");
-            resetGameUI();
+        document.getElementById('btn-back-main').addEventListener('click', () => {
+            modeSelectOverlay.style.display = 'none';
+            mainLobbyOverlay.style.display = 'flex';
+            setLobbyMsg("");
+        });
+
+        document.getElementById('btn-settings').addEventListener('click', () => {
+            settingsOverlay.style.display = 'flex';
+        });
+
+        document.getElementById('btn-close-settings').addEventListener('click', () => {
+            settingsOverlay.style.display = 'none';
+        });
+
+        document.getElementById('theme-toggle').addEventListener('change', (e) => {
+            if(e.target.checked) { document.body.classList.remove('light-mode'); } 
+            else { document.body.classList.add('light-mode'); }
+        });
+
+        // -------------------- 로그인 제어 --------------------
+        document.getElementById('btn-show-email').onclick = () => {
+            document.getElementById('email-login-form').style.display = 'block';
+            document.getElementById('btn-show-email').style.display = 'none';
         };
-        document.getElementById('btn-bot').onclick = startBotMode;
-        document.getElementById('btn-bot-logged').onclick = startBotMode;
 
+        document.getElementById('btn-email-login').onclick = () => {
+            const e = document.getElementById('input-email').value.trim(); const p = document.getElementById('input-pw').value;
+            if(!e || !p) return alert("이메일과 비밀번호를 입력해주세요.");
+            signInWithEmailAndPassword(auth, e, p).catch(err => alert("로그인 실패: " + err.message));
+        };
+
+        document.getElementById('btn-email-signup').onclick = () => {
+            const e = document.getElementById('input-email').value.trim(); const p = document.getElementById('input-pw').value;
+            if(!e || !p) return alert("이메일과 비밀번호를 입력해주세요.");
+            createUserWithEmailAndPassword(auth, e, p).catch(err => alert("가입 실패: " + err.message));
+        };
+
+        document.getElementById('btn-google').onclick = () => { signInWithPopup(auth, new GoogleAuthProvider()).catch(err => alert("로그인 실패: " + err.message)); };
+        document.getElementById('btn-anon').onclick = () => { signInAnonymously(auth).catch(err => alert("로그인 실패: " + err.message)); };
+        
+        document.getElementById('btn-logout').onclick = () => {
+            if(confirm("로그아웃 하시겠습니까?")) {
+                signOut(auth).then(() => { settingsOverlay.style.display = 'none'; }).catch(err => alert("로그아웃 실패: " + err.message));
+            }
+        };
+
+        // -------------------- 매치메이킹 및 봇 대전 --------------------
         function setLobbyMsg(msg) { lobbyMsg.innerText = msg; }
 
+        const startBotMode = () => {
+            isBotMode = true; myColor = 'w'; isGameStarted = true; statsRecorded = false;
+            modeSelectOverlay.style.display = 'none';
+            
+            // 봇 프로필
+            const botProfile = { name: "컴퓨터 (Bot)", icon: "🤖", stats: {w:999, l:0, d:0} };
+            showVsScreen(userProfile, botProfile, () => {
+                playerInfo.innerText = `🤖 봇 대전 (당신은 백입니다)`;
+                document.body.classList.remove('black-pov');
+                document.getElementById('game-controls').style.display = 'flex';
+                document.getElementById('btn-resign').style.display = 'block';
+                showToast("봇 대전 시작!", "var(--primary)");
+                resetGameUI();
+            });
+        };
+        document.getElementById('btn-bot').onclick = startBotMode;
+
         document.getElementById('btn-random').onclick = async () => {
-            setLobbyMsg("대기 중...");
+            setLobbyMsg("대기 중인 상대를 찾는 중...");
             const queueRef = ref(db, 'matchmaking/random_queue');
             const snap = await get(queueRef);
             if (snap.exists()) {
@@ -374,23 +578,41 @@
             }
             const newRoomId = push(ref(db, 'rooms')).key;
             await set(queueRef, { uid: myUid, roomId: newRoomId });
-            createRoom(newRoomId, 'w'); setLobbyMsg("상대방 대기 중...");
+            createRoom(newRoomId, 'w'); setLobbyMsg("상대방을 기다리는 중...");
         };
 
         document.getElementById('btn-create-room').onclick = () => {
             const code = Math.floor(1000 + Math.random() * 9000).toString();
-            createRoom(code, 'w'); setLobbyMsg(`코드: [ ${code} ] 대기 중...`);
+            createRoom(code, 'w'); setLobbyMsg(`초대 코드: [ ${code} ] 대기 중...`);
         };
 
         document.getElementById('btn-join-room').onclick = async () => {
             const code = document.getElementById('room-input').value.trim();
-            if(!code) return setLobbyMsg("코드 입력 요망.");
+            if(!code) return setLobbyMsg("코드를 입력하세요.");
             const roomRef = ref(db, `rooms/${code}/players`);
             const snap = await get(roomRef);
             if (snap.exists() && snap.val().w) joinRoom(code, 'b');
-            else setLobbyMsg("방이 없습니다.");
+            else setLobbyMsg("존재하지 않거나 닫힌 방입니다.");
         };
 
+        // -------------------- VS 화면 표시 --------------------
+        function showVsScreen(myP, oppP, callback) {
+            document.getElementById('vs-my-icon').innerText = myP.icon;
+            document.getElementById('vs-my-name').innerText = myP.name;
+            document.getElementById('vs-my-stats').innerText = `${myP.stats.w}W ${myP.stats.l}L ${myP.stats.d}D`;
+
+            document.getElementById('vs-opp-icon').innerText = oppP.icon;
+            document.getElementById('vs-opp-name').innerText = oppP.name;
+            document.getElementById('vs-opp-stats').innerText = `${oppP.stats.w}W ${oppP.stats.l}L ${oppP.stats.d}D`;
+
+            vsOverlay.style.display = 'flex';
+            setTimeout(() => {
+                vsOverlay.style.display = 'none';
+                callback();
+            }, 3000);
+        }
+
+        // -------------------- 네트워크 및 상태 감지 --------------------
         function setupPresence() {
             if(isBotMode) return;
             const myStatusRef = ref(db, `rooms/${currentRoomId}/players/${myColor}_status`);
@@ -400,66 +622,89 @@
             const enemyColor = myColor === 'w' ? 'b' : 'w';
             const enemyStatusRef = ref(db, `rooms/${currentRoomId}/players/${enemyColor}_status`);
             
-            // 새로운 탈주 방지(유예) 시스템 
             onValue(enemyStatusRef, snap => {
                 if(isGameStarted && !game.game_over()) {
                     if(snap.val() === 'offline') {
-                        playerInfo.innerText = `[방:${currentRoomId}] ⚠️ 상대 오프라인 (30초 후 승리)`;
+                        let timeLeft = 15;
+                        playerInfo.innerText = `[방:${currentRoomId}] ⚠️ 상대 오프라인 (${timeLeft}초 후 승리)`;
+                        
+                        if(!disconnectInterval) {
+                            disconnectInterval = setInterval(() => {
+                                timeLeft--;
+                                if(timeLeft > 0 && !game.game_over()) {
+                                    playerInfo.innerText = `[방:${currentRoomId}] ⚠️ 상대 오프라인 (${timeLeft}초 후 승리)`;
+                                }
+                            }, 1000);
+                        }
+
                         if(!disconnectTimer) {
                             disconnectTimer = setTimeout(() => {
+                                clearInterval(disconnectInterval); disconnectInterval = null;
                                 if(!game.game_over()) {
                                     pushGameAction({ type: 'resign' });
-                                    showEndScreen("승리", "상대방 탈주 (30초 경과).");
+                                    showEndScreen("승리", "상대방 탈주 (15초 경과).");
                                 }
-                            }, 30000);
+                            }, 15000);
                         }
                     } else {
                         if(disconnectTimer) {
-                            clearTimeout(disconnectTimer);
-                            disconnectTimer = null;
+                            clearTimeout(disconnectTimer); disconnectTimer = null;
+                            clearInterval(disconnectInterval); disconnectInterval = null;
                             showToast("상대방이 재접속했습니다!", "var(--primary)");
                         }
-                        playerInfo.innerText = `[방:${currentRoomId}] ${myColor === 'w' ? '백' : '흑'}`;
+                        playerInfo.innerText = `[방:${currentRoomId}] 당신은 ${myColor === 'w' ? '백' : '흑'}입니다`;
                     }
                 }
             });
 
             const enemyTypingRef = ref(db, `rooms/${currentRoomId}/players/${enemyColor}_typing`);
             onValue(enemyTypingRef, snap => {
-                if(snap.val() === true) {
-                    showChatBubble('opponent', '💬 입력 중...', true);
-                } else {
-                    hideChatBubble('opponent', true);
-                }
+                if(snap.val() === true) { showChatBubble('opponent', '💬 입력 중...', true); } 
+                else { hideChatBubble('opponent', true); }
             });
         }
 
         function createRoom(roomId, color) {
-            myColor = color; currentRoomId = roomId; isBotMode = false;
+            myColor = color; currentRoomId = roomId; isBotMode = false; statsRecorded = false;
             set(ref(db, `rooms/${roomId}/players/${color}`), myUid);
             onValue(ref(db, `rooms/${roomId}/players`), snap => {
-                const p = snap.val(); if (p && p.w && p.b && !isGameStarted) startGame();
+                const p = snap.val(); if (p && p.w && p.b && !isGameStarted) startGame(p);
             });
         }
 
         function joinRoom(roomId, color) {
-            myColor = color; currentRoomId = roomId; isBotMode = false;
+            myColor = color; currentRoomId = roomId; isBotMode = false; statsRecorded = false;
             update(ref(db, `rooms/${roomId}/players`), { [color]: myUid });
-            startGame();
+            // 방장(w)이 상태 업데이트를 받아서 startGame을 호출함. 참가자도 수동 호출.
+            get(ref(db, `rooms/${roomId}/players`)).then(snap => { startGame(snap.val()); });
         }
 
-        function startGame() {
-            isGameStarted = true; lobbyOverlay.style.display = 'none';
-            playerInfo.innerText = `[방:${currentRoomId}] ${myColor === 'w' ? '백' : '흑'}`;
-            if(myColor === 'b') document.body.classList.add('black-pov');
-            else document.body.classList.remove('black-pov');
-            
-            document.getElementById('game-controls').style.display = 'flex';
-            document.getElementById('btn-resign').style.display = 'block';
-            showToast("대전 시작!", "var(--primary)");
-            resetGameUI();
-            setupPresence();
-            setupNetworkListeners();
+        async function startGame(playersData) {
+            if(isGameStarted) return;
+            isGameStarted = true; 
+            modeSelectOverlay.style.display = 'none';
+            mainLobbyOverlay.style.display = 'none';
+
+            // 상대방 프로필 가져오기
+            const opponentUid = myColor === 'w' ? playersData.b : playersData.w;
+            let oppProfile = { name: "Unknown", icon: "👤", stats: {w:0,l:0,d:0} };
+            if (opponentUid) {
+                const oppSnap = await get(ref(db, `users/${opponentUid}`));
+                if(oppSnap.exists()) oppProfile = oppSnap.val();
+            }
+
+            showVsScreen(userProfile, oppProfile, () => {
+                playerInfo.innerText = `[방:${currentRoomId}] 당신은 ${myColor === 'w' ? '백' : '흑'}입니다`;
+                if(myColor === 'b') document.body.classList.add('black-pov');
+                else document.body.classList.remove('black-pov');
+                
+                document.getElementById('game-controls').style.display = 'flex';
+                document.getElementById('btn-resign').style.display = 'block';
+                showToast("온라인 대전 시작!", "var(--primary)");
+                resetGameUI();
+                setupPresence();
+                setupNetworkListeners();
+            });
         }
 
         function pushGameAction(payload) {
@@ -489,7 +734,7 @@
                     setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, action.delay || 1200);
                 });
             } else if (action.type === 'resign') {
-                showEndScreen("승리", "상대방 기권 또는 통신 두절.");
+                showEndScreen("승리", "상대방이 기권했습니다.");
             } else if (action.type === 'chat') {
                 showChatBubble('opponent', action.msg, false);
             }
@@ -577,7 +822,6 @@
             if (!isTyping && emoteAnimations[msg]) {
                 bubble.classList.add(emoteAnimations[msg]);
             } else if (!isTyping) {
-                // 텍스트 채팅용 기본 팝업 애니메이션
                 bubble.style.animation = 'none';
                 void bubble.offsetWidth;
                 bubble.style.animation = 'pop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
@@ -610,10 +854,12 @@
             document.getElementById('result-overlay').style.display = 'none';
             document.getElementById('game-controls').style.display = 'none';
             document.getElementById('btn-resign').style.display = 'none';
-            lobbyOverlay.style.display = 'flex';
+            
+            mainLobbyOverlay.style.display = 'flex'; // 메인 로비로 돌아감
             setLobbyMsg("");
             isGameStarted = false; currentRoomId = null; isBotMode = false;
             if(disconnectTimer) { clearTimeout(disconnectTimer); disconnectTimer = null; }
+            if(disconnectInterval) { clearInterval(disconnectInterval); disconnectInterval = null; }
         };
 
         function serializeGameState() {
@@ -621,7 +867,7 @@
                 board: game.board(), turn: game.turn(), castling: game.castling, ep_square: game.ep_square,
                 is_game_over: game.is_game_over, moveCount: moveCount, activePoison: activePoison,
                 rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, pendingAugments: pendingAugments,
-                activeWalls: activeWalls
+                activeWalls: activeWalls, reversedPawns: reversedPawns
             });
         }
         function deserializeGameState(stateStr) {
@@ -629,7 +875,7 @@
             game._board = state.board; game._turn = state.turn; game.castling = state.castling; game.ep_square = state.ep_square;
             game.is_game_over = state.is_game_over; moveCount = state.moveCount; activePoison = state.activePoison;
             rootedPieces = state.rootedPieces || {}; invinciblePieces = state.invinciblePieces || {}; pendingAugments = state.pendingAugments;
-            activeWalls = state.activeWalls || [];
+            activeWalls = state.activeWalls || []; reversedPawns = state.reversedPawns || { color: null, duration: 0 };
             updateProgressBar(); updateBoardVisuals(); updateTurnIndicator();
         }
 
@@ -673,11 +919,10 @@
 
             getPseudoLegalMoves(r, c, piece, boardState, attackOnly = false) {
                 let moves = []; const color = piece.color; const enemyColor = color === 'w' ? 'b' : 'w';
-                const dir = color === 'w' ? -1 : 1; const startRank = color === 'w' ? 6 : 1;
                 const addMove = (nr, nc) => {
                     if (this.isValidRC(nr, nc)) {
                         const t = boardState[nr][nc];
-                        if (t && t.type === 'wall') return false; // 벽 통과/공격 불가
+                        if (t && t.type === 'wall') return false; 
                         if (!t) { moves.push({ r: nr, c: nc }); return true; }
                         if (t.color !== color) {
                             if (!invinciblePieces[t.uid]) moves.push({ r: nr, c: nc }); 
@@ -688,13 +933,17 @@
 
                 switch (piece.type) {
                     case 'p':
+                        const isReversed = reversedPawns.duration > 0 && reversedPawns.color === color;
+                        const dir = color === 'w' ? (isReversed ? 1 : -1) : (isReversed ? -1 : 1);
+                        const startRank = color === 'w' ? 6 : 1;
+
                         if (this.isValidRC(r + dir, c - 1)) { const t = boardState[r+dir][c-1]; if (attackOnly || (t && t.type !== 'wall' && t.color === enemyColor && !invinciblePieces[t.uid]) || this.ep_square === this.rcToSq(r+dir, c-1)) moves.push({ r: r+dir, c: c-1, flags: 'c' }); }
                         if (this.isValidRC(r + dir, c + 1)) { const t = boardState[r+dir][c+1]; if (attackOnly || (t && t.type !== 'wall' && t.color === enemyColor && !invinciblePieces[t.uid]) || this.ep_square === this.rcToSq(r+dir, c+1)) moves.push({ r: r+dir, c: c+1, flags: 'c' }); }
                         if (!attackOnly && this.isValidRC(r + dir, c)) { 
                             const t1 = boardState[r+dir][c];
                             if(!t1) {
                                 moves.push({ r: r+dir, c: c, flags: 'n' }); 
-                                if (r === startRank && !boardState[r+dir*2][c]) moves.push({ r: r+dir*2, c: c, flags: 'b' }); 
+                                if (!isReversed && r === startRank && !boardState[r+dir*2][c]) moves.push({ r: r+dir*2, c: c, flags: 'b' }); 
                             }
                         }
                         break;
@@ -792,7 +1041,7 @@
         let selectedSquare = null; let legalMoves = []; let moveCount = 0;
         const AUGMENT_INTERVAL = 7; let isSystemLocked = false; let pendingAugments = [];
         let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {};
-        let activeWalls = [];
+        let activeWalls = []; let reversedPawns = { color: null, duration: 0 };
 
         function getCoords(sq) { const { r, c } = game.sqToRC(sq); return { x: c * 12.5, y: r * 12.5 }; }
 
@@ -806,7 +1055,7 @@
 
         function resetGameUI() {
             game.reset(); moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; pendingAugments = [];
-            activeWalls = []; isSystemLocked = false; selectedSquare = null; legalMoves = []; drawDots();
+            activeWalls = []; reversedPawns = { color: null, duration: 0 }; isSystemLocked = false; selectedSquare = null; legalMoves = []; drawDots();
             drawPieces(false); updateProgressBar(); updateTurnIndicator(); updateBoardVisuals(); updateCheckStatus();
             document.querySelectorAll('.floating-text').forEach(e => e.remove());
         }
@@ -907,7 +1156,18 @@
         }
 
         function showEndScreen(resultType, reasonStr) {
+            if(game.is_game_over) return;
             game.set_game_over();
+            
+            // 전적 업데이트
+            if(!isBotMode && myUid && !statsRecorded) {
+                statsRecorded = true;
+                if(resultType === '승리') userProfile.stats.w++;
+                else if(resultType === '패배') userProfile.stats.l++;
+                else userProfile.stats.d++;
+                update(ref(db, `users/${myUid}/stats`), userProfile.stats);
+            }
+
             const title = document.getElementById('result-title');
             if(resultType === '승리') { title.innerText = "🎉 승리!"; title.style.color = "#2ecc71"; }
             else if(resultType === '패배') { title.innerText = "☠️ 패배"; title.style.color = "#ff4757"; }
@@ -1003,6 +1263,11 @@
             for (let uid in rootedPieces) { rootedPieces[uid]--; if (rootedPieces[uid] <= 0) delete rootedPieces[uid]; }
             for (let uid in invinciblePieces) { invinciblePieces[uid]--; if (invinciblePieces[uid] <= 0) delete invinciblePieces[uid]; }
             
+            if (reversedPawns.duration > 0) {
+                reversedPawns.duration--;
+                if (reversedPawns.duration <= 0) reversedPawns.color = null;
+            }
+
             // 벽 수명 차감 및 제거
             activeWalls.forEach(w => w.duration--);
             activeWalls = activeWalls.filter(w => {
@@ -1018,7 +1283,6 @@
             activePoison.forEach(p => p.duration--); activePoison = activePoison.filter(p => p.duration > 0); updateBoardVisuals(); updateProgressBar();
 
             if (moveCount > 0 && moveCount % AUGMENT_INTERVAL === 0 && !game.game_over()) {
-                // 게임 턴 상태에 따라 다음 턴 플레이어가 증강 선택을 먼저 하도록 변경
                 pendingAugments = game.turn() === 'w' ? ['w', 'b'] : ['b', 'w']; 
                 processNextAugmentPhase();
             } else { 
@@ -1043,7 +1307,6 @@
         function getEmptySquares() { let res = []; for(let f=97; f<=104; f++) for(let r=1; r<=8; r++) { const sq = String.fromCharCode(f)+r; if(!game.get(sq)) res.push(sq); } return res; }
         function getAdjEmptySquares(sq) { const res = []; const f=sq.charCodeAt(0), r=parseInt(sq[1]); for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) if(!(df===0 && dr===0)) { const c = String.fromCharCode(f+df)+(r+dr); if(game.isValidRC(8-r-dr, f-97+df) && !game.get(c)) res.push(c); } return res; }
         
-        // 소환 시 왕을 바로 공격(Check)하는 자리를 피하는 함수
         function getSafeEmptySquares(color, type) {
             let res = [];
             const eColor = color === 'w' ? 'b' : 'w';
@@ -1058,7 +1321,7 @@
                     }
                 }
             }
-            if(res.length === 0) return getEmptySquares(); // 전부 체크 자리면 fallback
+            if(res.length === 0) return getEmptySquares();
             return res;
         }
 
@@ -1081,7 +1344,16 @@
             { name: '빛의 수호', icon: '🛡️', desc: '아군 모든 폰에게 1수 동안 무적을 부여합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m, 'p').length > 0, apply: (m, e) => { let tgts = findPieces(m, 'p'); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq,'🛡️'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '🛡️ 폰들이 무적 상태가 되었습니다!' }; } },
             { name: '여신의 가호', icon: '✨', desc: '무작위 아군 상위 기물 2개에 1수 무적 부여.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3).length > 0, apply: (m, e) => { let tgts = findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3).sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq,'✨'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '✨ 상위 기물들이 무적이 되었습니다!' }; } },
             { name: '덩굴', icon: '🌿', desc: '적 기물 2개를 4수 동안 덩굴로 속박합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findVulnerable(e).length >= 2, apply: (m, e) => { let tgts = findVulnerable(e).sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { const p = game.get(sq); rootedPieces[p.uid] = 8; spawnFloatingText(sq,'🌿'); }); return { t: tgts, vfx: 'vfx-void', msg: '🌿 적들이 덩굴에 묶였습니다!' }; } },
-            { name: '차원 장벽', icon: '🧱', desc: '빈칸 한 곳에 10수 동안 모든 이동을 막는 장벽을 세웁니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: () => getEmptySquares().length > 0, apply: (m, e) => { const sq = getEmptySquares().sort(()=>0.5-Math.random())[0]; game.put({type: 'wall', color: 'none'}, sq); activeWalls.push({sq: sq, duration: 10}); spawnFloatingText(sq,'🧱'); return { t: [sq], vfx: 'vfx-heal', msg: '🧱 차원 장벽이 생성되었습니다!' }; } }
+            { name: '차원 장벽', icon: '🧱', desc: '빈칸 한 곳에 10수 동안 모든 이동을 막는 장벽을 세웁니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: () => getEmptySquares().length > 0, apply: (m, e) => { const sq = getEmptySquares().sort(()=>0.5-Math.random())[0]; game.put({type: 'wall', color: 'none'}, sq); activeWalls.push({sq: sq, duration: 10}); spawnFloatingText(sq,'🧱'); return { t: [sq], vfx: 'vfx-heal', msg: '🧱 차원 장벽이 생성되었습니다!' }; } },
+            { name: '마인드 컨트롤', icon: '🧠', desc: '무작위 적 폰 1개를 세뇌시켜 아군으로 만듭니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).filter(sq => game.get(sq).type === 'p').length > 0, apply: (m, e) => { let tgts = findVulnerable(e).filter(sq => game.get(sq).type === 'p').sort(()=>0.5-Math.random()); const tg = tgts[0]; const p = game.get(tg); game.remove(tg); game.put({type: 'p', color: m}, tg); spawnFloatingText(tg,'🧠'); return { t: [tg], vfx: 'vfx-lightning', msg: '🧠 적 폰을 아군으로 세뇌했습니다!' }; } },
+            { name: '그림자 교체', icon: '🥷', desc: '아군 킹과 무작위 아군 기물의 위치를 뒤바꿉니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(m).filter(sq => game.get(sq).type !== 'k').length > 0, apply: (m, e) => { const kingSq = findPieces(m, 'k')[0]; const allySqs = findPieces(m).filter(sq => sq !== kingSq).sort(()=>0.5-Math.random()); const tg = allySqs[0]; const kInfo = game.get(kingSq); const aInfo = game.get(tg); game.remove(kingSq); game.remove(tg); game.put(aInfo, kingSq); game.put(kInfo, tg); spawnFloatingText(kingSq,'🥷'); spawnFloatingText(tg,'🥷'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🥷 킹이 그림자 속으로 위치를 바꿨습니다!' }; } },
+            { name: '기사 서임', icon: '⚔️', desc: '무작위 아군 폰 1~3개를 나이트로 즉시 승급시킵니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m, 'p').length > 0, apply: (m, e) => { let tgts = findPieces(m, 'p').sort(()=>0.5-Math.random()).slice(0, Math.floor(Math.random()*3)+1); tgts.forEach(tg => { game.remove(tg); game.put({type: 'n', color: m}, tg); spawnFloatingText(tg,'⚔️'); }); return { t: tgts, vfx: 'vfx-heal', msg: `⚔️ ${tgts.length}개의 폰이 기사로 서임되었습니다!` }; } },
+            { name: '신성한 폭발', icon: '💥', desc: '아군 킹 주변 8칸의 모든 적 기물을 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findPieces(m, 'k').length > 0, apply: (m, e) => { const kingSq = findPieces(m, 'k')[0]; const f = kingSq.charCodeAt(0), r = parseInt(kingSq[1]); let hit = []; for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) { if(df===0 && dr===0) continue; const sq = String.fromCharCode(f+df)+(r+dr); const p = game.get(sq); if(p && p.color === e && p.type !== 'k' && !invinciblePieces[p.uid]) { game.remove(sq); hit.push(sq); spawnFloatingText(sq,'💥'); } } return { t: hit, vfx: 'vfx-explosion', msg: hit.length > 0 ? '💥 킹의 주변을 휩쓸었습니다!' : '💥 폭발이 빗나갔습니다.' }; } },
+            { name: '등가 교환', icon: '⚖️', desc: '가장 낮은 아군을 희생하여, 가장 높은 적을 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findPieces(m).filter(sq=>game.get(sq).type!=='k').length > 0 && findVulnerable(e).length > 0, apply: (m, e) => { let myTgts = findPieces(m).filter(sq=>game.get(sq).type!=='k').sort((a,b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]); let eTgts = findVulnerable(e).sort((a,b) => pieceValue[game.get(b).type] - pieceValue[game.get(a).type]); const mSq = myTgts[0]; const eSq = eTgts[0]; game.remove(mSq); game.remove(eSq); spawnFloatingText(mSq,'💀'); spawnFloatingText(eSq,'⚖️'); return { t: [mSq, eSq], vfx: 'vfx-explosion', msg: '⚖️ 희생을 통해 강력한 적을 처치했습니다!' }; } },
+            { name: '광기', icon: '🤡', desc: '무작위 적 1개를 맵 어딘가의 빈칸으로 날려버립니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).length > 0 && getSafeEmptySquares(e, 'p').length > 0, apply: (m, e) => { let eTgts = findVulnerable(e).sort(()=>0.5-Math.random()); const tg = eTgts[0]; const pInfo = game.get(tg); const emptySqs = getSafeEmptySquares(pInfo.color, pInfo.type).sort(()=>0.5-Math.random()); if(emptySqs.length > 0) { game.remove(tg); game.put(pInfo, emptySqs[0]); spawnFloatingText(tg,'🤡'); spawnFloatingText(emptySqs[0],'🌀'); return { t: [tg, emptySqs[0]], vfx: 'vfx-lightning', msg: '🤡 적이 알 수 없는 곳으로 텔레포트 되었습니다!' }; } return { t: [], vfx: '', msg: '공간이 부족해 실패했습니다.' }; } },
+            { name: '연금술', icon: '⚗️', desc: '무작위 아군 폰 1개를 비숍/나이트/룩 중 하나로 변환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m, 'p').length > 0, apply: (m, e) => { let tgts = findPieces(m, 'p').sort(()=>0.5-Math.random()); const tg = tgts[0]; const newTypes = ['b', 'n', 'r']; const pick = newTypes[Math.floor(Math.random()*newTypes.length)]; game.remove(tg); game.put({type: pick, color: m}, tg); spawnFloatingText(tg,'⚗️'); return { t: [tg], vfx: 'vfx-lightning', msg: '⚗️ 연금술 성공! 폰이 상위 기물이 되었습니다!' }; } },
+            { name: '파도', icon: '🌊', desc: '파도가 쳐서 적 말들을 뒤로 1칸씩 밀어냅니다. (뒤에 막히면 안 밀림)', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(e).length > 0, apply: (m, e) => { let movedSqs = []; let eTgts = findPieces(e); eTgts.sort((a, b) => { const rA = parseInt(a[1]); const rB = parseInt(b[1]); return e === 'b' ? rB - rA : rA - rB; }); eTgts.forEach(sq => { const r = parseInt(sq[1]); const c = sq.charCodeAt(0); const pushRank = e === 'b' ? r + 1 : r - 1; if(pushRank >= 1 && pushRank <= 8) { const targetSq = String.fromCharCode(c) + pushRank; if(!game.get(targetSq)) { const p = game.get(sq); game.remove(sq); game.put(p, targetSq); movedSqs.push(targetSq); spawnFloatingText(targetSq, '🌊'); } } }); return { t: movedSqs, vfx: 'vfx-heal', msg: '🌊 거센 파도가 적들을 밀어냈습니다!' }; } },
+            { name: '자아 분열', icon: '😵‍💫', desc: '다음 3수 동안 상대방 폰들이 반대 방향으로 이동합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(e, 'p').length > 0, apply: (m, e) => { reversedPawns = { color: e, duration: 6 }; return { t: [], vfx: 'vfx-void', msg: '😵‍💫 상대 폰들이 방향 감각을 잃었습니다!' }; } }
         ];
 
         function processNextAugmentPhase() {
@@ -1118,7 +1390,6 @@
             const enemyColor = playerColor === 'w' ? 'b' : 'w';
             let available = AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
             
-            // 킬 증강 확률 하향 (가중치 기반 선택)
             let weighted = [];
             available.forEach(aug => {
                 let w = aug.isKillType ? 1 : 4; 
