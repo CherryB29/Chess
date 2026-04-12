@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>증강 : 체스</title>
+    <title>증강 : 체스 (Extreme Edition) - Online</title>
     <style>
         :root {
             /* Board Colors */
             --board-dark: #B58863;
             --board-light: #F0D9B5;
-            --primary: #2980b9;     /* 오렌지색을 걷어내고 세련된 블루/모던 톤으로 변경 가능. 하지만 기존 f39c12을 유지하되 톤다운 */
             --primary: #f39c12; 
             --highlight: rgba(243, 156, 18, 0.5);
             --danger: #ff4757;
@@ -34,9 +33,10 @@
 
         body {
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            min-height: 100vh; margin: 0; background-color: var(--bg-color); color: var(--text-color);
+            width: 100%; max-width: 100vw; min-height: 100vh; margin: 0 auto; 
+            background-color: var(--bg-color); color: var(--text-color);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            touch-action: manipulation; overflow: hidden; padding-top: 15px; box-sizing: border-box;
+            touch-action: manipulation; overflow-x: hidden; padding-top: 15px; box-sizing: border-box;
             transition: background-color 0.3s, color 0.3s;
         }
 
@@ -52,7 +52,6 @@
         }
         .turn-indicator.white-turn { background: #fdfdfd; color: #222; border: 1px solid #ccc; }
         .turn-indicator.black-turn { background: #222; color: #fdfdfd; border: 1px solid #555; }
-        .turn-indicator.my-turn { outline: 3px solid #2ecc71; }
 
         .progress-container {
             width: 90%; margin: 0 auto; background: var(--panel-border); border-radius: 10px; padding: 4px;
@@ -77,10 +76,11 @@
         @keyframes toastIn { from { transform: translateY(-30px) scale(0.8); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
 
         #board-container { width: 100%; max-width: 420px; padding: 0 10px; box-sizing: border-box; position: relative; margin-top: 5px; }
+        #board-rotator { width: 100%; transition: transform 0.6s ease; border-radius: 8px; }
         #board {
             position: relative; width: 100%; aspect-ratio: 1 / 1;
             box-shadow: 0 10px 20px rgba(0,0,0,0.4); border: 4px solid var(--panel-bg); border-radius: 8px;
-            background-color: var(--board-dark); transition: transform 0.6s ease;
+            background-color: var(--board-dark); 
         }
         
         .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; border-radius: 4px; }
@@ -105,9 +105,11 @@
         }
         .piece-wrapper svg { width: 90%; height: 90%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); pointer-events: none; }
         
+        /* 버프/디버프 아이콘 (덩굴, 무적, 자아분열) */
         .piece-rooted::after { content: '🌿'; position: absolute; bottom: -2px; right: -2px; font-size: 1.2rem; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5)); }
         .piece-invincible { filter: drop-shadow(0 0 10px gold) brightness(1.2) !important; }
         .piece-invincible::before { content: '🛡️'; position: absolute; top: -5px; left: -5px; font-size: 1rem; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5)); z-index: 5;}
+        .piece-reversed::before { content: '😵‍💫'; position: absolute; top: 0px; right: -5px; font-size: 1.1rem; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5)); z-index: 5;}
 
         .dot { position: absolute; width: 12.5%; height: 12.5%; display: flex; justify-content: center; align-items: center; pointer-events: none; }
         .dot::after { content: ''; width: 25%; height: 25%; background: rgba(243, 156, 18, 0.8); border-radius: 50%; box-shadow: 0 0 10px rgba(243, 156, 18, 0.5); }
@@ -126,7 +128,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--overlay-bg); backdrop-filter: blur(5px);
             display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
-            transition: background 0.3s;
+            transition: background 0.3s; box-sizing: border-box;
         }
         .turn-badge { padding: 6px 18px; border-radius: 20px; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; animation: pop 0.4s; }
         .turn-badge.white { background: #fff; color: #000; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
@@ -135,11 +137,11 @@
 
         .cards-container { display: flex; gap: 10px; padding: 10px; flex-wrap: wrap; justify-content: center; max-width: 500px; }
         .augment-card {
-            background: var(--panel-bg); border: 1px solid var(--panel-border);
+            background: var(--panel-bg); border: 2px solid var(--panel-border);
             border-radius: 12px; padding: 15px 10px; width: 105px; text-align: center; color: var(--text-color);
             cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: all 0.2s; animation: pop 0.5s backwards;
         }
-        .augment-card:hover { transform: translateY(-5px) scale(1.05); border-color: var(--primary); }
+        .augment-card:hover { border-color: var(--primary); }
         .augment-icon { font-size: 2.5rem; margin-bottom: 10px; }
         .augment-title { font-size: 1rem; margin: 0 0 8px 0; font-weight: bold; word-break: keep-all; }
         .augment-desc { color: #888; font-size: 0.75rem; line-height: 1.3; margin: 0; word-break: keep-all; }
@@ -217,7 +219,8 @@
         .emote-btn { font-size: 1.5rem; cursor: pointer; transition: transform 0.2s; background: transparent; border-radius: 8px; padding: 5px; text-align: center; flex: 1 1 30%; box-sizing: border-box;}
         .emote-btn:hover { transform: scale(1.2); background: rgba(128,128,128,0.2); }
 
-        .black-pov #board { transform: rotate(180deg); }
+        /* 화면 돌아감 방지: board는 유지하고 래퍼만 회전시킴 */
+        .black-pov #board-rotator { transform: rotate(180deg); }
         .black-pov .piece-wrapper { transform: rotate(-180deg); }
 
         /* 말풍선 채팅 UI */
@@ -248,8 +251,13 @@
         .vs-card.opp { animation-delay: 0.2s; }
         .vs-icon { font-size: 4rem; margin-bottom: 10px; background: rgba(128,128,128,0.2); padding: 15px; border-radius: 50%; }
         .vs-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
-        .vs-stats { font-size: 0.9rem; color: #aaa; }
+        .vs-stats { font-size: 0.9rem; color: #888; }
         .vs-center { display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: var(--primary); font-style: italic; opacity: 0; animation: pop 0.5s 0.4s forwards;}
+
+        /* 이모지 픽커 */
+        .emoji-grid { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; background: var(--input-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--panel-border); margin-bottom: 15px; }
+        .emoji-item { font-size: 1.5rem; cursor: pointer; transition: transform 0.2s; padding: 5px; border-radius: 5px; }
+        .emoji-item:hover { background: rgba(128,128,128,0.2); transform: scale(1.2); }
 
         @keyframes slideIn { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -282,11 +290,13 @@
     <div id="board-container">
         <div id="chat-bubble-opponent" class="chat-bubble opponent"></div>
         
-        <div id="board">
-            <div id="squares-layer" class="layer"></div>
-            <div id="dots-layer" class="layer"></div>
-            <div id="pieces-layer" class="layer" style="pointer-events: none;"></div>
-            <div id="vfx-global-layer"></div>
+        <div id="board-rotator">
+            <div id="board">
+                <div id="squares-layer" class="layer"></div>
+                <div id="dots-layer" class="layer"></div>
+                <div id="pieces-layer" class="layer" style="pointer-events: none;"></div>
+                <div id="vfx-global-layer"></div>
+            </div>
         </div>
         
         <div id="chat-bubble-mine" class="chat-bubble mine"></div>
@@ -322,7 +332,9 @@
             </div>
 
             <button id="btn-show-email" class="lobby-btn secondary" style="background: transparent; border: 1px solid var(--panel-border); color: var(--text-color);">✉️ 이메일로 로그인</button>
-            <button id="btn-google" class="lobby-btn" style="background: #ea4335;">🌐 Google로 로그인</button>
+            <button id="btn-google" class="lobby-btn secondary" style="background: transparent; border: 1px solid var(--panel-border); color: var(--text-color); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/></svg> Google로 로그인
+            </button>
             <button id="btn-anon" class="lobby-btn secondary" style="background: transparent; border: 1px solid var(--panel-border); color: var(--text-color);">👻 게스트로 시작</button>
         </div>
     </div>
@@ -349,10 +361,20 @@
                 </div>
             </div>
             <div style="margin-top: 20px; border-top: 1px solid var(--panel-border); padding-top: 20px;">
-                <button id="btn-bot" class="lobby-btn secondary">🤖 컴퓨터와 연습</button>
+                <button id="btn-show-bot-diff" class="lobby-btn secondary">🤖 컴퓨터와 연습</button>
             </div>
             <p id="lobby-msg" style="color: var(--primary); font-weight: bold; margin-top: 15px; min-height: 1.2rem; font-size: 0.95rem;"></p>
             <button id="btn-back-main" style="margin-top: 15px; background: none; border: none; color: #888; text-decoration: underline; cursor: pointer; font-size: 1rem;">← 뒤로가기</button>
+        </div>
+    </div>
+
+    <div id="bot-diff-overlay" class="overlay" style="display: none; z-index: 160;">
+        <div class="lobby-box">
+            <h2 style="margin-bottom: 20px;">봇 난이도 선택</h2>
+            <button class="lobby-btn btn-bot-diff" data-diff="하" style="background: #27ae60;">하 (초보자)</button>
+            <button class="lobby-btn btn-bot-diff" data-diff="중" style="background: #f39c12;">중 (숙련자)</button>
+            <button class="lobby-btn btn-bot-diff" data-diff="상" style="background: #e74c3c;">상 (마스터)</button>
+            <button id="btn-close-bot-diff" class="lobby-btn secondary" style="margin-top: 20px;">취소</button>
         </div>
     </div>
 
@@ -360,12 +382,15 @@
         <div class="lobby-box">
             <h2 style="margin-bottom: 20px;">⚙️ 설정</h2>
             
-            <div style="text-align: left; margin-bottom: 20px; background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--panel-border);">
-                <p style="margin: 0 0 10px 0; color: #888; font-size: 0.85rem; font-weight: bold;">프로필 설정 (<span id="settings-account-info"></span>)</p>
-                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <input type="text" id="profile-icon-input" class="lobby-input" style="margin:0; width: 60px; font-size: 1.5rem;" maxlength="2" placeholder="👤">
+            <div style="text-align: left; margin-bottom: 20px;">
+                <p style="margin: 0 0 10px 0; color: #888; font-size: 0.85rem; font-weight: bold;">프로필 아이콘 선택 (<span id="settings-account-info"></span>)</p>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                    <div id="selected-icon-display" style="font-size: 2rem; background: var(--input-bg); padding: 5px 15px; border-radius: 8px; border: 1px solid var(--panel-border);">👤</div>
                     <input type="text" id="profile-name-input" class="lobby-input" style="margin:0; flex: 1;" maxlength="10" placeholder="닉네임">
                 </div>
+                
+                <div class="emoji-grid" id="emoji-picker-container"></div>
+                
                 <button id="btn-save-profile" class="lobby-btn" style="padding: 8px; margin: 0;">프로필 저장</button>
             </div>
             
@@ -429,27 +454,36 @@
         const db = getDatabase(app);
 
         let myUid = null; let myColor = null; let currentRoomId = null; let isGameStarted = false;
-        let isBotMode = false;
-        let disconnectTimer = null;
-        let disconnectInterval = null;
-        let statsRecorded = false; // 전적 중복 기록 방지
+        let isBotMode = false; let botDifficulty = '하';
+        let botHurryTimer = null; 
+        let statsRecorded = false; 
         let userProfile = { name: "Guest", icon: "👤", stats: { w:0, l:0, d:0 } };
 
         // UI 오버레이 요소들
         const loginOverlay = document.getElementById('login-overlay');
         const mainLobbyOverlay = document.getElementById('main-lobby-overlay');
         const modeSelectOverlay = document.getElementById('mode-select-overlay');
+        const botDiffOverlay = document.getElementById('bot-diff-overlay');
         const settingsOverlay = document.getElementById('settings-overlay');
         const vsOverlay = document.getElementById('vs-overlay');
         const lobbyMsg = document.getElementById('lobby-msg');
         const playerInfo = document.getElementById('player-info');
+
+        // 이모지 픽커 초기화
+        const emojisList = ['👤', '😎', '🤖', '👽', '👻', '💩', '🤡', '🐶', '🐱', '🐯', '🦁', '🐸', '🐼', '🐷', '🦊'];
+        const emojiContainer = document.getElementById('emoji-picker-container');
+        emojisList.forEach(e => {
+            let span = document.createElement('span'); span.className = 'emoji-item'; span.innerText = e;
+            span.onclick = () => { document.getElementById('selected-icon-display').innerText = e; userProfile.icon = e; };
+            emojiContainer.appendChild(span);
+        });
 
         // 프로필 정보 불러오기 및 설정
         async function loadUserProfile(uid, isAnon, email) {
             const userRef = ref(db, `users/${uid}`);
             const snap = await get(userRef);
             if (snap.exists()) {
-                userProfile = snap.val();
+                userProfile = Object.assign(userProfile, snap.val());
                 if(!userProfile.stats) userProfile.stats = {w:0, l:0, d:0};
             } else {
                 userProfile = { 
@@ -462,15 +496,14 @@
             
             document.getElementById('settings-account-info').innerText = isAnon ? "게스트" : (email ? "이메일" : "Google");
             document.getElementById('profile-name-input').value = userProfile.name;
-            document.getElementById('profile-icon-input').value = userProfile.icon;
+            document.getElementById('selected-icon-display').innerText = userProfile.icon;
         }
 
         document.getElementById('btn-save-profile').onclick = () => {
             const newName = document.getElementById('profile-name-input').value.trim() || "Guest";
-            const newIcon = document.getElementById('profile-icon-input').value.trim() || "👤";
-            userProfile.name = newName; userProfile.icon = newIcon;
+            userProfile.name = newName; 
             if (myUid) {
-                update(ref(db, `users/${myUid}`), { name: newName, icon: newIcon });
+                update(ref(db, `users/${myUid}`), { name: newName, icon: userProfile.icon });
                 showToast("프로필이 저장되었습니다.", "var(--primary)");
             }
         };
@@ -480,93 +513,77 @@
             if (user) {
                 myUid = user.uid;
                 loginOverlay.style.display = 'none';
-                if(!isGameStarted && vsOverlay.style.display === 'none') {
-                    mainLobbyOverlay.style.display = 'flex';
-                }
+                if(!isGameStarted && vsOverlay.style.display === 'none') mainLobbyOverlay.style.display = 'flex';
                 loadUserProfile(user.uid, user.isAnonymous, user.email);
             } else { 
                 myUid = null;
                 if(!isGameStarted) {
                     loginOverlay.style.display = 'flex';
-                    mainLobbyOverlay.style.display = 'none';
-                    modeSelectOverlay.style.display = 'none';
-                    settingsOverlay.style.display = 'none';
-                    vsOverlay.style.display = 'none';
+                    mainLobbyOverlay.style.display = 'none'; modeSelectOverlay.style.display = 'none'; settingsOverlay.style.display = 'none'; vsOverlay.style.display = 'none';
                 }
             }
         });
 
         // -------------------- 로비 및 UI 네비게이션 --------------------
-        document.getElementById('btn-play-main').addEventListener('click', () => {
-            mainLobbyOverlay.style.display = 'none';
-            modeSelectOverlay.style.display = 'flex';
-        });
-
-        document.getElementById('btn-back-main').addEventListener('click', () => {
-            modeSelectOverlay.style.display = 'none';
-            mainLobbyOverlay.style.display = 'flex';
-            setLobbyMsg("");
-        });
-
-        document.getElementById('btn-settings').addEventListener('click', () => {
-            settingsOverlay.style.display = 'flex';
-        });
-
-        document.getElementById('btn-close-settings').addEventListener('click', () => {
-            settingsOverlay.style.display = 'none';
-        });
-
-        document.getElementById('theme-toggle').addEventListener('change', (e) => {
-            if(e.target.checked) { document.body.classList.remove('light-mode'); } 
-            else { document.body.classList.add('light-mode'); }
-        });
+        document.getElementById('btn-play-main').addEventListener('click', () => { mainLobbyOverlay.style.display = 'none'; modeSelectOverlay.style.display = 'flex'; });
+        document.getElementById('btn-back-main').addEventListener('click', () => { modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'flex'; setLobbyMsg(""); });
+        document.getElementById('btn-settings').addEventListener('click', () => { settingsOverlay.style.display = 'flex'; });
+        document.getElementById('btn-close-settings').addEventListener('click', () => { settingsOverlay.style.display = 'none'; });
+        document.getElementById('theme-toggle').addEventListener('change', (e) => { if(e.target.checked) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode'); });
 
         // -------------------- 로그인 제어 --------------------
-        document.getElementById('btn-show-email').onclick = () => {
-            document.getElementById('email-login-form').style.display = 'block';
-            document.getElementById('btn-show-email').style.display = 'none';
-        };
-
+        document.getElementById('btn-show-email').onclick = () => { document.getElementById('email-login-form').style.display = 'block'; document.getElementById('btn-show-email').style.display = 'none'; };
         document.getElementById('btn-email-login').onclick = () => {
             const e = document.getElementById('input-email').value.trim(); const p = document.getElementById('input-pw').value;
             if(!e || !p) return alert("이메일과 비밀번호를 입력해주세요.");
             signInWithEmailAndPassword(auth, e, p).catch(err => alert("로그인 실패: " + err.message));
         };
-
         document.getElementById('btn-email-signup').onclick = () => {
             const e = document.getElementById('input-email').value.trim(); const p = document.getElementById('input-pw').value;
             if(!e || !p) return alert("이메일과 비밀번호를 입력해주세요.");
             createUserWithEmailAndPassword(auth, e, p).catch(err => alert("가입 실패: " + err.message));
         };
-
         document.getElementById('btn-google').onclick = () => { signInWithPopup(auth, new GoogleAuthProvider()).catch(err => alert("로그인 실패: " + err.message)); };
         document.getElementById('btn-anon').onclick = () => { signInAnonymously(auth).catch(err => alert("로그인 실패: " + err.message)); };
-        
-        document.getElementById('btn-logout').onclick = () => {
-            if(confirm("로그아웃 하시겠습니까?")) {
-                signOut(auth).then(() => { settingsOverlay.style.display = 'none'; }).catch(err => alert("로그아웃 실패: " + err.message));
-            }
-        };
+        document.getElementById('btn-logout').onclick = () => { if(confirm("로그아웃 하시겠습니까?")) signOut(auth).then(() => { settingsOverlay.style.display = 'none'; }).catch(err => alert("로그아웃 실패: " + err.message)); };
 
         // -------------------- 매치메이킹 및 봇 대전 --------------------
         function setLobbyMsg(msg) { lobbyMsg.innerText = msg; }
 
+        document.getElementById('btn-show-bot-diff').onclick = () => { modeSelectOverlay.style.display = 'none'; botDiffOverlay.style.display = 'flex'; };
+        document.getElementById('btn-close-bot-diff').onclick = () => { botDiffOverlay.style.display = 'none'; modeSelectOverlay.style.display = 'flex'; };
+
+        document.querySelectorAll('.btn-bot-diff').forEach(btn => {
+            btn.onclick = () => {
+                botDifficulty = btn.getAttribute('data-diff');
+                botDiffOverlay.style.display = 'none';
+                startBotMode();
+            };
+        });
+
         const startBotMode = () => {
             isBotMode = true; myColor = 'w'; isGameStarted = true; statsRecorded = false;
-            modeSelectOverlay.style.display = 'none';
             
-            // 봇 프로필
-            const botProfile = { name: "컴퓨터 (Bot)", icon: "🤖", stats: {w:999, l:0, d:0} };
+            const botProfile = { name: `컴퓨터 (${botDifficulty})`, icon: "🤖", stats: {w:999, l:0, d:0} };
             showVsScreen(userProfile, botProfile, () => {
-                playerInfo.innerText = `🤖 봇 대전 (당신은 백입니다)`;
+                playerInfo.innerText = `🤖 봇 대전 [${botDifficulty}] (당신은 백입니다)`;
                 document.body.classList.remove('black-pov');
                 document.getElementById('game-controls').style.display = 'flex';
                 document.getElementById('btn-resign').style.display = 'block';
                 showToast("봇 대전 시작!", "var(--primary)");
                 resetGameUI();
+                startHurryTimer();
             });
         };
-        document.getElementById('btn-bot').onclick = startBotMode;
+
+        function startHurryTimer() {
+            clearTimeout(botHurryTimer);
+            if(isBotMode && game.turn() === myColor && !game.game_over()) {
+                botHurryTimer = setTimeout(() => {
+                    showChatBubble('opponent', '⏳ 빨리 좀 해라', false);
+                }, 15000);
+            }
+        }
 
         document.getElementById('btn-random').onclick = async () => {
             setLobbyMsg("대기 중인 상대를 찾는 중...");
@@ -595,7 +612,6 @@
             else setLobbyMsg("존재하지 않거나 닫힌 방입니다.");
         };
 
-        // -------------------- VS 화면 표시 --------------------
         function showVsScreen(myP, oppP, callback) {
             document.getElementById('vs-my-icon').innerText = myP.icon;
             document.getElementById('vs-my-name').innerText = myP.name;
@@ -606,13 +622,9 @@
             document.getElementById('vs-opp-stats').innerText = `${oppP.stats.w}W ${oppP.stats.l}L ${oppP.stats.d}D`;
 
             vsOverlay.style.display = 'flex';
-            setTimeout(() => {
-                vsOverlay.style.display = 'none';
-                callback();
-            }, 3000);
+            setTimeout(() => { vsOverlay.style.display = 'none'; callback(); }, 3000);
         }
 
-        // -------------------- 네트워크 및 상태 감지 --------------------
         function setupPresence() {
             if(isBotMode) return;
             const myStatusRef = ref(db, `rooms/${currentRoomId}/players/${myColor}_status`);
@@ -622,35 +634,17 @@
             const enemyColor = myColor === 'w' ? 'b' : 'w';
             const enemyStatusRef = ref(db, `rooms/${currentRoomId}/players/${enemyColor}_status`);
             
+            let wasOffline = false;
             onValue(enemyStatusRef, snap => {
                 if(isGameStarted && !game.game_over()) {
                     if(snap.val() === 'offline') {
-                        let timeLeft = 15;
-                        playerInfo.innerText = `[방:${currentRoomId}] ⚠️ 상대 오프라인 (${timeLeft}초 후 승리)`;
-                        
-                        if(!disconnectInterval) {
-                            disconnectInterval = setInterval(() => {
-                                timeLeft--;
-                                if(timeLeft > 0 && !game.game_over()) {
-                                    playerInfo.innerText = `[방:${currentRoomId}] ⚠️ 상대 오프라인 (${timeLeft}초 후 승리)`;
-                                }
-                            }, 1000);
-                        }
-
-                        if(!disconnectTimer) {
-                            disconnectTimer = setTimeout(() => {
-                                clearInterval(disconnectInterval); disconnectInterval = null;
-                                if(!game.game_over()) {
-                                    pushGameAction({ type: 'resign' });
-                                    showEndScreen("승리", "상대방 탈주 (15초 경과).");
-                                }
-                            }, 15000);
-                        }
+                        wasOffline = true;
+                        playerInfo.innerText = `[방:${currentRoomId}] ⚠️ 상대 오프라인 (대기 중...)`;
+                        showToast("상대방의 연결이 끊겼습니다.", "var(--danger)");
                     } else {
-                        if(disconnectTimer) {
-                            clearTimeout(disconnectTimer); disconnectTimer = null;
-                            clearInterval(disconnectInterval); disconnectInterval = null;
+                        if(wasOffline) {
                             showToast("상대방이 재접속했습니다!", "var(--primary)");
+                            wasOffline = false;
                         }
                         playerInfo.innerText = `[방:${currentRoomId}] 당신은 ${myColor === 'w' ? '백' : '흑'}입니다`;
                     }
@@ -659,8 +653,8 @@
 
             const enemyTypingRef = ref(db, `rooms/${currentRoomId}/players/${enemyColor}_typing`);
             onValue(enemyTypingRef, snap => {
-                if(snap.val() === true) { showChatBubble('opponent', '💬 입력 중...', true); } 
-                else { hideChatBubble('opponent', true); }
+                if(snap.val() === true) showChatBubble('opponent', '💬 입력 중...', true); 
+                else hideChatBubble('opponent', true);
             });
         }
 
@@ -675,17 +669,13 @@
         function joinRoom(roomId, color) {
             myColor = color; currentRoomId = roomId; isBotMode = false; statsRecorded = false;
             update(ref(db, `rooms/${roomId}/players`), { [color]: myUid });
-            // 방장(w)이 상태 업데이트를 받아서 startGame을 호출함. 참가자도 수동 호출.
             get(ref(db, `rooms/${roomId}/players`)).then(snap => { startGame(snap.val()); });
         }
 
         async function startGame(playersData) {
             if(isGameStarted) return;
-            isGameStarted = true; 
-            modeSelectOverlay.style.display = 'none';
-            mainLobbyOverlay.style.display = 'none';
+            isGameStarted = true; modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'none';
 
-            // 상대방 프로필 가져오기
             const opponentUid = myColor === 'w' ? playersData.b : playersData.w;
             let oppProfile = { name: "Unknown", icon: "👤", stats: {w:0,l:0,d:0} };
             if (opponentUid) {
@@ -748,47 +738,26 @@
         const btnEmote = document.getElementById('btn-emote');
         const emotePopup = document.getElementById('emote-popup');
 
-        const emoteAnimations = {
-            '👍': 'anim-bounce',
-            '👎': 'anim-shake',
-            '😲': 'anim-expand',
-            '🤬': 'anim-vibrate',
-            '🤔': 'anim-tilt',
-            '😭': 'anim-drop',
-            '⏳ 빨리 좀 해라': 'anim-pulse'
-        };
+        const emoteAnimations = { '👍': 'anim-bounce', '👎': 'anim-shake', '😲': 'anim-expand', '🤬': 'anim-vibrate', '🤔': 'anim-tilt', '😭': 'anim-drop', '⏳ 빨리 좀 해라': 'anim-pulse' };
 
         let chatTimers = { mine: null, opponent: null };
-        let isOpponentTyping = false;
-        let typingDebounce = null;
+        let isOpponentTyping = false; let typingDebounce = null;
 
-        btnEmote.onclick = () => {
-            emotePopup.style.display = emotePopup.style.display === 'flex' ? 'none' : 'flex';
-        };
+        btnEmote.onclick = () => { emotePopup.style.display = emotePopup.style.display === 'flex' ? 'none' : 'flex'; };
 
         document.querySelectorAll('.emote-btn').forEach(btn => {
-            btn.onclick = (e) => {
-                chatInput.value = e.target.innerText;
-                btnSendChat.click();
-                emotePopup.style.display = 'none';
-            };
+            btn.onclick = (e) => { chatInput.value = e.target.innerText; btnSendChat.click(); emotePopup.style.display = 'none'; };
         });
 
         chatInput.addEventListener('input', () => {
             if (!isBotMode && currentRoomId) {
                 update(ref(db, `rooms/${currentRoomId}/players`), { [`${myColor}_typing`]: true });
                 clearTimeout(typingDebounce);
-                typingDebounce = setTimeout(() => {
-                    update(ref(db, `rooms/${currentRoomId}/players`), { [`${myColor}_typing`]: false });
-                }, 1500);
-            } else if (isBotMode) {
-                if (Math.random() > 0.8) showChatBubble('opponent', '💬 입력 중...', true);
+                typingDebounce = setTimeout(() => { update(ref(db, `rooms/${currentRoomId}/players`), { [`${myColor}_typing`]: false }); }, 1500);
             }
         });
 
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') btnSendChat.click();
-        });
+        chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnSendChat.click(); });
 
         btnSendChat.onclick = () => {
             if (chatInput.value.trim() !== '') {
@@ -801,41 +770,17 @@
                     clearTimeout(typingDebounce);
                     update(ref(db, `rooms/${currentRoomId}/players`), { [`${myColor}_typing`]: false });
                 }
-                
-                if (isBotMode) {
-                    hideChatBubble('opponent', true);
-                    setTimeout(() => {
-                        const botReplies = ["🤖 흠...", "🤖 계산 중...", "🤖 오호...", "🤖 삐리비리...", "🤖 쉽지 않군요."];
-                        showChatBubble('opponent', botReplies[Math.floor(Math.random() * botReplies.length)], false);
-                    }, 800 + Math.random() * 1000);
-                }
             }
         };
 
         function showChatBubble(side, msg, isTyping = false) {
             const bubble = document.getElementById(`chat-bubble-${side}`);
-            bubble.innerHTML = msg; 
-            bubble.className = `chat-bubble ${side}`; // 클래스 초기화
-            bubble.style.display = 'block';
-            bubble.style.opacity = isTyping ? '0.7' : '1';
-
-            if (!isTyping && emoteAnimations[msg]) {
-                bubble.classList.add(emoteAnimations[msg]);
-            } else if (!isTyping) {
-                bubble.style.animation = 'none';
-                void bubble.offsetWidth;
-                bubble.style.animation = 'pop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
-            }
-
+            bubble.innerHTML = msg; bubble.className = `chat-bubble ${side}`; bubble.style.display = 'block'; bubble.style.opacity = isTyping ? '0.7' : '1';
+            if (!isTyping && emoteAnimations[msg]) bubble.classList.add(emoteAnimations[msg]);
+            else if (!isTyping) { bubble.style.animation = 'none'; void bubble.offsetWidth; bubble.style.animation = 'pop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)'; }
             if (side === 'opponent') isOpponentTyping = isTyping;
-
             if (chatTimers[side]) clearTimeout(chatTimers[side]);
-            
-            if (!isTyping) {
-                chatTimers[side] = setTimeout(() => {
-                    bubble.style.display = 'none';
-                }, 3500);
-            }
+            if (!isTyping) chatTimers[side] = setTimeout(() => { bubble.style.display = 'none'; }, 3500);
         }
 
         function hideChatBubble(side, onlyIfTyping = false) {
@@ -844,10 +789,7 @@
         }
 
         document.getElementById('btn-resign').onclick = () => {
-            if(confirm("정말로 기권하시겠습니까?")) {
-                pushGameAction({ type: 'resign' });
-                showEndScreen("패배", "기권하셨습니다.");
-            }
+            if(confirm("정말로 기권하시겠습니까?")) { pushGameAction({ type: 'resign' }); showEndScreen("패배", "기권하셨습니다."); }
         };
 
         document.getElementById('btn-return-lobby').onclick = () => {
@@ -855,11 +797,9 @@
             document.getElementById('game-controls').style.display = 'none';
             document.getElementById('btn-resign').style.display = 'none';
             
-            mainLobbyOverlay.style.display = 'flex'; // 메인 로비로 돌아감
-            setLobbyMsg("");
-            isGameStarted = false; currentRoomId = null; isBotMode = false;
-            if(disconnectTimer) { clearTimeout(disconnectTimer); disconnectTimer = null; }
-            if(disconnectInterval) { clearInterval(disconnectInterval); disconnectInterval = null; }
+            mainLobbyOverlay.style.display = 'flex'; 
+            setLobbyMsg(""); isGameStarted = false; currentRoomId = null; isBotMode = false;
+            clearTimeout(botHurryTimer);
         };
 
         function serializeGameState() {
@@ -1064,6 +1004,7 @@
             if(game.turn() === 'w') { turnDisplayEl.className = 'turn-indicator white-turn'; turnDisplayEl.innerHTML = '백'; } 
             else { turnDisplayEl.className = 'turn-indicator black-turn'; turnDisplayEl.innerHTML = '흑'; }
             if(game.turn() === myColor) turnDisplayEl.classList.add('my-turn');
+            else turnDisplayEl.classList.remove('my-turn');
         }
 
         function drawPieces(isAnimate = false) {
@@ -1098,6 +1039,8 @@
 
                     if (rootedPieces[piece.uid] > 0) el.classList.add('piece-rooted'); else el.classList.remove('piece-rooted');
                     if (invinciblePieces[piece.uid] > 0) el.classList.add('piece-invincible'); else el.classList.remove('piece-invincible');
+                    if (reversedPawns.duration > 0 && reversedPawns.color === piece.color && piece.type === 'p') el.classList.add('piece-reversed'); else el.classList.remove('piece-reversed');
+                    
                     el.dataset.square = sq; el.style.left = `${coords.x}%`; el.style.top = `${coords.y}%`;
                 }
             }
@@ -1158,8 +1101,8 @@
         function showEndScreen(resultType, reasonStr) {
             if(game.is_game_over) return;
             game.set_game_over();
+            clearTimeout(botHurryTimer);
             
-            // 전적 업데이트
             if(!isBotMode && myUid && !statsRecorded) {
                 statsRecorded = true;
                 if(resultType === '승리') userProfile.stats.w++;
@@ -1192,6 +1135,12 @@
                 const kSq = findPieces(game.turn(), 'k')[0];
                 if(kSq) document.querySelector(`.square[data-square="${kSq}"]`).classList.add('in-check');
                 showToast("⚠️ 체크!", "#ff4757");
+                
+                // 봇의 체크 반응 추가
+                if (isBotMode && !game.game_over()) {
+                    let evalMsg = Math.random() > 0.5 ? "제법 위협적이군요!" : "크윽... 체크라니!";
+                    setTimeout(() => showChatBubble('opponent', evalMsg, false), 800);
+                }
             }
         }
 
@@ -1254,6 +1203,15 @@
             }
 
             drawPieces(); updateTurnIndicator(); updateCheckStatus();
+            
+            if (isBotMode && moveResult.color === myColor && !game.game_over()) {
+                clearTimeout(botHurryTimer);
+                // 체크는 updateCheckStatus에서 처리함. 킬 발생 시 10% 확률 리액션
+                if (!game.in_check() && moveResult.captured && pieceValue[moveResult.captured] >= 3 && Math.random() < 0.1) {
+                    setTimeout(() => showChatBubble('opponent', "날카로운 수입니다.", false), 800);
+                }
+            }
+
             setTimeout(() => handlePostMove(), 300);
         }
 
@@ -1268,14 +1226,9 @@
                 if (reversedPawns.duration <= 0) reversedPawns.color = null;
             }
 
-            // 벽 수명 차감 및 제거
             activeWalls.forEach(w => w.duration--);
             activeWalls = activeWalls.filter(w => {
-                if(w.duration <= 0) {
-                    game.remove(w.sq);
-                    spawnFloatingText(w.sq, '💨');
-                    return false;
-                }
+                if(w.duration <= 0) { game.remove(w.sq); spawnFloatingText(w.sq, '💨'); return false; }
                 return true;
             });
 
@@ -1287,15 +1240,33 @@
                 processNextAugmentPhase();
             } else { 
                 isSystemLocked = false;
-                if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 800);
+                if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 1500);
+                else startHurryTimer();
             }
         }
 
         function makeBotMove() {
             if(game.game_over() || isSystemLocked) return;
             const moves = game.moves(); if(moves.length === 0) return;
-            const captures = moves.filter(m => m.captured);
-            const move = captures.length > 0 ? captures[Math.floor(Math.random() * captures.length)] : moves[Math.floor(Math.random() * moves.length)];
+            let move;
+            
+            if (botDifficulty === '하') {
+                move = moves[Math.floor(Math.random() * moves.length)];
+            } else if (botDifficulty === '중') {
+                const captures = moves.filter(m => m.captured);
+                move = captures.length > 0 ? captures[Math.floor(Math.random() * captures.length)] : moves[Math.floor(Math.random() * moves.length)];
+            } else { 
+                let bestScore = -9999; let bestMoves = [];
+                for (let m of moves) {
+                    let score = 0;
+                    if (m.captured) score += (pieceValue[m.captured] || 0) * 10;
+                    if (m.promotion) score += 80;
+                    score += Math.random() * 5; 
+                    if (score > bestScore) { bestScore = score; bestMoves = [m]; }
+                    else if (score === bestScore) { bestMoves.push(m); }
+                }
+                move = bestMoves[Math.floor(Math.random() * bestMoves.length)];
+            }
             executeMoveLocal(move.from, move.to, move.promotion ? 'q' : null);
         }
 
@@ -1356,13 +1327,17 @@
             { name: '자아 분열', icon: '😵‍💫', desc: '다음 3수 동안 상대방 폰들이 반대 방향으로 이동합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(e, 'p').length > 0, apply: (m, e) => { reversedPawns = { color: e, duration: 6 }; return { t: [], vfx: 'vfx-void', msg: '😵‍💫 상대 폰들이 방향 감각을 잃었습니다!' }; } }
         ];
 
+        let selectedAugmentIdx = -1;
+
         function processNextAugmentPhase() {
             if (pendingAugments.length === 0) { 
                 isSystemLocked = false; updateCheckStatus(); updateProgressBar(); 
                 if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 800);
+                else startHurryTimer();
                 return; 
             }
             isSystemLocked = true; const activeColor = pendingAugments.shift(); 
+            selectedAugmentIdx = -1;
             showAugmentCards(activeColor);
         }
 
@@ -1379,7 +1354,7 @@
                     let available = AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
                     if(available.length === 0) { processNextAugmentPhase(); return; }
                     const choice = available[Math.floor(Math.random() * available.length)];
-                    setTimeout(() => applySelectedAugment(choice, playerColor, enemyColor), 1000); 
+                    setTimeout(() => applySelectedAugment(choice, playerColor, enemyColor), 1500); 
                     return;
                 }
                 overlay.innerHTML = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방 선택 중...</div>`;
@@ -1406,10 +1381,23 @@
             options.forEach((aug, idx) => { html += `<div class="augment-card" data-idx="${idx}"><div class="augment-icon">${aug.icon}</div><div class="augment-title">${aug.name}</div><div class="augment-desc">${aug.desc}</div></div>`; });
             html += `</div>`; overlay.innerHTML = html; overlay.style.display = 'flex';
 
-            document.querySelectorAll('.augment-card').forEach(card => {
+            document.querySelectorAll('.augment-card').forEach((card, idx) => {
                 card.onclick = () => {
-                    overlay.style.display = 'none';
-                    applySelectedAugment(options[card.dataset.idx], playerColor, enemyColor);
+                    if (selectedAugmentIdx === idx) {
+                        overlay.style.display = 'none';
+                        applySelectedAugment(options[idx], playerColor, enemyColor);
+                    } else {
+                        selectedAugmentIdx = idx;
+                        document.querySelectorAll('.augment-card').forEach(c => {
+                            c.style.borderColor = 'var(--panel-border)';
+                            c.style.transform = 'translateY(0) scale(1)';
+                            c.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+                        });
+                        card.style.borderColor = 'var(--primary)';
+                        card.style.transform = 'translateY(-5px) scale(1.05)';
+                        card.style.boxShadow = '0 10px 20px var(--primary)';
+                        showToast("한 번 더 눌러 발동하세요.", "var(--primary)", 1500);
+                    }
                 };
             });
         }
@@ -1428,6 +1416,11 @@
                 if (selectedAug.globalVfx) playGlobalVFX(selectedAug.globalVfx);
                 if (res.t && res.t.length > 0) triggerVFX(res.t, res.vfx);
                 showToast(res.msg, "var(--primary)", 4000);
+
+                if (isBotMode && selectedAug.isKillType && res.t && res.t.length > 0) {
+                    if (pColor === myColor) setTimeout(() => showChatBubble('opponent', "이런... 치명적이군요.", false), 1500);
+                    else setTimeout(() => showChatBubble('opponent', "제 계산대로입니다.", false), 1500);
+                }
                 
                 const waitTime = selectedAug.delay || 1200;
                 setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, waitTime); 
