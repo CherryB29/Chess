@@ -1221,6 +1221,7 @@
         // UI 제어 및 초기화
         // ==========================================
         
+        
         const svgPieces = {
             'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="none" stroke="{stroke}" stroke-width="1.5"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5"/></svg>',
             'Q': '<svg viewBox="0 0 45 45"><path d="M9 26c8.5-1.5 21-1.5 27 0l2-12-7 11V11l-5.5 13.5-3-15-3 15-5.5-14V25L7 14l2 12M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-21.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/><path d="M11.5 30c3.5-1 18.5-1 22 0m-22 3.5c3.5-1 18.5-1 22 0m-22 3.5c3.5-1 18.5-1 22 0" fill="none" stroke="{stroke}" stroke-width="1.5"/></svg>',
@@ -1717,7 +1718,7 @@
         const AUGMENT_POOL = [
             { name: '운석 충돌', icon: '☄️', desc: '적 1개와 주변 영역을 초토화합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(e).length > 0, apply: (m, e) => { const tgts = findVulnerable(e); const c = tgts[Math.floor(Math.random()*tgts.length)]; const f=c.charCodeAt(0), r=parseInt(c[1]), hit=[]; for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) if(f+df>=97&&f+df<=104&&r+dr>=1&&r+dr<=8) { const sq = String.fromCharCode(f+df)+(r+dr); const p=game.get(sq); if(p&&p.type!=='k' && p.type!=='wall' && !invinciblePieces[p.uid]){game.remove(sq); hit.push(sq); spawnFloatingText(sq,'🔥');}} return { t: hit, vfx: 'vfx-explosion', msg: '🔥 운석이 떨어졌습니다!' }; } },
             { name: '대학살', icon: '🩸', desc: '적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(e).filter(sq => game.get(sq).type !== 'p').length > 0, apply: (m, e) => { let tgts = findVulnerable(e).filter(sq => game.get(sq).type !== 'p').sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🩸'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🩸 대학살이 일어났습니다!' }; } },
-            { name: '네크로맨시', icon: '💀', desc: '무작위 빈칸에 아군 퀸을 소환합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'q').length > 0, apply: (m, e) => { const sq = getSafeEmptySquares(m, 'q').sort(()=>0.5-Math.random())[0]; game.put({type:'q', color:m}, sq); spawnFloatingText(sq,'💀'); return { t: [sq], vfx: 'vfx-void', msg: '💀 퀸이 부활했습니다!' }; } },
+            { name: '네크로맨서', icon: '💀', desc: '무작위 빈칸에 아군 퀸을 소환합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'q').length > 0, apply: (m, e) => { const sq = getSafeEmptySquares(m, 'q').sort(()=>0.5-Math.random())[0]; game.put({type:'q', color:m}, sq); spawnFloatingText(sq,'💀'); return { t: [sq], vfx: 'vfx-void', msg: '💀 퀸이 부활했습니다!' }; } },
             { name: '신의 심판', icon: '⚡', desc: '무작위 세로열을 번개로 내리칩니다.', globalVfx: null, isKillType: true, delay: 600, condition: () => true, apply: (m, e) => {
                     const validFiles = [];
                     for (let fileIdx = 0; fileIdx < 8; fileIdx++) {
@@ -1769,16 +1770,16 @@
         ];
 
         const AUGMENT_META = {
-            '운석 충돌': { category: '피해' },
+            '운석 충돌': { category: '피해' , risk: '아군도 피해 가능' },
             '대학살': { category: '피해' },
-            '네크로맨시': { category: '소환' },
-            '신의 심판': { category: '피해' },
-            '독구름': { category: '피해', risk: '아군도 피해 가능' },
+            '네크로맨서': { category: '소환' },
+            '신의 심판': { category: '피해', risk: '아군도 피해 가능'  },
+            '독구름': { category: '피해' },
             '저격수': { category: '피해' },
             '혼란': { category: '유틸' },
-            '지진': { category: '피해', risk: '아군도 피해' },
+            '지진': { category: '피해', risk: '자기 희생' },
             '축복': { category: '소환' },
-            '저주': { category: '피해', risk: '아군도 피해 가능' },
+            '저주': { category: '피해' },
             '강제 이주': { category: '유틸' },
             '암살': { category: '피해' },
             '징집': { category: '소환' },
