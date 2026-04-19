@@ -262,6 +262,8 @@
         /* 화면 돌아감 방지: board는 유지하고 래퍼만 회전시킴 */
         .black-pov #board-rotator { transform: rotate(180deg); }
         .black-pov .piece-wrapper { transform: rotate(-180deg); }
+        .black-pov .piece-wrapper.piece-pop { transform: none; }
+        .black-pov .piece-wrapper.piece-shake { transform: none; }
 
         /* 말풍선 채팅 UI */
         .chat-bubble {
@@ -1030,6 +1032,7 @@
                 document.getElementById('btn-settings-game').style.display = 'block';
                 showToast("봇 대전 시작!", "var(--primary)");
                 resetGameUI();
+                showBoardContainer();
                 startHurryTimer();
             });
         };
@@ -1191,7 +1194,7 @@
                     } else {
                         resetGameUI();
                     }
-                    if (opts.promptResume) {
+                    if (opts.promptResume && !game.game_over()) {
                         showBoardContainer();
                         showReconnectPrompt(currentRoomId);
                         return;
@@ -1633,7 +1636,12 @@
         }
 
         function spawnFloatingText(sq, text) {
-            const coords = getCoords(sq); const el = document.createElement('div'); el.className = 'floating-text'; el.innerText = text;
+            let coords = getCoords(sq);
+            if (document.body.classList.contains('black-pov')) {
+                // 흑 입장에서 보드가 180도 회전되어 있으므로 좌표를 뒤집음
+                coords = { x: (7 - coords.x / 12.5) * 12.5, y: (7 - coords.y / 12.5) * 12.5 };
+            }
+            const el = document.createElement('div'); el.className = 'floating-text'; el.innerText = text;
             el.style.left = `${coords.x + 6.25}%`; el.style.top = `${coords.y + 6.25}%`; piecesLayer.appendChild(el); setTimeout(() => el.remove(), 1000);
         }
 
