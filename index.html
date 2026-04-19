@@ -78,7 +78,8 @@
         }
         @keyframes toastIn { from { transform: translateY(-30px) scale(0.8); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
 
-        #board-container { width: 100%; max-width: 420px; padding: 0 10px; box-sizing: border-box; position: relative; margin-top: 5px; }
+        #board-container { width: 100%; max-width: 420px; padding: 0 10px; box-sizing: border-box; position: relative; margin-top: 5px; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+        #board-container.visible { opacity: 1; visibility: visible; }
         #board-rotator { width: 100%; transition: transform 0.6s ease; border-radius: 8px; }
         #board {
             position: relative; width: 100%; aspect-ratio: 1 / 1;
@@ -109,7 +110,7 @@
         }
         .piece-wrapper svg { width: 90%; height: 90%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); pointer-events: none; }
         .effect-counter {
-            position: absolute; top: 3px; right: 3px; width: 20px; height: 20px;
+            position: absolute; bottom: 3px; right: 3px; width: 20px; height: 20px;
             display: flex; align-items: center; justify-content: center;
             border-radius: 50%; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.7rem;
             font-weight: bold; pointer-events: none; z-index: 5;
@@ -124,7 +125,7 @@
         .piece-rooted::after { content: '🌿'; position: absolute; bottom: -2px; right: -2px; font-size: 1.2rem; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5)); }
         .piece-invincible { filter: drop-shadow(0 0 10px gold) brightness(1.2) !important; }
         .piece-invincible::before { content: '🛡️'; position: absolute; top: -5px; left: -5px; font-size: 1rem; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5)); z-index: 5;}
-        .piece-reversed::before { content: '😵‍💫'; position: absolute; top: 0px; right: -5px; font-size: 1.1rem; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5)); z-index: 5;}
+        .piece-reversed::before { content: '😵‍💫'; position: absolute; top: -6px; left: -6px; font-size: 1.1rem; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5)); z-index: 5;}
 
         .dot { position: absolute; width: 12.5%; height: 12.5%; display: flex; justify-content: center; align-items: center; pointer-events: none; }
         .dot::after { content: ''; width: 25%; height: 25%; background: rgba(243, 156, 18, 0.8); border-radius: 50%; box-shadow: 0 0 10px rgba(243, 156, 18, 0.5); }
@@ -191,6 +192,8 @@
         .vfx-global-void { animation: vfxGlobalVoid 1.2s ease-in-out; background: radial-gradient(circle, rgba(142,68,173,0.8) 0%, rgba(0,0,0,0) 80%); }
         @keyframes vfxGlobalVoid { 0% { opacity: 0; transform: scale(2) rotate(0deg); } 50% { opacity: 1; transform: scale(1) rotate(180deg); } 100% { opacity: 0; transform: scale(0) rotate(360deg); } }
         .vfx-global-heal { animation: vfxGlobalHeal 1.2s ease-out; background: linear-gradient(to bottom, rgba(243,156,18,0.6), transparent); }
+        .vfx-global-assassinate { animation: vfxGlobalAssassinate 1.2s ease-out; background: radial-gradient(circle, rgba(24,24,28,0.95) 0%, rgba(0,0,0,0) 72%); mix-blend-mode: screen; }
+        .vfx-global-divine { animation: vfxGlobalDivine 1.2s ease-out; background: radial-gradient(circle, rgba(255,245,200,0.95) 0%, rgba(255,255,255,0) 72%); }
         @keyframes vfxGlobalHeal { 0% { opacity: 0; transform: translateY(-100%); } 50% { opacity: 1; transform: translateY(0%); } 100% { opacity: 0; transform: translateY(100%); } }
 
         .board-shake { animation: boardShake 0.6s cubic-bezier(.36,.07,.19,.97) both; }
@@ -199,6 +202,10 @@
         .vfx-explosion { animation: vfxTileExp 0.8s ease-out; }
         @keyframes vfxTileExp { 0% { background-color: #ff3f34; box-shadow: 0 0 20px #ff3f34; } 100% { background-color: transparent; } }
         .vfx-lightning { animation: vfxLightningExp 0.4s ease-out forwards; }
+        .vfx-shadow { animation: vfxShadowPulse 0.9s ease-out forwards; box-shadow: inset 0 0 18px 2px rgba(0,0,0,0.85); border-radius: 4px; }
+        .vfx-holy { animation: vfxHolyPulse 1s ease-out forwards; box-shadow: 0 0 20px 6px rgba(255, 242, 180, 0.9); border-radius: 4px; filter: saturate(1.4); }
+        @keyframes vfxShadowPulse { 0% { box-shadow: inset 0 0 0 rgba(0,0,0,0); } 50% { box-shadow: inset 0 0 18px 4px rgba(0,0,0,0.9); } 100% { box-shadow: inset 0 0 0 rgba(0,0,0,0); } }
+        @keyframes vfxHolyPulse { 0% { box-shadow: 0 0 0 rgba(255,242,180,0); filter: saturate(1); } 50% { box-shadow: 0 0 22px 8px rgba(255,242,180,0.95); filter: saturate(1.6); } 100% { box-shadow: 0 0 0 rgba(255,242,180,0); filter: saturate(1.2); } }
         @keyframes vfxLightningExp { 0% { background-color: #f1c40f; box-shadow: 0 0 30px #f1c40f; filter: brightness(2); } 20% { background-color: #fff; box-shadow: 0 0 50px #fff; } 100% { background-color: transparent; box-shadow: none; filter: brightness(1); } }
 
         #cast-text { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px rgba(0,0,0,0.8); z-index: 150; display: none; text-align: center; width: 100%; letter-spacing: 1px; }
@@ -492,6 +499,18 @@
         <div class="promo-container" id="promo-container"></div>
     </div>
     
+    <div id="reconnect-overlay" class="overlay" style="display:none; z-index: 450;">
+        <div class="lobby-box">
+            <h2>게임 복귀</h2>
+            <p id="reconnect-room-text" style="margin-bottom: 10px; font-size: 1rem; color: var(--text-color);"></p>
+            <p id="reconnect-info" style="margin-bottom: 20px; color: #aaa; font-size: 0.95rem;">진행 중인 판을 미리 보고 선택하세요.</p>
+            <div style="display:flex; gap:10px; flex-wrap: wrap; justify-content: center;">
+                <button id="btn-resume-game" class="lobby-btn" style="flex:1; min-width: 120px;">계속하기</button>
+                <button id="btn-resign-game" class="lobby-btn danger" style="flex:1; min-width: 120px;">기권</button>
+            </div>
+        </div>
+    </div>
+
     <div id="result-overlay" class="overlay" style="z-index: 350;">
         <div class="lobby-box">
             <h2 id="result-title" style="font-size: 2.2rem; margin-bottom: 10px;">종료</h2>
@@ -659,11 +678,76 @@
         const lobbyMsg = document.getElementById('lobby-msg');
         const playerInfo = document.getElementById('player-info');
         const augmentOverlay = document.getElementById('augment-overlay');
+        const reconnectOverlay = document.getElementById('reconnect-overlay');
+        const reconnectRoomText = document.getElementById('reconnect-room-text');
+        const reconnectInfo = document.getElementById('reconnect-info');
+        const btnResumeGame = document.getElementById('btn-resume-game');
+        const btnResignGame = document.getElementById('btn-resign-game');
         const onlineCountDisplay = document.getElementById('online-count');
         const LOCAL_SETTINGS_KEY = 'augmentedChessSettings';
         const LOCAL_PROFILE_KEY = 'augmentedChessProfile';
+        const LOCAL_ROOM_KEY = 'augmentedChessRoom';
         const DEFAULT_SETTINGS = { soundEnabled: true, botChatEnabled: true, showPreviousMove: true, soundVolume: 0.8, darkMode: true };
         let isAugmentPeeked = false;
+
+        function saveRoomSession(extra = {}) {
+            try { localStorage.setItem(LOCAL_ROOM_KEY, JSON.stringify({ roomId: currentRoomId, color: myColor, ...extra })); } catch (e) {}
+        }
+        function loadRoomSession() {
+            try { const raw = localStorage.getItem(LOCAL_ROOM_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+        }
+        function clearRoomSession() {
+            try { localStorage.removeItem(LOCAL_ROOM_KEY); } catch (e) {}
+        }
+
+        async function persistRoomGameState(stateStr = null) {
+            if (!currentRoomId || isBotMode) return;
+            try {
+                const serialized = stateStr || serializeGameState();
+                await set(ref(db, `rooms/${currentRoomId}/state`), serialized);
+            } catch (e) {}
+        }
+
+        function showBoardContainer() {
+            const boardContainer = document.getElementById('board-container');
+            if (boardContainer) boardContainer.classList.add('visible');
+        }
+
+        function showReconnectPrompt(roomId) {
+            reconnectRoomText.innerText = `방 번호: ${roomId}`;
+            reconnectInfo.innerText = '현재 게임을 복구했습니다. 계속하거나 기권할 수 있습니다.';
+            reconnectOverlay.style.display = 'flex';
+        }
+
+        function hideReconnectPrompt() {
+            reconnectOverlay.style.display = 'none';
+        }
+
+        btnResumeGame.onclick = () => {
+            hideReconnectPrompt();
+            document.getElementById('game-controls').style.display = 'flex';
+            document.getElementById('btn-resign').style.display = 'block';
+            document.getElementById('btn-settings-game').style.display = 'block';
+            showBoardContainer();
+            showToast('게임을 이어서 진행합니다.', 'var(--primary)', 3000);
+            if (activeAugmentPlayerColor || (pendingAugments && pendingAugments.length > 0)) {
+                if (activeAugmentPlayerColor) {
+                    showAugmentCards(activeAugmentPlayerColor);
+                } else {
+                    processNextAugmentPhase();
+                }
+            }
+            isSystemLocked = false;
+            startHurryTimer();
+        };
+
+        btnResignGame.onclick = async () => {
+            hideReconnectPrompt();
+            if (confirm('정말로 기권하시겠습니까?')) {
+                pushGameAction({ type: 'resign' });
+                showEndScreen('패배', '기권하셨습니다.');
+            }
+        };
 
         augmentOverlay.addEventListener('pointerdown', (e) => {
             if (augmentOverlay.style.display !== 'flex') return;
@@ -747,6 +831,12 @@
             applySettingsToUI();
         }
 
+        window.addEventListener('beforeunload', () => {
+            if (currentRoomId) {
+                saveRoomSession({ activeAugmentOptions, activeAugmentPlayerColor });
+            }
+        });
+
         // 이모지 픽커 초기화
         const emojisList = ['👤', '😎', '🤖', '👽', '👻', '💩', '🤡', '🐶', '🐱', '🐯', '🦁', '🐸', '🐼', '🐷', '🦊'];
         const emojiContainer = document.getElementById('emoji-picker-container');
@@ -782,6 +872,40 @@
             applySettingsToUI();
         }
 
+        async function tryRestoreRoomSession() {
+            const saved = loadRoomSession();
+            if (!saved || !saved.roomId || !saved.color || !myUid) return false;
+            const playersRef = ref(db, `rooms/${saved.roomId}/players`);
+            const snap = await get(playersRef);
+            if (!snap.exists()) { clearRoomSession(); return false; }
+            const players = snap.val();
+            if (players[saved.color] !== myUid) { clearRoomSession(); return false; }
+            currentRoomId = saved.roomId;
+            myColor = saved.color;
+            isBotMode = false;
+            statsRecorded = false;
+            saveRoomSession();
+
+            const opponentColor = myColor === 'w' ? 'b' : 'w';
+            const opponentUid = players[opponentColor];
+            if (opponentUid) {
+                const stateSnap = await get(ref(db, `rooms/${currentRoomId}/state`));
+                const restoredState = stateSnap.exists() ? stateSnap.val() : null;
+                const sessionAugmentState = saved && saved.activeAugmentOptions && saved.activeAugmentPlayerColor ? {
+                    options: saved.activeAugmentOptions,
+                    playerColor: saved.activeAugmentPlayerColor
+                } : null;
+                setLobbyMsg(restoredState ? "진행 중인 게임을 불러옵니다..." : "진행 중인 게임에 재참여 중입니다...");
+                startGame(players, { resume: true, restoredState, promptResume: true, localAugmentState: sessionAugmentState });
+                showToast("진행 중인 온라인 게임을 이어갑니다.", "var(--primary)", 4000);
+            } else {
+                setLobbyMsg("대기 중인 방에 재진입했습니다. 상대를 기다리는 중...");
+                mainLobbyOverlay.style.display = 'flex';
+                showToast("대기 중인 방에 재접속했습니다. 상대가 들어오면 게임이 시작됩니다.", "var(--primary)", 4000);
+            }
+            return true;
+        }
+
         document.getElementById('btn-save-profile').onclick = () => {
             const newName = document.getElementById('profile-name-input').value.trim() || "Guest";
             userProfile.name = newName;
@@ -797,9 +921,13 @@
             if (user) {
                 myUid = user.uid;
                 loginOverlay.style.display = 'none';
-                if(!isGameStarted && vsOverlay.style.display === 'none') mainLobbyOverlay.style.display = 'flex';
                 registerGlobalPresence(user.uid);
-                loadUserProfile(user.uid, user.isAnonymous, user.email);
+                loadUserProfile(user.uid, user.isAnonymous, user.email).then(async () => {
+                    const restored = await tryRestoreRoomSession();
+                    if (!restored && !isGameStarted && vsOverlay.style.display === 'none') {
+                        mainLobbyOverlay.style.display = 'flex';
+                    }
+                });
             } else { 
                 myUid = null;
                 if(!isGameStarted) {
@@ -832,6 +960,7 @@
                 try { await remove(ref(db, `rooms/${currentRoomId}`)); } catch(e) {}
             }
             currentRoomId = null;
+            clearRoomSession();
         }
 
         document.getElementById('btn-play-main').addEventListener('click', () => { mainLobbyOverlay.style.display = 'none'; modeSelectOverlay.style.display = 'flex'; });
@@ -863,6 +992,7 @@
         document.getElementById('btn-logout').onclick = async () => { 
             if(confirm("로그아웃 하시겠습니까?")) {
                 await cancelMatchmaking();
+                clearRoomSession();
                 if (myUid) {
                     remove(ref(db, `online_users/${myUid}`)).catch(() => {});
                 }
@@ -1008,6 +1138,7 @@
 
         function createRoom(roomId, color) {
             myColor = color; currentRoomId = roomId; isBotMode = false; statsRecorded = false;
+            saveRoomSession();
             set(ref(db, `rooms/${roomId}/players/${color}`), myUid);
             
             if (roomListenerUnsubscribe) roomListenerUnsubscribe();
@@ -1024,11 +1155,12 @@
 
         function joinRoom(roomId, color) {
             myColor = color; currentRoomId = roomId; isBotMode = false; statsRecorded = false;
+            saveRoomSession();
             update(ref(db, `rooms/${roomId}/players`), { [color]: myUid });
             get(ref(db, `rooms/${roomId}/players`)).then(snap => { startGame(snap.val()); });
         }
 
-        async function startGame(playersData) {
+        async function startGame(playersData, opts = {}) {
             if(isGameStarted) return;
             isGameStarted = true; modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'none';
 
@@ -1039,19 +1171,47 @@
                 if(oppSnap.exists()) oppProfile = oppSnap.val();
             }
 
-            showVsScreen(userProfile, oppProfile, () => {
+            const startGameUI = () => {
                 playerInfo.innerText = `[방:${currentRoomId}] 당신은 ${myColor === 'w' ? '백' : '흑'}입니다`;
                 if(myColor === 'b') document.body.classList.add('black-pov');
                 else document.body.classList.remove('black-pov');
                 
+                setupPresence();
+                setupNetworkListeners();
+
+                if (opts.resume) {
+                    if (opts.restoredState) {
+                        deserializeGameState(opts.restoredState);
+                        if (!activeAugmentOptions && opts.localAugmentState) {
+                            activeAugmentOptions = opts.localAugmentState.options;
+                            activeAugmentPlayerColor = opts.localAugmentState.playerColor;
+                        }
+                        drawPieces();
+                        showToast("진행 중인 게임을 불러왔습니다.", "var(--primary)", 4000);
+                    } else {
+                        resetGameUI();
+                    }
+                    if (opts.promptResume) {
+                        showBoardContainer();
+                        showReconnectPrompt(currentRoomId);
+                        return;
+                    }
+                } else {
+                    showToast("온라인 대전 시작!", "var(--primary)");
+                    resetGameUI();
+                }
+
                 document.getElementById('game-controls').style.display = 'flex';
                 document.getElementById('btn-resign').style.display = 'block';
                 document.getElementById('btn-settings-game').style.display = 'block';
-                showToast("온라인 대전 시작!", "var(--primary)");
-                resetGameUI();
-                setupPresence();
-                setupNetworkListeners();
-            });
+                showBoardContainer();
+            };
+
+            if (!opts.resume) {
+                showVsScreen(userProfile, oppProfile, startGameUI);
+            } else {
+                startGameUI();
+            }
         }
 
         function pushGameAction(payload) {
@@ -1079,6 +1239,7 @@
             } else if (action.type === 'augment_sync') {
                 document.getElementById('augment-overlay').style.display = 'none';
                 deserializeGameState(action.state); 
+                persistRoomGameState(action.state).catch(() => {});
                 showCastText(action.name || "증강", () => {
                     drawPieces(true); updateCheckStatus();
                     if (action.globalVfx) playGlobalVFX(action.globalVfx);
@@ -1174,6 +1335,9 @@
             await cancelMatchmaking(); // 안전 장치
             mainLobbyOverlay.style.display = 'flex'; 
             setLobbyMsg(""); isGameStarted = false; currentRoomId = null; isBotMode = false;
+            activeAugmentOptions = null;
+            activeAugmentPlayerColor = null;
+            clearRoomSession();
             clearTimeout(botHurryTimer);
         };
 
@@ -1182,7 +1346,9 @@
                 board: game.board(), turn: game.turn(), castling: game.castling, ep_square: game.ep_square,
                 is_game_over: game.is_game_over, moveCount: moveCount, activePoison: activePoison,
                 rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, pendingAugments: pendingAugments,
-                activeWalls: activeWalls, reversedPawns: reversedPawns
+                activeWalls: activeWalls, reversedPawns: reversedPawns,
+                activeAugmentOptions: activeAugmentOptions,
+                activeAugmentPlayerColor: activeAugmentPlayerColor
             });
         }
         function deserializeGameState(stateStr) {
@@ -1191,6 +1357,8 @@
             game.is_game_over = state.is_game_over; moveCount = state.moveCount; activePoison = state.activePoison;
             rootedPieces = state.rootedPieces || {}; invinciblePieces = state.invinciblePieces || {}; pendingAugments = state.pendingAugments;
             activeWalls = state.activeWalls || []; reversedPawns = state.reversedPawns || { color: null, duration: 0 };
+            activeAugmentOptions = state.activeAugmentOptions || null;
+            activeAugmentPlayerColor = state.activeAugmentPlayerColor || null;
             updateProgressBar(); updateBoardVisuals(); updateTurnIndicator();
         }
 
@@ -1479,7 +1647,7 @@
                 const cell = document.querySelector(`.square[data-square="${sq}"]`);
                 if(cell) { cell.classList.add(vfxClass); setTimeout(() => cell.classList.remove(vfxClass), 1000); }
                 const pInfo = game.get(sq);
-                if(pInfo && (vfxClass === 'vfx-explosion' || vfxClass === 'vfx-lightning')) {
+                if(pInfo && ['vfx-explosion', 'vfx-lightning', 'vfx-shadow', 'vfx-holy'].includes(vfxClass)) {
                     const el = document.getElementById('piece-' + pInfo.uid);
                     if(el) { el.classList.add('piece-shake'); setTimeout(() => el.classList.remove('piece-shake'), 500); }
                 }
@@ -1666,6 +1834,7 @@
                 if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 1500);
                 else startHurryTimer();
             }
+            persistRoomGameState().catch(() => {});
         }
 
         function makeBotMove() {
@@ -1869,7 +2038,7 @@
             { name: '축복', icon: '🕊️', desc: '무작위 빈칸에 아군 비숍/나이트 소환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'b').length > 0, apply: (m, e) => { const type = Math.random() > 0.5 ? 'b' : 'n'; const sq = getSafeEmptySquares(m, type).sort(()=>0.5-Math.random())[0]; game.put({type: type, color: m}, sq); spawnFloatingText(sq,'✨'); return { t: [sq], vfx: 'vfx-heal', msg: '🕊️ 축복으로 기물이 합류했습니다!' }; } },
             { name: '저주', icon: '🐸', desc: '무작위 적 기물 3개를 폰으로 변이시킵니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).filter(sq => !['p'].includes(game.get(sq).type)).length > 0, apply: (m, e) => { let targets = findVulnerable(e).filter(sq => !['p'].includes(game.get(sq).type)).sort(()=>0.5-Math.random()).slice(0, 3); targets.forEach(tg => { game.remove(tg); game.put({type: 'p', color: e}, tg); spawnFloatingText(tg,'🐸'); }); return { t: targets, vfx: 'vfx-lightning', msg: '🐸 적들이 폰으로 변했습니다!' }; } },
             { name: '강제 이주', icon: '🌀', desc: '적 킹을 무작위 빈칸으로 강제 이동시킵니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => getAdjEmptySquares(findPieces(e, 'k')[0]).length > 0, apply: (m, e) => { const kingSq = findPieces(e, 'k')[0]; const empties = getAdjEmptySquares(kingSq).sort(()=>0.5-Math.random()); const tg = empties[0]; const kingInfo = game.get(kingSq); game.remove(kingSq); game.put(kingInfo, tg); spawnFloatingText(tg,'🌀'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🌀 적 킹이 이동당했습니다!' }; } },
-            { name: '암살', icon: '🗡️', desc: '가장 가치가 낮은 적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-heal', isKillType: true, condition: (m, e) => findVulnerable(e).length > 1, apply: (m, e) => { let targets = findVulnerable(e); targets.sort((a,b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]); const tgts = targets.slice(0,2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🗡️'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🗡️ 어둠 속 암살자가 습격했습니다!' }; } },
+            { name: '암살', icon: '🗡️', desc: '가장 가치가 낮은 적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-assassinate', isKillType: true, condition: (m, e) => findVulnerable(e).length > 1, apply: (m, e) => { let targets = findVulnerable(e); targets.sort((a,b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]); const tgts = targets.slice(0,2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🗡️'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🗡️ 어둠 속 암살자가 습격했습니다!' }; } },
             { name: '징집', icon: '🪖', desc: '무작위 빈칸 3곳에 아군 폰을 소환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'p').length >= 3, apply: (m, e) => { const sqs = getSafeEmptySquares(m, 'p').sort(()=>0.5-Math.random()).slice(0,3); sqs.forEach(sq => { game.put({type: 'p', color: m}, sq); spawnFloatingText(sq,'🪖'); }); return { t: sqs, vfx: 'vfx-heal', msg: '🪖 폰들이 징집되었습니다!' }; } },
             { name: '빛의 수호', icon: '🛡️', desc: '아군 모든 폰에게 1수 동안 무적을 부여합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m, 'p').length > 0, apply: (m, e) => { let tgts = findPieces(m, 'p'); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq,'🛡️'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '🛡️ 폰들이 무적 상태가 되었습니다!' }; } },
             { name: '여신의 가호', icon: '✨', desc: '무작위 아군 상위 기물 2개에 1수 무적 부여.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3).length > 0, apply: (m, e) => { let tgts = findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3).sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq,'✨'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '✨ 상위 기물들이 무적이 되었습니다!' }; } },
@@ -1879,7 +2048,7 @@
             { name: '그림자 교체', icon: '🥷', desc: '아군 킹과 무작위 아군 기물의 위치를 뒤바꿉니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(m).filter(sq => game.get(sq).type !== 'k').length > 0, apply: (m, e) => { const kingSq = findPieces(m, 'k')[0]; const allySqs = findPieces(m).filter(sq => sq !== kingSq).sort(()=>0.5-Math.random()); const tg = allySqs[0]; const kInfo = game.get(kingSq); const aInfo = game.get(tg); game.remove(kingSq); game.remove(tg); game.put(aInfo, kingSq); game.put(kInfo, tg); spawnFloatingText(kingSq,'🥷'); spawnFloatingText(tg,'🥷'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🥷 킹이 그림자 속으로 위치를 바꿨습니다!' }; } },
             { name: '기사 서임', icon: '⚔️', desc: '무작위 아군 폰 1~3개를 나이트로 즉시 승급시킵니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m, 'p').length > 0, apply: (m, e) => { let tgts = findPieces(m, 'p').sort(()=>0.5-Math.random()).slice(0, Math.floor(Math.random()*3)+1); tgts.forEach(tg => { game.remove(tg); game.put({type: 'n', color: m}, tg); spawnFloatingText(tg,'⚔️'); }); return { t: tgts, vfx: 'vfx-heal', msg: `⚔️ ${tgts.length}개의 폰이 기사로 서임되었습니다!` }; } },
             { name: '숲의 망령', icon: '🌲', desc: '무작위 빈칸에 아군 나이트를 소환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => getSafeEmptySquares(m, 'n').length > 0, apply: (m, e) => { const sq = getSafeEmptySquares(m, 'n').sort(()=>0.5-Math.random())[0]; game.put({type: 'n', color: m}, sq); spawnFloatingText(sq,'🌲'); return { t: [sq], vfx: 'vfx-heal', msg: '🌲 숲의 망령이 나이트로 나타났습니다!' }; } },
-            { name: '신성한 폭발', icon: '💥', desc: '아군 킹 주변 8칸의 모든 적 기물을 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findPieces(m, 'k').length > 0, apply: (m, e) => { const kingSq = findPieces(m, 'k')[0]; const f = kingSq.charCodeAt(0), r = parseInt(kingSq[1]); let hit = []; for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) { if(df===0 && dr===0) continue; const sq = String.fromCharCode(f+df)+(r+dr); const p = game.get(sq); if(p && p.color === e && p.type !== 'k' && !invinciblePieces[p.uid]) { game.remove(sq); hit.push(sq); spawnFloatingText(sq,'💥'); } } return { t: hit, vfx: 'vfx-explosion', msg: hit.length > 0 ? '💥 킹의 주변을 휩쓸었습니다!' : '💥 폭발이 빗나갔습니다.' }; } },
+            { name: '신성한 폭발', icon: '💥', desc: '아군 킹 주변 8칸의 모든 적 기물을 파괴합니다.', globalVfx: 'vfx-global-divine', isKillType: true, condition: (m, e) => findPieces(m, 'k').length > 0, apply: (m, e) => { const kingSq = findPieces(m, 'k')[0]; const f = kingSq.charCodeAt(0), r = parseInt(kingSq[1]); let hit = []; for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) { if(df===0 && dr===0) continue; const sq = String.fromCharCode(f+df)+(r+dr); const p = game.get(sq); if(p && p.color === e && p.type !== 'k' && !invinciblePieces[p.uid]) { game.remove(sq); hit.push(sq); spawnFloatingText(sq,'💥'); } } return { t: hit, vfx: 'vfx-explosion', msg: hit.length > 0 ? '💥 킹의 주변을 휩쓸었습니다!' : '💥 폭발이 빗나갔습니다.' }; } },
             { name: '등가 교환', icon: '⚖️', desc: '가장 낮은 아군을 희생하여, 가장 높은 적을 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findPieces(m).filter(sq=>game.get(sq).type!=='k').length > 0 && findVulnerable(e).length > 0, apply: (m, e) => { let myTgts = findPieces(m).filter(sq=>game.get(sq).type!=='k').sort((a,b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]); let eTgts = findVulnerable(e).sort((a,b) => pieceValue[game.get(b).type] - pieceValue[game.get(a).type]); const mSq = myTgts[0]; const eSq = eTgts[0]; game.remove(mSq); game.remove(eSq); spawnFloatingText(mSq,'💀'); spawnFloatingText(eSq,'⚖️'); return { t: [mSq, eSq], vfx: 'vfx-explosion', msg: '⚖️ 희생을 통해 강력한 적을 처치했습니다!' }; } },
             { name: '광기', icon: '🤡', desc: '무작위 적 1개를 맵 어딘가의 빈칸으로 날려버립니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).length > 0 && getSafeEmptySquares(e, 'p').length > 0, apply: (m, e) => { let eTgts = findVulnerable(e).sort(()=>0.5-Math.random()); const tg = eTgts[0]; const pInfo = game.get(tg); const emptySqs = getSafeEmptySquares(pInfo.color, pInfo.type).sort(()=>0.5-Math.random()); if(emptySqs.length > 0) { game.remove(tg); game.put(pInfo, emptySqs[0]); spawnFloatingText(tg,'🤡'); spawnFloatingText(emptySqs[0],'🌀'); return { t: [tg, emptySqs[0]], vfx: 'vfx-lightning', msg: '🤡 적이 알 수 없는 곳으로 텔레포트 되었습니다!' }; } return { t: [], vfx: '', msg: '공간이 부족해 실패했습니다.' }; } },
             { name: '연금술', icon: '⚗️', desc: '무작위 아군 폰 1개를 비숍/나이트/룩 중 하나로 변환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m, 'p').length > 0, apply: (m, e) => { let tgts = findPieces(m, 'p').sort(()=>0.5-Math.random()); const tg = tgts[0]; const newTypes = ['b', 'n', 'r']; const pick = newTypes[Math.floor(Math.random()*newTypes.length)]; game.remove(tg); game.put({type: pick, color: m}, tg); spawnFloatingText(tg,'⚗️'); return { t: [tg], vfx: 'vfx-lightning', msg: '⚗️ 연금술 성공! 폰이 상위 기물이 되었습니다!' }; } },
@@ -1936,6 +2105,8 @@
         let selectedAugmentIdx = -1;
         let opponentAugmentPreview = null;
         let opponentAugmentPreviewColor = null;
+        let activeAugmentOptions = null;
+        let activeAugmentPlayerColor = null;
 
         function buildAugmentPreviewPayload(options) {
             return options.map(aug => ({
@@ -1946,6 +2117,15 @@
                 risk: getAugmentRiskLabel(aug),
                 typeClass: getAugmentCategoryClass(aug)
             }));
+        }
+
+        function resolveAugmentOptions(options) {
+            if (!options) return [];
+            return options.map(opt => {
+                if (opt && typeof opt.apply === 'function') return opt;
+                const found = AUGMENT_POOL.find(a => a.name === opt.name);
+                return found || opt;
+            });
         }
 
         function renderOpponentPreviewCards(previewOptions, playerColor, overlay) {
@@ -1977,8 +2157,12 @@
             el.classList.remove('cast-anim'); void el.offsetWidth; el.classList.add('cast-anim'); setTimeout(() => { el.style.display = 'none'; callback(); }, 1200);
         }
 
-        function showAugmentCards(playerColor) {
+        function showAugmentCards(playerColor, options = null) {
             const overlay = document.getElementById('augment-overlay');
+            const isRestore = !options && activeAugmentOptions && activeAugmentPlayerColor === playerColor;
+            if (!options && isRestore) {
+                options = activeAugmentOptions;
+            }
             if (playerColor !== myColor) {
                 if (isBotMode) {
                     const enemyColor = playerColor === 'w' ? 'b' : 'w';
@@ -2016,24 +2200,38 @@
             }
 
             const enemyColor = playerColor === 'w' ? 'b' : 'w';
-            let available = AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
-            
-            let weighted = [];
-            available.forEach(aug => {
-                let w = aug.isKillType ? 1 : 4; 
-                for(let i=0; i<w; i++) weighted.push(aug);
-            });
-            weighted.sort(() => 0.5 - Math.random()); 
-            const options = [];
-            for(let a of weighted) { if(options.length<3 && !options.find(o=>o.name===a.name)) options.push(a); }
+            const resolvedOptions = options ? resolveAugmentOptions(options) : [];
+            let available = resolvedOptions.length > 0 ? resolvedOptions : AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
+
+            if (!options) {
+                let weighted = [];
+                available.forEach(aug => {
+                    let w = aug.isKillType ? 1 : 4;
+                    for(let i=0; i<w; i++) weighted.push(aug);
+                });
+                weighted.sort(() => 0.5 - Math.random()); 
+                options = [];
+                for(let a of weighted) { if(options.length<3 && !options.find(o=>o.name===a.name)) options.push(a); }
+            } else {
+                options = resolveAugmentOptions(options);
+            }
 
             if(options.length === 0) { processNextAugmentPhase(); return; }
 
             const colorName = playerColor === 'w' ? '백' : '흑'; const badgeClass = playerColor === 'w' ? 'white' : 'black';
             let html = `<div class="turn-badge ${badgeClass}">${colorName} 차례</div><h2>증강 선택</h2><div class="cards-container">`;
             const previewPayload = buildAugmentPreviewPayload(options);
-            if (currentRoomId && !isBotMode) {
+            if (currentRoomId && !isBotMode && !isRestore) {
                 pushGameAction({ type: 'augment_preview', playerColor: playerColor, preview: previewPayload });
+                activeAugmentOptions = previewPayload;
+                activeAugmentPlayerColor = playerColor;
+                saveRoomSession({ activeAugmentOptions: previewPayload, activeAugmentPlayerColor: playerColor });
+                persistRoomGameState().catch(() => {});
+            }
+            if (currentRoomId && !isBotMode && isRestore) {
+                activeAugmentOptions = previewPayload;
+                activeAugmentPlayerColor = playerColor;
+                saveRoomSession({ activeAugmentOptions: previewPayload, activeAugmentPlayerColor: playerColor });
             }
             options.forEach((aug, idx) => {
                 const typeLabel = getAugmentCategoryLabel(aug);
@@ -2047,7 +2245,7 @@
                 card.onclick = () => {
                     if (selectedAugmentIdx === idx) {
                         overlay.style.display = 'none';
-                        applySelectedAugment(options[idx], playerColor, enemyColor);
+                        applySelectedAugment(resolveAugmentOptions(options)[idx], playerColor, enemyColor);
                     } else {
                         selectedAugmentIdx = idx;
                         document.querySelectorAll('.augment-card').forEach(c => {
@@ -2065,6 +2263,9 @@
         }
 
         function applySelectedAugment(selectedAug, pColor, eColor) {
+            activeAugmentOptions = null;
+            activeAugmentPlayerColor = null;
+            persistRoomGameState().catch(() => {});
             showCastText(selectedAug.name, () => {
                 const res = selectedAug.apply(pColor, eColor); 
                 
@@ -2079,6 +2280,7 @@
                 if (res.t && res.t.length > 0) triggerVFX(res.t, res.vfx);
                 playSFX('augment');
                 showToast(res.msg, "var(--primary)", 4000);
+                persistRoomGameState().catch(() => {});
 
                 if (isBotMode && selectedAug.isKillType && res.t && res.t.length > 0) {
                     scheduleBotReply(pColor === myColor ? getBotSpeech('augment') : getBotSpeech('capture'), 1500);
