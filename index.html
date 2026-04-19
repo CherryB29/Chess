@@ -145,6 +145,16 @@
             display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
             transition: background 0.3s; box-sizing: border-box;
         }
+        .overlay.peeking {
+            background: transparent !important;
+            backdrop-filter: none !important;
+        }
+        .overlay.peeking .turn-badge,
+        .overlay.peeking h2,
+        .overlay.peeking .cards-container {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
         .turn-badge { padding: 6px 18px; border-radius: 20px; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; animation: pop 0.4s; }
         .turn-badge.white { background: #fff; color: #000; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
         .turn-badge.black { background: #222; color: #fff; box-shadow: 0 0 15px rgba(0,0,0,0.5); border: 1px solid #555; }
@@ -161,6 +171,9 @@
         .augment-card.augment-type-summon { border-color: #27ae60; box-shadow: 0 5px 15px rgba(39, 174, 96, 0.15); }
         .augment-card.augment-type-utility { border-color: #3498db; box-shadow: 0 5px 15px rgba(52, 152, 219, 0.15); }
         .augment-card.augment-type-other { border-color: #9b59b6; box-shadow: 0 5px 15px rgba(155, 89, 182, 0.15); }
+        .augment-card.dimmed { filter: brightness(0.68); opacity: 0.85; cursor: default; pointer-events: none; }
+        .augment-card.dimmed .augment-title, .augment-card.dimmed .augment-subtitle, .augment-card.dimmed .augment-desc { color: #ddd; }
+        .augment-card.dimmed .augment-icon { opacity: 0.9; }
         .augment-icon { font-size: 2.5rem; margin-bottom: 10px; }
         .augment-title { font-size: 1rem; margin: 0 0 6px 0; font-weight: bold; word-break: keep-all; }
         .augment-subtitle { color: #bbb; font-size: 0.72rem; line-height: 1.2; margin-bottom: 8px; min-height: 1.5em; }
@@ -365,7 +378,7 @@
         
         <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
             <div style="font-size: 3.5rem; margin-bottom: 5px; animation: pop 0.8s;">♞</div>
-            <h1 style="font-size: 2.2rem; margin: 0 0 50px 0; color: var(--text-color); font-weight: 800; letter-spacing: 1px; animation: pop 0.8s;">증강 : 체스</h1>
+            <h1 style="font-size: 2.2rem; margin: 0 0 20px 0; color: var(--text-color); font-weight: 800; letter-spacing: 1px; animation: pop 0.8s;">증강 : 체스</h1>
             <button id="btn-play-main" style="background: var(--primary); color: #fff; border: none; padding: 15px 60px; font-size: 1.4rem; font-weight: 900; letter-spacing: 2px; border-radius: 40px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s; animation: pop 1s;">PLAY</button>
         </div>
     </div>
@@ -373,6 +386,7 @@
     <div id="mode-select-overlay" class="overlay" style="display: none; z-index: 150;">
         <div class="lobby-box">
             <h2>게임 모드 선택</h2>
+            <div id="online-count" style="color: var(--primary); font-size: 1rem; font-weight: bold; margin-bottom: 18px; min-height: 1.2rem;">접속자: 0명</div>
             <button id="btn-random" class="lobby-btn">🎲 빠른 대전</button>
             <div style="margin: 20px 0; border-top: 1px solid var(--panel-border); padding-top: 20px;">
                 <input type="text" id="room-input" class="lobby-input" placeholder="초대 코드 (4자리)" maxlength="4">
@@ -644,13 +658,101 @@
         const vsOverlay = document.getElementById('vs-overlay');
         const lobbyMsg = document.getElementById('lobby-msg');
         const playerInfo = document.getElementById('player-info');
+        const augmentOverlay = document.getElementById('augment-overlay');
+        const onlineCountDisplay = document.getElementById('online-count');
+        const LOCAL_SETTINGS_KEY = 'augmentedChessSettings';
+        const LOCAL_PROFILE_KEY = 'augmentedChessProfile';
+        const DEFAULT_SETTINGS = { soundEnabled: true, botChatEnabled: true, showPreviousMove: true, soundVolume: 0.8, darkMode: true };
+        let isAugmentPeeked = false;
+
+        augmentOverlay.addEventListener('pointerdown', (e) => {
+            if (augmentOverlay.style.display !== 'flex') return;
+            if (e.target.closest('.augment-card')) return;
+            augmentOverlay.classList.add('peeking');
+            augmentOverlay.style.pointerEvents = 'none';
+            isAugmentPeeked = true;
+        });
+        const endAugmentPeek = () => {
+            if (isAugmentPeeked) {
+                augmentOverlay.classList.remove('peeking');
+                augmentOverlay.style.pointerEvents = 'auto';
+                isAugmentPeeked = false;
+            }
+        };
+        window.addEventListener('pointerup', endAugmentPeek);
+        window.addEventListener('pointercancel', endAugmentPeek);
+
+        function loadLocalSettings() {
+            try { const raw = localStorage.getItem(LOCAL_SETTINGS_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+        }
+        function saveLocalSettings() {
+            try { localStorage.setItem(LOCAL_SETTINGS_KEY, JSON.stringify(userProfile.settings)); } catch (e) {}
+        }
+        function loadLocalProfile() {
+            try { const raw = localStorage.getItem(LOCAL_PROFILE_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+        }
+        function saveLocalProfile() {
+            try { localStorage.setItem(LOCAL_PROFILE_KEY, JSON.stringify({ name: userProfile.name, icon: userProfile.icon })); } catch (e) {}
+        }
+        function applySettingsToUI() {
+            const settings = Object.assign({}, DEFAULT_SETTINGS, userProfile.settings || {});
+            soundEnabled = settings.soundEnabled;
+            botChatEnabled = settings.botChatEnabled;
+            showPreviousMove = settings.showPreviousMove;
+            soundVolume = Number(settings.soundVolume) || 0.8;
+            const darkMode = settings.darkMode;
+            soundToggle.checked = soundEnabled;
+            botChatToggle.checked = botChatEnabled;
+            previousMoveToggle.checked = showPreviousMove;
+            soundVolumeSlider.value = Math.round(soundVolume * 100);
+            soundVolumeValue.innerText = `${soundVolumeSlider.value}%`;
+            document.getElementById('theme-toggle').checked = darkMode;
+            if (darkMode) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode');
+            updatePreviousMoveHighlights();
+        }
+        function saveUserSettings() {
+            if (!userProfile.settings) userProfile.settings = {};
+            userProfile.settings.soundEnabled = soundEnabled;
+            userProfile.settings.botChatEnabled = botChatEnabled;
+            userProfile.settings.showPreviousMove = showPreviousMove;
+            userProfile.settings.soundVolume = soundVolume;
+            userProfile.settings.darkMode = document.getElementById('theme-toggle').checked;
+            saveLocalSettings();
+            if (myUid) update(ref(db, `users/${myUid}`), { settings: userProfile.settings });
+        }
+        function setupOnlineCountListener() {
+            const onlineRef = ref(db, 'online_users');
+            onValue(onlineRef, snap => {
+                const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+                if (onlineCountDisplay) onlineCountDisplay.innerText = `접속자: ${count}명`;
+            });
+        }
+        function registerGlobalPresence(uid) {
+            const myPresenceRef = ref(db, `online_users/${uid}`);
+            set(myPresenceRef, true);
+            onDisconnect(myPresenceRef).remove();
+        }
+
+        setupOnlineCountListener();
+
+        const storedProfile = loadLocalProfile();
+        if (storedProfile) {
+            userProfile = Object.assign(userProfile, storedProfile);
+            document.getElementById('selected-icon-display').innerText = userProfile.icon;
+            document.getElementById('profile-name-input').value = userProfile.name;
+        }
+        const storedSettings = loadLocalSettings();
+        if (storedSettings) {
+            userProfile.settings = Object.assign({}, DEFAULT_SETTINGS, storedSettings);
+            applySettingsToUI();
+        }
 
         // 이모지 픽커 초기화
         const emojisList = ['👤', '😎', '🤖', '👽', '👻', '💩', '🤡', '🐶', '🐱', '🐯', '🦁', '🐸', '🐼', '🐷', '🦊'];
         const emojiContainer = document.getElementById('emoji-picker-container');
         emojisList.forEach(e => {
             let span = document.createElement('span'); span.className = 'emoji-item'; span.innerText = e;
-            span.onclick = () => { document.getElementById('selected-icon-display').innerText = e; userProfile.icon = e; };
+            span.onclick = () => { document.getElementById('selected-icon-display').innerText = e; userProfile.icon = e; saveLocalProfile(); };
             emojiContainer.appendChild(span);
         });
 
@@ -661,11 +763,15 @@
             if (snap.exists()) {
                 userProfile = Object.assign(userProfile, snap.val());
                 if(!userProfile.stats) userProfile.stats = {w:0, l:0, d:0};
+                if(!userProfile.settings) userProfile.settings = {};
+                const localSettings = loadLocalSettings();
+                userProfile.settings = Object.assign({}, DEFAULT_SETTINGS, userProfile.settings, localSettings || {});
             } else {
                 userProfile = { 
                     name: isAnon ? `Guest_${uid.slice(0,4)}` : (email ? email.split('@')[0] : `User_${uid.slice(0,4)}`), 
                     icon: "👤", 
-                    stats: { w:0, l:0, d:0 } 
+                    stats: { w:0, l:0, d:0 },
+                    settings: Object.assign({}, DEFAULT_SETTINGS, loadLocalSettings() || {})
                 };
                 await set(userRef, userProfile);
             }
@@ -673,15 +779,17 @@
             document.getElementById('settings-account-info').innerText = isAnon ? "게스트" : (email ? "이메일" : "Google");
             document.getElementById('profile-name-input').value = userProfile.name;
             document.getElementById('selected-icon-display').innerText = userProfile.icon;
+            applySettingsToUI();
         }
 
         document.getElementById('btn-save-profile').onclick = () => {
             const newName = document.getElementById('profile-name-input').value.trim() || "Guest";
-            userProfile.name = newName; 
+            userProfile.name = newName;
+            saveLocalProfile();
             if (myUid) {
                 update(ref(db, `users/${myUid}`), { name: newName, icon: userProfile.icon });
-                showToast("프로필이 저장되었습니다.", "var(--primary)");
             }
+            showToast("프로필이 저장되었습니다.", "var(--primary)");
         };
 
         // 인증 상태 감지
@@ -690,6 +798,7 @@
                 myUid = user.uid;
                 loginOverlay.style.display = 'none';
                 if(!isGameStarted && vsOverlay.style.display === 'none') mainLobbyOverlay.style.display = 'flex';
+                registerGlobalPresence(user.uid);
                 loadUserProfile(user.uid, user.isAnonymous, user.email);
             } else { 
                 myUid = null;
@@ -730,11 +839,11 @@
         document.getElementById('btn-settings').addEventListener('click', () => { settingsOverlay.style.display = 'flex'; });
         document.getElementById('btn-settings-game').addEventListener('click', () => { settingsOverlay.style.display = 'flex'; });
         document.getElementById('btn-close-settings').addEventListener('click', () => { settingsOverlay.style.display = 'none'; });
-        document.getElementById('theme-toggle').addEventListener('change', (e) => { if(e.target.checked) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode'); });
-        soundToggle.addEventListener('change', (e) => { soundEnabled = e.target.checked; });
-        botChatToggle.addEventListener('change', (e) => { botChatEnabled = e.target.checked; });
-        previousMoveToggle.addEventListener('change', (e) => { showPreviousMove = e.target.checked; updatePreviousMoveHighlights(); });
-        soundVolumeSlider.addEventListener('input', (e) => { soundVolume = e.target.value / 100; soundVolumeValue.innerText = `${e.target.value}%`; });
+        document.getElementById('theme-toggle').addEventListener('change', (e) => { if(e.target.checked) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode'); saveUserSettings(); });
+        soundToggle.addEventListener('change', (e) => { soundEnabled = e.target.checked; saveUserSettings(); });
+        botChatToggle.addEventListener('change', (e) => { botChatEnabled = e.target.checked; saveUserSettings(); });
+        previousMoveToggle.addEventListener('change', (e) => { showPreviousMove = e.target.checked; updatePreviousMoveHighlights(); saveUserSettings(); });
+        soundVolumeSlider.addEventListener('input', (e) => { soundVolume = e.target.value / 100; soundVolumeValue.innerText = `${e.target.value}%`; saveUserSettings(); });
 
         // -------------------- 로그인 제어 --------------------
         document.getElementById('btn-show-email').onclick = () => { document.getElementById('email-login-form').style.display = 'block'; document.getElementById('btn-show-email').style.display = 'none'; };
@@ -754,6 +863,9 @@
         document.getElementById('btn-logout').onclick = async () => { 
             if(confirm("로그아웃 하시겠습니까?")) {
                 await cancelMatchmaking();
+                if (myUid) {
+                    remove(ref(db, `online_users/${myUid}`)).catch(() => {});
+                }
                 signOut(auth).then(() => { settingsOverlay.style.display = 'none'; }).catch(err => alert("로그아웃 실패: " + err.message)); 
             }
         };
@@ -958,6 +1070,12 @@
         function handleRemoteAction(action) {
             if (action.type === 'move') {
                 executeMoveLocal(action.from, action.to, action.promotion);
+            } else if (action.type === 'augment_preview') {
+                opponentAugmentPreview = action.preview;
+                opponentAugmentPreviewColor = action.playerColor;
+                if (augmentOverlay.style.display === 'flex') {
+                    renderOpponentPreviewCards(opponentAugmentPreview, opponentAugmentPreviewColor, augmentOverlay);
+                }
             } else if (action.type === 'augment_sync') {
                 document.getElementById('augment-overlay').style.display = 'none';
                 deserializeGameState(action.state); 
@@ -1816,8 +1934,33 @@
         }
 
         let selectedAugmentIdx = -1;
+        let opponentAugmentPreview = null;
+        let opponentAugmentPreviewColor = null;
+
+        function buildAugmentPreviewPayload(options) {
+            return options.map(aug => ({
+                name: aug.name,
+                icon: aug.icon,
+                desc: aug.desc,
+                category: getAugmentCategoryLabel(aug),
+                risk: getAugmentRiskLabel(aug),
+                typeClass: getAugmentCategoryClass(aug)
+            }));
+        }
+
+        function renderOpponentPreviewCards(previewOptions, playerColor, overlay) {
+            let html = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방 선택 중...</div><h2>적 선택 중</h2><p style="color:#ccc; margin-bottom:12px; font-size:0.95rem;">상대가 볼 수 있는 선택지입니다.</p><div class="cards-container">`;
+            previewOptions.forEach((aug) => {
+                html += `<div class="augment-card ${aug.typeClass} dimmed"><div class="augment-icon">${aug.icon}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle">${aug.category}${aug.risk ? ' · ' + aug.risk : ''}</div><div class="augment-desc">${aug.desc}</div></div>`;
+            });
+            html += `</div>`;
+            overlay.innerHTML = html;
+            overlay.style.display = 'flex';
+        }
 
         function processNextAugmentPhase() {
+            opponentAugmentPreview = null;
+            opponentAugmentPreviewColor = null;
             if (pendingAugments.length === 0) { 
                 isSystemLocked = false; updateCheckStatus(); updateProgressBar(); 
                 if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 800);
@@ -1845,8 +1988,30 @@
                     setTimeout(() => applySelectedAugment(choice, playerColor, enemyColor), 1500); 
                     return;
                 }
-                overlay.innerHTML = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방 선택 중...</div>`;
-                overlay.style.display = 'flex';
+                if (opponentAugmentPreview && opponentAugmentPreviewColor === playerColor) {
+                    renderOpponentPreviewCards(opponentAugmentPreview, playerColor, overlay);
+                    return;
+                }
+                if (currentRoomId) {
+                    overlay.innerHTML = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방 선택 중...</div><h2>적 선택 중</h2><p style="color:#ccc; margin-bottom:12px; font-size:0.95rem;">상대 선택지를 불러오는 중입니다...</p>`;
+                    overlay.style.display = 'flex';
+                    return;
+                }
+                const enemyColor = playerColor === 'w' ? 'b' : 'w';
+                let available = AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
+                let weighted = [];
+                available.forEach(aug => {
+                    let w = aug.isKillType ? 1 : 4;
+                    for (let i = 0; i < w; i++) weighted.push(aug);
+                });
+                weighted.sort(() => 0.5 - Math.random());
+                const previewOptions = [];
+                for (let aug of weighted) {
+                    if (previewOptions.length >= 3) break;
+                    if (!previewOptions.find(o => o.name === aug.name)) previewOptions.push(aug);
+                }
+                if (previewOptions.length === 0) { processNextAugmentPhase(); return; }
+                renderOpponentPreviewCards(previewOptions, playerColor, overlay);
                 return; 
             }
 
@@ -1866,6 +2031,10 @@
 
             const colorName = playerColor === 'w' ? '백' : '흑'; const badgeClass = playerColor === 'w' ? 'white' : 'black';
             let html = `<div class="turn-badge ${badgeClass}">${colorName} 차례</div><h2>증강 선택</h2><div class="cards-container">`;
+            const previewPayload = buildAugmentPreviewPayload(options);
+            if (currentRoomId && !isBotMode) {
+                pushGameAction({ type: 'augment_preview', playerColor: playerColor, preview: previewPayload });
+            }
             options.forEach((aug, idx) => {
                 const typeLabel = getAugmentCategoryLabel(aug);
                 const riskLabel = getAugmentRiskLabel(aug);
