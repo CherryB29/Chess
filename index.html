@@ -41,7 +41,10 @@
         }
 
         .header { text-align: center; margin-bottom: 5px; z-index: 10; width: 100%; max-width: 420px; position: relative; }
-        h1 { color: var(--text-color); margin: 0 0 5px 0; font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; }
+        .header-logo { display: inline-flex; align-items: center; justify-content: center; gap: 10px; margin: 0 auto 5px auto; }
+        .logo-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: rgba(255,255,255,0.08); }
+        .logo-icon svg { width: 24px; height: 24px; fill: var(--text-color); }
+        h1 { color: var(--text-color); margin: 0; font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; }
         
         #btn-resign, #btn-settings-game { position: absolute; top: 10px; width: auto; padding: 6px 12px; margin: 0; font-size: 0.9rem; z-index: 20; display: none; }
         #btn-resign { right: 10px; }
@@ -325,7 +328,14 @@
     <div class="header">
         <button id="btn-resign" class="lobby-btn danger">🏳️</button>
         <button id="btn-settings-game" class="lobby-btn secondary">⚙️</button>
-        <h1>증강 : 체스</h1>
+        <div class="header-logo">
+            <div class="logo-icon" aria-hidden="true">
+                <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M18 14h28v10H18zM20 26h24v4H20zM22 32h20v4H22zM23 38h18v4H23zM24 44h16v4H24zM14 52h36v6H14zM10 14h6v44H10zM48 14h6v44h-6z" />
+                </svg>
+            </div>
+            <h1>증강 : 체스</h1>
+        </div>
         <div id="player-info" style="font-size: 0.8rem; margin-bottom: 5px; color: #888;">연결 중...</div>
         <div class="turn-wrapper">
             <div id="turn-display" class="turn-indicator white-turn">백</div>
