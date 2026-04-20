@@ -145,6 +145,7 @@
             background: var(--overlay-bg); backdrop-filter: blur(5px);
             display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
             transition: background 0.3s; box-sizing: border-box;
+            user-select: none; -webkit-user-select: none; -ms-user-select: none; touch-action: manipulation;
         }
         .overlay.peeking {
             background: transparent !important;
@@ -152,20 +153,22 @@
         }
         .overlay.peeking .turn-badge,
         .overlay.peeking h2,
-        .overlay.peeking .cards-container {
+        .overlay.peeking .cards-container,
+        .overlay.peeking .augment-hint {
             opacity: 0 !important;
             pointer-events: none !important;
         }
         .turn-badge { padding: 6px 18px; border-radius: 20px; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; animation: pop 0.4s; }
         .turn-badge.white { background: #fff; color: #000; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
         .turn-badge.black { background: #222; color: #fff; box-shadow: 0 0 15px rgba(0,0,0,0.5); border: 1px solid #555; }
-        .overlay h2 { color: var(--text-color); margin-bottom: 25px; font-size: 1.5rem; animation: pop 0.4s; text-align: center; font-weight: 800;}
+        .overlay h2 { color: var(--text-color); margin-bottom: 15px; font-size: 1.5rem; animation: pop 0.4s; text-align: center; font-weight: 800;}
 
-        .cards-container { display: flex; gap: 10px; padding: 10px; flex-wrap: wrap; justify-content: center; max-width: 500px; }
+        .cards-container { display: flex; gap: 10px; padding: 10px; flex-wrap: wrap; justify-content: center; max-width: 520px; width: 100%; margin-bottom: 10px; }
         .augment-card {
             background: var(--panel-bg); border: 2px solid var(--panel-border);
             border-radius: 12px; padding: 15px 10px; width: 105px; text-align: center; color: var(--text-color);
             cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: all 0.2s; animation: pop 0.5s backwards;
+            user-select: none; -webkit-user-select: none; -ms-user-select: none; touch-action: manipulation;
         }
         .augment-card:hover { border-color: var(--primary); }
         .augment-card.augment-type-damage { border-color: #e74c3c; box-shadow: 0 5px 15px rgba(231, 76, 60, 0.15); }
@@ -179,6 +182,7 @@
         .augment-title { font-size: 1rem; margin: 0 0 6px 0; font-weight: bold; word-break: keep-all; }
         .augment-subtitle { color: #bbb; font-size: 0.72rem; line-height: 1.2; margin-bottom: 8px; min-height: 1.5em; }
         .augment-desc { color: #888; font-size: 0.75rem; line-height: 1.3; margin: 0; word-break: keep-all; }
+        .augment-hint { color: #ccc; font-size: 0.8rem; margin-top: 8px; text-align: center; }
 
         .promo-container { display: flex; gap: 15px; background: var(--panel-bg); padding: 20px; border-radius: 15px; border: 2px solid var(--primary); }
         .promo-piece { width: 50px; height: 50px; cursor: pointer; padding: 5px; border-radius: 10px; transition: 0.2s; position: relative; pointer-events: auto;}
@@ -214,8 +218,12 @@
 
         .piece-shake { animation: pieceShake 0.5s; }
         @keyframes pieceShake { 0%, 100% { transform: translateX(0) scale(1); } 25% { transform: translateX(-10px) rotate(-15deg) scale(1.2); } 75% { transform: translateX(10px) rotate(15deg) scale(1.2); } }
+        .black-pov .piece-wrapper.piece-shake { animation-name: pieceShakeBlack; }
+        @keyframes pieceShakeBlack { 0%, 100% { transform: rotate(-180deg) translateX(0) scale(1); } 25% { transform: rotate(-180deg) translateX(-10px) rotate(-15deg) scale(1.2); } 75% { transform: rotate(-180deg) translateX(10px) rotate(15deg) scale(1.2); } }
         .piece-pop { animation: piecePop 0.5s ease; }
         @keyframes piecePop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        .black-pov .piece-wrapper.piece-pop { animation-name: piecePopBlack; }
+        @keyframes piecePopBlack { 0% { transform: rotate(-180deg) scale(0); } 100% { transform: rotate(-180deg) scale(1); } }
 
         /* 감정표현 애니메이션들 */
         @keyframes animBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
@@ -262,8 +270,6 @@
         /* 화면 돌아감 방지: board는 유지하고 래퍼만 회전시킴 */
         .black-pov #board-rotator { transform: rotate(180deg); }
         .black-pov .piece-wrapper { transform: rotate(-180deg); }
-        .black-pov .piece-wrapper.piece-pop { transform: none; }
-        .black-pov .piece-wrapper.piece-shake { transform: none; }
 
         /* 말풍선 채팅 UI */
         .chat-bubble {
@@ -524,7 +530,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, get, onValue, update, push, remove, onChildAdded, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, onValue, update, push, remove, onChildAdded, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC4_y7tCcL4A8MKhhJyx5ylAdDNhnXzNLw",
@@ -702,6 +708,26 @@
             try { localStorage.removeItem(LOCAL_ROOM_KEY); } catch (e) {}
         }
 
+        async function cleanupStaleRoom(roomId) {
+            if (!roomId) return false;
+            try {
+                const roomSnap = await get(ref(db, `rooms/${roomId}`));
+                if (!roomSnap.exists()) return false;
+                const room = roomSnap.val();
+                const players = room.players || {};
+                const wStatus = players.w_status;
+                const bStatus = players.b_status;
+                const wLast = players.w_lastOffline;
+                const bLast = players.b_lastOffline;
+                const cutoff = Date.now() - 180000;
+                if (wStatus === 'offline' && bStatus === 'offline' && typeof wLast === 'number' && typeof bLast === 'number' && wLast <= cutoff && bLast <= cutoff) {
+                    await remove(ref(db, `rooms/${roomId}`));
+                    return true;
+                }
+            } catch (e) {}
+            return false;
+        }
+
         async function persistRoomGameState(stateStr = null) {
             if (!currentRoomId || isBotMode) return;
             try {
@@ -733,7 +759,10 @@
             showBoardContainer();
             showToast('게임을 이어서 진행합니다.', 'var(--primary)', 3000);
             if (activeAugmentPlayerColor || (pendingAugments && pendingAugments.length > 0)) {
-                if (activeAugmentPlayerColor) {
+                if (activeAugmentPlayerColor && selectedAugmentIdx !== -1) {
+                    // 증강 선택이 진행 중인 경우 UI 다시 표시
+                    showAugmentCards(activeAugmentPlayerColor, activeAugmentOptions);
+                } else if (activeAugmentPlayerColor) {
                     showAugmentCards(activeAugmentPlayerColor);
                 } else {
                     processNextAugmentPhase();
@@ -758,6 +787,7 @@
             augmentOverlay.style.pointerEvents = 'none';
             isAugmentPeeked = true;
         });
+        augmentOverlay.addEventListener('contextmenu', (e) => { if (augmentOverlay.style.display === 'flex') e.preventDefault(); });
         const endAugmentPeek = () => {
             if (isAugmentPeeked) {
                 augmentOverlay.classList.remove('peeking');
@@ -878,6 +908,7 @@
             const saved = loadRoomSession();
             if (!saved || !saved.roomId || !saved.color || !myUid) return false;
             const playersRef = ref(db, `rooms/${saved.roomId}/players`);
+            if (await cleanupStaleRoom(saved.roomId)) { clearRoomSession(); return false; }
             const snap = await get(playersRef);
             if (!snap.exists()) { clearRoomSession(); return false; }
             const players = snap.val();
@@ -1087,6 +1118,9 @@
             await cancelMatchmaking();
             const code = document.getElementById('room-input').value.trim();
             if(!code) return setLobbyMsg("코드를 입력하세요.");
+            if (await cleanupStaleRoom(code)) {
+                return setLobbyMsg("존재하지 않거나 닫힌 방입니다.");
+            }
             const roomRef = ref(db, `rooms/${code}/players`);
             const snap = await get(roomRef);
             if (snap.exists() && snap.val().w) joinRoom(code, 'b');
@@ -1109,8 +1143,11 @@
         function setupPresence() {
             if(isBotMode) return;
             const myStatusRef = ref(db, `rooms/${currentRoomId}/players/${myColor}_status`);
+            const myLastOfflineRef = ref(db, `rooms/${currentRoomId}/players/${myColor}_lastOffline`);
             set(myStatusRef, 'online');
+            set(myLastOfflineRef, null);
             onDisconnect(myStatusRef).set('offline'); 
+            onDisconnect(myLastOfflineRef).set(serverTimestamp());
             
             const enemyColor = myColor === 'w' ? 'b' : 'w';
             const enemyStatusRef = ref(db, `rooms/${currentRoomId}/players/${enemyColor}_status`);
@@ -1341,6 +1378,7 @@
             activeAugmentOptions = null;
             activeAugmentPlayerColor = null;
             clearRoomSession();
+            resetGameUI();
             clearTimeout(botHurryTimer);
         };
 
@@ -1351,7 +1389,8 @@
                 rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, pendingAugments: pendingAugments,
                 activeWalls: activeWalls, reversedPawns: reversedPawns,
                 activeAugmentOptions: activeAugmentOptions,
-                activeAugmentPlayerColor: activeAugmentPlayerColor
+                activeAugmentPlayerColor: activeAugmentPlayerColor,
+                selectedAugmentIdx: selectedAugmentIdx
             });
         }
         function deserializeGameState(stateStr) {
@@ -1362,6 +1401,7 @@
             activeWalls = state.activeWalls || []; reversedPawns = state.reversedPawns || { color: null, duration: 0 };
             activeAugmentOptions = state.activeAugmentOptions || null;
             activeAugmentPlayerColor = state.activeAugmentPlayerColor || null;
+            selectedAugmentIdx = state.selectedAugmentIdx !== undefined ? state.selectedAugmentIdx : -1;
             updateProgressBar(); updateBoardVisuals(); updateTurnIndicator();
         }
 
@@ -1543,8 +1583,8 @@
 
         function resetGameUI() {
             game.reset(); moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; pendingAugments = [];
-            activeWalls = []; reversedPawns = { color: null, duration: 0 }; isSystemLocked = false; selectedSquare = null; legalMoves = []; drawDots();
-            drawPieces(false); updateProgressBar(); updateTurnIndicator(); updateBoardVisuals(); updateCheckStatus();
+            activeWalls = []; reversedPawns = { color: null, duration: 0 }; isSystemLocked = false; selectedSquare = null; legalMoves = []; selectedAugmentIdx = -1; previousMove = null; drawDots();
+            drawPieces(false); updateProgressBar(); updateTurnIndicator(); updateBoardVisuals(); updateCheckStatus(); updatePreviousMoveHighlights();
             document.querySelectorAll('.floating-text').forEach(e => e.remove());
         }
 
@@ -1694,6 +1734,8 @@
             if(game.is_game_over) return;
             game.set_game_over();
             clearTimeout(botHurryTimer);
+            previousMove = null;
+            updatePreviousMoveHighlights();
             playSFX(resultType === '승리' ? 'win' : resultType === '패배' ? 'lose' : 'message');
             
             if(!isBotMode && myUid && !statsRecorded) {
@@ -2247,7 +2289,8 @@
                 const typeClass = getAugmentCategoryClass(aug);
                 html += `<div class="augment-card ${typeClass}" data-idx="${idx}"><div class="augment-icon">${aug.icon}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle">${typeLabel}${riskLabel ? ' · ' + riskLabel : ''}</div><div class="augment-desc">${aug.desc}</div></div>`;
             });
-            html += `</div>`; overlay.innerHTML = html; overlay.style.display = 'flex';
+            html += `</div><div class="augment-hint">카드 바깥쪽을 눌러 필드를 확인하세요.</div>`;
+            overlay.innerHTML = html; overlay.style.display = 'flex';
 
             document.querySelectorAll('.augment-card').forEach((card, idx) => {
                 card.onclick = () => {
@@ -2268,11 +2311,22 @@
                     }
                 };
             });
+
+            // 재접속 시 선택 상태 복원
+            if (selectedAugmentIdx !== -1 && selectedAugmentIdx < options.length) {
+                const selectedCard = document.querySelector(`.augment-card[data-idx="${selectedAugmentIdx}"]`);
+                if (selectedCard) {
+                    selectedCard.style.borderColor = 'var(--primary)';
+                    selectedCard.style.transform = 'translateY(-5px) scale(1.05)';
+                    selectedCard.style.boxShadow = '0 10px 20px var(--primary)';
+                }
+            }
         }
 
         function applySelectedAugment(selectedAug, pColor, eColor) {
             activeAugmentOptions = null;
             activeAugmentPlayerColor = null;
+            selectedAugmentIdx = -1;
             persistRoomGameState().catch(() => {});
             showCastText(selectedAug.name, () => {
                 const res = selectedAug.apply(pColor, eColor); 
