@@ -324,10 +324,100 @@
 
         /* ===== 파티클 & 충격파 (JS에서 Web Animations로 구동) ===== */
         #fx-canvas { z-index: 55; }
+        /* 증강 효과를 받은 기물: 효과 종류별 색(--aff)으로 잠깐 강하게 빛남 */
+        .piece-affected svg { animation: affectedGlow 1.3s ease-out; }
+        @keyframes affectedGlow {
+            0%   { filter: drop-shadow(0 0 0 var(--aff)) drop-shadow(0 0 0 var(--aff)) brightness(1) drop-shadow(0 3px 4px rgba(0,0,0,0.4)); }
+            22%  { filter: drop-shadow(0 0 7px var(--aff)) drop-shadow(0 0 16px var(--aff)) brightness(1.35) drop-shadow(0 3px 4px rgba(0,0,0,0.4)); }
+            55%  { filter: drop-shadow(0 0 5px var(--aff)) drop-shadow(0 0 10px var(--aff)) brightness(1.15) drop-shadow(0 3px 4px rgba(0,0,0,0.4)); }
+            100% { filter: drop-shadow(0 0 0 var(--aff)) drop-shadow(0 0 0 var(--aff)) brightness(1) drop-shadow(0 3px 4px rgba(0,0,0,0.4)); }
+        }
         @media (prefers-reduced-motion: reduce) {
             #fx-canvas { display: none; }
             .board-shake { animation: none; }
         }
+
+        /* ===== UI 정리 (공통 톤: 얇은 테두리 / 낮은 그림자 / 일정한 둥글기) ===== */
+        :root { --panel-border: #2c2c38; --radius: 14px; }
+        .header { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 8px; margin-bottom: 8px; }
+        .header-logo { margin: 0; gap: 8px; }
+        .logo-icon { width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,0.06); }
+        .logo-icon svg { width: 17px; height: 17px; }
+        h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+        #player-info { font-size: 0.72rem !important; margin: 0 !important; color: #7b7b89 !important; letter-spacing: 0.3px; }
+        .turn-wrapper { margin: 0; }
+        .turn-indicator { padding: 3px 14px; font-size: 0.8rem; letter-spacing: 0.5px; box-shadow: none; }
+        .turn-indicator.my-turn { outline: 2px solid #2ecc71; outline-offset: 2px; }
+        .progress-container { width: calc(100% - 24px); max-width: 396px; padding: 3px; background: rgba(255,255,255,0.07); border-radius: 999px; }
+        .progress-bar { height: 10px; border-radius: 999px; background: linear-gradient(90deg, #f5a65b, #ef6b57); }
+        .progress-text { font-size: 0.68rem; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+        #board { border-width: 3px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+        .lobby-box { border-radius: 18px; box-shadow: 0 16px 40px rgba(0,0,0,0.4); }
+        .lobby-btn { border-radius: 12px; padding: 13px; font-weight: 600; }
+        .ctrl-btn, #chat-input { border-radius: 12px; }
+        .overlay { backdrop-filter: blur(4px); }
+        .dot::after { background: rgba(243,156,18,0.75); box-shadow: none; }
+        .capture-ring::after { border-width: 3px; box-shadow: none; }
+
+        .cards-container { gap: 10px; max-width: 400px; padding: 6px 10px; }
+        .augment-card { width: 104px; padding: 12px 8px; border: 1px solid var(--panel-border); border-top-width: 3px; border-radius: var(--radius); box-shadow: none !important; transition: transform 0.15s, border-color 0.15s, background 0.15s; }
+        .augment-card.augment-type-damage { border-color: var(--panel-border); border-top-color: #e74c3c; }
+        .augment-card.augment-type-summon { border-color: var(--panel-border); border-top-color: #27ae60; }
+        .augment-card.augment-type-utility { border-color: var(--panel-border); border-top-color: #3498db; }
+        .augment-card.augment-type-other { border-color: var(--panel-border); border-top-color: #9b59b6; }
+        .augment-card.selected { border-color: var(--primary); background: #272732; transform: translateY(-3px); box-shadow: 0 6px 18px rgba(243,156,18,0.22) !important; }
+        .augment-icon { font-size: 1.9rem !important; margin-bottom: 6px !important; }
+        .augment-title { font-size: 0.85rem !important; margin-bottom: 3px !important; }
+        .augment-subtitle { font-size: 0.68rem !important; color: #8d8d9b !important; margin-bottom: 6px !important; }
+        .augment-desc { font-size: 0.72rem !important; line-height: 1.4 !important; color: #a4a4b2 !important; }
+        .turn-badge { font-size: 0.9rem; padding: 5px 16px; letter-spacing: 1px; box-shadow: none !important; }
+
+        /* ===== 위치 / 개체 지정 ===== */
+        .square.target-valid::after { content: ''; position: absolute; inset: 34%; border-radius: 50%; background: rgba(255,255,255,0.6); pointer-events: none; animation: tvPulse 1.4s ease-in-out infinite; }
+        .square.target-valid.tv-piece::after { inset: 6%; background: transparent; border: 2px solid rgba(255,90,80,0.85); animation: none; }
+        .square.target-preview { box-shadow: inset 0 0 0 3px var(--primary); }
+        .square.target-preview::after { inset: 8%; background: transparent; border: 2px dashed var(--primary); border-radius: 10px; animation: none; }
+        @keyframes tvPulse { 0%, 100% { opacity: 0.25; transform: scale(0.85); } 50% { opacity: 0.75; transform: scale(1.1); } }
+        .target-ghost { opacity: 0.5; pointer-events: none; }
+        #target-banner { position: fixed; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 120; width: min(92vw, 380px);
+            display: none; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(24,24,32,0.96); border: 1px solid var(--panel-border); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.45); }
+        #target-banner .tb-text { flex: 1; min-width: 0; }
+        #target-banner .tb-title { font-size: 0.8rem; color: #9a9aa8; margin-bottom: 2px; }
+        #target-banner .tb-msg { font-size: 0.95rem; font-weight: 600; color: #fff; word-break: keep-all; }
+        #target-banner.confirm .tb-msg { color: var(--primary); }
+        #target-banner .tb-cancel { flex-shrink: 0; padding: 8px 14px; border: 1px solid var(--panel-border); border-radius: 10px; background: transparent; color: #ccc; font-size: 0.85rem; cursor: pointer; }
+
+        /* ===== 암전(시야 방해): 암전 대상 플레이어 화면에서만 적용 ===== */
+        .square.fog::before { content: ''; position: absolute; inset: 0; background: rgba(8,8,16,0.95); z-index: 1; pointer-events: none; }
+        .piece-wrapper.piece-hidden { opacity: 0 !important; transition: opacity 0.3s; }
+
+        /* ===== 증강 카드 배치: 3개는 한 줄, 4개는 2×2, 5개는 3+2 ===== */
+        .cards-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; width: 100%; max-width: 400px; padding: 4px 10px; box-sizing: border-box; margin-bottom: 6px; }
+        .augment-card { box-sizing: border-box; flex: 0 0 calc((100% - 16px) / 3); width: auto; min-width: 0; padding: 10px 6px; }
+        .cards-container.cards-n4 .augment-card { flex-basis: calc((100% - 8px) / 2); }
+        @media (max-height: 740px) {
+            .overlay h2 { font-size: 1.25rem; margin-bottom: 8px; }
+            .turn-badge { margin-bottom: 6px; }
+            .augment-card { padding: 8px 5px; }
+            .augment-icon { font-size: 1.6rem !important; margin-bottom: 3px !important; }
+            .augment-desc { font-size: 0.66rem !important; line-height: 1.3 !important; }
+            .augment-hint { margin-top: 2px; }
+        }
+        @media (max-height: 640px) {
+            .overlay h2 { font-size: 1.1rem; margin-bottom: 6px; }
+            .turn-badge { font-size: 0.8rem; padding: 4px 12px; margin-bottom: 4px; }
+            .cards-container { gap: 6px; }
+            .augment-card { padding: 6px 4px; }
+            .augment-icon { font-size: 1.35rem !important; margin-bottom: 2px !important; }
+            .augment-title { font-size: 0.78rem !important; margin-bottom: 2px !important; }
+            .augment-subtitle { font-size: 0.62rem !important; margin-bottom: 3px !important; min-height: 0 !important; }
+            .augment-desc { font-size: 0.6rem !important; line-height: 1.25 !important; }
+        }
+
+        /* ===== 아기 증강의 '축복' 표시: 무적(금빛+방패)과 구분되는 분홍 링 + 남은 횟수 ===== */
+        .piece-blessed::before { content: ''; position: absolute; inset: 5%; border-radius: 50%; border: 2px solid rgba(255,150,200,0.9); box-shadow: 0 0 9px rgba(255,150,200,0.7), inset 0 0 7px rgba(255,150,200,0.35); pointer-events: none; animation: blessRing 2s ease-in-out infinite; z-index: 4; }
+        .piece-blessed .effect-counter { background: rgba(214,92,150,0.92); }
+        @keyframes blessRing { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -1302,12 +1392,9 @@
                 deserializeGameState(action.state); 
                 persistRoomGameState(action.state).catch(() => {});
                 showCastText(action.name || "증강", () => {
-                    drawPieces(true); updateCheckStatus();
-                    (action.floats || []).forEach(f => spawnFloatingText(f.sq, f.text));
-                    if (action.globalVfx) playGlobalVFX(action.globalVfx);
-                    if (action.t && action.t.length > 0) triggerVFX(action.t, action.vfx);
+                    const lead = playAugmentVisuals({ name: action.name, globalVfx: action.globalVfx, t: action.t, vfx: action.vfx, floats: action.floats, fxArg: action.fxArg, origin: action.origin });
                     showToast(action.msg, "var(--primary)", 4000);
-                    setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, action.delay || 1200);
+                    setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, (action.delay || 1200) + lead);
                 });
             } else if (action.type === 'resign') {
                 showEndScreen("승리", "상대방이 기권했습니다.");
@@ -1410,6 +1497,7 @@
                 is_game_over: game.is_game_over, moveCount: moveCount, activePoison: activePoison,
                 rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, pendingAugments: pendingAugments,
                 activeWalls: activeWalls, reversedPawns: reversedPawns,
+                jackpotBonus: jackpotBonus, lastKiller: lastKiller, babyEffect: babyEffect, blackout: blackout, uidCounter: game.pieceUidCounter,
                 activeAugmentOptions: activeAugmentOptions,
                 activeAugmentPlayerColor: activeAugmentPlayerColor,
                 selectedAugmentIdx: selectedAugmentIdx
@@ -1421,6 +1509,8 @@
             game.is_game_over = state.is_game_over; moveCount = state.moveCount; activePoison = state.activePoison;
             rootedPieces = state.rootedPieces || {}; invinciblePieces = state.invinciblePieces || {}; pendingAugments = state.pendingAugments;
             activeWalls = state.activeWalls || []; reversedPawns = state.reversedPawns || { color: null, duration: 0 };
+            jackpotBonus = state.jackpotBonus || { w: 0, b: 0 }; lastKiller = state.lastKiller || { w: null, b: null }; babyEffect = state.babyEffect || null; blackout = state.blackout || null;
+            if (state.uidCounter) game.pieceUidCounter = Math.max(game.pieceUidCounter, state.uidCounter);
             activeAugmentOptions = state.activeAugmentOptions || null;
             activeAugmentPlayerColor = state.activeAugmentPlayerColor || null;
             selectedAugmentIdx = state.selectedAugmentIdx !== undefined ? state.selectedAugmentIdx : -1;
@@ -1592,6 +1682,7 @@
         const AUGMENT_INTERVAL = 7; let isSystemLocked = false; let pendingAugments = [];
         let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {};
         let activeWalls = []; let reversedPawns = { color: null, duration: 0 };
+        let jackpotBonus = { w: 0, b: 0 }; let lastKiller = { w: null, b: null }; let babyEffect = null; let blackout = null; let targeting = null;
 
         const squareEls = new Map(); const squareList = []; const pieceEls = new Map();
         const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1610,7 +1701,9 @@
 
         function resetGameUI() {
             game.reset(); moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; pendingAugments = [];
-            activeWalls = []; reversedPawns = { color: null, duration: 0 }; isSystemLocked = false; selectedSquare = null; legalMoves = []; selectedAugmentIdx = -1; previousMove = null; drawDots();
+            activeWalls = []; reversedPawns = { color: null, duration: 0 }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = null; blackout = null;
+            if (targeting) { clearTargetVisuals(); targeting = null; }
+            isSystemLocked = false; selectedSquare = null; legalMoves = []; selectedAugmentIdx = -1; previousMove = null; drawDots();
             muteShatter = true; drawPieces(false); muteShatter = false; updateProgressBar(); updateTurnIndicator(); updateBoardVisuals(); updateCheckStatus(); updatePreviousMoveHighlights();
             document.querySelectorAll('.floating-text').forEach(e => e.remove());
         }
@@ -1652,11 +1745,14 @@
                 const isReversed = reversedPawns.duration > 0 && reversedPawns.color === piece.color && piece.type === 'p';
                 el.classList.toggle('piece-rooted', rootedPieces[piece.uid] > 0);
                 el.classList.toggle('piece-invincible', invinciblePieces[piece.uid] > 0);
+                const isBlessed = !!babyEffect && (piece.uid === babyEffect.kUid || piece.uid === babyEffect.qUid);
+                el.classList.toggle('piece-blessed', isBlessed);
                 el.classList.toggle('piece-reversed', isReversed);
 
                 let duration = 0;
                 if (rootedPieces[piece.uid] > 0) duration = rootedPieces[piece.uid];
                 else if (invinciblePieces[piece.uid] > 0) duration = invinciblePieces[piece.uid];
+                else if (isBlessed) duration = babyEffect.remaining;
                 else if (piece.type === 'wall') {
                     const wallEntry = activeWalls.find(w => w.sq === sq);
                     duration = wallEntry ? wallEntry.duration : 0;
@@ -1679,13 +1775,14 @@
                 el.style.transform = 'scale(0) rotate(45deg)'; el.style.opacity = '0';
                 setTimeout(() => el.remove(), 300);
             });
+            updateFog();
         }
 
         function drawDots() {
             dotsLayer.innerHTML = '';
             legalMoves.forEach(move => {
                 const coords = getCoords(move.to); const el = document.createElement('div');
-                if (game.get(move.to) || move.captured) el.className = 'capture-ring'; else el.className = 'dot';
+                if (!isFogOn() && (game.get(move.to) || move.captured)) el.className = 'capture-ring'; else el.className = 'dot';
                 el.style.left = `${coords.x}%`; el.style.top = `${coords.y}%`; dotsLayer.appendChild(el);
             });
             squareList.forEach(s => s.classList.remove('selected'));
@@ -1714,8 +1811,8 @@
             const canvas = document.getElementById('fx-canvas');
             const ctx = canvas.getContext('2d');
             let W = 0, H = 0, cell = 0, dpr = 1, running = false, last = 0;
-            const parts = [], rings = [], flashes = [], bolts = [], beams = [], slashes = [], rays = [];
-            const lists = [parts, rings, flashes, bolts, beams, slashes, rays];
+            const parts = [], rings = [], flashes = [], bolts = [], beams = [], slashes = [], rays = [], marks = [], waves = [], dims = [];
+            const lists = [parts, rings, flashes, bolts, beams, slashes, rays, marks, waves, dims];
             const rnd = (a, b) => a + Math.random() * (b - a);
             const pick = arr => arr[(Math.random() * arr.length) | 0];
             const TAU = Math.PI * 2;
@@ -1794,38 +1891,35 @@
                         size: rnd(2, 4), dur: dur * rnd(0.8, 1), kind: 'glow', color: pick(colors) });
             }
 
-            // ---------- 칸 단위 이펙트 ----------
+            // ---------- 칸 단위 이펙트 (강도 낮춤) ----------
             function explosion(x, y, s = 1) {
-                flash(x, y, cell * 1.7 * s, C.orange, 0.3, 0.9); flash(x, y, cell * 0.8 * s, C.white, 0.12, 1);
-                ring(x, y, cell * 0.15, cell * 1.6 * s, C.orange, 0.5, 6); ring(x, y, cell * 0.1, cell * s, C.yellow, 0.35, 3);
-                embers(x, y, Math.round(16 * s), 90 * s, 300 * s, [C.orange, C.yellow, C.red]);
-                puffs(x, y, Math.round(6 * s), C.smoke);
+                flash(x, y, cell * 1.5 * s, C.orange, 0.28, 0.75); ring(x, y, cell * 0.15, cell * 1.3 * s, C.orange, 0.45, 5);
+                embers(x, y, Math.round(10 * s), 80 * s, 260 * s, [C.orange, C.yellow, C.red]); puffs(x, y, Math.round(3 * s), C.smoke, 0.45);
             }
             function lightning(x, y) {
                 const topY = UP() < 0 ? 0 : H;
                 makeBolt(x + rnd(-cell, cell), topY, x, y);
-                flash(x, y, cell * 1.4, C.yellow, 0.28, 1); flash(W / 2, H / 2, W, C.white, 0.18, 0.18);
-                ring(x, y, cell * 0.1, cell * 0.95, C.yellow, 0.35, 3);
-                embers(x, y, 12, 120, 330, [C.white, C.yellow], 120, { drag: 2.6, dur: rnd(0.3, 0.6), kind: 'spark' });
+                flash(x, y, cell * 1.2, C.yellow, 0.25, 0.9); ring(x, y, cell * 0.1, cell * 0.8, C.yellow, 0.3, 3);
+                embers(x, y, 8, 120, 300, [C.white, C.yellow], 120, { drag: 2.6, dur: rnd(0.3, 0.55), kind: 'spark' });
             }
             function voidHit(x, y) {
-                puffs(x, y, 4, C.night, 0.65);
-                implode(x, y, 18, cell * 0.8, cell * 1.3, [C.purple, C.violet, C.lilac], 4, 7, 2.8, 0.55);
-                flash(x, y, cell * 1.3, C.purple, 0.5, 0.7);
-                setTimeout(() => { ring(x, y, cell * 0.1, cell * 1.3, C.purple, 0.45, 5); flash(x, y, cell, C.lilac, 0.25, 0.8); puffs(x, y, 5, C.violet, 0.6); kick(); }, 340);
+                puffs(x, y, 3, C.night, 0.6);
+                implode(x, y, 12, cell * 0.8, cell * 1.2, [C.purple, C.violet, C.lilac], 4, 7, 2.8, 0.5);
+                flash(x, y, cell * 1.2, C.purple, 0.45, 0.6);
+                setTimeout(() => { ring(x, y, cell * 0.1, cell * 1.2, C.purple, 0.4, 4); puffs(x, y, 3, C.violet, 0.55); kick(); }, 320);
             }
             function holy(x, y) {
-                beam(x, cell * 1.15, C.gold, 0.75); flash(x, y, cell * 1.5, C.gold, 0.5, 0.8);
-                ring(x, y, cell * 0.1, cell * 1.35, C.gold, 0.55, 4); rising(x, y, cell * 0.45, 16, [C.gold, C.white, C.yellow], 50, 140);
+                beam(x, cell * 1.0, C.gold, 0.65); flash(x, y, cell * 1.3, C.gold, 0.45, 0.7);
+                ring(x, y, cell * 0.1, cell * 1.2, C.gold, 0.5, 3); rising(x, y, cell * 0.4, 10, [C.gold, C.white, C.yellow], 50, 130);
             }
             function heal(x, y) {
-                flash(x, y, cell * 1.2, C.green, 0.5, 0.55); ring(x, y, cell * 0.15, cell * 1.1, C.green, 0.55, 3);
-                rising(x, y, cell * 0.4, 14, [C.green, C.white, C.gold], 45, 120);
+                flash(x, y, cell * 1.1, C.green, 0.45, 0.45); ring(x, y, cell * 0.15, cell, C.green, 0.5, 3);
+                rising(x, y, cell * 0.35, 9, [C.green, C.white, C.gold], 45, 110);
             }
-            function hit(sq, cls) {
+            function hit(sq, cls, s = 1) {
                 const { x, y } = ctr(sq);
                 switch (cls) {
-                    case 'vfx-explosion': explosion(x, y); break;
+                    case 'vfx-explosion': explosion(x, y, s); break;
                     case 'vfx-lightning': lightning(x, y); break;
                     case 'vfx-shadow': case 'vfx-void': voidHit(x, y); break;
                     case 'vfx-holy': holy(x, y); break;
@@ -1834,47 +1928,37 @@
                 kick();
             }
 
-            // ---------- 보드 전체 이펙트 ----------
-            function global(name) {
-                const cx = W || boardEl.clientWidth; resize();
-                const mx = W / 2, my = H / 2;
+            // ---------- 보조 이펙트: 효과가 발동한 지점(origin, 보드 % 좌표)을 중심으로 ----------
+            function global(name, arg, origin) {
+                resize();
+                const mx = origin ? origin.x / 100 * W : W / 2, my = origin ? origin.y / 100 * H : H / 2;
                 switch (name) {
                     case 'explosion':
-                        flash(mx, my, W, C.orange, 0.55, 0.5);
-                        ring(mx, my, cell * 0.3, W * 0.95, C.orange, 0.8, 10); setTimeout(() => { ring(mx, my, cell * 0.3, W * 0.8, C.yellow, 0.65, 6); kick(); }, 140);
-                        embers(mx, my, 46, 160, 520, [C.orange, C.yellow, C.red], 300, { size: rnd(2, 5) });
-                        for (let i = 0; i < 5; i++) {
-                            const tx = rnd(cell, W - cell), ty = rnd(cell, H - cell), sx = tx + rnd(-cell * 2, cell * 2), sy = UP() < 0 ? -cell : H + cell;
-                            setTimeout(() => { slash(sx, sy, tx, ty, C.orange, 0.42, 6); kick(); }, i * 90);
-                            setTimeout(() => { explosion(tx, ty, 0.6); kick(); }, i * 90 + 300);
-                        }
-                        break;
+                        flash(mx, my, cell * 2.4, C.orange, 0.35, 0.4); ring(mx, my, cell * 0.3, cell * 2.2, C.orange, 0.5, 4);
+                        embers(mx, my, 12, 110, 340, [C.orange, C.yellow, C.red], 300, { size: rnd(2, 4) }); break;
                     case 'void':
-                        flash(mx, my, W, C.violet, 0.9, 0.55); puffs(mx, my, 6, C.night, 0.5);
-                        implode(mx, my, 72, W * 0.3, W * 0.75, [C.purple, C.violet, C.lilac], 2.5, 5, 1.9, 1.05);
-                        setTimeout(() => { ring(mx, my, cell * 0.2, W * 0.7, C.purple, 0.6, 8); flash(mx, my, W * 0.8, C.lilac, 0.35, 0.7); kick(); }, 880);
-                        break;
+                        flash(mx, my, cell * 2.6, C.violet, 0.7, 0.35);
+                        implode(mx, my, 26, cell * 1.8, cell * 3.2, [C.purple, C.violet, C.lilac], 2.5, 5, 1.9, 0.9);
+                        setTimeout(() => { ring(mx, my, cell * 0.2, cell * 2.2, C.purple, 0.5, 4); flash(mx, my, cell * 1.8, C.lilac, 0.3, 0.45); kick(); }, 780); break;
                     case 'heal':
-                        flash(mx, my, W, C.green, 0.8, 0.28); ring(mx, my, cell * 0.3, W * 0.7, C.green, 0.9, 4, 0.7);
-                        for (let i = 0; i < 64; i++) P({ x: rnd(0, W), y: UP() < 0 ? H + 6 : -6, vx: rnd(-12, 12), vy: UP() * rnd(70, 200), drag: 0.15,
-                            size: rnd(1.6, 3.6), dur: rnd(0.9, 1.6), kind: 'glow', color: pick([C.green, C.gold, C.white]), tw: true });
+                        flash(mx, my, cell * 2.4, C.green, 0.6, 0.22); ring(mx, my, cell * 0.3, cell * 2, C.green, 0.65, 3, 0.65);
+                        for (let i = 0; i < 20; i++) P({ x: mx + rnd(-cell * 2, cell * 2), y: my + DOWN() * rnd(0, cell * 1.4), vx: rnd(-12, 12), vy: UP() * rnd(60, 150), drag: 0.2,
+                            size: rnd(1.6, 3.2), dur: rnd(0.8, 1.4), kind: 'glow', color: pick([C.green, C.gold, C.white]), tw: true });
                         break;
-                    case 'assassinate':
-                        flash(mx, my, W, C.night, 0.5, 0.0);
-                        for (let i = 0; i < 4; i++) {
-                            const x0 = rnd(0, W), x1 = W - x0 + rnd(-cell, cell), flip = i % 2 ? 1 : -1;
-                            setTimeout(() => { slash(x0, flip > 0 ? 0 : H, x1, flip > 0 ? H : 0, i % 2 ? C.white : C.red, 0.34, 7); flash(mx, my, W, C.red, 0.18, 0.18); kick(); }, i * 85);
+                    case 'assassinate': {
+                        const Ln = cell * 2.2;
+                        for (let i = 0; i < 3; i++) {
+                            const ang = -0.9 + i * 0.55, dx = Math.cos(ang) * Ln, dy = Math.sin(ang) * Ln;
+                            setTimeout(() => { slash(mx - dx, my - dy, mx + dx, my + dy, i % 2 ? C.white : C.red, 0.3, 6); kick(); }, i * 80);
                         }
-                        setTimeout(() => { flash(mx, my, W, C.red, 0.35, 0.35); embers(mx, my, 24, 120, 360, [C.red, C.white], 200); kick(); }, 360);
-                        break;
+                        setTimeout(() => { flash(mx, my, cell * 2.2, C.red, 0.3, 0.3); embers(mx, my, 10, 100, 300, [C.red, C.white], 200); kick(); }, 240); break;
+                    }
                     case 'divine':
-                        flash(mx, my, W, C.white, 0.8, 0.6); beam(mx, cell * 3.2, C.gold, 1.0); rayBurst(mx, my, C.gold, 1.0, W * 0.75);
-                        ring(mx, my, cell * 0.3, W * 0.8, C.gold, 0.8, 8); setTimeout(() => { ring(mx, my, cell * 0.3, W * 0.6, C.white, 0.6, 4); kick(); }, 160);
-                        for (let i = 0; i < 40; i++) P({ x: mx + rnd(-cell * 1.4, cell * 1.4), y: my + rnd(-cell * 2, cell * 2), vx: rnd(-20, 20), vy: UP() * rnd(50, 150),
-                            drag: 0.25, size: rnd(1.6, 3.6), dur: rnd(0.9, 1.6), kind: 'glow', color: pick([C.gold, C.white, C.yellow]), tw: true });
-                        break;
-                    default:
-                        flash(mx, my, W, C.white, 0.5, 0.3);
+                        flash(mx, my, cell * 3, C.white, 0.55, 0.4); beam(mx, cell * 1.4, C.gold, 0.75); rayBurst(mx, my, C.gold, 0.75, cell * 3.4);
+                        ring(mx, my, cell * 0.3, cell * 2.8, C.gold, 0.65, 4); rising(mx, my, cell * 1.2, 14, [C.gold, C.white, C.yellow], 50, 140); break;
+                    case 'wave': wave(arg === 'b' ? 8 : 1); break;
+                    case 'blackout': dims.push({ a: 0.55, dur: 0.9, t: 0 }); break;
+                    default: flash(mx, my, cell * 2, C.white, 0.4, 0.2);
                 }
                 kick();
             }
@@ -1898,7 +1982,7 @@
                 const big = victim === 'q' || victim === 'r';
                 flash(x, y, cell * (big ? 1.5 : 1.1), C.white, 0.18, 0.7);
                 ring(x, y, cell * 0.15, cell * (big ? 1.5 : 1.1), C.yellow, 0.4, big ? 5 : 3);
-                embers(x, y, big ? 14 : 8, 90, 260, [C.white, C.yellow, C.orange], 220, { kind: 'spark' });
+                embers(x, y, big ? 10 : 6, 90, 240, [C.white, C.yellow, C.orange], 220, { kind: 'spark' });
                 shake(big ? 5 : 2.5, big ? 280 : 200);
                 kick();
             }
@@ -1913,6 +1997,104 @@
                         size: rnd(3, 7), rot: rnd(0, TAU), vr: rnd(-12, 12), dur: rnd(0.65, 1.0), kind: 'shard', color: fill, edge: 'rgb(' + rgb(edge) + ')' });
                 }
                 flash(x, y, cell * 0.9, C.white, 0.16, 0.45);
+                kick();
+            }
+
+            // ---------- 락온 마커 / 스포트라이트 ----------
+            // 증강 대상 칸을 먼저 밝게 비추고(나머지는 어둡게) 모서리 브래킷으로 조여 들어가 '누가 대상인지' 보여준다.
+            function mark(squares, color, lead) {
+                if (reduceMotion) return;
+                squares.slice(0, 16).forEach(sq => { const { x, y } = ctr(sq); marks.push({ x, y, color, lead, dur: lead + 0.75, t: 0 }); });
+                kick();
+            }
+            function dimAlpha(m) {
+                const inA = Math.min(1, m.t / 0.15), out = m.t < m.lead ? 1 : Math.max(0, 1 - (m.t - m.lead) / 0.35);
+                return 0.3 * inA * out;
+            }
+            function drawDim() {
+                if (!marks.length) return;
+                let dA = 0; for (const m of marks) dA = Math.max(dA, dimAlpha(m));
+                if (dA <= 0) return;
+                ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = dA; ctx.fillStyle = 'rgb(6,6,18)'; ctx.fillRect(0, 0, W, H);
+                ctx.globalCompositeOperation = 'destination-out'; ctx.globalAlpha = 1;
+                for (const m of marks) {
+                    if (dimAlpha(m) <= 0) continue;
+                    const g = ctx.createRadialGradient(m.x, m.y, cell * 0.3, m.x, m.y, cell * 0.8);
+                    g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = g; ctx.fillRect(m.x - cell, m.y - cell, cell * 2, cell * 2);
+                }
+                ctx.globalCompositeOperation = 'source-over';
+            }
+            function drawMark(m) {
+                const t = m.t, post = Math.max(0, t - m.lead), c = rgb(m.color);
+                const appear = Math.min(1, t / 0.28), e = 1 - Math.pow(1 - appear, 3);
+                const s = cell * 0.5 * (1 + 0.9 * (1 - e)) + post * cell * 0.9;
+                const a = (t < m.lead ? 0.6 + 0.4 * Math.abs(Math.sin(t * 14)) : Math.max(0, 1 - post / 0.5)) * e;
+                if (a <= 0) return;
+                ctx.globalAlpha = a * 0.2; ctx.fillStyle = `rgb(${c})`; ctx.fillRect(m.x - cell * 0.5, m.y - cell * 0.5, cell, cell);
+                ctx.globalAlpha = a; ctx.strokeStyle = `rgb(${c})`; ctx.lineWidth = 3; ctx.lineCap = 'square';
+                const arm = cell * 0.2;
+                for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
+                    ctx.beginPath(); ctx.moveTo(m.x + sx * s, m.y + sy * (s - arm)); ctx.lineTo(m.x + sx * s, m.y + sy * s); ctx.lineTo(m.x + sx * (s - arm), m.y + sy * s); ctx.stroke();
+                }
+                ctx.globalAlpha = a * 0.75; ctx.beginPath(); ctx.arc(m.x, m.y, cell * (0.11 + 0.04 * Math.sin(t * 16)), 0, TAU); ctx.stroke();
+            }
+
+            // ---------- 파도 ----------
+            // toRank 방향(랭크 8 = 보드 좌표계 y=0)으로 물결 띠가 훑고 지나간다. 앞쪽엔 거품 크레스트, 뒤쪽은 점점 옅어지는 물.
+            const WAVE_TRAVEL = 1.15, WAVE_LAG = 0.5;
+            const waveFrontY = o => o.y0 + (o.y1 - o.y0) * Math.min(1, o.t / o.travel);
+            const waveTailY = o => o.y0 + (o.y1 - o.y0) * Math.min(1, Math.max(0, (o.t - o.lag) / o.travel));
+            const crestY = (o, x, base) => { const ph = o.t * 8; return base + Math.sin(x / cell * 2.6 + ph) * o.A + Math.sin(x / cell * 5.3 - ph * 1.4) * o.A * 0.35; };
+            function wave(toRank) {
+                resize(); if (!W) return;
+                const up = toRank === 8, A = cell * 0.17, m = A * 2.2;
+                waves.push({ up, A, y0: up ? H + m : -m, y1: up ? -m : H + m, travel: WAVE_TRAVEL, lag: WAVE_LAG, dur: WAVE_TRAVEL + WAVE_LAG + 0.1, t: 0 });
+                kick();
+            }
+            function emitWave(o, dt) {
+                if (o.t > o.travel) return;
+                const fwd = o.up ? -1 : 1, base = waveFrontY(o), n = Math.ceil(dt * 110);
+                for (let i = 0; i < n; i++) {
+                    const x = rnd(0, W), y = crestY(o, x, base);
+                    P({ x, y, vx: rnd(-25, 25), vy: UP() * rnd(40, 140) + fwd * rnd(0, 60), g: DOWN() * 320, drag: 0.6, size: rnd(1.4, 3.4), dur: rnd(0.35, 0.8),
+                        kind: 'glow', color: pick([[235, 248, 255], [160, 215, 255], [255, 255, 255]]) });
+                }
+                if (Math.random() < dt * 22) P({ x: rnd(0, W), y: base, vx: rnd(-15, 15), vy: fwd * rnd(20, 60), size: cell * 0.16, grow: 1.6, dur: 0.7, kind: 'smoke', color: [225, 242, 255], alpha: 0.3 });
+            }
+            function drawWaveBody(o) {
+                const yF = waveFrontY(o), yT = waveTailY(o);
+                if (Math.abs(yF - yT) < 2) return;
+                const ph = o.t * 8, step = 10;
+                ctx.beginPath();
+                for (let x = 0; x <= W; x += step) { const y = crestY(o, x, yF); if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+                for (let x = W; x >= 0; x -= step) ctx.lineTo(x, yT + Math.sin(x / cell * 2.1 - ph * 0.8) * o.A * 0.6);
+                ctx.closePath();
+                const g = ctx.createLinearGradient(0, yT, 0, yF);
+                g.addColorStop(0, 'rgba(20,90,180,0.10)'); g.addColorStop(0.55, 'rgba(40,130,215,0.38)');
+                g.addColorStop(0.9, 'rgba(110,190,245,0.55)'); g.addColorStop(1, 'rgba(220,245,255,0.72)');
+                ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fill();
+            }
+            function drawWaveFoam(o) {
+                const fade = o.t < o.travel ? 1 : Math.max(0, 1 - (o.t - o.travel) / 0.25);
+                if (fade <= 0) return;
+                const base = waveFrontY(o), behind = o.up ? 1 : -1, step = 10;
+                const line = (off, lw, a) => {
+                    ctx.beginPath();
+                    for (let x = 0; x <= W; x += step) { const y = crestY(o, x, base) + behind * off; if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+                    ctx.globalAlpha = a * fade; ctx.lineWidth = lw; ctx.stroke();
+                };
+                ctx.strokeStyle = 'rgb(240,250,255)'; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                line(0, cell * 0.09, 0.9); line(cell * 0.14, cell * 0.05, 0.55); line(cell * 0.3, cell * 0.03, 0.3);
+            }
+            function splash(sq) {
+                const { x, y } = ctr(sq);
+                ring(x, y, cell * 0.12, cell * 0.85, [170, 220, 255], 0.45, 3, 0.8);
+                for (let i = 0; i < 10; i++) {
+                    const ang = rnd(0, TAU);
+                    P({ x, y, vx: Math.cos(ang) * rnd(30, 90), vy: UP() * rnd(90, 220) + Math.sin(ang) * 30, g: DOWN() * 430, drag: 0.5, size: rnd(1.5, 3.2), dur: rnd(0.4, 0.8),
+                        kind: 'glow', color: pick([[235, 248, 255], [150, 205, 255]]) });
+                }
                 kick();
             }
 
@@ -1953,6 +2135,9 @@
                 ctx.globalAlpha = o.a * (1 - k); ctx.strokeStyle = 'rgb(' + rgb(o.color) + ')'; ctx.lineWidth = Math.max(0.5, o.w * (1 - k * 0.7));
                 ctx.beginPath(); ctx.arc(o.x, o.y, Math.max(0, o.r0 + (o.r1 - o.r0) * Math.min(1, e)), 0, TAU); ctx.stroke();
             }
+            function drawDarken(o) {
+                const k = Math.min(1, o.t / o.dur); ctx.globalAlpha = o.a * Math.sin(Math.PI * k); ctx.fillStyle = 'rgb(6,6,18)'; ctx.fillRect(0, 0, W, H);
+            }
             function drawBeam(o) {
                 const k = o.t / o.dur, w = o.wd * (1 - 0.55 * k), a = (k < 0.12 ? k / 0.12 : 1) * (1 - k);
                 const g = ctx.createLinearGradient(o.x - w / 2, 0, o.x + w / 2, 0), c = rgb(o.color);
@@ -1985,11 +2170,15 @@
             function frame(now) {
                 const dt = Math.min(0.05, (now - last) / 1000); last = now;
                 ctx.clearRect(0, 0, W, H);
+                drawDim();
+                if (dims.length) { ctx.globalCompositeOperation = 'source-over'; dims.forEach(drawDarken); }
+                for (const o of waves) emitWave(o, dt);
                 for (let i = 0; i < parts.length; i++) moveP(parts[i], dt);
-                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+                waves.forEach(drawWaveBody);
                 for (const p of parts) { if (p.kind === 'smoke') drawSmoke(p); else if (p.kind === 'shard') drawShard(p); }
                 ctx.globalCompositeOperation = 'lighter';
-                beams.forEach(drawBeam); rays.forEach(drawRays); flashes.forEach(drawFlash); rings.forEach(drawRing); bolts.forEach(drawBolt); slashes.forEach(drawSlash);
+                beams.forEach(drawBeam); rays.forEach(drawRays); waves.forEach(drawWaveFoam); marks.forEach(drawMark); flashes.forEach(drawFlash); rings.forEach(drawRing); bolts.forEach(drawBolt); slashes.forEach(drawSlash);
                 for (const p of parts) { if (p.kind === 'glow') drawGlow(p); else if (p.kind === 'spark') drawSpark(p); }
                 ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
                 let alive = 0;
@@ -1999,11 +2188,11 @@
                 }
                 if (alive) requestAnimationFrame(frame); else { running = false; ctx.clearRect(0, 0, W, H); }
             }
-            return { hit, global, land, capture, shatter, shake, resize };
+            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash };
         })();
 
         function spawnFloatingText(sq, text) {
-            if (floatLog) floatLog.push({ sq, text });
+            if (floatLog) { floatLog.push({ sq, text }); return; } // 증강 적용 중에는 기록만 하고, 연출 시점에 playAugmentVisuals가 재생
             // 레이어가 보드와 함께 회전하므로 좌표는 그대로 쓴다. 글자만 CSS(.black-pov .floating-text)로 세우고,
             // 움직임(transform)은 회전된 좌표계 기준이라 흑/백 모두 '화면 위로' 떠오른다.
             const coords = getCoords(sq);
@@ -2019,26 +2208,91 @@
             ], { duration: 1050, easing: 'ease-out' }).onfinish = () => el.remove();
         }
 
-        function playGlobalVFX(vfxClass) {
-            vfxGlobalLayer.className = ''; void vfxGlobalLayer.offsetWidth; vfxGlobalLayer.classList.add(vfxClass);
-            boardEl.classList.remove('board-shake'); void boardEl.offsetWidth; boardEl.classList.add('board-shake');
-            setTimeout(() => { vfxGlobalLayer.classList.remove(vfxClass); }, 1200);
-            FX.global(String(vfxClass).replace('vfx-global-', ''));
+        function playGlobalVFX(vfxClass, arg, origin) {
+            const name = String(vfxClass).replace('vfx-global-', '');
+            if (name === 'explosion' || name === 'assassinate' || name === 'divine') FX.shake(2.5, 200);
+            FX.global(name, arg, origin);
         }
 
-        function triggerVFX(squares, vfxClass) {
+        function triggerVFX(squares, vfxClass, stagger = 0, scale = 1) {
             if (!vfxClass || !squares) return;
             const shakeable = ['vfx-explosion', 'vfx-lightning', 'vfx-shadow', 'vfx-holy', 'vfx-void'];
-            squares.forEach(sq => {
-                const cell = squareEls.get(sq);
-                if (cell) { cell.classList.add(vfxClass); setTimeout(() => cell.classList.remove(vfxClass), 1000); }
-                const pInfo = game.get(sq);
-                if (pInfo && shakeable.includes(vfxClass)) {
-                    const el = pieceEls.get(pInfo.uid);
-                    if (el) { el.classList.add('piece-shake'); setTimeout(() => el.classList.remove('piece-shake'), 500); }
-                }
-                FX.hit(sq, vfxClass);
+            squares.forEach((sq, i) => {
+                const run = () => {
+                    const cell = squareEls.get(sq);
+                    if (cell) { cell.classList.add(vfxClass); setTimeout(() => cell.classList.remove(vfxClass), 1000); }
+                    const pInfo = game.get(sq);
+                    if (pInfo && shakeable.includes(vfxClass)) {
+                        const el = pieceEls.get(pInfo.uid);
+                        if (el) { el.classList.add('piece-shake'); setTimeout(() => el.classList.remove('piece-shake'), 500); }
+                    }
+                    FX.hit(sq, vfxClass, scale);
+                };
+                if (stagger > 0) setTimeout(run, i * stagger); else run();
             });
+        }
+
+        // ---- 증강 연출: 대상 락온 → 상태 반영 → 이펙트 → 영향받은 기물 글로우 ----
+        const AUG_KIND = {
+            '대학살': 'damage', '저격수': 'damage', '암살': 'damage', '신의 심판': 'damage', '신성한 폭발': 'damage', '벼락': 'damage', '흑사': 'damage', '복수': 'damage',
+            '독구름': 'poison', '네크로맨서': 'summon', '축복': 'summon', '징집': 'summon', '숲의 망령': 'summon', '아기는 어떻게 태어나?': 'summon', '차원 장벽': 'summon',
+            '저주': 'curse', '마인드 컨트롤': 'curse', '광기': 'curse', '자아 분열': 'curse', '암전': 'curse',
+            '빛의 수호': 'shield', '여신의 가호': 'shield', '덩굴': 'bind',
+            '혼란': 'move', '강제 이주': 'move', '그림자 교체': 'move', '파도': 'move', '진군 명령': 'move',
+            '기사 서임': 'upgrade', '프로모션': 'upgrade', '캐슬링+': 'upgrade', '잭팟': 'upgrade'
+        };
+        const KIND_COLOR = {
+            damage: [255, 80, 70], poison: [110, 230, 120], summon: [110, 255, 170], curse: [190, 110, 255],
+            shield: [255, 215, 100], bind: [150, 220, 70], move: [90, 210, 255], upgrade: [255, 240, 170]
+        };
+        const AUG_STAGGER = { '신의 심판': 60, '벼락': 140, '흑사': 70 };
+        const AUG_SCALE = { '신성한 폭발': 1.35 };
+        const AUG_NO_LEAD = new Set(['파도', '진군 명령']);
+        const WAVE_TRAVEL_SEC = 1.15; // FX 엔진의 WAVE_TRAVEL과 같은 값
+
+        function highlightAffected(squares, color, delayOf) {
+            const css = `rgb(${color.join(',')})`;
+            squares.forEach(sq => setTimeout(() => {
+                const p = game.get(sq), el = p && pieceEls.get(p.uid);
+                if (!el) return;
+                el.style.setProperty('--aff', css);
+                el.classList.remove('piece-affected'); void el.offsetWidth; el.classList.add('piece-affected');
+                setTimeout(() => el.classList.remove('piece-affected'), 1400);
+            }, delayOf ? delayOf(sq) : 0));
+        }
+
+        // 반환값: 락온 연출에 쓴 대기 시간(ms). 호출한 쪽은 다음 단계 대기 시간에 더해준다.
+        function playAugmentVisuals(a) {
+            const t = a.t || [], kind = AUG_KIND[a.name] || 'damage', color = KIND_COLOR[kind];
+            const isWave = a.globalVfx === 'vfx-global-wave', slides = isWave || a.name === '진군 명령';
+            const lead = (!AUG_NO_LEAD.has(a.name) && t.length && !reduceMotion) ? 520 : 0;
+            const toRank = a.fxArg === 'b' ? 8 : 1;
+            // 파도 앞면이 해당 행을 지나가는 시각(초)
+            const crestSec = yPct => (toRank === 8 ? (100 - yPct) : yPct) / 100 * WAVE_TRAVEL_SEC;
+            const rowSec = sq => crestSec(getCoords(sq).y + 6.25);
+            // 효과 발동 지점: 지정 칸 > 대상 칸들의 중심 > (없으면 보드 중앙)
+            let origin = null;
+            if (a.origin) { const c = getCoords(a.origin); origin = { x: c.x + 6.25, y: c.y + 6.25 }; }
+            else if (t.length) { let sx = 0, sy = 0; t.forEach(sq => { const c = getCoords(sq); sx += c.x + 6.25; sy += c.y + 6.25; }); origin = { x: sx / t.length, y: sy / t.length }; }
+            if (lead) FX.mark(t, color, lead / 1000);
+            setTimeout(() => {
+                if (isWave) {
+                    // 기물이 파도가 지나가는 순간 밀려나도록 행별 지연을 건다
+                    pieceEls.forEach(el => {
+                        if (!el.dataset.square) return;
+                        const d = Math.max(0, crestSec(getCoords(el.dataset.square).y + 6.25) - 0.08);
+                        el.style.transition = `translate 0.5s cubic-bezier(.2,.8,.2,1) ${d.toFixed(2)}s, transform 0.18s ease-out, opacity 0.18s ease-out`;
+                    });
+                    setTimeout(() => pieceEls.forEach(el => { el.style.transition = ''; }), 2400);
+                }
+                drawPieces(true); updateCheckStatus();
+                (a.floats || []).forEach(f => { if (isWave) setTimeout(() => spawnFloatingText(f.sq, f.text), rowSec(f.sq) * 1000); else spawnFloatingText(f.sq, f.text); });
+                if (a.globalVfx) playGlobalVFX(a.globalVfx, a.fxArg, origin);
+                if (t.length && !slides) triggerVFX(t, a.vfx, AUG_STAGGER[a.name] || 0, AUG_SCALE[a.name] || 1);
+                highlightAffected(t, color, isWave ? sq => rowSec(sq) * 1000 + 250 : null);
+                if (isWave) t.forEach(sq => setTimeout(() => FX.splash(sq), rowSec(sq) * 1000 + 120));
+            }, lead);
+            return lead;
         }
 
         function updateBoardVisuals() {
@@ -2122,6 +2376,7 @@
         // 플레이어 액션 및 AI
         // ==========================================
         function onSquareClick(sq) {
+            if (targeting) { handleTargetClick(sq); return; }
             if (game.game_over() || isSystemLocked || !isGameStarted) return;
             if (game.turn() !== myColor) { showToast("내 턴이 아닙니다!", "var(--danger)", 1500); return; }
 
@@ -2166,9 +2421,8 @@
             const moveResult = game.move({ from: from, to: to, promotion: promo });
             if (!moveResult) return;
             isSystemLocked = true; selectedSquare = null; legalMoves = []; drawDots(); pendingMove = null;
-            if (moveResult.captured) spawnFloatingText(to, `💥`);
             FX.land(to, moveResult.color);
-            if (moveResult.captured) FX.capture(to, moveResult.captured);
+            if (moveResult.captured) { FX.capture(to, moveResult.captured); const mover = game.get(to); if (mover) lastKiller[moveResult.color === 'w' ? 'b' : 'w'] = mover.uid; }
             if (moveResult.flags === 'k' || moveResult.flags === 'q') showToast("🏰 캐슬링!", "#f1c40f", 2000);
             
             const pieceNow = game.get(to);
@@ -2202,6 +2456,9 @@
             moveCount++; 
             for (let uid in rootedPieces) { rootedPieces[uid]--; if (rootedPieces[uid] <= 0) delete rootedPieces[uid]; }
             for (let uid in invinciblePieces) { invinciblePieces[uid]--; if (invinciblePieces[uid] <= 0) delete invinciblePieces[uid]; }
+            if (blackout) { blackout.duration--; if (blackout.duration <= 0) blackout = null; }
+            const poisonKilled = enforcePoison();
+            const babyBorn = processBaby();
             
             if (reversedPawns.duration > 0) {
                 reversedPawns.duration--;
@@ -2214,7 +2471,9 @@
                 return true;
             });
 
-            drawPieces();
+            drawPieces(babyBorn.length > 0);
+            if (poisonKilled.length) triggerVFX(poisonKilled, 'vfx-void');
+            if (babyBorn.length) { triggerVFX(babyBorn, 'vfx-heal'); highlightAffected(babyBorn, KIND_COLOR.summon); updateCheckStatus(); }
             activePoison.forEach(p => p.duration--); activePoison = activePoison.filter(p => p.duration > 0); updateBoardVisuals(); updateProgressBar();
 
             if (moveCount > 0 && moveCount % AUGMENT_INTERVAL === 0 && !game.game_over()) {
@@ -2247,6 +2506,90 @@
         // ==========================================
         // 증강 (Augments) 
         // ==========================================
+        const shuffle = arr => arr.slice().sort(() => 0.5 - Math.random());
+        function neighborSquares(sq) {
+            const f = sq.charCodeAt(0), r = parseInt(sq[1]), res = [];
+            for (let df = -1; df <= 1; df++) for (let dr = -1; dr <= 1; dr++) {
+                if (!df && !dr) continue; const nf = f + df, nr = r + dr;
+                if (nf >= 97 && nf <= 104 && nr >= 1 && nr <= 8) res.push(String.fromCharCode(nf) + nr);
+            }
+            return res;
+        }
+        function inEnemyPoison(sq, color) { return activePoison.some(p => p.owner !== color && p.squares.includes(sq)); }
+        // 독구름: 킹이 아니고 무적도 아닌 '지대 주인의 적'은 그 칸에 서 있을 수 없다(새로 생성/이동/무적 해제 모두 포함)
+        function enforcePoison() {
+            const killed = [];
+            activePoison.forEach(p => p.squares.forEach(sq => {
+                const pc = game.get(sq);
+                if (pc && pc.color !== p.owner && pc.color !== 'none' && pc.type !== 'k' && pc.type !== 'wall' && !invinciblePieces[pc.uid]) {
+                    game.remove(sq); killed.push(sq); spawnFloatingText(sq, '☠️');
+                }
+            }));
+            return killed;
+        }
+        const augmentOptionCount = color => 3 + ((jackpotBonus && jackpotBonus[color]) || 0);
+        function findSqByUid(uid) {
+            if (!uid) return null;
+            for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const p = game.board()[r][c]; if (p && p.uid === uid) return game.rcToSq(r, c); }
+            return null;
+        }
+        function findKillerSq(m) {
+            const uid = lastKiller[m]; if (!uid) return null;
+            for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const p = game.board()[r][c]; if (p && p.uid === uid) return game.rcToSq(r, c); }
+            return null;
+        }
+        // 네크로맨서: 폰 절반(반올림)을 희생해 그 자리 중 한 곳에 퀸 소환. 아군 킹이 체크되지 않는 조합만 사용.
+        function planNecromancer(m) {
+            const pawns = findPieces(m, 'p'); if (!pawns.length) return null;
+            const n = Math.max(1, Math.round(pawns.length / 2)), eColor = m === 'w' ? 'b' : 'w';
+            for (let attempt = 0; attempt < 24; attempt++) {
+                const sac = shuffle(pawns).slice(0, n), saved = sac.map(sq => game.get(sq));
+                sac.forEach(sq => game.remove(sq));
+                let queenSq = null;
+                if (!game.in_check(m)) {
+                    for (const q of shuffle(sac)) {
+                        game.put({ type: 'q', color: m }, q);
+                        const bad = game.in_check(eColor) || game.in_check(m);
+                        game.remove(q);
+                        if (!bad) { queenSq = q; break; }
+                    }
+                }
+                sac.forEach((sq, i) => game.put(saved[i], sq));
+                if (queenSq) return { sac, queenSq };
+            }
+            return null;
+        }
+        function canMarch(m) {
+            const dir = m === 'w' ? 1 : -1, promoRank = m === 'w' ? 8 : 1;
+            return findPieces(m, 'p').some(sq => { const r = parseInt(sq[1]), r2 = r + 2 * dir; return r2 >= 1 && r2 <= 8 && r2 !== promoRank && !game.get(sq[0] + (r + dir)) && !game.get(sq[0] + r2); });
+        }
+        function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+        // 아기는 어떻게 태어나?: 양쪽 클라이언트가 같은 결과를 내도록 시드 기반 난수 사용
+        function processBaby() {
+            if (!babyEffect) return [];
+            if (game.turn() === babyEffect.color) return [];
+            const owner = babyEffect.color, born = [];
+            babyEffect.remaining--;
+            const k = babyEffect.kUid ? findSqByUid(babyEffect.kUid) : findPieces(owner, 'k')[0], q = babyEffect.qUid ? findSqByUid(babyEffect.qUid) : findPieces(owner, 'q')[0];
+            if (!k || !q) { babyEffect = null; return born; }   // 축복받은 킹/퀸 중 하나가 사라지면 효과 종료
+            if (Math.abs(k.charCodeAt(0) - q.charCodeAt(0)) <= 1 && Math.abs(parseInt(k[1]) - parseInt(q[1])) <= 1) {
+                const rand = mulberry32(babyEffect.seed + moveCount * 7919);
+                let type = 'p';
+                if (rand() < 0.12) { const r2 = rand(); type = r2 < 0.35 ? 'n' : r2 < 0.7 ? 'b' : r2 < 0.92 ? 'r' : 'q'; }
+                const lastRank = owner === 'w' ? '8' : '1';
+                const cand = getSafeEmptySquares(owner, type).filter(sq => type !== 'p' || sq[1] !== lastRank);
+                if (cand.length) { const sq = cand[Math.floor(rand() * cand.length)]; game.put({ type, color: owner }, sq); born.push(sq); }
+            }
+            if (babyEffect.remaining <= 0) babyEffect = null;
+            return born;
+        }
+        const isFogOn = () => !!(blackout && blackout.duration > 0 && blackout.target === myColor && isGameStarted);
+        function updateFog() {
+            const on = isFogOn(), lit = new Set(on ? findPieces(myColor) : []);
+            squareList.forEach(el => el.classList.toggle('fog', on && !lit.has(el.dataset.square)));
+            pieceEls.forEach(el => el.classList.toggle('piece-hidden', on && el.dataset.color !== myColor));
+        }
+
         function findPieces(color, type = null) { let res = []; for(let r=0; r<8; r++) for(let c=0; c<8; c++) { const p = game.board()[r][c]; if(p && p.color === color && (!type || p.type === type)) res.push(game.rcToSq(r,c)); } return res; }
         function findVulnerable(color) { return findPieces(color).filter(sq => { const p = game.get(sq); return p && p.type !== 'k' && !invinciblePieces[p.uid]; }); }
         function getEmptySquares() { let res = []; for(let f=97; f<=104; f++) for(let r=1; r<=8; r++) { const sq = String.fromCharCode(f)+r; if(!game.get(sq)) res.push(sq); } return res; }
@@ -2262,7 +2605,7 @@
                         game.put({type: type, color: color}, sq);
                         const causesCheck = game.in_check(eColor);
                         game.remove(sq);
-                        if(!causesCheck) res.push(sq);
+                        if(!causesCheck && !inEnemyPoison(sq, color)) res.push(sq);
                     }
                 }
             }
@@ -2394,87 +2737,130 @@
         }
 
         const AUGMENT_POOL = [
-            { name: '운석 충돌', icon: '☄️', desc: '적 1개와 주변 영역을 초토화합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(e).length > 0, apply: (m, e) => { const tgts = findVulnerable(e); const c = tgts[Math.floor(Math.random()*tgts.length)]; const f=c.charCodeAt(0), r=parseInt(c[1]), hit=[]; for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) if(f+df>=97&&f+df<=104&&r+dr>=1&&r+dr<=8) { const sq = String.fromCharCode(f+df)+(r+dr); const p=game.get(sq); if(p&&p.type!=='k' && p.type!=='wall' && !invinciblePieces[p.uid]){game.remove(sq); hit.push(sq); spawnFloatingText(sq,'🔥');}} return { t: hit, vfx: 'vfx-explosion', msg: '🔥 운석이 떨어졌습니다!' }; } },
-            { name: '대학살', icon: '🩸', desc: '적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(e).filter(sq => game.get(sq).type !== 'p').length > 0, apply: (m, e) => { let tgts = findVulnerable(e).filter(sq => game.get(sq).type !== 'p').sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🩸'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🩸 대학살이 일어났습니다!' }; } },
-            { name: '네크로맨서', icon: '💀', desc: '무작위 빈칸에 아군 퀸을 소환합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'q').length > 0, apply: (m, e) => { const sq = getSafeEmptySquares(m, 'q').sort(()=>0.5-Math.random())[0]; game.put({type:'q', color:m}, sq); spawnFloatingText(sq,'💀'); return { t: [sq], vfx: 'vfx-void', msg: '💀 퀸이 부활했습니다!' }; } },
-            { name: '신의 심판', icon: '⚡', desc: '무작위 세로열을 번개로 내리칩니다.', globalVfx: null, isKillType: true, delay: 600, condition: () => true, apply: (m, e) => {
-                    const validFiles = [];
-                    for (let fileIdx = 0; fileIdx < 8; fileIdx++) {
-                        const f = String.fromCharCode(97 + fileIdx);
-                        for (let r = 1; r <= 8; r++) {
-                            const p = game.get(f + r);
-                            if (p && p.color === e && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { validFiles.push(fileIdx); break; }
-                        }
-                    }
-                    const chosenFile = validFiles.length ? validFiles[Math.floor(Math.random() * validFiles.length)] : Math.floor(Math.random() * 8);
-                    const f = String.fromCharCode(97 + chosenFile);
-                    const hit = [];
-                    for (let r = 8; r >= 1; r--) {
-                        const sq = f + r; const p = game.get(sq);
-                        if (p && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) {
-                            game.remove(sq); spawnFloatingText(sq,'⚡'); hit.push(sq);
-                        }
-                    }
-                    drawPieces();
-                    for (let r = 8, delayMs = 0; r >= 1; r--, delayMs += 50) {
-                        const sq = f + r;
-                        setTimeout(() => { triggerVFX([sq], 'vfx-lightning'); }, delayMs);
-                    }
-                    return { t: hit, vfx: 'vfx-lightning', msg: hit.length > 0 ? `⚡ 신의 심판이 내렸습니다!` : `⚡ 번개가 빗나갔습니다...` };
-                } },
-            { name: '독구름', icon: '☠️', desc: '6턴 유지 2x2 맹독 영역을 만듭니다.', globalVfx: 'vfx-global-void', isKillType: true, condition: () => true, apply: (m, e) => { const fIdx = Math.floor(Math.random() * 7); const r = 2 + Math.floor(Math.random() * 6); const fChar = String.fromCharCode(97 + fIdx); const fNextChar = String.fromCharCode(98 + fIdx); const squares = [ fChar+r, fChar+(r+1), fNextChar+r, fNextChar+(r+1) ]; activePoison.push({ squares: squares, owner: m, duration: 12 }); squares.forEach(sq => { const p = game.get(sq); if (p && p.color !== m && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { game.remove(sq); spawnFloatingText(sq, '☠️'); } }); updateBoardVisuals(); return { t: squares, vfx: 'vfx-void', msg: '☠️ 맹독 지대가 형성되었습니다!' }; } },
-            { name: '저격수', icon: '🎯', desc: '가장 가치가 높은 적을 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(e).length > 0, apply: (m, e) => { let targets = findVulnerable(e); targets.sort((a,b) => pieceValue[game.get(b).type] - pieceValue[game.get(a).type]); const target = targets[0]; game.remove(target); spawnFloatingText(target,'🎯'); return { t: [target], vfx: 'vfx-explosion', msg: '🎯 정확한 저격이 명중했습니다!' }; } },
-            { name: '혼란', icon: '🌀', desc: '적 기물 2개의 위치를 뒤바꿉니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).length >= 2, apply: (m, e) => { let tgts = findVulnerable(e).sort(()=>0.5-Math.random()).slice(0,2); const p1 = game.get(tgts[0]); const p2 = game.get(tgts[1]); game.remove(tgts[0]); game.remove(tgts[1]); game.put(p2, tgts[0]); game.put(p1, tgts[1]); return { t: tgts, vfx: 'vfx-lightning', msg: '🌀 적들이 위치를 상실했습니다!' }; } },
-            { name: '지진', icon: '🌋', desc: '각 팀의 무작위 기물을 2개씩 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(m).length > 1 && findVulnerable(e).length > 1, apply: (m, e) => { let myTgts = findVulnerable(m).sort(()=>0.5-Math.random()).slice(0,2); let eTgts = findVulnerable(e).sort(()=>0.5-Math.random()).slice(0,2); const targets = [...myTgts, ...eTgts]; targets.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🌋'); }); return { t: targets, vfx: 'vfx-explosion', msg: '🌋 거대한 지진이 휩씁니다!' }; } },
-            { name: '축복', icon: '🕊️', desc: '무작위 빈칸에 아군 비숍/나이트 소환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'b').length > 0, apply: (m, e) => { const type = Math.random() > 0.5 ? 'b' : 'n'; const sq = getSafeEmptySquares(m, type).sort(()=>0.5-Math.random())[0]; game.put({type: type, color: m}, sq); spawnFloatingText(sq,'✨'); return { t: [sq], vfx: 'vfx-heal', msg: '🕊️ 축복으로 기물이 합류했습니다!' }; } },
-            { name: '저주', icon: '🐸', desc: '무작위 적 기물 3개를 폰으로 변이시킵니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).filter(sq => !['p'].includes(game.get(sq).type)).length > 0, apply: (m, e) => { let targets = findVulnerable(e).filter(sq => !['p'].includes(game.get(sq).type)).sort(()=>0.5-Math.random()).slice(0, 3); targets.forEach(tg => { game.remove(tg); game.put({type: 'p', color: e}, tg); spawnFloatingText(tg,'🐸'); }); return { t: targets, vfx: 'vfx-lightning', msg: '🐸 적들이 폰으로 변했습니다!' }; } },
-            { name: '강제 이주', icon: '🌀', desc: '적 킹을 무작위 빈칸으로 강제 이동시킵니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => getAdjEmptySquares(findPieces(e, 'k')[0]).length > 0, apply: (m, e) => { const kingSq = findPieces(e, 'k')[0]; const empties = getAdjEmptySquares(kingSq).sort(()=>0.5-Math.random()); const tg = empties[0]; const kingInfo = game.get(kingSq); game.remove(kingSq); game.put(kingInfo, tg); spawnFloatingText(tg,'🌀'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🌀 적 킹이 이동당했습니다!' }; } },
-            { name: '암살', icon: '🗡️', desc: '가장 가치가 낮은 적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-assassinate', isKillType: true, condition: (m, e) => findVulnerable(e).length > 1, apply: (m, e) => { let targets = findVulnerable(e); targets.sort((a,b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]); const tgts = targets.slice(0,2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq,'🗡️'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🗡️ 어둠 속 암살자가 습격했습니다!' }; } },
-            { name: '징집', icon: '🪖', desc: '무작위 빈칸 3곳에 아군 폰을 소환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'p').length >= 3, apply: (m, e) => { const sqs = getSafeEmptySquares(m, 'p').sort(()=>0.5-Math.random()).slice(0,3); sqs.forEach(sq => { game.put({type: 'p', color: m}, sq); spawnFloatingText(sq,'🪖'); }); return { t: sqs, vfx: 'vfx-heal', msg: '🪖 폰들이 징집되었습니다!' }; } },
-            { name: '빛의 수호', icon: '🛡️', desc: '아군 모든 폰에게 1수 동안 무적을 부여합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m, 'p').length > 0, apply: (m, e) => { let tgts = findPieces(m, 'p'); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq,'🛡️'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '🛡️ 폰들이 무적 상태가 되었습니다!' }; } },
-            { name: '여신의 가호', icon: '✨', desc: '무작위 아군 상위 기물 2개에 1수 무적 부여.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3).length > 0, apply: (m, e) => { let tgts = findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3).sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq,'✨'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '✨ 상위 기물들이 무적이 되었습니다!' }; } },
-            { name: '덩굴', icon: '🌿', desc: '적 기물 2개를 4수 동안 덩굴로 속박합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findVulnerable(e).length >= 2, apply: (m, e) => { let tgts = findVulnerable(e).sort(()=>0.5-Math.random()).slice(0,2); tgts.forEach(sq => { const p = game.get(sq); rootedPieces[p.uid] = 8; spawnFloatingText(sq,'🌿'); }); return { t: tgts, vfx: 'vfx-void', msg: '🌿 적들이 덩굴에 묶였습니다!' }; } },
-            { name: '차원 장벽', icon: '🧱', desc: '빈칸 한 곳에 10수 동안 모든 이동을 막는 장벽을 세웁니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: () => getEmptySquares().length > 0, apply: (m, e) => { const sq = getEmptySquares().sort(()=>0.5-Math.random())[0]; game.put({type: 'wall', color: 'none'}, sq); activeWalls.push({sq: sq, duration: 10}); spawnFloatingText(sq,'🧱'); return { t: [sq], vfx: 'vfx-heal', msg: '🧱 차원 장벽이 생성되었습니다!' }; } },
-            { name: '마인드 컨트롤', icon: '🧠', desc: '무작위 적 폰 1개를 세뇌시켜 아군으로 만듭니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).filter(sq => game.get(sq).type === 'p').length > 0, apply: (m, e) => { let tgts = findVulnerable(e).filter(sq => game.get(sq).type === 'p').sort(()=>0.5-Math.random()); const tg = tgts[0]; const p = game.get(tg); game.remove(tg); game.put({type: 'p', color: m}, tg); spawnFloatingText(tg,'🧠'); return { t: [tg], vfx: 'vfx-lightning', msg: '🧠 적 폰을 아군으로 세뇌했습니다!' }; } },
-            { name: '그림자 교체', icon: '🥷', desc: '아군 킹과 무작위 아군 기물의 위치를 뒤바꿉니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(m).filter(sq => game.get(sq).type !== 'k').length > 0, apply: (m, e) => { const kingSq = findPieces(m, 'k')[0]; const allySqs = findPieces(m).filter(sq => sq !== kingSq).sort(()=>0.5-Math.random()); const tg = allySqs[0]; const kInfo = game.get(kingSq); const aInfo = game.get(tg); game.remove(kingSq); game.remove(tg); game.put(aInfo, kingSq); game.put(kInfo, tg); spawnFloatingText(kingSq,'🥷'); spawnFloatingText(tg,'🥷'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🥷 킹이 그림자 속으로 위치를 바꿨습니다!' }; } },
-            { name: '기사 서임', icon: '⚔️', desc: '무작위 아군 폰 1~3개를 나이트로 즉시 승급시킵니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m, 'p').length > 0, apply: (m, e) => { let tgts = findPieces(m, 'p').sort(()=>0.5-Math.random()).slice(0, Math.floor(Math.random()*3)+1); tgts.forEach(tg => { game.remove(tg); game.put({type: 'n', color: m}, tg); spawnFloatingText(tg,'⚔️'); }); return { t: tgts, vfx: 'vfx-heal', msg: `⚔️ ${tgts.length}개의 폰이 기사로 서임되었습니다!` }; } },
-            { name: '숲의 망령', icon: '🌲', desc: '무작위 빈칸에 아군 나이트를 소환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => getSafeEmptySquares(m, 'n').length > 0, apply: (m, e) => { const sq = getSafeEmptySquares(m, 'n').sort(()=>0.5-Math.random())[0]; game.put({type: 'n', color: m}, sq); spawnFloatingText(sq,'🌲'); return { t: [sq], vfx: 'vfx-heal', msg: '🌲 숲의 망령이 나이트로 나타났습니다!' }; } },
-            { name: '신성한 폭발', icon: '💥', desc: '아군 킹 주변 8칸의 모든 적 기물을 파괴합니다.', globalVfx: 'vfx-global-divine', isKillType: true, condition: (m, e) => findPieces(m, 'k').length > 0, apply: (m, e) => { const kingSq = findPieces(m, 'k')[0]; const f = kingSq.charCodeAt(0), r = parseInt(kingSq[1]); let hit = []; for(let df=-1; df<=1; df++) for(let dr=-1; dr<=1; dr++) { if(df===0 && dr===0) continue; const sq = String.fromCharCode(f+df)+(r+dr); const p = game.get(sq); if(p && p.color === e && p.type !== 'k' && !invinciblePieces[p.uid]) { game.remove(sq); hit.push(sq); spawnFloatingText(sq,'💥'); } } return { t: hit, vfx: 'vfx-explosion', msg: hit.length > 0 ? '💥 킹의 주변을 휩쓸었습니다!' : '💥 폭발이 빗나갔습니다.' }; } },
-            { name: '등가 교환', icon: '⚖️', desc: '가장 낮은 아군을 희생하여, 가장 높은 적을 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findPieces(m).filter(sq=>game.get(sq).type!=='k').length > 0 && findVulnerable(e).length > 0, apply: (m, e) => { let myTgts = findPieces(m).filter(sq=>game.get(sq).type!=='k').sort((a,b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]); let eTgts = findVulnerable(e).sort((a,b) => pieceValue[game.get(b).type] - pieceValue[game.get(a).type]); const mSq = myTgts[0]; const eSq = eTgts[0]; game.remove(mSq); game.remove(eSq); spawnFloatingText(mSq,'💀'); spawnFloatingText(eSq,'⚖️'); return { t: [mSq, eSq], vfx: 'vfx-explosion', msg: '⚖️ 희생을 통해 강력한 적을 처치했습니다!' }; } },
-            { name: '광기', icon: '🤡', desc: '무작위 적 1개를 맵 어딘가의 빈칸으로 날려버립니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).length > 0 && getSafeEmptySquares(e, 'p').length > 0, apply: (m, e) => { let eTgts = findVulnerable(e).sort(()=>0.5-Math.random()); const tg = eTgts[0]; const pInfo = game.get(tg); const emptySqs = getSafeEmptySquares(pInfo.color, pInfo.type).sort(()=>0.5-Math.random()); if(emptySqs.length > 0) { game.remove(tg); game.put(pInfo, emptySqs[0]); spawnFloatingText(tg,'🤡'); spawnFloatingText(emptySqs[0],'🌀'); return { t: [tg, emptySqs[0]], vfx: 'vfx-lightning', msg: '🤡 적이 알 수 없는 곳으로 텔레포트 되었습니다!' }; } return { t: [], vfx: '', msg: '공간이 부족해 실패했습니다.' }; } },
-            { name: '연금술', icon: '⚗️', desc: '무작위 아군 폰 1개를 비숍/나이트/룩 중 하나로 변환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findPieces(m, 'p').length > 0, apply: (m, e) => { let tgts = findPieces(m, 'p').sort(()=>0.5-Math.random()); const tg = tgts[0]; const newTypes = ['b', 'n', 'r']; const pick = newTypes[Math.floor(Math.random()*newTypes.length)]; game.remove(tg); game.put({type: pick, color: m}, tg); spawnFloatingText(tg,'⚗️'); return { t: [tg], vfx: 'vfx-lightning', msg: '⚗️ 연금술 성공! 폰이 상위 기물이 되었습니다!' }; } },
-            { name: '파도', icon: '🌊', desc: '파도가 쳐서 적 말들을 뒤로 1칸씩 밀어냅니다. (뒤에 막히면 안 밀림)', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(e).length > 0, apply: (m, e) => { let movedSqs = []; let eTgts = findPieces(e); eTgts.sort((a, b) => { const rA = parseInt(a[1]); const rB = parseInt(b[1]); return e === 'b' ? rB - rA : rA - rB; }); eTgts.forEach(sq => { const r = parseInt(sq[1]); const c = sq.charCodeAt(0); const pushRank = e === 'b' ? r + 1 : r - 1; if(pushRank >= 1 && pushRank <= 8) { const targetSq = String.fromCharCode(c) + pushRank; if(!game.get(targetSq)) { const p = game.get(sq); game.remove(sq); game.put(p, targetSq); movedSqs.push(targetSq); spawnFloatingText(targetSq, '🌊'); } } }); return { t: movedSqs, vfx: 'vfx-heal', msg: '🌊 거센 파도가 적들을 밀어냈습니다!' }; } },
-            { name: '자아 분열', icon: '😵‍💫', desc: '다음 3수 동안 상대방 폰들이 반대 방향으로 이동합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(e, 'p').length > 0, apply: (m, e) => { reversedPawns = { color: e, duration: 6 }; return { t: [], vfx: 'vfx-void', msg: '😵‍💫 상대 폰들이 방향 감각을 잃었습니다!' }; } }
+            { name: '대학살', icon: '🩸', desc: '폰이 아닌 무작위 적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true,
+              condition: (m, e) => findVulnerable(e).filter(sq => game.get(sq).type !== 'p').length > 0,
+              apply: (m, e) => { const tgts = shuffle(findVulnerable(e).filter(sq => game.get(sq).type !== 'p')).slice(0, 2); tgts.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '🩸'); }); return { t: tgts, vfx: 'vfx-explosion', msg: '🩸 대학살이 일어났습니다!' }; } },
+            { name: '네크로맨서', icon: '💀', desc: '남은 폰의 절반을 희생하여 퀸 하나를 폰이 있던 자리 중 한 곳에 소환합니다.', globalVfx: 'vfx-global-void', isKillType: false,
+              condition: (m) => !!planNecromancer(m),
+              apply: (m, e) => { const plan = planNecromancer(m); if (!plan) return { t: [], vfx: '', msg: '희생할 폰이 부족해 실패했습니다.' };
+                  plan.sac.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '💀'); }); game.put({ type: 'q', color: m }, plan.queenSq); spawnFloatingText(plan.queenSq, '👑');
+                  return { t: plan.sac, vfx: 'vfx-void', origin: plan.queenSq, msg: '💀 폰을 제물로 퀸이 소환되었습니다!' }; } },
+            { name: '신의 심판', icon: '⚡', desc: '무작위 세로줄 하나에 번개를 내리쳐 킹을 제외한 모든 기물을 파괴합니다.', globalVfx: null, isKillType: true, condition: () => true,
+              apply: (m, e) => {
+                  const validFiles = [];
+                  for (let fi = 0; fi < 8; fi++) { const f = String.fromCharCode(97 + fi); for (let r = 1; r <= 8; r++) { const p = game.get(f + r); if (p && p.color === e && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { validFiles.push(fi); break; } } }
+                  const chosen = validFiles.length ? validFiles[Math.floor(Math.random() * validFiles.length)] : Math.floor(Math.random() * 8);
+                  const f = String.fromCharCode(97 + chosen), hit = [];
+                  for (let r = 8; r >= 1; r--) { const sq = f + r, p = game.get(sq); if (p && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { game.remove(sq); spawnFloatingText(sq, '⚡'); hit.push(sq); } }
+                  return { t: hit, vfx: 'vfx-lightning', msg: hit.length > 0 ? '⚡ 신의 심판이 내렸습니다!' : '⚡ 번개가 빗나갔습니다...' }; } },
+            { name: '벼락', icon: '🌩️', desc: '적 진영의 무작위 3칸에 벼락을 떨어뜨려 킹을 제외한 적중한 적 기물을 파괴합니다.', globalVfx: null, isKillType: true,
+              condition: (m, e) => findVulnerable(e).some(sq => (e === 'b' ? parseInt(sq[1]) >= 5 : parseInt(sq[1]) <= 4)),
+              apply: (m, e) => {
+                  const ranks = e === 'b' ? [5, 6, 7, 8] : [1, 2, 3, 4], pool = [];
+                  'abcdefgh'.split('').forEach(f => ranks.forEach(r => pool.push(f + r)));
+                  const strikes = shuffle(pool).slice(0, 3), hit = [];
+                  strikes.forEach(sq => { const p = game.get(sq); if (p && p.color === e && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { game.remove(sq); hit.push(sq); spawnFloatingText(sq, '⚡'); } });
+                  return { t: strikes, vfx: 'vfx-lightning', msg: hit.length > 0 ? `🌩️ 벼락이 적 ${hit.length}개를 강타했습니다!` : '🌩️ 벼락이 빗나갔습니다...' }; } },
+            { name: '독구름', icon: '☠️', desc: '무작위 위치에 6턴 동안 유지되는 2×2 규모의 맹독 지대를 생성합니다. 해당 영역에 있는 킹을 제외한 모든 적 기물을 제거합니다.', globalVfx: 'vfx-global-void', isKillType: true, condition: () => true,
+              apply: (m, e) => { const fIdx = Math.floor(Math.random() * 7), r = 2 + Math.floor(Math.random() * 6), fc = String.fromCharCode(97 + fIdx), fn = String.fromCharCode(98 + fIdx);
+                  const squares = [fc + r, fc + (r + 1), fn + r, fn + (r + 1)]; activePoison.push({ squares: squares, owner: m, duration: 12 }); updateBoardVisuals();
+                  return { t: squares, vfx: 'vfx-void', msg: '☠️ 맹독 지대가 형성되었습니다!' }; } },
+            { name: '저격수', icon: '🎯', desc: '가치가 가장 높은 적 기물 하나를 파괴합니다.', globalVfx: 'vfx-global-explosion', isKillType: true, condition: (m, e) => findVulnerable(e).length > 0,
+              apply: (m, e) => { const targets = findVulnerable(e).sort((a, b) => pieceValue[game.get(b).type] - pieceValue[game.get(a).type]); const target = targets[0]; game.remove(target); spawnFloatingText(target, '🎯'); return { t: [target], vfx: 'vfx-explosion', msg: '🎯 정확한 저격이 명중했습니다!' }; } },
+            { name: '암살', icon: '🗡️', desc: '가치가 가장 낮은 적 기물 2개를 파괴합니다.', globalVfx: 'vfx-global-assassinate', isKillType: true, condition: (m, e) => findVulnerable(e).length > 1,
+              apply: (m, e) => { const targets = findVulnerable(e).sort((a, b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]).slice(0, 2); targets.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '🗡️'); }); return { t: targets, vfx: 'vfx-explosion', msg: '🗡️ 어둠 속 암살자가 습격했습니다!' }; } },
+            { name: '흑사', icon: '♠️', desc: '적의 폰 중 무작위 절반을 파괴합니다.', globalVfx: 'vfx-global-void', isKillType: true,
+              condition: (m, e) => findVulnerable(e).some(sq => game.get(sq).type === 'p'),
+              apply: (m, e) => { const total = findPieces(e, 'p').length, n = Math.ceil(total / 2), pawns = shuffle(findVulnerable(e).filter(sq => game.get(sq).type === 'p')).slice(0, n);
+                  pawns.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '♠️'); }); return { t: pawns, vfx: 'vfx-void', msg: `♠️ 흑사병이 퍼져 폰 ${pawns.length}개가 쓰러졌습니다!` }; } },
+            { name: '복수', icon: '🥀', desc: '가장 최근 아군을 처치했던 적 기물을 찾아 제거합니다.', globalVfx: 'vfx-global-explosion', isKillType: true,
+              condition: (m, e) => { const sq = findKillerSq(m); if (!sq) return false; const p = game.get(sq); return !!p && p.color === e && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]; },
+              apply: (m, e) => { const sq = findKillerSq(m); if (!sq) return { t: [], vfx: '', msg: '복수할 대상을 찾지 못했습니다.' }; game.remove(sq); lastKiller[m] = null; spawnFloatingText(sq, '🥀'); return { t: [sq], vfx: 'vfx-explosion', msg: '🥀 복수가 이루어졌습니다!' }; } },
+            { name: '신성한 폭발', icon: '💥', desc: '아군 킹 주변 8칸에 있는 모든 적 기물을 효과에 관계없이 즉시 파괴합니다.', globalVfx: 'vfx-global-divine', isKillType: true, condition: (m, e) => findPieces(m, 'k').length > 0,
+              apply: (m, e) => { const kingSq = findPieces(m, 'k')[0], hit = [];
+                  neighborSquares(kingSq).forEach(sq => { const p = game.get(sq); if (p && p.color === e && p.type !== 'k') { game.remove(sq); hit.push(sq); spawnFloatingText(sq, '💥'); } });
+                  return { t: hit, vfx: 'vfx-explosion', origin: kingSq, msg: hit.length > 0 ? '💥 킹의 주변을 휩쓸었습니다!' : '💥 폭발이 빗나갔습니다.' }; } },
+            { name: '징집', icon: '🪖', desc: '무작위 빈칸 3곳에 아군 폰을 소환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'p').length >= 3,
+              apply: (m, e) => { const sqs = shuffle(getSafeEmptySquares(m, 'p')).slice(0, 3); sqs.forEach(sq => { game.put({ type: 'p', color: m }, sq); spawnFloatingText(sq, '🪖'); }); return { t: sqs, vfx: 'vfx-heal', msg: '🪖 폰들이 징집되었습니다!' }; } },
+            { name: '축복', icon: '🕊️', desc: '안전한 무작위 빈칸에 아군 비숍 하나를 소환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'b').length > 0,
+              apply: (m, e) => { const sq = shuffle(getSafeEmptySquares(m, 'b'))[0]; game.put({ type: 'b', color: m }, sq); spawnFloatingText(sq, '✨'); return { t: [sq], vfx: 'vfx-heal', msg: '🕊️ 축복으로 비숍이 합류했습니다!' }; } },
+            { name: '숲의 망령', icon: '🌲', desc: '무작위 빈칸에 아군 나이트 하나를 소환합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'n').length > 0,
+              apply: (m, e) => { const sq = shuffle(getSafeEmptySquares(m, 'n'))[0]; game.put({ type: 'n', color: m }, sq); spawnFloatingText(sq, '🌲'); return { t: [sq], vfx: 'vfx-heal', msg: '🌲 숲의 망령이 나이트로 나타났습니다!' }; } },
+            { name: '기사 서임', icon: '⚔️', desc: '무작위 아군 폰 1~3개를 나이트로 즉시 승급시킵니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => findPieces(m, 'p').length > 0,
+              apply: (m, e) => { const tgts = shuffle(findPieces(m, 'p')).slice(0, Math.floor(Math.random() * 3) + 1); tgts.forEach(tg => { game.remove(tg); game.put({ type: 'n', color: m }, tg); spawnFloatingText(tg, '⚔️'); }); return { t: tgts, vfx: 'vfx-heal', msg: `⚔️ ${tgts.length}개의 폰이 기사로 서임되었습니다!` }; } },
+            { name: '프로모션', icon: '👑', desc: '무작위 아군 폰 하나를 상위 기물로 즉시 프로모션합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => findPieces(m, 'p').length > 0,
+              apply: (m, e) => { const tg = shuffle(findPieces(m, 'p'))[0], roll = Math.random(), type = roll < 0.30 ? 'b' : roll < 0.60 ? 'n' : roll < 0.85 ? 'r' : 'q';
+                  game.remove(tg); game.put({ type: type, color: m }, tg); spawnFloatingText(tg, '👑'); return { t: [tg], vfx: 'vfx-lightning', msg: type === 'q' ? '👑 폰이 퀸으로 프로모션했습니다!' : '👑 폰이 상위 기물로 프로모션했습니다!' }; } },
+            { name: '캐슬링+', icon: '🏰', desc: '아군 킹 주변 8칸에 있는 폰을 최대 모두 룩으로 승급시킵니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+              condition: (m) => { const k = findPieces(m, 'k')[0]; return !!k && neighborSquares(k).some(sq => { const p = game.get(sq); return p && p.color === m && p.type === 'p'; }); },
+              apply: (m, e) => { const kingSq = findPieces(m, 'k')[0], adj = neighborSquares(kingSq).filter(sq => { const p = game.get(sq); return p && p.color === m && p.type === 'p'; });
+                  adj.forEach(sq => { game.remove(sq); game.put({ type: 'r', color: m }, sq); spawnFloatingText(sq, '🏰'); }); return { t: adj, vfx: 'vfx-heal', origin: kingSq, msg: `🏰 폰 ${adj.length}개가 룩으로 승급했습니다!` }; } },
+            { name: '진군 명령', icon: '🛡️', desc: '모든 아군 폰이 일제히 두 칸씩 전진합니다. 이동할 칸이 막혀 있거나 보드 밖이라면 해당 기물은 이동하지 않습니다.', globalVfx: null, isKillType: false, condition: (m) => canMarch(m),
+              apply: (m, e) => { const dir = m === 'w' ? 1 : -1, promoRank = m === 'w' ? 8 : 1, moved = [], wasInCheck = game.in_check(m);
+                  const pawns = findPieces(m, 'p').sort((a, b) => (parseInt(b[1]) - parseInt(a[1])) * dir);
+                  pawns.forEach(sq => { const f = sq[0], r = parseInt(sq[1]), r2 = r + 2 * dir; if (r2 < 1 || r2 > 8 || r2 === promoRank) return;
+                      const s2 = f + r2; if (game.get(f + (r + dir)) || game.get(s2)) return;
+                      const p = game.get(sq); game.remove(sq); game.put(p, s2);
+                      if (!wasInCheck && game.in_check(m)) { game.remove(s2); game.put(p, sq); return; }
+                      moved.push(s2); });
+                  return { t: moved, vfx: '', msg: '🛡️ 폰들이 일제히 전진했습니다!' }; } },
+            { name: '그림자 교체', icon: '🥷', desc: '아군 킹과 무작위 아군 기물 하나의 위치를 서로 바꿉니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m) => findPieces(m).filter(sq => game.get(sq).type !== 'k').length > 0,
+              apply: (m, e) => { const kingSq = findPieces(m, 'k')[0], tg = shuffle(findPieces(m).filter(sq => sq !== kingSq))[0], kInfo = game.get(kingSq), aInfo = game.get(tg);
+                  game.remove(kingSq); game.remove(tg); game.put(aInfo, kingSq); game.put(kInfo, tg); spawnFloatingText(kingSq, '🥷'); spawnFloatingText(tg, '🥷'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🥷 킹이 그림자 속으로 위치를 바꿨습니다!' }; } },
+            { name: '저주', icon: '🐸', desc: '폰이 아닌 적 기물 1~3개를 폰으로 변이시킵니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).some(sq => game.get(sq).type !== 'p'),
+              apply: (m, e) => { const targets = shuffle(findVulnerable(e).filter(sq => game.get(sq).type !== 'p')).slice(0, 1 + Math.floor(Math.random() * 3));
+                  targets.forEach(tg => { game.remove(tg); game.put({ type: 'p', color: e }, tg); spawnFloatingText(tg, '🐸'); }); return { t: targets, vfx: 'vfx-lightning', msg: '🐸 적들이 폰으로 변했습니다!' }; } },
+            { name: '혼란', icon: '🌀', desc: '무작위 적 기물 2개의 위치를 서로 바꿉니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).length >= 2,
+              apply: (m, e) => { const tgts = shuffle(findVulnerable(e)).slice(0, 2), p1 = game.get(tgts[0]), p2 = game.get(tgts[1]); game.remove(tgts[0]); game.remove(tgts[1]); game.put(p2, tgts[0]); game.put(p1, tgts[1]); return { t: tgts, vfx: 'vfx-lightning', msg: '🌀 적들이 위치를 상실했습니다!' }; } },
+            { name: '광기', icon: '🤡', desc: '적 기물 하나를 골라 무작위 빈칸으로 이동시킵니다.', globalVfx: 'vfx-global-void', isKillType: false,
+              target: { mode: 'piece', prompt: '이동시킬 적 기물을 선택하세요', valid: (m, e) => findVulnerable(e) },
+              condition: (m, e) => findVulnerable(e).length > 0 && getSafeEmptySquares(e, 'p').length > 0,
+              apply: (m, e, target) => { const list = findVulnerable(e), tg = (target && list.includes(target)) ? target : shuffle(list)[0], pInfo = game.get(tg), empties = shuffle(getSafeEmptySquares(pInfo.color, pInfo.type));
+                  if (empties.length > 0) { game.remove(tg); game.put(pInfo, empties[0]); spawnFloatingText(tg, '🤡'); spawnFloatingText(empties[0], '🌀'); return { t: [tg, empties[0]], vfx: 'vfx-lightning', msg: '🤡 적이 알 수 없는 곳으로 이동했습니다!' }; }
+                  return { t: [], vfx: '', msg: '공간이 부족해 실패했습니다.' }; } },
+            { name: '강제 이주', icon: '🌀', desc: '적 킹을 인접한 무작위 빈칸으로 강제 이동시킵니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => getAdjEmptySquares(findPieces(e, 'k')[0]).length > 0,
+              apply: (m, e) => { const kingSq = findPieces(e, 'k')[0], tg = shuffle(getAdjEmptySquares(kingSq))[0], kingInfo = game.get(kingSq); game.remove(kingSq); game.put(kingInfo, tg); spawnFloatingText(tg, '🌀'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🌀 적 킹이 이동당했습니다!' }; } },
+            { name: '파도', icon: '🌊', desc: '적 기물들을 한 칸씩 뒤로 밀어냅니다. 이동할 칸이 막혀 있거나 보드 밖이라면 해당 기물은 이동하지 않습니다.', globalVfx: 'vfx-global-wave', isKillType: false, delay: 1900, condition: (m, e) => findPieces(e).length > 0,
+              apply: (m, e) => { const moved = [], eTgts = findPieces(e);
+                  eTgts.sort((a, b) => { const rA = parseInt(a[1]), rB = parseInt(b[1]); return e === 'b' ? rB - rA : rA - rB; });
+                  eTgts.forEach(sq => { const r = parseInt(sq[1]), c = sq.charCodeAt(0), pushRank = e === 'b' ? r + 1 : r - 1;
+                      if (pushRank >= 1 && pushRank <= 8) { const targetSq = String.fromCharCode(c) + pushRank; if (!game.get(targetSq)) { const p = game.get(sq); game.remove(sq); game.put(p, targetSq); moved.push(targetSq); } } });
+                  return { t: moved, vfx: 'vfx-heal', fxArg: e, msg: '🌊 거센 파도가 적들을 밀어냈습니다!' }; } },
+            { name: '덩굴', icon: '🌿', desc: '무작위 적 기물 2개를 4수 동안 덩굴로 속박합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findVulnerable(e).length >= 2,
+              apply: (m, e) => { const tgts = shuffle(findVulnerable(e)).slice(0, 2); tgts.forEach(sq => { const p = game.get(sq); rootedPieces[p.uid] = 8; spawnFloatingText(sq, '🌿'); }); return { t: tgts, vfx: 'vfx-void', msg: '🌿 적들이 덩굴에 묶였습니다!' }; } },
+            { name: '빛의 수호', icon: '🛡️', desc: '모든 아군 폰을 1수 동안 무적으로 만듭니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => findPieces(m, 'p').length > 0,
+              apply: (m, e) => { const tgts = findPieces(m, 'p'); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq, '🛡️'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '🛡️ 폰들이 무적 상태가 되었습니다!' }; } },
+            { name: '여신의 가호', icon: '✨', desc: '가치가 일정 수준 이상인 무작위 아군 기물 2개를 1수 동안 무적으로 만듭니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3).length > 0,
+              apply: (m, e) => { const tgts = shuffle(findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3)).slice(0, 2); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq, '✨'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '✨ 상위 기물들이 무적이 되었습니다!' }; } },
+            { name: '마인드 컨트롤', icon: '🧠', desc: '무작위 적 폰 하나를 세뇌하여 아군 기물로 만들어 사용합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findVulnerable(e).some(sq => game.get(sq).type === 'p'),
+              apply: (m, e) => { const tg = shuffle(findVulnerable(e).filter(sq => game.get(sq).type === 'p'))[0]; game.remove(tg); game.put({ type: 'p', color: m }, tg); spawnFloatingText(tg, '🧠'); return { t: [tg], vfx: 'vfx-lightning', msg: '🧠 적 폰을 아군으로 세뇌했습니다!' }; } },
+            { name: '차원 장벽', icon: '🧱', desc: '원하는 빈칸 한 곳에 10수 동안 모든 이동을 막는 장벽을 세웁니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+              target: { mode: 'square', ghost: 'wall', prompt: '장벽을 세울 빈칸을 선택하세요', valid: () => getEmptySquares() },
+              condition: () => getEmptySquares().length > 0,
+              apply: (m, e, target) => { const sq = (target && !game.get(target)) ? target : shuffle(getEmptySquares())[0]; game.put({ type: 'wall', color: 'none' }, sq); activeWalls.push({ sq: sq, duration: 10 }); spawnFloatingText(sq, '🧱'); return { t: [sq], vfx: 'vfx-heal', msg: '🧱 차원 장벽이 생성되었습니다!' }; } },
+            { name: '자아 분열', icon: '😵‍💫', desc: '다음 3수 동안 적 폰들이 방향을 잃어 반대 방향으로 이동합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(e, 'p').length > 0,
+              apply: (m, e) => { reversedPawns = { color: e, duration: 6 }; return { t: findPieces(e, 'p'), vfx: 'vfx-void', msg: '😵‍💫 적 폰들이 방향 감각을 잃었습니다!' }; } },
+            { name: '잭팟', icon: '🎰', desc: '이제부터 자신에게 등장하는 모든 증강 선택지가 1개 증가합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => jackpotBonus[m] < 2,
+              apply: (m, e) => { jackpotBonus[m] = (jackpotBonus[m] || 0) + 1; const k = findPieces(m, 'k')[0]; if (k) spawnFloatingText(k, '🎰'); return { t: [], vfx: '', origin: k || null, msg: '🎰 잭팟! 앞으로 증강 선택지가 하나 더 늘어납니다.' }; } },
+            { name: '아기는 어떻게 태어나?', icon: '🦢', desc: '5수 동안 아군 킹과 퀸에게 축복이 적용되며, 두 기물이 인접해 있을 경우 매 수 무작위 빈칸에 새로운 폰을 생성합니다. 낮은 확률로 가치가 높은 기물이 등장합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+              condition: (m) => !babyEffect && findPieces(m, 'k').length > 0 && findPieces(m, 'q').length > 0,
+              apply: (m, e) => { const k = findPieces(m, 'k')[0], q = findPieces(m, 'q')[0];
+                  babyEffect = { color: m, remaining: 5, seed: Math.floor(Math.random() * 1e9), kUid: game.get(k).uid, qUid: game.get(q).uid };
+                  [k, q].forEach(sq => spawnFloatingText(sq, '🦢'));
+                  return { t: [k, q], vfx: 'vfx-heal', msg: '🦢 왕과 왕비에게 축복이 내려졌습니다!' }; } },
+            { name: '암전', icon: '💡', desc: '2수 동안 상대방의 기물들이 차지한 칸을 제외한 모든 칸을 암전시켜 시야를 방해합니다.', globalVfx: 'vfx-global-blackout', isKillType: false,
+              condition: (m, e) => !blackout && !(isBotMode && m === myColor),
+              apply: (m, e) => { blackout = { target: e, duration: 4 }; return { t: [], vfx: '', msg: '💡 상대의 시야가 어둠에 잠겼습니다!' }; } }
         ];
 
         const AUGMENT_META = {
-            '운석 충돌': { category: '피해' , risk: '아군도 피해 가능' },
-            '대학살': { category: '피해' },
-            '네크로맨서': { category: '소환' },
-            '신의 심판': { category: '피해', risk: '아군도 피해 가능'  },
-            '독구름': { category: '피해' },
-            '저격수': { category: '피해' },
-            '혼란': { category: '유틸' },
-            '지진': { category: '피해', risk: '자기 희생' },
-            '축복': { category: '소환' },
-            '저주': { category: '피해' },
-            '강제 이주': { category: '유틸' },
-            '암살': { category: '피해' },
-            '징집': { category: '소환' },
-            '빛의 수호': { category: '유틸' },
-            '여신의 가호': { category: '유틸' },
-            '덩굴': { category: '유틸' },
-            '차원 장벽': { category: '유틸' },
-            '마인드 컨트롤': { category: '유틸' },
-            '그림자 교체': { category: '유틸' },
-            '기사 서임': { category: '유틸' },
-            '숲의 망령': { category: '소환' },
-            '신성한 폭발': { category: '피해' },
-            '등가 교환': { category: '피해', risk: '자기 희생' },
-            '광기': { category: '유틸' },
-            '연금술': { category: '유틸' },
-            '파도': { category: '유틸' },
-            '자아 분열': { category: '유틸' }
+            '대학살': { category: '피해' }, '네크로맨서': { category: '소환', risk: '자기 희생' }, '신의 심판': { category: '피해', risk: '아군도 피해 가능' }, '벼락': { category: '피해' },
+            '독구름': { category: '피해' }, '저격수': { category: '피해' }, '암살': { category: '피해' }, '흑사': { category: '피해' }, '복수': { category: '피해' }, '신성한 폭발': { category: '피해' },
+            '징집': { category: '소환' }, '축복': { category: '소환' }, '숲의 망령': { category: '소환' }, '아기는 어떻게 태어나?': { category: '소환' },
+            '기사 서임': { category: '유틸' }, '프로모션': { category: '유틸' }, '캐슬링+': { category: '유틸' }, '진군 명령': { category: '유틸' }, '그림자 교체': { category: '유틸' },
+            '저주': { category: '유틸' }, '혼란': { category: '유틸' }, '광기': { category: '유틸', risk: '대상 지정' }, '강제 이주': { category: '유틸' }, '파도': { category: '유틸' },
+            '덩굴': { category: '유틸' }, '빛의 수호': { category: '유틸' }, '여신의 가호': { category: '유틸' }, '마인드 컨트롤': { category: '유틸' },
+            '차원 장벽': { category: '유틸', risk: '위치 지정' }, '자아 분열': { category: '유틸' }, '잭팟': { category: '유틸' }, '암전': { category: '유틸' }
         };
 
         function getAugmentCategoryLabel(aug) {
@@ -2520,7 +2906,7 @@
         }
 
         function renderOpponentPreviewCards(previewOptions, playerColor, overlay) {
-            let html = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방 선택 중...</div><h2>적 선택 중</h2><p style="color:#ccc; margin-bottom:12px; font-size:0.95rem;">상대가 볼 수 있는 선택지입니다.</p><div class="cards-container">`;
+            let html = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방 선택 중...</div><h2>적 선택 중</h2><p style="color:#ccc; margin-bottom:12px; font-size:0.95rem;">상대가 볼 수 있는 선택지입니다.</p><div class="cards-container cards-n${previewOptions.length}">`;
             previewOptions.forEach((aug) => {
                 html += `<div class="augment-card ${aug.typeClass} dimmed"><div class="augment-icon">${aug.icon}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle">${aug.category}${aug.risk ? ' · ' + aug.risk : ''}</div><div class="augment-desc">${aug.desc}</div></div>`;
             });
@@ -2544,7 +2930,12 @@
         }
 
         function showCastText(text, callback) {
-            const el = document.getElementById('cast-text'); el.innerText = `${text} 발동!`; el.style.display = 'block';
+            const el = document.getElementById('cast-text');
+            el.innerHTML = ''; el.style.fontSize = '';
+            const span = document.createElement('span'); span.style.cssText = 'display:inline-block;white-space:nowrap;'; span.innerText = `${text} 발동!`; el.appendChild(span);
+            el.style.display = 'block';
+            const basePx = parseFloat(getComputedStyle(el).fontSize), maxW = window.innerWidth * 0.8;   // 애니메이션 최대 확대(1.1배)까지 화면 안에 들어오도록
+            if (span.offsetWidth > maxW) el.style.fontSize = Math.max(13, basePx * maxW / span.offsetWidth) + 'px';
             el.classList.remove('cast-anim'); void el.offsetWidth; el.classList.add('cast-anim'); setTimeout(() => { el.style.display = 'none'; callback(); }, 1200);
         }
 
@@ -2582,7 +2973,7 @@
                 weighted.sort(() => 0.5 - Math.random());
                 const previewOptions = [];
                 for (let aug of weighted) {
-                    if (previewOptions.length >= 3) break;
+                    if (previewOptions.length >= augmentOptionCount(playerColor)) break;
                     if (!previewOptions.find(o => o.name === aug.name)) previewOptions.push(aug);
                 }
                 if (previewOptions.length === 0) { processNextAugmentPhase(); return; }
@@ -2602,7 +2993,7 @@
                 });
                 weighted.sort(() => 0.5 - Math.random()); 
                 options = [];
-                for(let a of weighted) { if(options.length<3 && !options.find(o=>o.name===a.name)) options.push(a); }
+                for(let a of weighted) { if(options.length<augmentOptionCount(playerColor) && !options.find(o=>o.name===a.name)) options.push(a); }
             } else {
                 options = resolveAugmentOptions(options);
             }
@@ -2610,7 +3001,7 @@
             if(options.length === 0) { processNextAugmentPhase(); return; }
 
             const colorName = playerColor === 'w' ? '백' : '흑'; const badgeClass = playerColor === 'w' ? 'white' : 'black';
-            let html = `<div class="turn-badge ${badgeClass}">${colorName} 차례</div><h2>증강 선택</h2><div class="cards-container">`;
+            let html = `<div class="turn-badge ${badgeClass}">${colorName} 차례</div><h2>증강 선택</h2><div class="cards-container cards-n${options.length}">`;
             const previewPayload = buildAugmentPreviewPayload(options);
             if (currentRoomId && !isBotMode && !isRestore) {
                 pushGameAction({ type: 'augment_preview', playerColor: playerColor, preview: previewPayload });
@@ -2637,17 +3028,10 @@
                 card.onclick = () => {
                     if (selectedAugmentIdx === idx) {
                         overlay.style.display = 'none';
-                        applySelectedAugment(resolveAugmentOptions(options)[idx], playerColor, enemyColor);
+                        applySelectedAugment(resolveAugmentOptions(options)[idx], playerColor, enemyColor, () => showAugmentCards(playerColor, options));
                     } else {
                         selectedAugmentIdx = idx;
-                        document.querySelectorAll('.augment-card').forEach(c => {
-                            c.style.borderColor = 'var(--panel-border)';
-                            c.style.transform = 'translateY(0) scale(1)';
-                            c.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
-                        });
-                        card.style.borderColor = 'var(--primary)';
-                        card.style.transform = 'translateY(-5px) scale(1.05)';
-                        card.style.boxShadow = '0 10px 20px var(--primary)';
+                        document.querySelectorAll('.augment-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected');
                         showToast("한 번 더 눌러 발동하세요.", "var(--primary)", 1500);
                     }
                 };
@@ -2657,30 +3041,37 @@
             if (selectedAugmentIdx !== -1 && selectedAugmentIdx < options.length) {
                 const selectedCard = document.querySelector(`.augment-card[data-idx="${selectedAugmentIdx}"]`);
                 if (selectedCard) {
-                    selectedCard.style.borderColor = 'var(--primary)';
-                    selectedCard.style.transform = 'translateY(-5px) scale(1.05)';
-                    selectedCard.style.boxShadow = '0 10px 20px var(--primary)';
+                    selectedCard.classList.add('selected');
                 }
             }
         }
 
-        function applySelectedAugment(selectedAug, pColor, eColor) {
+        function applySelectedAugment(selectedAug, pColor, eColor, onCancel) {
+            if (selectedAug.target && pColor === myColor) {
+                beginTargeting(selectedAug, pColor, eColor, target => doApplyAugment(selectedAug, pColor, eColor, target), onCancel);
+                return;
+            }
+            doApplyAugment(selectedAug, pColor, eColor, null);
+        }
+
+        function doApplyAugment(selectedAug, pColor, eColor, target) {
             activeAugmentOptions = null;
             activeAugmentPlayerColor = null;
             selectedAugmentIdx = -1;
             persistRoomGameState().catch(() => {});
             showCastText(selectedAug.name, () => {
-                floatLog = []; const res = selectedAug.apply(pColor, eColor); const floats = floatLog; floatLog = null;
-                
+                floatLog = [];
+                let res;
+                try { res = selectedAug.apply(pColor, eColor, target); const poisoned = enforcePoison(); if (poisoned.length) res.t = [...new Set([...(res.t || []), ...poisoned])]; }
+                finally { var floats = floatLog; floatLog = null; }
+
                 pushGameAction({
                     type: 'augment_sync', name: selectedAug.name, state: serializeGameState(),
                     globalVfx: selectedAug.globalVfx || null,
-                    t: res.t || [], vfx: res.vfx || '', msg: res.msg || '', delay: selectedAug.delay || 1200, floats: floats
+                    t: res.t || [], vfx: res.vfx || '', msg: res.msg || '', delay: selectedAug.delay || 1200, floats: floats, fxArg: res.fxArg || null, origin: res.origin || null
                 });
 
-                drawPieces(true); updateCheckStatus();
-                if (selectedAug.globalVfx) playGlobalVFX(selectedAug.globalVfx);
-                if (res.t && res.t.length > 0) triggerVFX(res.t, res.vfx);
+                const lead = playAugmentVisuals({ name: selectedAug.name, globalVfx: selectedAug.globalVfx, t: res.t, vfx: res.vfx, floats: floats, fxArg: res.fxArg, origin: res.origin });
                 playSFX('augment');
                 showToast(res.msg, "var(--primary)", 4000);
                 persistRoomGameState().catch(() => {});
@@ -2688,10 +3079,60 @@
                 if (isBotMode && selectedAug.isKillType && res.t && res.t.length > 0) {
                     scheduleBotReply(pColor === myColor ? getBotSpeech('augment') : getBotSpeech('capture'), 1500);
                 }
-                
-                const waitTime = selectedAug.delay || 1200;
-                setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, waitTime); 
+
+                const waitTime = (selectedAug.delay || 1200) + lead;
+                setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, waitTime);
             });
+        }
+
+        // ---- 위치 / 개체 지정: 한 번 탭하면 미리보기, 같은 곳을 한 번 더 탭하면 확정 ----
+        function ensureTargetBanner() {
+            let b = document.getElementById('target-banner');
+            if (!b) {
+                b = document.createElement('div'); b.id = 'target-banner';
+                b.innerHTML = '<div class="tb-text"><div class="tb-title"></div><div class="tb-msg"></div></div><button class="tb-cancel" type="button">취소</button>';
+                document.body.appendChild(b);
+                b.querySelector('.tb-cancel').addEventListener('click', () => cancelTargeting());
+            }
+            return b;
+        }
+        function setTargetBanner(title, msg, confirm) {
+            const b = ensureTargetBanner();
+            b.querySelector('.tb-title').innerText = title; b.querySelector('.tb-msg').innerText = msg;
+            b.classList.toggle('confirm', !!confirm); b.style.display = 'flex';
+        }
+        function clearTargetVisuals() {
+            squareList.forEach(el => el.classList.remove('target-valid', 'tv-piece', 'target-preview'));
+            document.querySelectorAll('.target-ghost').forEach(e => e.remove());
+            const b = document.getElementById('target-banner'); if (b) b.style.display = 'none';
+        }
+        function beginTargeting(aug, pColor, eColor, onConfirm, onCancel) {
+            const def = aug.target, valid = def.valid(pColor, eColor);
+            if (!valid.length) { onConfirm(null); return; }
+            targeting = { aug, valid: new Set(valid), preview: null, onConfirm, onCancel };
+            valid.forEach(sq => { const el = squareEls.get(sq); if (el) { el.classList.add('target-valid'); if (def.mode === 'piece') el.classList.add('tv-piece'); } });
+            setTargetBanner(`${aug.icon} ${aug.name}`, def.prompt, false);
+        }
+        function handleTargetClick(sq) {
+            if (!targeting) return;
+            if (!targeting.valid.has(sq)) { showToast('지정할 수 없는 곳입니다.', 'var(--danger)', 1200); return; }
+            if (targeting.preview === sq) { confirmTarget(); return; }
+            squareList.forEach(el => el.classList.remove('target-preview'));
+            document.querySelectorAll('.target-ghost').forEach(e => e.remove());
+            targeting.preview = sq; squareEls.get(sq).classList.add('target-preview');
+            if (targeting.aug.target.ghost === 'wall') {
+                const c = getCoords(sq), g = document.createElement('div');
+                g.className = 'piece-wrapper target-ghost'; g.innerHTML = svgPieces['WALL']; g.style.translate = `${c.x * 8}% ${c.y * 8}%`; piecesLayer.appendChild(g);
+            }
+            setTargetBanner(`${targeting.aug.icon} ${targeting.aug.name}`, '한 번 더 누르면 확정됩니다', true);
+        }
+        function confirmTarget() {
+            const t = targeting; if (!t || !t.preview) return;
+            const sq = t.preview; clearTargetVisuals(); targeting = null; t.onConfirm(sq);
+        }
+        function cancelTargeting() {
+            const t = targeting; clearTargetVisuals(); targeting = null;
+            if (t && t.onCancel) t.onCancel();
         }
 
         initBoard();
