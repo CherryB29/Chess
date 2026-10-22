@@ -459,6 +459,7 @@
         }
         /* 배경을 눌러 판을 볼 때는 오버레이 안의 모든 요소(안내 문구 포함)를 숨긴다 */
         .overlay.peeking > * { opacity: 0 !important; pointer-events: none !important; }
+        .lobby-btn:disabled { opacity: 0.55; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -537,6 +538,8 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/></svg> Google로 로그인
             </button>
             <button id="btn-anon" class="lobby-btn secondary" style="background: transparent; border: 1px solid var(--panel-border); color: var(--text-color);">👻 게스트로 시작</button>
+            <div id="login-status" role="alert" style="display:none; margin-top:12px; font-size:0.82rem; line-height:1.45; text-align:center; word-break:keep-all;"></div>
+            <div id="login-hint" style="display:none; margin-top:10px; font-size:0.75rem; line-height:1.45; text-align:center; color:#9a9aa8; word-break:keep-all;">앱 안의 브라우저에서는 Google 로그인이 막힐 수 있어요. 문제가 생기면 크롬·사파리에서 열거나 게스트로 시작해 주세요.</div>
         </div>
     </div>
 
@@ -681,7 +684,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence, browserPopupRedirectResolver, signInWithRedirect, getRedirectResult, signInAnonymously, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, get, onValue, update, push, remove, onChildAdded, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -692,7 +695,11 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        let auth;
+        try {
+            // 저장소(IndexedDB/localStorage)가 막힌 환경에서도 로그인이 되도록 마지막 폴백으로 메모리 저장소를 둔다
+            auth = initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence], popupRedirectResolver: browserPopupRedirectResolver });
+        } catch (e) { auth = getAuth(app); }
         const db = getDatabase(app);
 
         let myUid = null; let myColor = null; let currentRoomId = null; let isGameStarted = false;
@@ -997,8 +1004,8 @@
         }
         function registerGlobalPresence(uid) {
             const myPresenceRef = ref(db, `online_users/${uid}`);
-            set(myPresenceRef, true);
-            onDisconnect(myPresenceRef).remove();
+            set(myPresenceRef, true).catch(() => {});
+            onDisconnect(myPresenceRef).remove().catch(() => {});
         }
 
         setupOnlineCountListener();
@@ -1102,25 +1109,55 @@
         };
 
         // 인증 상태 감지
+        // 인증 이후의 각 단계(프로필 로드, 방 복구)는 실패하거나 멈출 수 있으므로 시간 제한과 폴백을 둬서 항상 로비로 들어가게 한다.
+        const withTimeout = (p, ms, label) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(label + ' timeout')), ms))]);
+        let profileSynced = false, profileRetryTimer = null;
+        function applyFallbackProfile(user) {
+            const stored = loadLocalProfile();
+            const name = (stored && stored.name) || (user.isAnonymous ? `Guest_${user.uid.slice(0,4)}` : (user.email ? user.email.split('@')[0] : `User_${user.uid.slice(0,4)}`));
+            userProfile = Object.assign(userProfile, { name, icon: (stored && stored.icon) || userProfile.icon || '👤' });
+            if (!userProfile.stats) userProfile.stats = { w: 0, l: 0, d: 0 };
+            userProfile.settings = Object.assign({}, DEFAULT_SETTINGS, userProfile.settings || {}, loadLocalSettings() || {});
+            document.getElementById('settings-account-info').innerText = user.isAnonymous ? "게스트" : (user.email ? "이메일" : "Google");
+            document.getElementById('profile-name-input').value = userProfile.name;
+            document.getElementById('selected-icon-display').innerText = userProfile.icon;
+        }
+        function scheduleProfileRetry(user, attempt = 1) {
+            clearTimeout(profileRetryTimer);
+            if (attempt > 6 || profileSynced || myUid !== user.uid) return;
+            profileRetryTimer = setTimeout(async () => {
+                try { await withTimeout(loadUserProfile(user.uid, user.isAnonymous, user.email), 7000, 'profile'); profileSynced = true; showToast('계정 정보를 불러왔습니다.', 'var(--primary)', 2500); }
+                catch (e) { scheduleProfileRetry(user, attempt + 1); }
+            }, 8000);
+        }
+        async function enterAfterAuth(user) {
+            myUid = user.uid;
+            loginOverlay.style.display = 'none';
+            try { registerGlobalPresence(user.uid); } catch (e) { console.warn('presence 등록 실패', e); }
+            profileSynced = false;
+            try { await withTimeout(loadUserProfile(user.uid, user.isAnonymous, user.email), 7000, 'profile'); profileSynced = true; }
+            catch (e) {
+                console.warn('프로필을 불러오지 못해 임시 프로필로 입장합니다.', e);
+                applyFallbackProfile(user);
+                showToast('연결이 불안정해 임시 프로필로 입장했습니다.', 'var(--primary)', 3500);
+                scheduleProfileRetry(user);
+            }
+            let restored = false;
+            try { restored = await withTimeout(tryRestoreRoomSession(), 7000, 'restore'); }
+            catch (e) { console.warn('진행 중이던 방을 복구하지 못해 세션을 정리합니다.', e); clearRoomSession(); currentRoomId = null; restored = false; }
+            if (!restored && !isGameStarted && vsOverlay.style.display === 'none') mainLobbyOverlay.style.display = 'flex';
+        }
         onAuthStateChanged(auth, user => {
             if (user) {
-                myUid = user.uid;
-                loginOverlay.style.display = 'none';
-                registerGlobalPresence(user.uid);
-                loadUserProfile(user.uid, user.isAnonymous, user.email).then(async () => {
-                    const restored = await tryRestoreRoomSession();
-                    if (!restored && !isGameStarted && vsOverlay.style.display === 'none') {
-                        mainLobbyOverlay.style.display = 'flex';
-                    }
-                });
-            } else { 
+                enterAfterAuth(user).catch(e => { console.error(e); if (!isGameStarted) mainLobbyOverlay.style.display = 'flex'; });
+            } else {
                 myUid = null;
                 if(!isGameStarted) {
                     loginOverlay.style.display = 'flex';
                     mainLobbyOverlay.style.display = 'none'; modeSelectOverlay.style.display = 'none'; settingsOverlay.style.display = 'none'; vsOverlay.style.display = 'none';
                 }
             }
-        });
+        }, err => { console.error(err); loginOverlay.style.display = 'flex'; showLoginStatus(authErrorMessage(err), true); });
 
         // -------------------- 로비, 취소 및 UI 네비게이션 --------------------
         async function cancelMatchmaking() {
@@ -1160,19 +1197,69 @@
         soundVolumeSlider.addEventListener('input', (e) => { soundVolume = e.target.value / 100; soundVolumeValue.innerText = `${e.target.value}%`; saveUserSettings(); });
 
         // -------------------- 로그인 제어 --------------------
+        // ---- 로그인 제어: 진행 표시 / 시간 제한 / 오류 안내 ----
+        const loginStatusEl = document.getElementById('login-status');
+        function showLoginStatus(msg, isError) {
+            loginStatusEl.innerText = msg; loginStatusEl.style.color = isError ? 'var(--danger)' : '#9a9aa8'; loginStatusEl.style.display = msg ? 'block' : 'none';
+        }
+        const AUTH_ERRORS = {
+            'auth/network-request-failed': '네트워크 연결이 불안정합니다. 연결을 확인하고 다시 시도해 주세요.',
+            'auth/too-many-requests': '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.',
+            'auth/operation-not-allowed': '이 로그인 방식은 현재 사용할 수 없습니다.',
+            'auth/admin-restricted-operation': '게스트 로그인이 현재 비활성화되어 있습니다.',
+            'auth/unauthorized-domain': '현재 주소에서는 로그인이 허용되지 않습니다.',
+            'auth/web-storage-unsupported': '브라우저 저장소가 막혀 있습니다. 사생활 보호 모드나 앱 내 브라우저에서는 로그인이 제한될 수 있어요.',
+            'auth/operation-not-supported-in-this-environment': '이 환경에서는 해당 로그인을 지원하지 않습니다. 크롬이나 사파리에서 열어주세요.',
+            'auth/invalid-email': '이메일 형식이 올바르지 않습니다.',
+            'auth/invalid-credential': '이메일 또는 비밀번호가 올바르지 않습니다.',
+            'auth/wrong-password': '이메일 또는 비밀번호가 올바르지 않습니다.',
+            'auth/user-not-found': '가입되지 않은 이메일입니다.',
+            'auth/email-already-in-use': '이미 가입된 이메일입니다.',
+            'auth/weak-password': '비밀번호는 6자 이상이어야 합니다.',
+            'auth/user-disabled': '사용이 정지된 계정입니다.'
+        };
+        const SILENT_AUTH_ERRORS = ['auth/popup-closed-by-user', 'auth/cancelled-popup-request', 'auth/user-cancelled'];
+        function authErrorMessage(err) {
+            const code = (err && err.code) || '';
+            return (AUTH_ERRORS[code] || '로그인 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.') + (code ? ` (${code.replace('auth/', '')})` : '');
+        }
+        const LOGIN_BTN_IDS = ['btn-email-login', 'btn-email-signup', 'btn-google', 'btn-anon'];
+        let loginBusy = false;
+        async function runLogin(task) {
+            if (loginBusy) return;
+            loginBusy = true; LOGIN_BTN_IDS.forEach(id => { document.getElementById(id).disabled = true; });
+            showLoginStatus('로그인 중...', false);
+            const slow = setTimeout(() => showLoginStatus('연결이 지연되고 있습니다. 잠시만 기다려 주세요...', false), 6000);
+            try { await withTimeout(task(), 20000, 'login'); showLoginStatus('', false); }
+            catch (err) {
+                if (err && SILENT_AUTH_ERRORS.includes(err.code)) showLoginStatus('', false);
+                else if (err && /timeout$/.test(err.message || '')) showLoginStatus('연결이 너무 오래 걸립니다. 네트워크를 확인하고 다시 시도해 주세요.', true);
+                else showLoginStatus(authErrorMessage(err), true);
+            } finally { clearTimeout(slow); loginBusy = false; LOGIN_BTN_IDS.forEach(id => { document.getElementById(id).disabled = false; }); }
+        }
+        if (/KAKAOTALK|NAVER\(|FBAN|FBAV|Instagram|Line\/|DaumApps|; wv\)/i.test(navigator.userAgent)) document.getElementById('login-hint').style.display = 'block';
         document.getElementById('btn-show-email').onclick = () => { document.getElementById('email-login-form').style.display = 'block'; document.getElementById('btn-show-email').style.display = 'none'; };
         document.getElementById('btn-email-login').onclick = () => {
             const e = document.getElementById('input-email').value.trim(); const p = document.getElementById('input-pw').value;
-            if(!e || !p) return alert("이메일과 비밀번호를 입력해주세요.");
-            signInWithEmailAndPassword(auth, e, p).catch(err => alert("로그인 실패: " + err.message));
+            if(!e || !p) return showLoginStatus("이메일과 비밀번호를 입력해 주세요.", true);
+            runLogin(() => signInWithEmailAndPassword(auth, e, p));
         };
         document.getElementById('btn-email-signup').onclick = () => {
             const e = document.getElementById('input-email').value.trim(); const p = document.getElementById('input-pw').value;
-            if(!e || !p) return alert("이메일과 비밀번호를 입력해주세요.");
-            createUserWithEmailAndPassword(auth, e, p).catch(err => alert("가입 실패: " + err.message));
+            if(!e || !p) return showLoginStatus("이메일과 비밀번호를 입력해 주세요.", true);
+            runLogin(() => createUserWithEmailAndPassword(auth, e, p));
         };
-        document.getElementById('btn-google').onclick = () => { signInWithPopup(auth, new GoogleAuthProvider()).catch(err => alert("로그인 실패: " + err.message)); };
-        document.getElementById('btn-anon').onclick = () => { signInAnonymously(auth).catch(err => alert("로그인 실패: " + err.message)); };
+        document.getElementById('btn-google').onclick = () => runLogin(async () => {
+            const provider = new GoogleAuthProvider();
+            try { await signInWithPopup(auth, provider); }
+            catch (err) {
+                // 팝업이 막히거나 지원되지 않는 환경이면 리디렉션 방식으로 전환
+                if (err && ['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment', 'auth/web-storage-unsupported'].includes(err.code)) { await signInWithRedirect(auth, provider); return; }
+                throw err;
+            }
+        });
+        document.getElementById('btn-anon').onclick = () => runLogin(() => signInAnonymously(auth));
+        getRedirectResult(auth).catch(err => { if (!(err && SILENT_AUTH_ERRORS.includes(err.code))) showLoginStatus(authErrorMessage(err), true); });
         
         document.getElementById('btn-logout').onclick = async () => { 
             if(confirm("로그아웃 하시겠습니까?")) {
@@ -2401,7 +2488,7 @@
                 if(resultType === '승리') userProfile.stats.w++;
                 else if(resultType === '패배') userProfile.stats.l++;
                 else userProfile.stats.d++;
-                update(ref(db, `users/${myUid}/stats`), userProfile.stats);
+                if (profileSynced) update(ref(db, `users/${myUid}/stats`), userProfile.stats).catch(() => {});
             }
 
             const reveal = () => {
