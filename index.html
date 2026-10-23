@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=overlays-content">
     <title>증강 : 체스</title>
     <style>
         :root {
@@ -461,6 +461,14 @@
         .overlay.peeking > * { opacity: 0 !important; pointer-events: none !important; }
         .lobby-btn:disabled { opacity: 0.55; pointer-events: none; }
         .square.target-file::before { content: ''; position: absolute; inset: 0; background: rgba(255,214,90,0.22); pointer-events: none; z-index: 1; }
+    
+        /* 채팅 입력 시 키보드가 체스판 위로 겹치도록: 레이아웃을 밀지 않고 채팅바만 키보드 위에 고정 */
+        body.chat-typing #game-controls { position: fixed; left: 50%; translate: -50% 0; bottom: var(--kb-bottom, 0px); z-index: 120; background: var(--bg-color); margin-top: 0; }
+        #chat-spacer { display: none; width: 100%; flex-shrink: 0; }
+        body.chat-typing #chat-spacer { display: block; }
+        #blackout-badge { display: none; margin-top: 6px; font-size: 0.78rem; font-weight: 700; color: #ffe27a; background: rgba(20,20,40,0.75); border: 1px solid rgba(255,226,122,0.45); border-radius: 999px; padding: 3px 12px; text-align: center; }
+        #mate-banner { display: none; position: fixed; top: 14%; left: 50%; translate: -50% 0; z-index: 150; max-width: 90vw; padding: 10px 16px; border-radius: 12px; background: rgba(15,10,12,0.88); border: 1px solid rgba(255,80,70,0.7); color: #fff; text-align: center; font-size: 0.9rem; line-height: 1.5; pointer-events: none; box-shadow: 0 0 18px rgba(255,60,50,0.35); }
+        #mate-banner b { color: #ff6b5e; font-size: 1.05rem; }
     </style>
 </head>
 <body>
@@ -487,8 +495,10 @@
             <div class="progress-bar" id="augment-progress"></div>
             <div class="progress-text" id="augment-text">증강: 7수</div>
         </div>
+        <div id="blackout-badge"></div>
     </div>
 
+    <div id="mate-banner"></div>
     <div id="board-container">
         <div id="chat-bubble-opponent" class="chat-bubble opponent"></div>
         
@@ -505,6 +515,7 @@
         <div id="chat-bubble-mine" class="chat-bubble mine"></div>
     </div>
 
+    <div id="chat-spacer"></div>
     <div id="game-controls">
         <div id="emote-popup">
             <span class="emote-btn">👍</span>
@@ -678,7 +689,7 @@
     <div id="result-overlay" class="overlay" style="z-index: 350;">
         <div class="lobby-box">
             <h2 id="result-title" style="font-size: 2.2rem; margin-bottom: 10px;">종료</h2>
-            <p id="result-desc" style="font-size: 1.2rem; margin-bottom: 25px; color: #888;"></p>
+            <p id="result-desc" style="font-size: 1.2rem; margin-bottom: 25px; color: #888; line-height: 1.5;"></p>
             <button id="btn-return-lobby" class="lobby-btn">메인으로</button>
         </div>
     </div>
@@ -1521,7 +1532,7 @@
                 deserializeGameState(action.state); 
                 persistRoomGameState(action.state).catch(() => {});
                 showCastText(action.name || "증강", () => {
-                    const lead = playAugmentVisuals({ name: action.name, globalVfx: action.globalVfx, t: action.t, vfx: action.vfx, floats: action.floats, fxArg: action.fxArg, origin: action.origin });
+                    const lead = playAugmentVisuals({ name: action.name, globalVfx: action.globalVfx, t: action.t, vfx: action.vfx, floats: action.floats, fxArg: action.fxArg, origin: action.origin, fxMoves: action.fxMoves });
                     showToast(action.msg, "var(--primary)", 4000);
                     setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, (action.delay || 1200) + lead);
                 });
@@ -1561,6 +1572,34 @@
 
         chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnSendChat.click(); });
 
+        // 모바일 키보드: 레이아웃 높이를 고정하고, 키보드는 체스판 위에 겹쳐서 올라오게 처리
+        (function setupKeyboardOverlay() {
+            const vv = window.visualViewport;
+            const controls = document.getElementById('game-controls');
+            const spacer = document.getElementById('chat-spacer');
+            let typing = false;
+            function place() {
+                if (!typing) return;
+                if (vv) {
+                    const bottom = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop));
+                    document.documentElement.style.setProperty('--kb-bottom', bottom + 'px');
+                }
+                if (window.scrollY !== 0 || window.scrollX !== 0) window.scrollTo(0, 0);
+            }
+            chatInput.addEventListener('focus', () => {
+                spacer.style.height = controls.offsetHeight + 'px';
+                typing = true; document.body.classList.add('chat-typing'); place();
+                setTimeout(place, 50); setTimeout(place, 300);
+            });
+            chatInput.addEventListener('blur', () => {
+                typing = false; document.body.classList.remove('chat-typing');
+                document.documentElement.style.removeProperty('--kb-bottom');
+                spacer.style.height = '';
+            });
+            if (vv) { vv.addEventListener('resize', place); vv.addEventListener('scroll', place); }
+            window.addEventListener('scroll', place, { passive: true });
+        })();
+
         btnSendChat.onclick = () => {
             if (chatInput.value.trim() !== '') {
                 const msg = chatInput.value.trim();
@@ -1578,9 +1617,13 @@
         function showChatBubble(side, msg, isTyping = false) {
             if (side === 'opponent' && isBotMode && !botChatEnabled) return;
             const bubble = document.getElementById(`chat-bubble-${side}`);
-            bubble.innerHTML = msg; bubble.className = `chat-bubble ${side}`; bubble.style.display = 'block'; bubble.style.opacity = isTyping ? '0.7' : '1';
-            if (!isTyping && emoteAnimations[msg]) bubble.classList.add(emoteAnimations[msg]);
-            else if (!isTyping) { bubble.style.animation = 'none'; void bubble.offsetWidth; bubble.style.animation = 'pop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)'; }
+            // 이전 애니메이션(인라인 pop 포함)을 완전히 끊고 리플로우로 초기화한 뒤 새로 재생
+            bubble.style.animation = 'none'; bubble.className = `chat-bubble ${side}`;
+            bubble.innerHTML = msg; bubble.style.display = 'block'; bubble.style.opacity = isTyping ? '0.7' : '1';
+            void bubble.offsetWidth;
+            bubble.style.animation = '';
+            if (!isTyping && emoteAnimations[msg]) { bubble.classList.add(emoteAnimations[msg]); }
+            else if (!isTyping) { bubble.style.animation = 'pop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)'; }
             if (side === 'opponent' && !isTyping && soundEnabled) playSFX('message');
             if (side === 'opponent') isOpponentTyping = isTyping;
             if (chatTimers[side]) clearTimeout(chatTimers[side]);
@@ -1625,7 +1668,7 @@
                 board: game.board(), turn: game.turn(), castling: game.castling, ep_square: game.ep_square,
                 is_game_over: game.is_game_over, moveCount: moveCount, activePoison: activePoison,
                 rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, pendingAugments: pendingAugments,
-                activeWalls: activeWalls, reversedPawns: reversedPawns,
+                activeWalls: activeWalls, reversedPawns: reversedPawns, reversedUids: reversedUids,
                 jackpotBonus: jackpotBonus, lastKiller: lastKiller, babyEffect: babyEffect, blackout: blackout, uidCounter: game.pieceUidCounter, castleUids: game.castleUids,
                 activeAugmentOptions: activeAugmentOptions,
                 activeAugmentPlayerColor: activeAugmentPlayerColor,
@@ -1639,6 +1682,8 @@
             rootedPieces = state.rootedPieces || {}; invinciblePieces = state.invinciblePieces || {}; pendingAugments = state.pendingAugments;
             activeWalls = state.activeWalls || [];
             { const rp = state.reversedPawns; reversedPawns = (rp && rp.color !== undefined) ? { w: rp.color === 'w' ? rp.duration : 0, b: rp.color === 'b' ? rp.duration : 0 } : (rp || { w: 0, b: 0 }); }   // 이전 저장 형식 호환
+            reversedUids = state.reversedUids || { w: {}, b: {} };
+            if (!state.reversedUids) ['w', 'b'].forEach(c => { if (reversedPawns[c] > 0) game.board().forEach(row => row.forEach(pc => { if (pc && pc.type === 'p' && pc.color === c) reversedUids[c][pc.uid] = true; })); });   // 구버전 저장본: 현재 폰 전체를 대상으로
             jackpotBonus = state.jackpotBonus || { w: 0, b: 0 }; lastKiller = state.lastKiller || { w: null, b: null };
             { const be = state.babyEffect; babyEffect = (be && be.color) ? { w: be.color === 'w' ? be : null, b: be.color === 'b' ? be : null } : (be || { w: null, b: null }); }
             { const bo = state.blackout; blackout = (bo && bo.target) ? { w: bo.target === 'w' ? bo.duration : 0, b: bo.target === 'b' ? bo.duration : 0 } : (bo || { w: 0, b: 0 }); }
@@ -1732,7 +1777,7 @@
 
                 switch (piece.type) {
                     case 'p':
-                        const isReversed = reversedPawns[color] > 0;
+                        const isReversed = reversedPawns[color] > 0 && !!(reversedUids[color] && reversedUids[color][piece.uid]);
                         const dir = color === 'w' ? (isReversed ? 1 : -1) : (isReversed ? -1 : 1);
                         const startRank = color === 'w' ? 6 : 1;
 
@@ -1842,7 +1887,7 @@
         let selectedSquare = null; let legalMoves = []; let moveCount = 0;
         const AUGMENT_INTERVAL = 7; let isSystemLocked = false; let pendingAugments = [];
         let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {};
-        let activeWalls = []; let reversedPawns = { w: 0, b: 0 };
+        let activeWalls = []; let reversedPawns = { w: 0, b: 0 }; let reversedUids = { w: {}, b: {} };   // 자아 분열 발동 당시 존재하던 폰의 uid만 효과를 받는다
         let jackpotBonus = { w: 0, b: 0 }; let lastKiller = { w: null, b: null }; let babyEffect = { w: null, b: null }; let blackout = { w: 0, b: 0 }; let targeting = null; let lastCheckKey = '';
 
         const squareEls = new Map(); const squareList = []; const pieceEls = new Map();
@@ -1862,7 +1907,7 @@
 
         function resetGameUI() {
             game.reset(); moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; pendingAugments = [];
-            activeWalls = []; reversedPawns = { w: 0, b: 0 }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = { w: null, b: null }; blackout = { w: 0, b: 0 }; lastCheckKey = '';
+            activeWalls = []; reversedPawns = { w: 0, b: 0 }; reversedUids = { w: {}, b: {} }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = { w: null, b: null }; blackout = { w: 0, b: 0 }; lastCheckKey = '';
             if (targeting) { clearTargetVisuals(); targeting = null; }
             clearTimeout(endRevealTimer);
             isSystemLocked = false; selectedSquare = null; legalMoves = []; selectedAugmentIdx = -1; previousMove = null; drawDots();
@@ -1904,7 +1949,7 @@
                     if(isAnimate) { el.classList.remove('piece-pop'); void el.offsetWidth; el.classList.add('piece-pop'); }
                 }
 
-                const isReversed = reversedPawns[piece.color] > 0 && piece.type === 'p';
+                const isReversed = reversedPawns[piece.color] > 0 && piece.type === 'p' && !!reversedUids[piece.color][piece.uid];
                 el.classList.toggle('piece-rooted', rootedPieces[piece.uid] > 0);
                 el.classList.toggle('piece-invincible', invinciblePieces[piece.uid] > 0);
                 const blessEff = ['w', 'b'].map(c => babyEffect[c]).find(be => be && (piece.uid === be.kUid || piece.uid === be.qUid)), isBlessed = !!blessEff;
@@ -1973,8 +2018,8 @@
             const canvas = document.getElementById('fx-canvas');
             const ctx = canvas.getContext('2d');
             let W = 0, H = 0, cell = 0, dpr = 1, running = false, last = 0;
-            const parts = [], rings = [], flashes = [], bolts = [], beams = [], slashes = [], rays = [], marks = [], waves = [], dims = [];
-            const lists = [parts, rings, flashes, bolts, beams, slashes, rays, marks, waves, dims];
+            const parts = [], rings = [], flashes = [], bolts = [], beams = [], slashes = [], rays = [], marks = [], waves = [], dims = [], trails = [], charges = [], wheels = [];
+            const lists = [parts, rings, flashes, bolts, beams, slashes, rays, marks, waves, dims, trails, charges, wheels];
             const rnd = (a, b) => a + Math.random() * (b - a);
             const pick = arr => arr[(Math.random() * arr.length) | 0];
             const TAU = Math.PI * 2;
@@ -2262,9 +2307,16 @@
 
             // ---------- 렌더 ----------
             // ---------- 승패 연출 (킹 칸 중심, 결과 창이 뜨기 전 1.5초 동안) ----------
-            function checkmate(sq) {
+            function checkmate(sq, checkers = []) {
                 if (!sq) return; const { x, y } = ctr(sq);
-                mark([sq], [255, 70, 60], 1.15);
+                mark([sq].concat(checkers), [255, 70, 60], 1.15);
+                checkers.forEach(from => { const c = ctr(from); ring(c.x, c.y, cell * 0.12, cell * 0.65, [255, 90, 70], 0.8, 3, 0.7); setTimeout(() => ring(c.x, c.y, cell * 0.12, cell * 0.65, [255, 90, 70], 0.8, 3, 0.55), 450); });
+                checkers.forEach(from => {   // 공격 기물에서 킹까지의 이동 경로 (나이트는 L자)
+                    const f = from.charCodeAt(0), r = parseInt(from[1]), kf = sq.charCodeAt(0), kr = parseInt(sq[1]), dc = kf - f, dr = kr - r, pts = [ctr(from)];
+                    if (Math.abs(dc) * Math.abs(dr) === 2) { const mid = Math.abs(dc) === 2 ? String.fromCharCode(f + dc) + r : String.fromCharCode(f) + (r + dr); pts.push(ctr(mid)); }
+                    pts.push({ x, y }); trail(pts, [255, 90, 70], 2.3);
+                });
+                kick();
                 setTimeout(() => {
                     flash(x, y, cell * 2.4, C.red, 0.55, 0.75); ring(x, y, cell * 0.2, cell * 2.6, C.red, 0.7, 6); ring(x, y, cell * 0.1, cell * 1.6, C.gold, 0.5, 3);
                     const Ln = cell * 1.5; slash(x - Ln, y - Ln, x + Ln, y + Ln, C.white, 0.32, 6);
@@ -2352,6 +2404,100 @@
                 ctx.globalAlpha = a; ctx.strokeStyle = '#fff'; ctx.lineWidth = o.w * 0.7; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(hx, hy); ctx.stroke();
             }
 
+
+            // ---------- 진군 명령: 돌진 ----------
+            const easeIn3 = t => t * t * t, easeInOut3 = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            function charge(from, to, delaySec = 0) {
+                resize(); if (!W) return;
+                setTimeout(() => {
+                    const a = ctr(from), b = ctr(to), dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1;
+                    charges.push({ x0: a.x, y0: a.y, x1: b.x, y1: b.y, nx: -dy / L, ny: dx / L, travel: 0.32, dur: 0.85, t: 0 });
+                    for (let i = 0; i < 9; i++) P({ x: a.x + rnd(-cell * 0.3, cell * 0.3), y: a.y + rnd(-cell * 0.1, cell * 0.1), vx: rnd(-40, 40) - dx / L * rnd(20, 120), vy: rnd(-30, 30) - dy / L * rnd(20, 120), size: cell * 0.14, grow: 2, dur: rnd(0.5, 0.8), kind: 'smoke', color: [210, 195, 170], alpha: 0.5 });
+                    kick();
+                    setTimeout(() => {   // 도착 충격
+                        ring(b.x, b.y, cell * 0.1, cell * 0.8, [255, 235, 190], 0.5, 3, 0.7);
+                        for (let i = 0; i < 12; i++) P({ x: b.x + rnd(-cell * 0.35, cell * 0.35), y: b.y + rnd(-cell * 0.15, cell * 0.15), vx: rnd(-90, 90), vy: rnd(-60, 20), g: 40, drag: 1.2, size: cell * 0.16, grow: 1.8, dur: rnd(0.45, 0.8), kind: 'smoke', color: [220, 205, 180], alpha: 0.55 });
+                        for (let i = 0; i < 8; i++) P({ x: b.x, y: b.y, vx: rnd(-160, 160), vy: rnd(-160, 160), drag: 2.5, size: rnd(1.4, 3), dur: rnd(0.25, 0.5), kind: 'glow', color: [255, 240, 200] });
+                        shake(3, 160); kick();
+                    }, 320);
+                }, delaySec * 1000);
+            }
+            function drawCharge(o) {
+                const hp = Math.min(1, o.t / o.travel), head = easeIn3(hp), tailP = Math.max(0, head - 0.75), fade = o.t < o.travel ? 1 : Math.max(0, 1 - (o.t - o.travel) / (o.dur - o.travel));
+                if (fade <= 0) return;
+                const hx = o.x0 + (o.x1 - o.x0) * head, hy = o.y0 + (o.y1 - o.y0) * head;
+                const tx = o.x0 + (o.x1 - o.x0) * (o.t < o.travel ? tailP : Math.min(1, tailP + (o.t - o.travel) * 1.2)), ty = o.y0 + (o.y1 - o.y0) * (o.t < o.travel ? tailP : Math.min(1, tailP + (o.t - o.travel) * 1.2));
+                ctx.save(); ctx.lineCap = 'round'; ctx.globalAlpha = fade;
+                [[0, 1, 0.12], [-0.2, 0.8, 0.06], [0.2, 0.8, 0.06], [-0.34, 0.55, 0.04], [0.34, 0.55, 0.04]].forEach(([off, len, w]) => {
+                    const ox = o.nx * off * cell, oy = o.ny * off * cell, sx = hx + (tx - hx) * len + ox, sy = hy + (ty - hy) * len + oy;
+                    const g = ctx.createLinearGradient(sx, sy, hx + ox, hy + oy); g.addColorStop(0, 'rgba(255,235,190,0)'); g.addColorStop(1, 'rgba(255,245,215,0.95)');
+                    ctx.strokeStyle = g; ctx.lineWidth = Math.max(1.5, cell * w); ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(hx + ox, hy + oy); ctx.stroke();
+                });
+                if (o.t < o.travel) {   // 선두 쐐기(>>)
+                    const ang = Math.atan2(o.y1 - o.y0, o.x1 - o.x0), h = cell * 0.32; ctx.strokeStyle = 'rgba(255,250,230,0.95)'; ctx.lineWidth = Math.max(2, cell * 0.07);
+                    [0, -h * 0.7].forEach(d => { const cx = hx + Math.cos(ang) * d, cy = hy + Math.sin(ang) * d; ctx.beginPath();
+                        ctx.moveTo(cx - Math.cos(ang - 0.7) * h, cy - Math.sin(ang - 0.7) * h); ctx.lineTo(cx, cy); ctx.lineTo(cx - Math.cos(ang + 0.7) * h, cy - Math.sin(ang + 0.7) * h); ctx.stroke(); });
+                }
+                ctx.restore();
+            }
+
+            // ---------- 운명의 수레바퀴: 거대한 톱니바퀴 ----------
+            function wheel(spinSec = 1.1, totalSec = 1.7, spinRad = Math.PI / 3) {
+                resize(); if (!W) return;
+                wheels.push({ spinSec, dur: totalSec, spin: spinRad, t: 0 }); kick();
+            }
+            function gearPath(cx, cy, rRoot, rTip, n, phase) {
+                const st = Math.PI * 2 / n; ctx.beginPath();
+                for (let i = 0; i < n; i++) {
+                    const a = phase + i * st; const pt = (r, k) => [cx + Math.cos(a + st * k) * r, cy + Math.sin(a + st * k) * r];
+                    const p0 = pt(rRoot, 0), p1 = pt(rTip, 0.16), p2 = pt(rTip, 0.40), p3 = pt(rRoot, 0.56);
+                    if (i === 0) ctx.moveTo(p0[0], p0[1]); else ctx.lineTo(p0[0], p0[1]);
+                    ctx.lineTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p3[0], p3[1]);
+                }
+                ctx.closePath();
+            }
+            function drawWheel(o) {
+                const fadeIn = Math.min(1, o.t / 0.25), fadeOut = Math.min(1, Math.max(0, (o.dur - o.t) / 0.4)), a = fadeIn * fadeOut; if (a <= 0) return;
+                const cx = W / 2, cy = H / 2, rTip = W * 0.5, rRoot = rTip - cell * 0.26, rHole = rTip - cell * 1.0, ang = easeInOut3(Math.min(1, o.t / o.spinSec)) * o.spin;   // 시계방향
+                ctx.save(); ctx.globalAlpha = a * 0.42; ctx.translate(cx, cy);
+                ctx.shadowColor = 'rgba(255,190,80,0.8)'; ctx.shadowBlur = cell * 0.35;
+                // 바깥 큰 톱니바퀴(링 기어)
+                gearPath(0, 0, rRoot, rTip, 28, ang); ctx.moveTo(rHole, 0); ctx.arc(0, 0, rHole, 0, Math.PI * 2, true);
+                const g = ctx.createLinearGradient(-rTip, -rTip, rTip, rTip); g.addColorStop(0, 'rgba(255,214,120,0.85)'); g.addColorStop(0.5, 'rgba(190,130,50,0.8)'); g.addColorStop(1, 'rgba(255,200,100,0.85)');
+                ctx.fillStyle = g; ctx.fill('evenodd'); ctx.shadowBlur = 0;
+                ctx.lineWidth = Math.max(1.5, cell * 0.04); ctx.strokeStyle = 'rgba(90,50,10,0.9)'; ctx.stroke();
+                // 안쪽 레일 + 스포크
+                ctx.beginPath(); ctx.arc(0, 0, rHole, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(255,230,160,0.9)'; ctx.lineWidth = cell * 0.05; ctx.stroke();
+                ctx.strokeStyle = 'rgba(210,150,60,0.55)'; ctx.lineWidth = cell * 0.12;
+                for (let i = 0; i < 8; i++) { const sa = ang + i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(Math.cos(sa) * cell * 0.7, Math.sin(sa) * cell * 0.7); ctx.lineTo(Math.cos(sa) * rHole, Math.sin(sa) * rHole); ctx.stroke(); }
+                // 중앙 작은 톱니바퀴(반대 방향 회전)
+                gearPath(0, 0, cell * 0.62, cell * 0.85, 12, -ang * 2.2); ctx.moveTo(cell * 0.28, 0); ctx.arc(0, 0, cell * 0.28, 0, Math.PI * 2, true);
+                ctx.fillStyle = 'rgba(255,215,130,0.85)'; ctx.fill('evenodd'); ctx.strokeStyle = 'rgba(90,50,10,0.9)'; ctx.lineWidth = Math.max(1.5, cell * 0.03); ctx.stroke();
+                ctx.restore();
+            }
+
+            // 체크 경로(공격 기물 -> 킹)를 점선 화살표로 그려 주는 궤적
+            function trail(pts, color, dur) { trails.push({ pts, color, dur, t: 0 }); }
+            function drawTrail(o) {
+                const prog = Math.min(1, o.t / 0.7), a = Math.min(1, (o.dur - o.t) / 0.4);
+                if (a <= 0 || o.pts.length < 2) return;
+                const seg = [], tot = o.pts.slice(1).reduce((acc, q, i) => { const d = Math.hypot(q.x - o.pts[i].x, q.y - o.pts[i].y); seg.push(d); return acc + d; }, 0);
+                let remain = tot * prog; ctx.save(); ctx.globalAlpha = a; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                ctx.strokeStyle = 'rgb(' + rgb(o.color) + ')'; ctx.shadowColor = 'rgb(' + rgb(o.color) + ')'; ctx.shadowBlur = 12;
+                ctx.lineWidth = Math.max(3, cell * 0.09); ctx.setLineDash([cell * 0.22, cell * 0.13]); ctx.lineDashOffset = -o.t * cell * 1.4;
+                ctx.beginPath(); ctx.moveTo(o.pts[0].x, o.pts[0].y);
+                let ex = o.pts[0].x, ey = o.pts[0].y, ang = 0;
+                for (let i = 0; i < seg.length && remain > 0; i++) {
+                    const f = Math.min(1, remain / (seg[i] || 1)), A = o.pts[i], B = o.pts[i + 1];
+                    ex = A.x + (B.x - A.x) * f; ey = A.y + (B.y - A.y) * f; ang = Math.atan2(B.y - A.y, B.x - A.x); ctx.lineTo(ex, ey); remain -= seg[i];
+                }
+                ctx.stroke(); ctx.setLineDash([]); ctx.shadowBlur = 0;
+                if (prog >= 1) {   // 화살촉
+                    const h = cell * 0.3; ctx.fillStyle = 'rgb(' + rgb(o.color) + ')'; ctx.beginPath();
+                    ctx.moveTo(ex, ey); ctx.lineTo(ex - Math.cos(ang - 0.5) * h, ey - Math.sin(ang - 0.5) * h); ctx.lineTo(ex - Math.cos(ang + 0.5) * h, ey - Math.sin(ang + 0.5) * h); ctx.closePath(); ctx.fill();
+                }
+                ctx.restore();
+            }
             function frame(now) {
                 const dt = Math.min(0.05, (now - last) / 1000); last = now;
                 ctx.clearRect(0, 0, W, H);
@@ -2363,7 +2509,7 @@
                 waves.forEach(drawWaveBody);
                 for (const p of parts) { if (p.kind === 'smoke') drawSmoke(p); else if (p.kind === 'shard') drawShard(p); }
                 ctx.globalCompositeOperation = 'lighter';
-                beams.forEach(drawBeam); rays.forEach(drawRays); waves.forEach(drawWaveFoam); marks.forEach(drawMark); flashes.forEach(drawFlash); rings.forEach(drawRing); bolts.forEach(drawBolt); slashes.forEach(drawSlash);
+                wheels.forEach(drawWheel); beams.forEach(drawBeam); rays.forEach(drawRays); waves.forEach(drawWaveFoam); marks.forEach(drawMark); flashes.forEach(drawFlash); rings.forEach(drawRing); bolts.forEach(drawBolt); slashes.forEach(drawSlash); trails.forEach(drawTrail); charges.forEach(drawCharge);
                 for (const p of parts) { if (p.kind === 'glow') drawGlow(p); else if (p.kind === 'spark') drawSpark(p); }
                 ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
                 let alive = 0;
@@ -2373,7 +2519,7 @@
                 }
                 if (alive) requestAnimationFrame(frame); else { running = false; ctx.clearRect(0, 0, W, H); }
             }
-            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate };
+            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel };
         })();
 
         function spawnFloatingText(sq, text) {
@@ -2423,8 +2569,8 @@
             '독구름': 'poison', '네크로맨서': 'summon', '축복': 'summon', '징집': 'summon', '숲의 망령': 'summon', '아기는 어떻게 태어나?': 'summon', '차원 장벽': 'summon',
             '저주': 'curse', '마인드 컨트롤': 'curse', '광기': 'curse', '자아 분열': 'curse', '암전': 'curse',
             '빛의 수호': 'shield', '여신의 가호': 'shield', '덩굴': 'bind',
-            '혼란': 'move', '강제 이주': 'move', '그림자 교체': 'move', '파도': 'move', '진군 명령': 'move',
-            '기사 서임': 'upgrade', '프로모션': 'upgrade', '캐슬링+': 'upgrade', '잭팟': 'upgrade'
+            '혼란': 'move', '강제 이주': 'move', '그림자 교체': 'move', '파도': 'move', '진군 명령': 'move', '운명의 수레바퀴': 'move',
+            '기사 서임': 'upgrade', '프로모션': 'upgrade', '캐슬링+': 'upgrade', '나이트 클럽': 'upgrade', '잭팟': 'upgrade'
         };
         const KIND_COLOR = {
             damage: [255, 80, 70], poison: [110, 230, 120], summon: [110, 255, 170], curse: [190, 110, 255],
@@ -2432,7 +2578,7 @@
         };
         const AUG_STAGGER = { '신의 심판': 60, '벼락': 140, '흑사': 70 };
         const AUG_SCALE = { '신성한 폭발': 1.35 };
-        const AUG_NO_LEAD = new Set(['파도', '진군 명령']);
+        const AUG_NO_LEAD = new Set(['파도', '진군 명령', '운명의 수레바퀴']);
         const WAVE_TRAVEL_SEC = 1.15; // FX 엔진의 WAVE_TRAVEL과 같은 값
 
         function highlightAffected(squares, color, delayOf) {
@@ -2449,7 +2595,7 @@
         // 반환값: 락온 연출에 쓴 대기 시간(ms). 호출한 쪽은 다음 단계 대기 시간에 더해준다.
         function playAugmentVisuals(a) {
             const t = a.t || [], kind = AUG_KIND[a.name] || 'damage', color = KIND_COLOR[kind];
-            const isWave = a.globalVfx === 'vfx-global-wave', slides = isWave || a.name === '진군 명령';
+            const isWave = a.globalVfx === 'vfx-global-wave', isMarch = a.name === '진군 명령', isWheel = a.name === '운명의 수레바퀴', slides = isWave || isMarch || isWheel;
             const lead = (!AUG_NO_LEAD.has(a.name) && t.length && !reduceMotion) ? 520 : 0;
             const toRank = a.fxArg === 'b' ? 8 : 1;
             // 파도 앞면이 해당 행을 지나가는 시각(초)
@@ -2469,6 +2615,20 @@
                         el.style.transition = `translate 0.5s cubic-bezier(.2,.8,.2,1) ${d.toFixed(2)}s, transform 0.18s ease-out, opacity 0.18s ease-out`;
                     });
                     setTimeout(() => pieceEls.forEach(el => { el.style.transition = ''; }), 2400);
+                }
+                if (isMarch) {   // 돌진: 뒤쪽 폰부터 순차로 빠르게 가속하며 전진
+                    const mv = a.fxMoves || [];
+                    mv.forEach((m, i) => {
+                        const d = i * 0.045;
+                        pieceEls.forEach(el => { if (el.dataset.square === m.from) el.style.transition = `translate 0.32s cubic-bezier(.7,0,.9,.5) ${d.toFixed(3)}s, transform 0.18s ease-out, opacity 0.18s ease-out`; });
+                        FX.charge(m.from, m.to, d);
+                    });
+                    setTimeout(() => pieceEls.forEach(el => { el.style.transition = ''; }), 1500);
+                }
+                if (isWheel) {   // 톱니바퀴 회전 속도에 맞춰 기물이 천천히 가속→감속하며 이동
+                    pieceEls.forEach(el => { if (el.dataset.square) el.style.transition = 'translate 1.1s cubic-bezier(.65,0,.35,1), transform 0.18s ease-out, opacity 0.18s ease-out'; });
+                    FX.wheel(1.1, 1.7, Math.PI / 3);
+                    setTimeout(() => pieceEls.forEach(el => { el.style.transition = ''; }), 1700);
                 }
                 drawPieces(true); updateCheckStatus();
                 (a.floats || []).forEach(f => { if (isWave) setTimeout(() => spawnFloatingText(f.sq, f.text), rowSec(f.sq) * 1000); else spawnFloatingText(f.sq, f.text); });
@@ -2525,6 +2685,7 @@
             }
 
             const reveal = () => {
+                const mb0 = document.getElementById('mate-banner'); if (mb0) mb0.style.display = 'none';
                 if(!game.is_game_over) return;   // 그 사이 새 게임으로 초기화됐다면 표시하지 않음
                 previousMove = null;
                 updatePreviousMoveHighlights();
@@ -2538,10 +2699,23 @@
             };
 
             if(delay > 0) {
-                if(opts.fx === 'checkmate') FX.checkmate(opts.fxSq); else if(opts.fx === 'stalemate') FX.stalemate(opts.fxSq);
+                if(opts.fx === 'checkmate') { FX.checkmate(opts.fxSq, opts.fxCheckers || []); } else if(opts.fx === 'stalemate') FX.stalemate(opts.fxSq);
                 if(opts.fx) playSFX(opts.fx === 'checkmate' ? 'check' : 'message');
                 clearTimeout(endRevealTimer); endRevealTimer = setTimeout(reveal, delay);
             } else reveal();
+        }
+
+        // 체크메이트 이유 설명: 공격 기물 목록 + 피할 수 없는 사유
+        function describeCheckmate(color) {
+            const kSq = findPieces(color, 'k')[0], checkers = findCheckers(color), N = { p: '폰', n: '나이트', b: '비숍', r: '룩', q: '퀸', k: '킹' }, cn = c => c === 'w' ? '백' : '흑';
+            const names = checkers.map(sq => { const p = game.get(sq); return `${cn(p.color)} ${N[p.type]}(${sq})`; });
+            const lines = [];
+            if (names.length) lines.push(`공격 기물: ${names.join(', ')} → ${cn(color)} 킹(${kSq})`);
+            if (checkers.length > 1) lines.push('두 기물이 동시에 공격(더블 체크)해서 한 수로 막을 수 없습니다.');
+            else lines.push('킹이 피할 칸이 없고, 공격 기물을 잡거나 막을 수도 없습니다.');
+            const kp = game.get(kSq); if (kp && rootedPieces[kp.uid] > 0) lines.push('킹이 속박되어 움직일 수 없습니다.');
+            if (checkers.some(sq => invinciblePieces[game.get(sq).uid] > 0)) lines.push('공격 기물이 무적 상태라 잡을 수 없습니다.');
+            return { lines, checkers };
         }
 
         function updateCheckStatus() {
@@ -2556,9 +2730,9 @@
             if (game.in_checkmate()) {
                 const kSq = findPieces(game.turn(), 'k')[0];
                 if (kSq) squareEls.get(kSq).classList.add('in-check');
-                showEndScreen(game.turn() === myColor ? '패배' : '승리', "체크메이트!", { delay: 1500, fx: 'checkmate', fxSq: kSq });
+                showEndScreen(game.turn() === myColor ? '패배' : '승리', "체크메이트!", { delay: 2500, fx: 'checkmate', fxSq: kSq, fxCheckers: findCheckers(game.turn()) });
             }
-            else if (game.in_draw()) { showEndScreen("무승부", "스테일메이트.", { delay: 1500, fx: 'stalemate', fxSq: findPieces(game.turn(), 'k')[0] }); }
+            else if (game.in_draw()) { showEndScreen("무승부", "스테일메이트.", { delay: 2500, fx: 'stalemate', fxSq: findPieces(game.turn(), 'k')[0] }); }
             else {
                 // 이동뿐 아니라 증강·벽 소멸 등으로 생긴 체크도 표시하기 위해 양쪽 킹을 모두 검사한다
                 const checked = ['w', 'b'].filter(c => game.in_check(c));
@@ -2661,7 +2835,7 @@
             const poisonKilled = enforcePoison();
             const babyBorn = processBaby();
             
-            ['w', 'b'].forEach(c => { if (reversedPawns[c] > 0) reversedPawns[c]--; });
+            ['w', 'b'].forEach(c => { if (reversedPawns[c] > 0) { reversedPawns[c]--; if (reversedPawns[c] <= 0) reversedUids[c] = {}; } });
 
             activeWalls.forEach(w => w.duration--);
             activeWalls = activeWalls.filter(w => {
@@ -2819,7 +2993,15 @@
             return born;
         }
         const isFogOn = () => !!(blackout[myColor] > 0 && isGameStarted);
+        function updateBlackoutBadge() {
+            const el = document.getElementById('blackout-badge'); if (!el) return;
+            const e = myColor === 'w' ? 'b' : 'w', turns = n => Math.ceil(n / 2), parts = [];
+            if (isGameStarted && blackout[myColor] > 0) parts.push(`💡 암전 중 · ${turns(blackout[myColor])}수 남음`);
+            if (isGameStarted && blackout[e] > 0) parts.push(`💡 적 암전 · ${turns(blackout[e])}수 남음`);
+            el.innerText = parts.join('  |  '); el.style.display = parts.length ? 'block' : 'none';
+        }
         function updateFog() {
+            updateBlackoutBadge();
             const on = isFogOn(), lit = new Set(on ? findPieces(myColor) : []);
             squareList.forEach(el => el.classList.toggle('fog', on && !lit.has(el.dataset.square)));
             pieceEls.forEach(el => el.classList.toggle('piece-hidden', on && el.dataset.color !== myColor));
@@ -2851,16 +3033,18 @@
         const pieceValue = { q: 9, r: 5, b: 3, n: 3, p: 1, k: 0 };
 
         function withSearchState(searchState, callback) {
-            const saved = { rootedPieces, invinciblePieces, activeWalls, reversedPawns };
+            const saved = { rootedPieces, invinciblePieces, activeWalls, reversedPawns, reversedUids };
             rootedPieces = searchState.rootedPieces;
             invinciblePieces = searchState.invinciblePieces;
             activeWalls = searchState.activeWalls;
             reversedPawns = searchState.reversedPawns;
+            reversedUids = searchState.reversedUids;
             try { return callback(); } finally {
                 rootedPieces = saved.rootedPieces;
                 invinciblePieces = saved.invinciblePieces;
                 activeWalls = saved.activeWalls;
                 reversedPawns = saved.reversedPawns;
+                reversedUids = saved.reversedUids;
             }
         }
 
@@ -2953,7 +3137,8 @@
                 rootedPieces: { ...rootedPieces },
                 invinciblePieces: { ...invinciblePieces },
                 activeWalls: activeWalls.map(w => ({ ...w })),
-                reversedPawns: { ...reversedPawns }
+                reversedPawns: { ...reversedPawns },
+                reversedUids: reversedUids
             };
             const moves = game.moves();
             if (moves.length === 0) return null;
@@ -3000,7 +3185,7 @@
                   return { t: squares, vfx: 'vfx-void', msg: '☠️ 맹독 지대가 형성되었습니다!' }; } },
             { name: '암살', icon: '🗡️', desc: '가치가 가장 낮은 적 기물 {2개}를 [파괴]합니다.', globalVfx: 'vfx-global-assassinate', isKillType: true, condition: (m, e) => findVulnerable(e).length > 1,
               apply: (m, e) => { const targets = findVulnerable(e).sort((a, b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]).slice(0, 2); targets.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '🗡️'); }); return { t: targets, vfx: 'vfx-explosion', msg: '🗡️ 어둠 속 암살자가 습격했습니다!' }; } },
-            { name: '연계 분쇄', icon: '⛓️', weight: 50, desc: '킹이 {체크} 상태일 때, 킹을 위협하는 적 기물을 역으로 즉시 [파괴]합니다.', globalVfx: 'vfx-global-explosion', isKillType: true,
+            { name: '연계 분쇄', icon: '⛓️', weight: 3, desc: '킹이 {체크} 상태일 때, 킹을 위협하는 적 기물을 역으로 즉시 [파괴]합니다.', globalVfx: 'vfx-global-explosion', isKillType: true,
               condition: (m, e) => game.in_check(m) && findCheckers(m).length > 0,
               apply: (m, e) => { const sqs = findCheckers(m); if (!sqs.length) return { t: [], vfx: '', msg: '위협하는 적 기물을 찾지 못했습니다.' };
                   sqs.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '⛓️'); });
@@ -3016,8 +3201,9 @@
               apply: (m, e) => { const kingSq = findPieces(m, 'k')[0], hit = [];
                   neighborSquares(kingSq).forEach(sq => { const p = game.get(sq); if (p && p.color === e && p.type !== 'k') { game.remove(sq); hit.push(sq); spawnFloatingText(sq, '💥'); } });
                   return { t: hit, vfx: 'vfx-explosion', origin: kingSq, msg: hit.length > 0 ? '💥 킹의 주변을 휩쓸었습니다!' : '💥 폭발이 빗나갔습니다.' }; } },
-            { name: '징집', icon: '🪖', desc: '무작위 빈칸 {3곳}에 아군 폰을 [소환]합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'p').length >= 3,
-              apply: (m, e) => { const sqs = shuffle(getSafeEmptySquares(m, 'p')).slice(0, 3); sqs.forEach(sq => { game.put({ type: 'p', color: m }, sq); spawnFloatingText(sq, '🪖'); }); return { t: sqs, vfx: 'vfx-heal', msg: '🪖 폰들이 징집되었습니다!' }; } },
+            { name: '징집', icon: '🪖', desc: '무작위 빈칸 {2~3곳}에 아군 폰을 [소환]합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'p').length >= 2,
+              apply: (m, e) => { const sqs = shuffle(getSafeEmptySquares(m, 'p')).slice(0, 2 + Math.floor(Math.random() * 2)); sqs.forEach(sq => { game.put({ type: 'p', color: m }, sq); spawnFloatingText(sq, '🪖'); });
+                  return { t: sqs, vfx: 'vfx-heal', msg: `🪖 폰 ${sqs.length}개가 징집되었습니다!` }; } },
             { name: '축복', icon: '🕊️', desc: '안전한 무작위 빈칸에 아군 비숍 {하나}를 [소환]합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'b').length > 0,
               apply: (m, e) => { const sq = shuffle(getSafeEmptySquares(m, 'b'))[0]; game.put({ type: 'b', color: m }, sq); spawnFloatingText(sq, '✨'); return { t: [sq], vfx: 'vfx-heal', msg: '🕊️ 축복으로 비숍이 합류했습니다!' }; } },
             { name: '숲의 망령', icon: '🌲', desc: '무작위 빈칸에 아군 나이트 {하나}를 [소환]합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'n').length > 0,
@@ -3027,19 +3213,24 @@
             { name: '프로모션', icon: '👑', desc: '무작위 아군 폰 {하나}를 상위 기물로 즉시 [프로모션]합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => findPieces(m, 'p').length > 0,
               apply: (m, e) => { const tg = shuffle(findPieces(m, 'p'))[0], roll = Math.random(), type = roll < 0.30 ? 'b' : roll < 0.60 ? 'n' : roll < 0.85 ? 'r' : 'q';
                   game.remove(tg); game.put({ type: type, color: m }, tg); spawnFloatingText(tg, '👑'); return { t: [tg], vfx: 'vfx-lightning', msg: type === 'q' ? '👑 폰이 퀸으로 프로모션했습니다!' : '👑 폰이 상위 기물로 프로모션했습니다!' }; } },
-            { name: '캐슬링+', icon: '🏰', desc: '아군 킹 주변 {8칸}에 있는 폰을 최대 모두 룩으로 [승급]시킵니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+            { name: '캐슬링+', icon: '🏰', desc: '아군 킹 주변 {8칸}에 있는 폰을 최대 {2개}까지 룩으로 [승급]시킵니다.', globalVfx: 'vfx-global-heal', isKillType: false,
               condition: (m) => { const k = findPieces(m, 'k')[0]; return !!k && neighborSquares(k).some(sq => { const p = game.get(sq); return p && p.color === m && p.type === 'p'; }); },
-              apply: (m, e) => { const kingSq = findPieces(m, 'k')[0], adj = neighborSquares(kingSq).filter(sq => { const p = game.get(sq); return p && p.color === m && p.type === 'p'; });
+              apply: (m, e) => { const kingSq = findPieces(m, 'k')[0], adj = shuffle(neighborSquares(kingSq).filter(sq => { const p = game.get(sq); return p && p.color === m && p.type === 'p'; })).slice(0, 2);
                   adj.forEach(sq => { game.remove(sq); game.put({ type: 'r', color: m }, sq); spawnFloatingText(sq, '🏰'); }); return { t: adj, vfx: 'vfx-heal', origin: kingSq, msg: `🏰 폰 ${adj.length}개가 룩으로 승급했습니다!` }; } },
+            { name: '나이트 클럽', icon: '🕺', weight: 2, desc: '아군의 {모든 비숍과 룩}을 [나이트]로 바꿉니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+              condition: (m) => findPieces(m).some(sq => ['b', 'r'].includes(game.get(sq).type)),
+              apply: (m, e) => { const tgts = findPieces(m).filter(sq => ['b', 'r'].includes(game.get(sq).type));
+                  tgts.forEach(sq => { game.remove(sq); game.put({ type: 'n', color: m }, sq); spawnFloatingText(sq, '🐴'); });
+                  return { t: tgts, vfx: 'vfx-heal', msg: `🕺 나이트 클럽이 열렸습니다! ${tgts.length}개의 기물이 나이트가 되었습니다.` }; } },
             { name: '진군 명령', icon: '🛡️', desc: '모든 아군 폰이 일제히 {두 칸씩} [전진]합니다. 이동할 칸이 막혀 있거나 보드 밖이라면 해당 기물은 이동하지 않습니다.', globalVfx: null, isKillType: false, condition: (m) => canMarch(m),
-              apply: (m, e) => { const dir = m === 'w' ? 1 : -1, promoRank = m === 'w' ? 8 : 1, moved = [], wasInCheck = game.in_check(m);
+              apply: (m, e) => { const dir = m === 'w' ? 1 : -1, promoRank = m === 'w' ? 8 : 1, moved = [], fxMoves = [], wasInCheck = game.in_check(m);
                   const pawns = findPieces(m, 'p').sort((a, b) => (parseInt(b[1]) - parseInt(a[1])) * dir);
                   pawns.forEach(sq => { const f = sq[0], r = parseInt(sq[1]), r2 = r + 2 * dir; if (r2 < 1 || r2 > 8 || r2 === promoRank) return;
                       const s2 = f + r2; if (game.get(f + (r + dir)) || game.get(s2)) return;
                       const p = game.get(sq); game.remove(sq); game.put(p, s2);
                       if (!wasInCheck && game.in_check(m)) { game.remove(s2); game.put(p, sq); return; }
-                      moved.push(s2); });
-                  return { t: moved, vfx: '', msg: '🛡️ 폰들이 일제히 전진했습니다!' }; } },
+                      moved.push(s2); fxMoves.push({ from: sq, to: s2 }); });
+                  return { t: moved, vfx: '', fxMoves, msg: '🛡️ 폰들이 일제히 전진했습니다!' }; } },
             { name: '그림자 교체', icon: '🥷', desc: '아군 킹과 무작위 아군 기물 {하나}의 위치를 서로 [바꿉니다].', globalVfx: 'vfx-global-void', isKillType: false, condition: (m) => !!pickShadowTarget(m),
               apply: (m, e) => { const kingSq = findPieces(m, 'k')[0], tg = pickShadowTarget(m); if (!tg) return { t: [], vfx: '', msg: '교체할 대상을 찾지 못했습니다.' };
                   const kInfo = game.get(kingSq), aInfo = game.get(tg); game.remove(kingSq); game.remove(tg); game.put(aInfo, kingSq); game.put(kInfo, tg);
@@ -3080,7 +3271,7 @@
               condition: () => getEmptySquares().length > 0,
               apply: (m, e, target) => { const sq = (target && !game.get(target)) ? target : shuffle(getEmptySquares())[0]; game.put({ type: 'wall', color: 'none' }, sq); activeWalls.push({ sq: sq, duration: 10 }); spawnFloatingText(sq, '🧱'); return { t: [sq], vfx: 'vfx-heal', msg: '🧱 차원 장벽이 생성되었습니다!' }; } },
             { name: '자아 분열', icon: '😵‍💫', desc: '다음 {3수} 동안 적 폰들이 방향을 잃어 [반대 방향]으로 이동합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(e, 'p').length > 0,
-              apply: (m, e) => { reversedPawns[e] = 6; return { t: findPieces(e, 'p'), vfx: 'vfx-void', msg: '😵‍💫 적 폰들이 방향 감각을 잃었습니다!' }; } },
+              apply: (m, e) => { reversedPawns[e] = 6; reversedUids[e] = {}; findPieces(e, 'p').forEach(sq => { reversedUids[e][game.get(sq).uid] = true; }); return { t: findPieces(e, 'p'), vfx: 'vfx-void', msg: '😵‍💫 적 폰들이 방향 감각을 잃었습니다!' }; } },
             { name: '잭팟', icon: '🎰', desc: '이제부터 자신에게 등장하는 모든 증강 선택지가 {1개} [증가]합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => jackpotBonus[m] < 2,
               apply: (m, e) => { jackpotBonus[m] = (jackpotBonus[m] || 0) + 1; const k = findPieces(m, 'k')[0]; if (k) spawnFloatingText(k, '🎰'); return { t: [], vfx: '', origin: k || null, msg: '🎰 잭팟! 앞으로 증강 선택지가 하나 더 늘어납니다.' }; } },
             { name: '아기는 어떻게 태어나?', icon: '🦢', desc: '{5수} 동안 아군 킹과 퀸에게 [축복]이 적용되며, 두 기물이 인접해 있을 경우 매 수 무작위 빈칸에 새로운 폰을 [생성]합니다. 낮은 확률로 가치가 높은 기물이 등장합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
@@ -3091,17 +3282,42 @@
                   return { t: [k, q], vfx: 'vfx-heal', msg: '🦢 왕과 왕비에게 축복이 내려졌습니다!' }; } },
             { name: '암전', icon: '💡', weight: 1, desc: '{2수} 동안 상대방의 기물들이 차지한 칸을 제외한 모든 칸을 [암전]시켜 시야를 방해합니다.', globalVfx: 'vfx-global-blackout', isKillType: false,
               condition: (m, e) => !(blackout[e] > 0) && !(isBotMode && m === myColor),
-              apply: (m, e) => { blackout[e] = 4; return { t: [], vfx: '', msg: '💡 상대의 시야가 어둠에 잠겼습니다!' }; } }
+              apply: (m, e) => { blackout[e] = 4; return { t: [], vfx: '', msg: '💡 상대의 시야가 어둠에 잠겼습니다!' }; } },
+            { name: '운명의 수레바퀴', icon: '🎡', desc: '체스보드의 [맨 바깥쪽] 칸들에 있는 기물들을 {시계방향}으로 {한 칸씩} [회전]시킵니다. 벽은 움직이지 않고, 폰이 승급 칸에 도착하면 퀸으로 승급합니다.', globalVfx: 'vfx-global-void', isKillType: false, delay: 1500,
+              condition: (m, e) => getWheelRing().some(sq => { const p = game.get(sq); return p && p.type !== 'wall'; }),
+              apply: (m, e) => {
+                  const ring = getWheelRing().filter(sq => { const p = game.get(sq); return !p || p.type !== 'wall'; }), n = ring.length;   // 벽 칸은 건너뜀
+                  const contents = ring.map(sq => game.get(sq) || null); ring.forEach(sq => { if (game.get(sq)) game.remove(sq); });
+                  const moved = [];
+                  contents.forEach((pc, i) => { if (!pc) return; const to = ring[(i + 1) % n]; game.put(pc, to); moved.push(to); });
+                  game.ep_square = null;   // 회전으로 앙파상 가능 칸이 어긋나지 않도록 초기화
+                  moved.forEach(sq => {   // 폰이 승급 칸에 도착하면 퀸으로 승급
+                      const pc = game.get(sq); if (!pc || pc.type !== 'p') return; const rank = parseInt(sq[1]), rev = reversedPawns[pc.color] > 0 && !!reversedUids[pc.color][pc.uid];
+                      const promoRank = (pc.color === 'w') !== rev ? 8 : 1;
+                      if (rank === promoRank) { game.remove(sq); game.put({ ...pc, type: 'q' }, sq); }
+                  });
+                  ['a8', 'h8', 'h1', 'a1'].forEach(sq => spawnFloatingText(sq, '🎡'));
+                  return { t: moved, vfx: 'vfx-lightning', msg: '🎡 운명의 수레바퀴가 돌아갑니다!' }; } }
         ];
+
+        // 가장자리 28칸을 시계방향(a8→h8→h1→a1→a8) 순서로 반환
+        function getWheelRing() {
+            const ring = [], F = 'abcdefgh';
+            for (let c = 0; c < 8; c++) ring.push(F[c] + 8);
+            for (let r = 7; r >= 1; r--) ring.push('h' + r);
+            for (let c = 6; c >= 0; c--) ring.push(F[c] + 1);
+            for (let r = 2; r <= 7; r++) ring.push('a' + r);
+            return ring;
+        }
 
         const AUGMENT_META = {
             '네크로맨서': { category: '소환', risk: '자기 희생' }, '신의 심판': { category: '피해', risk: '비숍 희생' }, '벼락': { category: '피해' },
             '독구름': { category: '피해' }, '연계 분쇄': { category: '피해' }, '암살': { category: '피해' }, '흑사': { category: '피해' }, '복수': { category: '피해' }, '신성한 폭발': { category: '피해' },
             '징집': { category: '소환' }, '축복': { category: '소환' }, '숲의 망령': { category: '소환' }, '아기는 어떻게 태어나?': { category: '소환' },
             '기사 서임': { category: '유틸' }, '프로모션': { category: '유틸' }, '캐슬링+': { category: '유틸' }, '진군 명령': { category: '유틸' }, '그림자 교체': { category: '유틸' },
-            '저주': { category: '유틸' }, '혼란': { category: '유틸' }, '광기': { category: '유틸', risk: '대상 지정' }, '강제 이주': { category: '유틸' }, '파도': { category: '유틸' },
+            '저주': { category: '유틸' }, '혼란': { category: '유틸' }, '광기': { category: '유틸', risk: '대상 지정' }, '강제 이주': { category: '유틸' }, '파도': { category: '유틸' }, '운명의 수레바퀴': { category: '유틸' },
             '덩굴': { category: '유틸' }, '빛의 수호': { category: '유틸' }, '여신의 가호': { category: '유틸' }, '마인드 컨트롤': { category: '유틸' },
-            '차원 장벽': { category: '유틸', risk: '위치 지정' }, '자아 분열': { category: '유틸' }, '잭팟': { category: '유틸' }, '암전': { category: '유틸' }
+            '차원 장벽': { category: '유틸', risk: '위치 지정' }, '자아 분열': { category: '유틸' }, '나이트 클럽': { category: '유틸' }, '잭팟': { category: '유틸' }, '암전': { category: '유틸' }
         };
 
         function getAugmentCategoryLabel(aug) {
@@ -3314,10 +3530,10 @@
                 pushGameAction({
                     type: 'augment_sync', name: selectedAug.name, state: serializeGameState(),
                     globalVfx: selectedAug.globalVfx || null,
-                    t: res.t || [], vfx: res.vfx || '', msg: res.msg || '', delay: selectedAug.delay || 1200, floats: floats, fxArg: res.fxArg || null, origin: res.origin || null
+                    t: res.t || [], vfx: res.vfx || '', msg: res.msg || '', delay: selectedAug.delay || 1200, floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null
                 });
 
-                const lead = playAugmentVisuals({ name: selectedAug.name, globalVfx: selectedAug.globalVfx, t: res.t, vfx: res.vfx, floats: floats, fxArg: res.fxArg, origin: res.origin });
+                const lead = playAugmentVisuals({ name: selectedAug.name, globalVfx: selectedAug.globalVfx, t: res.t, vfx: res.vfx, floats: floats, fxArg: res.fxArg, origin: res.origin, fxMoves: res.fxMoves });
                 playSFX('augment');
                 showToast(res.msg, "var(--primary)", 4000);
                 persistRoomGameState().catch(() => {});
