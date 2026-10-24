@@ -499,6 +499,39 @@
         body.replay-mode #replay-bar { display: flex; }
         body.replay-mode #game-controls, body.replay-mode #btn-resign, body.replay-mode .chat-bubble, body.replay-mode #blackout-badge { display: none !important; }
         #replay-banner { display: none; position: fixed; top: 16%; left: 50%; translate: -50% 0; z-index: 340; padding: 8px 18px; border-radius: 999px; background: rgba(15,15,22,0.88); border: 1px solid rgba(255,255,255,0.25); color: #fff; font-weight: 800; font-size: 1.05rem; pointer-events: none; white-space: nowrap; }
+
+        /* 경기 리플레이 / 기록 보기 */
+        #replay-bar { display: none; width: 100%; max-width: 420px; box-sizing: border-box; padding: 8px 10px 10px; margin-top: 5px; flex-direction: column; gap: 8px; }
+        #replay-info { text-align: center; font-weight: 700; font-size: 0.92rem; min-height: 1.3em; color: var(--text-color); }
+        #replay-count { color: var(--primary); margin-right: 8px; }
+        #replay-seek { width: 100%; accent-color: var(--primary); margin: 0; }
+        .replay-row { display: flex; gap: 6px; }
+        .replay-row button { flex: 1; min-height: 44px; border: none; border-radius: 12px; background: #2b3445; color: #fff; font-size: 1.05rem; font-weight: 700; cursor: pointer; padding: 0; }
+        .replay-row button:active { transform: scale(0.95); }
+        .replay-row #rp-exit { flex: 1.8; background: var(--primary); font-size: 0.9rem; }
+        body.replay-mode #replay-bar { display: flex; }
+        body.replay-mode:not(.live-review) #game-controls, body.replay-mode:not(.live-review) #btn-resign, body.replay-mode:not(.live-review) .chat-bubble, body.replay-mode:not(.live-review) #blackout-badge { display: none !important; }
+        #replay-banner { display: none; position: fixed; top: 16%; left: 50%; translate: -50% 0; z-index: 340; padding: 8px 18px; border-radius: 999px; background: rgba(15,15,22,0.88); border: 1px solid rgba(255,255,255,0.25); color: #fff; font-weight: 800; font-size: 1.05rem; pointer-events: none; white-space: nowrap; }
+        #history-strip { display: none; width: 100%; max-width: 420px; box-sizing: border-box; height: 30px; margin: 2px 0 4px; align-items: center; justify-content: center; gap: 8px; }
+        #history-strip button { width: 44px; height: 28px; border: none; border-radius: 8px; background: var(--input-bg); color: var(--text-color); font-size: 0.8rem; cursor: pointer; padding: 0; }
+        #history-strip button:disabled { opacity: 0.3; }
+        #history-strip button:active { transform: scale(0.94); }
+        #lr-label { flex: 1; text-align: center; font-size: 0.76rem; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        body.live-review #lr-label { color: var(--primary); font-weight: 700; }
+        body.live-review #replay-bar { display: none !important; }
+        body.replay-mode:not(.live-review) #history-strip { display: none !important; }
+        #hist-list { max-height: 55vh; overflow-y: auto; margin-bottom: 12px; }
+        .hist-empty { color: #888; padding: 24px 0; font-size: 0.95rem; }
+        .hist-row { display: flex; align-items: center; gap: 10px; padding: 10px; margin-bottom: 8px; border: 1px solid var(--panel-border); border-radius: 10px; background: var(--input-bg); text-align: left; }
+        .hist-badge { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #fff; flex-shrink: 0; }
+        .hist-badge.w { background: #2ecc71; } .hist-badge.l { background: #ff4757; } .hist-badge.d { background: #f1c40f; color: #222; }
+        .hist-main { flex: 1; min-width: 0; }
+        .hist-title { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .hist-sub { font-size: 0.74rem; color: #888; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .hist-btn { padding: 8px 12px; border: none; border-radius: 8px; background: var(--primary); color: #fff; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+        /* 길게 눌러 판을 볼 때 텍스트/이미지가 선택·복사되지 않게 (입력창은 제외) */
+        html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+        input, textarea { -webkit-user-select: text; user-select: text; }
     </style>
 </head>
 <body>
@@ -545,6 +578,11 @@
         <div id="chat-bubble-mine" class="chat-bubble mine"></div>
     </div>
 
+    <div id="history-strip">
+        <button id="lr-prev" type="button" aria-label="이전 수">◀</button>
+        <div id="lr-label"></div>
+        <button id="lr-next" type="button" aria-label="다음 수" disabled>▶</button>
+    </div>
     <div id="chat-spacer"></div>
     <div id="game-controls">
         <div id="emote-popup">
@@ -562,10 +600,10 @@
     </div>
 
     <div id="replay-bar">
-        <div id="replay-info"></div>
+        <div id="replay-info"><span id="replay-count"></span><span id="replay-text"></span></div>
         <input type="range" id="replay-seek" min="0" max="0" value="0">
         <div class="replay-row">
-            <button id="rp-first" type="button">⏮</button><button id="rp-prev" type="button">◀</button><button id="rp-play" type="button">⏸</button><button id="rp-next" type="button">▶</button><button id="rp-last" type="button">⏭</button><button id="rp-speed" type="button">1x</button><button id="rp-exit" type="button">결과로</button>
+            <button id="rp-first" type="button">⏮</button><button id="rp-prev" type="button">◀</button><button id="rp-play" type="button">⏸</button><button id="rp-next" type="button">▶</button><button id="rp-last" type="button">⏭</button><button id="rp-speed" type="button">1x</button><button id="rp-exit" type="button">결과</button>
         </div>
     </div>
     <div id="replay-banner"></div>
@@ -601,6 +639,7 @@
             <div style="font-size: 3.5rem; margin-bottom: 5px; animation: pop 0.8s;">♞</div>
             <h1 style="font-size: 2.2rem; margin: 0 0 20px 0; color: var(--text-color); font-weight: 800; letter-spacing: 1px; animation: pop 0.8s;">증강 : 체스</h1>
             <button id="btn-play-main" style="background: var(--primary); color: #fff; border: none; padding: 15px 60px; font-size: 1.4rem; font-weight: 900; letter-spacing: 2px; border-radius: 40px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s; animation: pop 1s;">PLAY</button>
+            <button id="btn-open-history" class="lobby-btn secondary" style="width: auto; padding: 10px 26px; margin-top: 18px; background: transparent; border: 1px solid var(--panel-border); color: var(--text-color);">📜 최근 대전 기록</button>
         </div>
     </div>
 
@@ -621,6 +660,14 @@
             </div>
             <p id="lobby-msg" style="color: var(--primary); font-weight: bold; margin-top: 15px; min-height: 1.2rem; font-size: 0.95rem;"></p>
             <button id="btn-back-main" style="margin-top: 15px; background: none; border: none; color: #888; text-decoration: underline; cursor: pointer; font-size: 1rem;">← 뒤로가기</button>
+        </div>
+    </div>
+
+    <div id="history-overlay" class="overlay" style="display: none; z-index: 150;">
+        <div class="lobby-box">
+            <h2>최근 대전 기록</h2>
+            <div id="hist-list"></div>
+            <button id="btn-close-history" class="lobby-btn secondary">닫기</button>
         </div>
     </div>
 
@@ -728,6 +775,24 @@
     </div>
 
     <script type="module">
+        // 길게 누를 때 텍스트 선택·컨텍스트 메뉴 방지 (입력창은 제외)
+        const __inField = e => { const t = e.target && (e.target.nodeType === 3 ? e.target.parentElement : e.target); return !!(t && t.closest && t.closest('input, textarea')); };
+        document.addEventListener('selectstart', e => { if (!__inField(e)) e.preventDefault(); });
+        document.addEventListener('contextmenu', e => { if (!__inField(e)) e.preventDefault(); });
+
+        // 리플레이 배속: 재생 중인 증강 연출의 setTimeout 지연(중첩 호출 포함)을 배속만큼 줄이거나 늘린다
+        const __nativeSetTimeout = window.setTimeout.bind(window);
+        let __timeScale = 1;
+        window.setTimeout = function (fn, ms, ...args) {
+            const k = __timeScale;
+            if (typeof fn !== 'function' || k === 1) return __nativeSetTimeout(fn, ms, ...args);
+            return __nativeSetTimeout(() => { const prev = __timeScale; __timeScale = k; try { fn(...args); } finally { __timeScale = prev; } }, (ms || 0) / k);
+        };
+        function applyAnimScale(k) {   // 진행 중인 CSS 애니메이션/트랜지션 속도를 배속에 맞춘다(무한 반복 제외)
+            try { document.getAnimations().forEach(a => { const it = a.effect && a.effect.getComputedTiming().iterations; if (it === Infinity) return; if (a.playbackRate !== k) a.playbackRate = k; }); } catch (e) {}
+        }
+        function scaleAnimsSoon(k) { [0, 60, 200, 500, 1000, 1800].forEach(ms => __nativeSetTimeout(() => applyAnimScale(k), ms)); }
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence, browserPopupRedirectResolver, signInWithRedirect, getRedirectResult, signInAnonymously, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, get, onValue, update, push, remove, onChildAdded, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -756,7 +821,7 @@
         let roomListenerUnsubscribe = null;
         let soundEnabled = true; let soundVolume = 0.8;
         let previousMove = null; let showPreviousMove = true;
-        let replayFrames = [], replayActive = false, replayIdx = 0, replayTimer = null, replayPlaying = false, replaySpeed = 1, replayFinalState = null, replayBannerTimer = null;
+        let replayMode = 'result', replaySavedPrev = null, historySaved = false, lastOppName = '', replayFrames = [], replayActive = false, replayIdx = 0, replayTimer = null, replayPlaying = false, replaySpeed = 1, replayFinalState = null, replayBannerTimer = null;
 
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         document.body.addEventListener('pointerdown', () => { if (audioContext.state === 'suspended') audioContext.resume(); }, { once: true });
@@ -1273,7 +1338,7 @@
         const startBotMode = () => {
             isBotMode = true; myColor = 'w'; isGameStarted = true; statsRecorded = false;
             
-            const botProfile = { name: `컴퓨터 (${botDifficulty})`, icon: "🤖", stats: {w:999, l:0, d:0} };
+            const botProfile = { name: `컴퓨터 (${botDifficulty})`, icon: "🤖", stats: {w:999, l:0, d:0} }; lastOppName = botProfile.name;
             showVsScreen(userProfile, botProfile, () => {
                 playerInfo.innerText = `🤖 봇 대전 [${botDifficulty}] (당신은 백입니다)`;
                 document.body.classList.remove('black-pov');
@@ -1458,7 +1523,7 @@
             };
 
             if (!opts.resume) {
-                showVsScreen(userProfile, oppProfile, startGameUI);
+                lastOppName = oppProfile.name || '상대'; showVsScreen(userProfile, oppProfile, startGameUI);
             } else {
                 startGameUI();
             }
@@ -1477,7 +1542,9 @@
             });
         }
 
+        let replayQueue = [];
         function handleRemoteAction(action) {
+            if (replayActive && replayMode === 'live' && (action.type === 'move' || action.type === 'augment_sync' || action.type === 'resign')) { replayQueue.push(action); return; }   // 기록 보는 동안 상태가 바뀌지 않도록 보관
             if (action.type === 'move') {
                 executeMoveLocal(action.from, action.to, action.promotion);
             } else if (action.type === 'augment_preview') {
@@ -1489,7 +1556,7 @@
             } else if (action.type === 'augment_sync') {
                 document.getElementById('augment-overlay').style.display = 'none';
                 deserializeGameState(action.state); 
-                { const ag = AUGMENT_POOL.find(x => x.name === action.name); recordFrame('augment', { name: action.name, icon: ag ? ag.icon : '✨', t: action.t || [], by: action.by || null }); }
+                { const ag = AUGMENT_POOL.find(x => x.name === action.name); recordFrame('augment', { name: action.name, icon: ag ? ag.icon : '✨', t: action.t || [], by: action.by || null, fx: { globalVfx: action.globalVfx || null, t: action.t || [], vfx: action.vfx || '', floats: action.floats || null, fxArg: action.fxArg || null, origin: action.origin || null, fxMoves: action.fxMoves || null, msg: action.msg || '', delay: action.delay || 1200 } }); }
                 persistRoomGameState(action.state).catch(() => {});
                 showCastText(action.name || "증강", () => {
                     const lead = playAugmentVisuals({ name: action.name, globalVfx: action.globalVfx, t: action.t, vfx: action.vfx, floats: action.floats, fxArg: action.fxArg, origin: action.origin, fxMoves: action.fxMoves });
@@ -1880,7 +1947,7 @@
             isSystemLocked = false; selectedSquare = null; legalMoves = []; selectedAugmentIdx = -1; previousMove = null; drawDots();
             muteShatter = true; drawPieces(false); muteShatter = false; updateProgressBar(); updateTurnIndicator(); updateBoardVisuals(); updateCheckStatus(); updatePreviousMoveHighlights();
             document.querySelectorAll('.floating-text').forEach(e => e.remove());
-            stopReplayUI(); replayFrames = []; recordFrame('start');
+            stopReplayUI(); replayFrames = []; historySaved = false; recordFrame('start');
         }
 
         function updateTurnIndicator() {
@@ -2508,8 +2575,9 @@
                 }
                 ctx.restore();
             }
+            let fxSpeed = 1;
             function frame(now) {
-                const dt = Math.min(0.05, (now - last) / 1000); last = now;
+                const dt = Math.min(0.05, (now - last) / 1000) * fxSpeed; last = now;
                 ctx.clearRect(0, 0, W, H);
                 drawDim();
                 if (dims.length) { ctx.globalCompositeOperation = 'source-over'; dims.forEach(drawDarken); }
@@ -2529,7 +2597,7 @@
                 }
                 if (alive) requestAnimationFrame(frame); else { running = false; ctx.clearRect(0, 0, W, H); }
             }
-            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx };
+            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx, speed: k => { fxSpeed = k; } };
         })();
 
         function spawnFloatingText(sq, text) {
@@ -2701,60 +2769,203 @@
             const f = replayFrames[replayFrames.length - 1];
             if (f && f.kind === 'move' && !replayActive) { try { f.s = trimmedState(); } catch (e) {} }
         }
-        function replayLabel(i) {
-            const f = replayFrames[i], cn = c => c === 'w' ? '백' : c === 'b' ? '흑' : '', head = `${i}/${replayFrames.length - 1}`;
-            if (f.kind === 'move') return `${head} · ${cn(f.by)} ${f.from} → ${f.to}${f.captured ? ' ✕' : ''}`;
-            if (f.kind === 'augment') return `${head} · ${cn(f.by)} ${f.icon || ''} ${f.name}`;
-            return f.kind === 'resume' ? `${head} · 불러온 시점` : `${head} · 시작`;
+        let replayToken = 0, replayStepMs = 0;
+        function replayLabelParts(i) {
+            const f = replayFrames[i], cn = c => c === 'w' ? '백' : c === 'b' ? '흑' : '', count = `${i} / ${replayFrames.length - 1}`;
+            if (f.kind === 'move') return { count, text: `${cn(f.by)} ${f.from} → ${f.to}${f.captured ? ' ✕' : ''}` };
+            if (f.kind === 'augment') return { count, text: `${cn(f.by)} ${f.icon || ''} ${f.name}`.trim() };
+            return { count, text: f.kind === 'resume' ? '불러온 시점' : '경기 시작' };
+        }
+        function replayMarkChecks() {
+            squareList.forEach(sq => sq.classList.remove('in-check'));
+            ['w', 'b'].forEach(c => { try { if (game.in_check(c)) { const k = findPieces(c, 'k')[0]; if (k && squareEls.get(k)) squareEls.get(k).classList.add('in-check'); } } catch (e) {} });
         }
         function replayShow(i, animate) {
             i = Math.max(0, Math.min(replayFrames.length - 1, i)); const f = replayFrames[i]; if (!f) return;
-            replayIdx = i; deserializeGameState(f.s);
-            muteShatter = !animate; drawPieces(animate); muteShatter = false;
-            previousMove = f.kind === 'move' ? { from: f.from, to: f.to } : null; updatePreviousMoveHighlights();
-            squareList.forEach(sq => sq.classList.remove('in-check'));
-            ['w', 'b'].forEach(c => { try { if (game.in_check(c)) { const k = findPieces(c, 'k')[0]; if (k && squareEls.get(k)) squareEls.get(k).classList.add('in-check'); } } catch (e) {} });
-            document.getElementById('replay-info').innerText = replayLabel(i);
+            replayIdx = i; const token = ++replayToken; replayStepMs = 0; const kSpd = replaySpeed; FX.speed(kSpd);
+            const lab = replayLabelParts(i);
+            document.getElementById('replay-count').innerText = lab.count; document.getElementById('replay-text').innerText = lab.text;
             const seek = document.getElementById('replay-seek'); seek.max = replayFrames.length - 1; seek.value = i;
-            const banner = document.getElementById('replay-banner'); clearTimeout(replayBannerTimer);
-            if (animate && f.kind === 'augment') {
-                banner.innerText = `${f.icon || ''} ${f.name}`; banner.style.display = 'block'; replayBannerTimer = setTimeout(() => { banner.style.display = 'none'; }, 1800);
-                try { highlightAffected(f.t || [], KIND_COLOR[AUG_KIND[f.name]] || KIND_COLOR.summon); } catch (e) {}
-            } else banner.style.display = 'none';
+            const banner = document.getElementById('replay-banner'); clearTimeout(replayBannerTimer); banner.style.display = 'none';
+            if (animate && f.kind === 'augment') {   // 실제 경기와 같은 순서: 새 상태 적용 → 발동 문구 → 증강 이펙트 전체 재생
+                deserializeGameState(f.s); previousMove = null; updatePreviousMoveHighlights(); replayMarkChecks();
+                const fx = f.fx || {}, lead = (!AUG_NO_LEAD.has(f.name) && (fx.t || []).length && !reduceMotion) ? 520 : 0;
+                __timeScale = kSpd;
+                try { showCastText(f.name, () => {
+                    if (!replayActive || token !== replayToken) return;
+                    scaleAnimsSoon(kSpd);
+                    playAugmentVisuals({ name: f.name, globalVfx: fx.globalVfx, t: fx.t, vfx: fx.vfx, floats: fx.floats, fxArg: fx.fxArg, origin: fx.origin, fxMoves: fx.fxMoves });
+                    playSFX('augment'); if (fx.msg) showToast(fx.msg, 'var(--primary)', 2600);
+                    setTimeout(() => { if (replayActive && token === replayToken) replayMarkChecks(); }, 700);
+                }); } finally { __timeScale = 1; }
+                scaleAnimsSoon(kSpd);
+                replayStepMs = 1200 + (fx.delay || 1200) + lead + 500;
+                return;
+            }
+            deserializeGameState(f.s);
+            previousMove = f.kind === 'move' ? { from: f.from, to: f.to } : null;
+            if (animate && f.kind === 'move') {
+                try { FX.land(f.to, f.by); if (f.captured) FX.capture(f.to, f.captured); } catch (e) {}
+                setTimeout(() => playSFX(f.captured ? 'capture' : 'move'), 100);
+            }
+            muteShatter = !animate; drawPieces(animate); muteShatter = false;
+            if (animate) scaleAnimsSoon(kSpd);
+            updatePreviousMoveHighlights(); replayMarkChecks();
+            if (animate && i === replayFrames.length - 1 && replayMode !== 'live') {   // 마지막 장면: 체크메이트 연출
+                try { if (game.in_checkmate()) { const k = findPieces(game.turn(), 'k')[0]; FX.checkmate(k, findCheckers(game.turn())); replayStepMs = 2600; } } catch (e) {}
+            }
         }
         function replaySetPlaying(on) {
             replayPlaying = on; clearTimeout(replayTimer);
-            document.getElementById('rp-play').innerText = on ? '⏸' : '▶▶';
+            document.getElementById('rp-play').innerText = on ? '⏸' : '▶';
             if (on) scheduleReplayStep();
         }
         function scheduleReplayStep() {
             clearTimeout(replayTimer);
-            const cur = replayFrames[replayIdx], wait = ((cur && cur.kind === 'augment') ? 2300 : 1100) / replaySpeed;
+            const wait = (replayStepMs || 1100) / replaySpeed;
             replayTimer = setTimeout(() => {
                 if (!replayActive || !replayPlaying) return;
                 if (replayIdx >= replayFrames.length - 1) { replaySetPlaying(false); return; }
                 replayShow(replayIdx + 1, true); scheduleReplayStep();
             }, wait);
         }
-        function startReplay() {
+        function setReplayExitLabel() { document.getElementById('rp-exit').innerText = replayMode === 'result' ? '결과' : replayMode === 'live' ? '돌아가기' : '닫기'; }
+        function startReplay() {   // 결과 화면에서
             if (replayFrames.length < 2) { showToast('저장된 경기 기록이 없습니다.', 'var(--danger)', 2000); return; }
+            replayMode = 'result'; setReplayExitLabel();
             replayFinalState = serializeGameState(); replayActive = true;
             document.getElementById('result-overlay').style.display = 'none';
             document.body.classList.add('replay-mode');
             replayShow(0, false); replaySetPlaying(true);
         }
+        const LIVE_BACK = 2;   // 경기 중에는 최근 두 장면(수/증강)까지만 되돌아볼 수 있다
+        let liveMinIdx = 0;
+        function liveShow(i) {
+            const last = replayFrames.length - 1; i = Math.max(liveMinIdx, Math.min(last, i)); replayIdx = i;
+            const f = replayFrames[i]; deserializeGameState(f.s);
+            previousMove = i === last ? replaySavedPrev : (f.kind === 'move' ? { from: f.from, to: f.to } : null);
+            muteShatter = true; drawPieces(true); muteShatter = false;   // 기물이 부드럽게 미끄러져 이동 (이펙트 없이)
+            updatePreviousMoveHighlights(); replayMarkChecks();
+            const off = last - i, names = ['현재', '한 수 전', '두 수 전', '세 수 전'];
+            document.getElementById('lr-label').innerText = off === 0 ? '현재 장면' : `${names[off] || off + '수 전'} · ${replayLabelParts(i).text}`;
+            syncStrip();
+        }
+        function startLiveReview() {   // 경기 중 이전 한두 수 되돌아보기
+            if (replayFrames.length < 2) { showToast('아직 볼 이전 수가 없어요', 'var(--danger)', 1600); return; }
+            replayMode = 'live'; liveMinIdx = Math.max(0, replayFrames.length - 1 - LIVE_BACK);
+            replayFinalState = serializeGameState(); replaySavedPrev = previousMove; replayQueue = []; replayActive = true;
+            document.body.classList.add('replay-mode', 'live-review');
+            liveShow(replayFrames.length - 2);
+        }
         function stopReplayUI() {   // 새 게임/메인으로 이동 시 안전하게 정리
-            replayActive = false; replayPlaying = false; clearTimeout(replayTimer); clearTimeout(replayBannerTimer);
-            document.body.classList.remove('replay-mode');
+            replayActive = false; replayPlaying = false; clearTimeout(replayTimer); clearTimeout(replayBannerTimer); replayToken++;
+            FX.speed(1); applyAnimScale(1); __timeScale = 1;
+            document.body.classList.remove('replay-mode', 'live-review'); syncStrip();
             const b = document.getElementById('replay-banner'); if (b) b.style.display = 'none';
         }
         function exitReplay() {
             if (!replayActive) return;
-            stopReplayUI();
-            if (replayFinalState) { deserializeGameState(replayFinalState); game.set_game_over(); muteShatter = true; drawPieces(false); muteShatter = false; }
-            previousMove = null; updatePreviousMoveHighlights(); squareList.forEach(sq => sq.classList.remove('in-check'));
-            document.getElementById('result-overlay').style.display = 'flex';
+            const mode = replayMode; stopReplayUI();
+            if (mode === 'archive') {
+                document.body.classList.remove('black-pov'); myColor = null; resetGameUI(); playerInfo.innerText = '';
+                mainLobbyOverlay.style.display = 'flex'; renderHistory(); document.getElementById('history-overlay').style.display = 'flex';
+                return;
+            }
+            if (replayFinalState) { deserializeGameState(replayFinalState); if (mode === 'result') game.set_game_over(); muteShatter = true; drawPieces(false); muteShatter = false; }
+            if (mode === 'result') {
+                previousMove = null; updatePreviousMoveHighlights(); squareList.forEach(sq => sq.classList.remove('in-check'));
+                document.getElementById('result-overlay').style.display = 'flex';
+            } else {   // 경기 중: 원래 장면으로 복귀하고, 그동안 도착한 상대 행동을 순서대로 처리
+                previousMove = replaySavedPrev; updatePreviousMoveHighlights(); updateCheckStatus();
+                const q = replayQueue; replayQueue = []; q.forEach(a => handleRemoteAction(a));
+            }
         }
+
+        // ---------- 최근 대전 기록 (이 기기에 저장) ----------
+        const HISTORY_MAX = 10;
+        const histKey = () => 'augchess_hist_' + (myUid || 'guest');
+        const gameKey = id => 'augchess_game_' + id;
+        function loadHistoryIndex() { try { return JSON.parse(localStorage.getItem(histKey()) || '[]'); } catch (e) { return []; } }
+        async function packText(str) {
+            if (window.CompressionStream) {
+                const buf = new Uint8Array(await new Response(new Blob([str]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
+                let bin = ''; for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+                return 'gz:' + btoa(bin);
+            }
+            return 'raw:' + str;
+        }
+        async function unpackText(p) {
+            if (p.startsWith('gz:')) {
+                const bin = atob(p.slice(3)), buf = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+                return await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+            }
+            return p.slice(4);
+        }
+        async function saveGameToHistory(result, reason) {
+            if (historySaved || replayFrames.length < 3) return; historySaved = true;
+            try {
+                const packed = await packText(JSON.stringify(replayFrames));
+                const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+                const entry = { id, ts: Date.now(), result, reason: reason || '', opp: lastOppName || (isBotMode ? '컴퓨터' : '상대'), color: myColor, bot: isBotMode, plies: replayFrames.length - 1 };
+                const write = (keep) => {
+                    localStorage.setItem(gameKey(id), packed);
+                    const idx = loadHistoryIndex(); idx.unshift(entry);
+                    while (idx.length > keep) { const old = idx.pop(); localStorage.removeItem(gameKey(old.id)); }
+                    localStorage.setItem(histKey(), JSON.stringify(idx));
+                };
+                try { write(HISTORY_MAX); } catch (e) { write(3); }   // 용량이 부족하면 오래된 기록을 줄이고 다시 시도
+            } catch (e) {}
+        }
+        function renderHistory() {
+            const list = document.getElementById('hist-list'), idx = loadHistoryIndex(); list.innerHTML = '';
+            if (!idx.length) { list.innerHTML = '<div class="hist-empty">아직 저장된 대전 기록이 없어요.<br>경기를 끝까지 하면 여기에 쌓입니다.</div>'; return; }
+            idx.forEach(e => {
+                const d = new Date(e.ts), pad = n => String(n).padStart(2, '0'), cls = e.result === '승리' ? 'w' : e.result === '패배' ? 'l' : 'd', row = document.createElement('div');
+                row.className = 'hist-row';
+                row.innerHTML = `<div class="hist-badge ${cls}">${e.result === '승리' ? '승' : e.result === '패배' ? '패' : '무'}</div><div class="hist-main"><div class="hist-title"></div><div class="hist-sub"></div></div><button class="hist-btn" type="button">리플레이</button>`;
+                row.querySelector('.hist-title').innerText = `vs ${e.opp}`;
+                row.querySelector('.hist-sub').innerText = `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())} · ${e.color === 'b' ? '흑' : '백'} · ${e.plies}수${e.reason ? ' · ' + e.reason : ''}`;
+                row.querySelector('.hist-btn').onclick = () => openArchiveReplay(e.id);
+                list.appendChild(row);
+            });
+        }
+        async function openArchiveReplay(id) {
+            const entry = loadHistoryIndex().find(x => x.id === id), packed = localStorage.getItem(gameKey(id));
+            if (!entry || !packed) { showToast('기록을 불러올 수 없습니다.', 'var(--danger)', 2000); return; }
+            let frames; try { frames = JSON.parse(await unpackText(packed)); } catch (e) { showToast('기록을 불러올 수 없습니다.', 'var(--danger)', 2000); return; }
+            if (!frames || frames.length < 2) return;
+            document.getElementById('history-overlay').style.display = 'none'; mainLobbyOverlay.style.display = 'none';
+            replayMode = 'archive'; setReplayExitLabel(); replayFrames = frames; replayFinalState = null; replayQueue = [];
+            myColor = entry.color || 'w'; document.body.classList.toggle('black-pov', myColor === 'b');
+            playerInfo.innerText = `📜 기록 보기 · vs ${entry.opp}`;
+            showBoardContainer(); replayActive = true; document.body.classList.add('replay-mode');
+            replayShow(0, false); replaySetPlaying(true);
+        }
+        document.getElementById('lr-prev').onclick = () => stripStep(-1);
+        document.getElementById('lr-next').onclick = () => stripStep(1);
+        document.getElementById('btn-open-history').onclick = () => { renderHistory(); document.getElementById('history-overlay').style.display = 'flex'; };
+        document.getElementById('btn-close-history').onclick = () => { document.getElementById('history-overlay').style.display = 'none'; };
+        function syncStrip() {
+            const inLive = replayActive && replayMode === 'live';
+            document.getElementById('lr-next').disabled = !inLive;
+            document.getElementById('lr-prev').disabled = inLive && replayIdx <= liveMinIdx;
+            if (!inLive) document.getElementById('lr-label').innerText = '';
+        }
+        function stripStep(dir) {
+            if (replayActive) {
+                if (replayMode !== 'live') return;
+                const target = replayIdx + dir;
+                if (target >= replayFrames.length - 1) { exitReplay(); return; }   // 현재 장면까지 오면 자동으로 복귀
+                liveShow(target); return;
+            }
+            if (dir > 0) return;
+            const blocked = !isGameStarted || game.game_over() || isSystemLocked || targeting || augmentOverlay.style.display === 'flex' || document.getElementById('promo-overlay').style.display === 'flex' || (isBotMode && game.turn() !== myColor);
+            if (blocked) { showToast('지금은 이전 수를 볼 수 없어요', 'var(--danger)', 1600); return; }
+            startLiveReview();
+        }
+        // 게임 화면의 설정 버튼이 보일 때(경기 중) 화살표 줄도 같이 보이게
+        new MutationObserver(() => { document.getElementById('history-strip').style.display = document.getElementById('btn-settings-game').style.display === 'block' ? 'flex' : 'none'; })
+            .observe(document.getElementById('btn-settings-game'), { attributes: true, attributeFilter: ['style'] });
         document.getElementById('btn-replay').onclick = startReplay;
         document.getElementById('rp-exit').onclick = exitReplay;
         document.getElementById('rp-first').onclick = () => { replaySetPlaying(false); replayShow(0, false); };
@@ -2762,7 +2973,7 @@
         document.getElementById('rp-prev').onclick = () => { replaySetPlaying(false); replayShow(replayIdx - 1, false); };
         document.getElementById('rp-next').onclick = () => { replaySetPlaying(false); replayShow(replayIdx + 1, true); };
         document.getElementById('rp-play').onclick = () => { if (!replayPlaying && replayIdx >= replayFrames.length - 1) replayShow(0, false); replaySetPlaying(!replayPlaying); };
-        document.getElementById('rp-speed').onclick = (e) => { replaySpeed = replaySpeed === 1 ? 2 : replaySpeed === 2 ? 0.5 : 1; e.target.innerText = replaySpeed + 'x'; if (replayPlaying) scheduleReplayStep(); };
+        document.getElementById('rp-speed').onclick = (e) => { replaySpeed = replaySpeed === 1 ? 2 : replaySpeed === 2 ? 4 : replaySpeed === 4 ? 0.5 : 1; e.target.innerText = replaySpeed + 'x'; FX.speed(replaySpeed); if (replayPlaying) scheduleReplayStep(); };
         document.getElementById('replay-seek').oninput = (e) => { replaySetPlaying(false); replayShow(parseInt(e.target.value), false); };
 
         // opts.delay > 0 이면 결과 창을 늦추고(마지막 수/이펙트를 볼 수 있게), opts.fx 로 체크메이트/스테일메이트 연출을 재생
@@ -2770,6 +2981,7 @@
             if(game.is_game_over) return;
             game.set_game_over();
             const delay = opts.delay || 0;
+            saveGameToHistory(resultType, reasonStr);
 
             if(!isBotMode && myUid && !statsRecorded) {
                 statsRecorded = true;
@@ -2957,6 +3169,7 @@
         }
 
         function makeBotMove() {
+            if (replayActive) { setTimeout(makeBotMove, 400); return; }
             if(game.game_over() || isSystemLocked) return;
             const moves = game.moves(); if(moves.length === 0) return;
             let move;
@@ -3620,7 +3833,7 @@
                 try { res = selectedAug.apply(pColor, eColor, target); const poisoned = enforcePoison(); game.sanitizeSpecialStates(); if (poisoned.length) res.t = [...new Set([...(res.t || []), ...poisoned])]; }
                 finally { var floats = floatLog; floatLog = null; }
 
-                recordFrame('augment', { name: selectedAug.name, icon: selectedAug.icon, t: res.t || [], by: pColor });
+                recordFrame('augment', { name: selectedAug.name, icon: selectedAug.icon, t: res.t || [], by: pColor, fx: { globalVfx: selectedAug.globalVfx || null, t: res.t || [], vfx: res.vfx || '', floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null, msg: res.msg || '', delay: selectedAug.delay || 1200 } });
                 pushGameAction({
                     type: 'augment_sync', by: pColor, name: selectedAug.name, state: serializeGameState(),
                     globalVfx: selectedAug.globalVfx || null,
