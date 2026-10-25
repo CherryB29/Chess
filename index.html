@@ -668,13 +668,25 @@
     <div id="mode-select-overlay" class="overlay" style="display: none; z-index: 150;">
         <div class="lobby-box">
             <h2>게임 모드 선택</h2>
-            <div id="online-count" style="color: var(--primary); font-size: 1rem; font-weight: bold; margin-bottom: 18px; min-height: 1.2rem;">접속자: 0명</div>
+            <div id="online-count" style="color: var(--primary); font-size: 1rem; font-weight: bold; margin-bottom: 6px; min-height: 1.2rem;">접속자: 0명</div>
+            <div id="queue-status" style="font-size: 0.85rem; color: #999; margin-bottom: 14px; min-height: 1.1rem;"></div>
             <button id="btn-random" class="lobby-btn">🎲 빠른 대전</button>
             <div style="margin: 20px 0; border-top: 1px solid var(--panel-border); padding-top: 20px;">
-                <input type="text" id="room-input" class="lobby-input" placeholder="초대 코드 (4자리)" maxlength="4">
+                <div style="font-size: 0.85rem; color: #999; margin-bottom: 10px;">친구와 대전하기</div>
+                <input type="text" id="room-input" class="lobby-input" placeholder="친구에게 받은 초대 코드 4자리" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
                 <div style="display: flex; gap: 10px;">
-                    <button id="btn-join-room" class="lobby-btn secondary" style="flex: 1; margin: 0;">방 참가</button>
-                    <button id="btn-create-room" class="lobby-btn secondary" style="flex: 1; margin: 0;">방 만들기</button>
+                    <button id="btn-join-room" class="lobby-btn secondary" style="flex: 1; margin: 0;">코드로 입장</button>
+                    <button id="btn-create-room" class="lobby-btn secondary" style="flex: 1; margin: 0;">친구 초대하기</button>
+                </div>
+                <div id="invite-panel" style="display: none; margin-top: 14px; padding: 14px; border: 1px dashed var(--primary); border-radius: 12px;">
+                    <div style="font-size: 0.9rem; color: #aaa; margin-bottom: 6px;">친구에게 이 초대 코드를 알려주세요</div>
+                    <div id="invite-code" style="font-size: 2.2rem; font-weight: 900; letter-spacing: 8px; color: var(--primary); margin-bottom: 10px; padding-left: 8px;"></div>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <button id="btn-copy-code" class="lobby-btn secondary" style="flex: 1; margin: 0; font-size: 0.9rem;">📋 코드 복사</button>
+                        <button id="btn-share-link" class="lobby-btn secondary" style="flex: 1; margin: 0; font-size: 0.9rem;">🔗 링크 공유</button>
+                    </div>
+                    <div style="font-size: 0.85rem; color: #999;">친구가 입장하면 바로 시작돼요 · 기다리는 중…</div>
+                    <button id="btn-close-room" style="margin-top: 8px; background: none; border: none; color: #888; text-decoration: underline; cursor: pointer; font-size: 0.9rem;">방 닫기</button>
                 </div>
             </div>
             <div style="margin-top: 20px; border-top: 1px solid var(--panel-border); padding-top: 20px;">
@@ -934,11 +946,15 @@
         const LOCAL_SETTINGS_KEY = 'augmentedChessSettings';
         const LOCAL_PROFILE_KEY = 'augmentedChessProfile';
         const LOCAL_ROOM_KEY = 'augmentedChessRoom';
+        // 재접속 안정화: 처리한 마지막 행동(키)을 상태와 함께 저장해, 이어하기 때 이미 반영된 행동이 다시 적용되지 않게 한다
+        let lastActionKey = '', resumeCursor = null, networkUnsub = null, matchKind = '', queueOD = null;
+        const appliedActionKeys = new Set();
+        const roomInfoText = () => `${matchKind === 'quick' ? '빠른 대전' : matchKind === 'friend' ? '친구 대전' : '온라인 대전'} · 당신은 ${myColor === 'w' ? '백' : '흑'}입니다`;
         const DEFAULT_SETTINGS = { soundEnabled: true, showPreviousMove: true, soundVolume: 0.8, darkMode: true, saveBotReplay: true };
         let isAugmentPeeked = false;
 
         function saveRoomSession(extra = {}) {
-            try { localStorage.setItem(LOCAL_ROOM_KEY, JSON.stringify({ roomId: currentRoomId, color: myColor, ...extra })); } catch (e) {}
+            try { localStorage.setItem(LOCAL_ROOM_KEY, JSON.stringify({ roomId: currentRoomId, color: myColor, kind: matchKind, ...extra })); } catch (e) {}
         }
         function loadRoomSession() {
             try { const raw = localStorage.getItem(LOCAL_ROOM_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
@@ -968,10 +984,10 @@
         }
 
         async function persistRoomGameState(stateStr = null) {
-            if (!currentRoomId || isBotMode) return;
+            if (!currentRoomId || isBotMode || !myColor) return;
             try {
                 const serialized = stateStr || serializeGameState();
-                await set(ref(db, `rooms/${currentRoomId}/state`), serialized);
+                await set(ref(db, `rooms/${currentRoomId}/states/${myColor}`), serialized);   // 각자 자기 노드에만 기록 (상대 저장본을 덮어쓰지 않음)
             } catch (e) {}
         }
 
@@ -981,8 +997,8 @@
         }
 
         function showReconnectPrompt(roomId) {
-            reconnectRoomText.innerText = `방 번호: ${roomId}`;
-            reconnectInfo.innerText = '현재 게임을 복구했습니다. 계속하거나 기권할 수 있습니다.';
+            reconnectRoomText.innerText = '진행 중이던 대전이 있어요';
+            reconnectInfo.innerText = '게임을 복구했습니다. 이어서 하거나 기권할 수 있어요.';
             reconnectOverlay.style.display = 'flex';
         }
 
@@ -997,7 +1013,9 @@
             document.getElementById('btn-settings-game').style.display = 'block';
             showBoardContainer();
             showToast('게임을 이어서 진행합니다.', 'var(--primary)', 3000);
-            if (activeAugmentPlayerColor || (pendingAugments && pendingAugments.length > 0)) {
+            const augUiOpen = augmentOverlay.style.display === 'flex';   // 이어하기를 누르기 전에 이미 증강 단계가 시작된 경우 중복 진행 방지
+            isSystemLocked = augUiOpen;
+            if (!augUiOpen && (activeAugmentPlayerColor || (pendingAugments && pendingAugments.length > 0))) {
                 if (activeAugmentPlayerColor && selectedAugmentIdx !== -1) {
                     // 증강 선택이 진행 중인 경우 UI 다시 표시
                     showAugmentCards(activeAugmentPlayerColor, activeAugmentOptions);
@@ -1007,7 +1025,6 @@
                     processNextAugmentPhase();
                 }
             }
-            isSystemLocked = false;
         };
 
         btnResignGame.onclick = async () => {
@@ -1088,6 +1105,17 @@
         }
 
         setupOnlineCountListener();
+        function setupQueueListener() {   // 빠른 대전 대기 중인 사람 안내 (로그인 후 호출: 인증 전에는 읽기가 거부될 수 있음)
+            if (window.__queueListener) return;
+            window.__queueListener = true;
+            onValue(ref(db, 'matchmaking/random_queue'), snap => {
+                const el = document.getElementById('queue-status'); if (!el) return;
+                const d = snap.exists() ? snap.val() : null;
+                if (d && queueFresh(d) && d.uid !== myUid) { el.innerText = '🔍 지금 상대를 기다리는 사람이 있어요! 바로 매칭돼요'; el.style.color = '#2ecc71'; }
+                else if (d && d.uid === myUid) { el.innerText = '상대를 찾는 중이에요…'; el.style.color = 'var(--primary)'; }
+                else { el.innerText = '지금은 대기 중인 사람이 없어요 · 누르면 상대를 기다려요'; el.style.color = '#999'; }
+            }, () => {});
+        }
 
         const storedProfile = loadLocalProfile();
         if (storedProfile) {
@@ -1147,6 +1175,16 @@
             applySettingsToUI();
         }
 
+        function pickBestState(list) {
+            let best = null, bestKey = null, bestMoves = -1;
+            list.forEach(str => {
+                try {
+                    const o = JSON.parse(str), key = o.actionCursor || '', mv = o.moveCount || 0;
+                    if (best === null || key > bestKey || (key === bestKey && mv > bestMoves)) { best = str; bestKey = key; bestMoves = mv; }
+                } catch (e) {}
+            });
+            return best;
+        }
         async function tryRestoreRoomSession() {
             const saved = loadRoomSession();
             if (!saved || !saved.roomId || !saved.color || !myUid) return false;
@@ -1157,7 +1195,7 @@
             const players = snap.val();
             if (players[saved.color] !== myUid) { clearRoomSession(); return false; }
             currentRoomId = saved.roomId;
-            myColor = saved.color;
+            myColor = saved.color; matchKind = saved.kind || '';
             isBotMode = false;
             statsRecorded = false;
             saveRoomSession();
@@ -1165,8 +1203,10 @@
             const opponentColor = myColor === 'w' ? 'b' : 'w';
             const opponentUid = players[opponentColor];
             if (opponentUid) {
-                const stateSnap = await get(ref(db, `rooms/${currentRoomId}/state`));
-                const restoredState = stateSnap.exists() ? stateSnap.val() : null;
+                const cands = [];
+                try { const ss = await get(ref(db, `rooms/${currentRoomId}/states`)); if (ss.exists()) Object.values(ss.val()).forEach(v => cands.push(v)); } catch (e) {}
+                try { const ls = await get(ref(db, `rooms/${currentRoomId}/state`)); if (ls.exists()) cands.push(ls.val()); } catch (e) {}   // 이전 버전 호환
+                const restoredState = pickBestState(cands);
                 const sessionAugmentState = saved && saved.activeAugmentOptions && saved.activeAugmentPlayerColor ? {
                     options: saved.activeAugmentOptions,
                     playerColor: saved.activeAugmentPlayerColor
@@ -1218,6 +1258,7 @@
             myUid = user.uid;
             loginOverlay.style.display = 'none';
             try { registerGlobalPresence(user.uid); } catch (e) { console.warn('presence 등록 실패', e); }
+            try { setupQueueListener(); } catch (e) {}
             profileSynced = false;
             try { await withTimeout(loadUserProfile(user.uid, user.isAnonymous, user.email), 7000, 'profile'); profileSynced = true; }
             catch (e) {
@@ -1229,7 +1270,15 @@
             let restored = false;
             try { restored = await withTimeout(tryRestoreRoomSession(), 7000, 'restore'); }
             catch (e) { console.warn('진행 중이던 방을 복구하지 못해 세션을 정리합니다.', e); clearRoomSession(); currentRoomId = null; restored = false; }
-            if (!restored && !isGameStarted && vsOverlay.style.display === 'none') mainLobbyOverlay.style.display = 'flex';
+            if (!restored && !isGameStarted && vsOverlay.style.display === 'none') {
+                const invite = (new URLSearchParams(location.search).get('room') || '').trim();
+                if (/^\d{4}$/.test(invite)) {   // 친구가 보낸 초대 링크로 들어온 경우: 바로 입장 시도
+                    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+                    modeSelectOverlay.style.display = 'flex'; mainLobbyOverlay.style.display = 'none';
+                    document.getElementById('room-input').value = invite; setLobbyMsg('초대받은 방에 입장하는 중…');
+                    document.getElementById('btn-join-room').click();
+                } else mainLobbyOverlay.style.display = 'flex';
+            }
         }
         onAuthStateChanged(auth, user => {
             if (user) {
@@ -1244,8 +1293,12 @@
         }, err => { console.error(err); loginOverlay.style.display = 'flex'; showLoginStatus(authErrorMessage(err), true); });
 
         // -------------------- 로비, 취소 및 UI 네비게이션 --------------------
+        function hideInvite() { const el = document.getElementById('invite-panel'); if (el) el.style.display = 'none'; }
+        function showInvite(code) { document.getElementById('invite-code').innerText = code; document.getElementById('invite-panel').style.display = 'block'; }
+        const inviteLink = code => `${location.origin}${location.pathname}?room=${code}`;
         async function cancelMatchmaking() {
-            isMatchmaking = false;
+            isMatchmaking = false; hideInvite();
+            if (queueOD) { try { await queueOD.cancel(); } catch (e) {} queueOD = null; }
             document.getElementById('btn-random').innerText = "🎲 빠른 대전";
             setLobbyMsg("");
             
@@ -1390,6 +1443,8 @@
             });
         };
 
+        const QUEUE_STALE_MS = 90000;
+        const queueFresh = d => !!d && (!d.ts || Date.now() - d.ts < QUEUE_STALE_MS);
         document.getElementById('btn-random').onclick = async () => {
             if (isMatchmaking) {
                 await cancelMatchmaking();
@@ -1400,7 +1455,7 @@
             // 방을 만들어둔 상태에서 랜덤 매칭을 돌릴 경우 기존 방 제거 (버그 픽스)
             await cancelMatchmaking();
 
-            isMatchmaking = true;
+            isMatchmaking = true; matchKind = 'quick';
             document.getElementById('btn-random').innerText = "❌ 매칭 취소";
             setLobbyMsg("대기 중인 상대를 찾는 중...");
 
@@ -1408,36 +1463,54 @@
             const snap = await get(queueRef);
             if (snap.exists()) {
                 const data = snap.val();
-                if (data.uid !== myUid) { 
-                    isMatchmaking = false;
-                    document.getElementById('btn-random').innerText = "🎲 빠른 대전";
-                    await remove(queueRef); 
-                    joinRoom(data.roomId, 'b'); 
-                    return; 
+                if (data.uid !== myUid && queueFresh(data)) {
+                    let alive = false;   // 상대가 만든 방이 아직 살아 있는지 확인
+                    try { const rs = await get(ref(db, `rooms/${data.roomId}/players`)); alive = rs.exists() && !!rs.val().w && !rs.val().b; } catch (e) {}
+                    if (alive) {
+                        isMatchmaking = false;
+                        document.getElementById('btn-random').innerText = "🎲 빠른 대전";
+                        await remove(queueRef);
+                        joinRoom(data.roomId, 'b');
+                        return;
+                    }
                 }
             }
             const newRoomId = push(ref(db, 'rooms')).key;
-            await set(queueRef, { uid: myUid, roomId: newRoomId });
-            createRoom(newRoomId, 'w'); 
+            await set(queueRef, { uid: myUid, roomId: newRoomId, ts: Date.now() });
+            queueOD = onDisconnect(queueRef); queueOD.remove().catch(() => {});   // 기다리다 나가면 대기열에서 자동 제거
+            createRoom(newRoomId, 'w');
         };
 
         document.getElementById('btn-create-room').onclick = async () => {
-            await cancelMatchmaking();
+            await cancelMatchmaking(); matchKind = 'friend';
             const code = Math.floor(1000 + Math.random() * 9000).toString();
-            createRoom(code, 'w'); setLobbyMsg(`초대 코드: [ ${code} ] 대기 중...`);
+            createRoom(code, 'w'); setLobbyMsg(""); showInvite(code);
         };
+        document.getElementById('btn-close-room').onclick = async () => { await cancelMatchmaking(); setLobbyMsg("방을 닫았어요."); };
+        document.getElementById('btn-copy-code').onclick = async () => {
+            const code = document.getElementById('invite-code').innerText;
+            try { await navigator.clipboard.writeText(code); showToast("초대 코드를 복사했어요", "var(--primary)", 2000); }
+            catch (e) { setLobbyMsg(`초대 코드: ${code}`); }
+        };
+        document.getElementById('btn-share-link').onclick = async () => {
+            const code = document.getElementById('invite-code').innerText, url = inviteLink(code);
+            try {
+                if (navigator.share) await navigator.share({ title: '증강 : 체스', text: `증강 : 체스 같이 해요! 초대 코드 ${code}`, url });
+                else { await navigator.clipboard.writeText(url); showToast("초대 링크를 복사했어요", "var(--primary)", 2000); }
+            } catch (e) { if (e && e.name !== 'AbortError') { try { await navigator.clipboard.writeText(url); showToast("초대 링크를 복사했어요", "var(--primary)", 2000); } catch (e2) { setLobbyMsg(url); } } }
+        };
+        document.getElementById('room-input').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4); });
 
         document.getElementById('btn-join-room').onclick = async () => {
             await cancelMatchmaking();
             const code = document.getElementById('room-input').value.trim();
-            if(!code) return setLobbyMsg("코드를 입력하세요.");
-            if (await cleanupStaleRoom(code)) {
-                return setLobbyMsg("존재하지 않거나 닫힌 방입니다.");
-            }
-            const roomRef = ref(db, `rooms/${code}/players`);
-            const snap = await get(roomRef);
-            if (snap.exists() && snap.val().w) joinRoom(code, 'b');
-            else setLobbyMsg("존재하지 않거나 닫힌 방입니다.");
+            if (!/^\d{4}$/.test(code)) return setLobbyMsg("초대 코드 4자리를 입력해 주세요.");
+            if (await cleanupStaleRoom(code)) return setLobbyMsg("찾을 수 없는 코드예요. 코드를 다시 확인해 주세요.");
+            const snap = await get(ref(db, `rooms/${code}/players`));
+            if (!snap.exists() || !snap.val().w) return setLobbyMsg("찾을 수 없는 코드예요. 코드를 다시 확인해 주세요.");
+            if (snap.val().b && snap.val().b !== myUid) return setLobbyMsg("이미 두 명이 입장한 방이에요.");
+            if (snap.val().w === myUid) return setLobbyMsg("내가 만든 방이에요. 친구에게 코드를 알려주세요.");
+            matchKind = 'friend'; joinRoom(code, 'b');
         };
 
         function showVsScreen(myP, oppP, callback) {
@@ -1477,7 +1550,7 @@
                             showToast("상대방이 재접속했습니다!", "var(--primary)");
                             wasOffline = false;
                         }
-                        playerInfo.innerText = `[방:${currentRoomId}] 당신은 ${myColor === 'w' ? '백' : '흑'}입니다`;
+                        playerInfo.innerText = roomInfoText();
                     }
                 }
             });
@@ -1499,7 +1572,7 @@
                 const p = snap.val(); 
                 if (p && p.w && p.b && !isGameStarted) {
                     if (roomListenerUnsubscribe) { roomListenerUnsubscribe(); roomListenerUnsubscribe = null; }
-                    isMatchmaking = false;
+                    isMatchmaking = false; if (queueOD) { queueOD.cancel().catch(() => {}); queueOD = null; }
                     document.getElementById('btn-random').innerText = "🎲 빠른 대전";
                     startGame(p);
                 }
@@ -1515,7 +1588,7 @@
 
         async function startGame(playersData, opts = {}) {
             if(isGameStarted) return;
-            isGameStarted = true; modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'none';
+            isGameStarted = true; modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'none'; hideInvite();
 
             const opponentUid = myColor === 'w' ? playersData.b : playersData.w;
             let oppProfile = { name: "Unknown", icon: "👤", stats: {w:0,l:0,d:0} };
@@ -1525,12 +1598,11 @@
             }
 
             const startGameUI = () => {
-                playerInfo.innerText = `[방:${currentRoomId}] 당신은 ${myColor === 'w' ? '백' : '흑'}입니다`;
+                playerInfo.innerText = roomInfoText();
                 if(myColor === 'b') document.body.classList.add('black-pov');
                 else document.body.classList.remove('black-pov');
                 
                 setupPresence();
-                setupNetworkListeners();
 
                 if (opts.resume) {
                     if (opts.restoredState) {
@@ -1541,10 +1613,13 @@
                         }
                         drawPieces();
                         replayFrames = []; recordFrame('resume');
+                        try { resumeCursor = JSON.parse(opts.restoredState).actionCursor || ''; } catch (e) { resumeCursor = ''; }
+                        lastActionKey = resumeCursor;
                         showToast("진행 중인 게임을 불러왔습니다.", "var(--primary)", 4000);
                     } else {
-                        resetGameUI();
+                        resetGameUI(); resumeCursor = ''; lastActionKey = '';
                     }
+                    setupNetworkListeners();
                     if (opts.promptResume && !game.game_over()) {
                         showBoardContainer();
                         showReconnectPrompt(currentRoomId);
@@ -1552,7 +1627,8 @@
                     }
                 } else {
                     showToast("온라인 대전 시작!", "var(--primary)");
-                    resetGameUI();
+                    resetGameUI(); resumeCursor = null; lastActionKey = '';
+                    setupNetworkListeners();
                 }
 
                 document.getElementById('game-controls').style.display = 'flex';
@@ -1570,14 +1646,30 @@
 
         function pushGameAction(payload) {
             if (isBotMode || !currentRoomId) return;
-            push(ref(db, `rooms/${currentRoomId}/actions`), { ...payload, uid: myUid });
+            const pr = push(ref(db, `rooms/${currentRoomId}/actions`), { ...payload, uid: myUid, ts: Date.now() });
+            if (pr && pr.key && pr.key > lastActionKey) lastActionKey = pr.key;
         }
 
-        function setupNetworkListeners() {
+        async function setupNetworkListeners() {
+            if (networkUnsub) { try { networkUnsub(); } catch (e) {} networkUnsub = null; }
+            appliedActionKeys.clear();
             const actionsRef = ref(db, `rooms/${currentRoomId}/actions`);
-            onChildAdded(actionsRef, (data) => {
-                const action = data.val();
-                if (action.uid !== myUid) handleRemoteAction(action);
+            let backlogEnd = null;
+            if (resumeCursor !== null) {   // 이어하기: 접속 시점에 이미 쌓여 있던 행동의 끝을 기억
+                try { const sn = await get(actionsRef); if (sn.exists()) { const ks = Object.keys(sn.val()).sort(); backlogEnd = ks[ks.length - 1]; } } catch (e) {}
+            }
+            networkUnsub = onChildAdded(actionsRef, (data) => {
+                const key = data.key, action = data.val(); if (!action) return;
+                if (appliedActionKeys.has(key)) return; appliedActionKeys.add(key);
+                action._key = key;
+                if (resumeCursor !== null && key <= resumeCursor) return;   // 저장된 상태에 이미 반영된 행동
+                if (action.uid === myUid) {
+                    // 내 행동은 보통 이미 적용되어 있으므로 건너뛰되, 이어하기 직후 '서버에는 있지만 저장본엔 없는' 내 수/증강만 다시 적용
+                    if (backlogEnd !== null && key <= backlogEnd && (action.type === 'move' || action.type === 'augment_sync')) { if (key > lastActionKey) lastActionKey = key; handleRemoteAction(action); }
+                    return;
+                }
+                if (key > lastActionKey) lastActionKey = key;
+                handleRemoteAction(action);
             });
         }
 
@@ -1596,7 +1688,7 @@
                 document.getElementById('augment-overlay').style.display = 'none';
                 deserializeGameState(action.state); 
                 { const ag = AUGMENT_POOL.find(x => x.name === action.name); recordFrame('augment', { name: action.name, icon: ag ? ag.icon : '✨', t: action.t || [], by: action.by || null, fx: { globalVfx: action.globalVfx || null, t: action.t || [], vfx: action.vfx || '', floats: action.floats || null, fxArg: action.fxArg || null, origin: action.origin || null, fxMoves: action.fxMoves || null, msg: action.msg || '', delay: action.delay || 1200 } }); }
-                persistRoomGameState(action.state).catch(() => {});
+                persistRoomGameState().catch(() => {});   // 내 커서 기준으로 저장
                 showCastText(action.name || "증강", () => {
                     const lead = playAugmentVisuals({ name: action.name, globalVfx: action.globalVfx, t: action.t, vfx: action.vfx, floats: action.floats, fxArg: action.fxArg, origin: action.origin, fxMoves: action.fxMoves });
                     showToast(action.msg, "var(--primary)", 4000);
@@ -1605,6 +1697,7 @@
             } else if (action.type === 'resign') {
                 showEndScreen("승리", "상대방이 기권했습니다.");
             } else if (action.type === 'chat') {
+                if (!action.ts || Date.now() - action.ts > 8000) return;   // 이어하기 때 지난 채팅이 한꺼번에 뜨지 않게
                 showChatBubble('opponent', action.msg, false);
             }
         }
@@ -1742,6 +1835,7 @@
                 is_game_over: game.is_game_over, moveCount: moveCount, activePoison: activePoison,
                 rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, pendingAugments: pendingAugments,
                 activeWalls: activeWalls, reversedPawns: reversedPawns, reversedUids: reversedUids,
+                actionCursor: lastActionKey,
                 jackpotBonus: jackpotBonus, lastKiller: lastKiller, babyEffect: babyEffect, blackout: blackout, uidCounter: game.pieceUidCounter, castleUids: game.castleUids,
                 activeAugmentOptions: activeAugmentOptions,
                 activeAugmentPlayerColor: activeAugmentPlayerColor,
@@ -1979,6 +2073,7 @@
         }
 
         function resetGameUI() {
+            if (networkUnsub) { try { networkUnsub(); } catch (e) {} networkUnsub = null; }
             game.reset(); moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; pendingAugments = [];
             activeWalls = []; reversedPawns = { w: 0, b: 0 }; reversedUids = { w: {}, b: {} }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = { w: null, b: null }; blackout = { w: 0, b: 0 }; lastCheckKey = '';
             if (targeting) { clearTargetVisuals(); targeting = null; }
@@ -3835,6 +3930,7 @@
                     setTimeout(() => applySelectedAugment(choice, playerColor, enemyColor), 1500); 
                     return;
                 }
+                if (currentRoomId) { activeAugmentPlayerColor = playerColor; selectedAugmentIdx = -1; persistRoomGameState().catch(() => {}); }
                 if (opponentAugmentPreview && opponentAugmentPreviewColor === playerColor) {
                     renderOpponentPreviewCards(opponentAugmentPreview, playerColor, overlay);
                     return;
@@ -3939,7 +4035,6 @@
             activeAugmentOptions = null;
             activeAugmentPlayerColor = null;
             selectedAugmentIdx = -1;
-            persistRoomGameState().catch(() => {});
             showCastText(selectedAug.name, () => {
                 floatLog = [];
                 let res;
