@@ -538,6 +538,39 @@
         /* 길게 눌러 판을 볼 때 텍스트/이미지가 선택·복사되지 않게 (입력창은 제외) */
         html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
         input, textarea { -webkit-user-select: text; user-select: text; }
+
+        /* ================= 게임 화면: 하나의 틀 + 아이콘 ================= */
+        .ico { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+        #game-frame { width: calc(100% - 20px); max-width: var(--board-max, 420px); margin: 6px auto 8px; box-sizing: border-box; padding: 10px; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        #game-frame .header { max-width: none; width: 100%; margin: 0; padding-top: 0; }
+        #game-frame #board-container { max-width: none; width: 100%; padding: 0; margin-top: 0; }
+        #game-frame #board { box-shadow: none; }
+        #game-frame .progress-container { width: 100%; max-width: none; }
+        #btn-resign, #btn-settings-game { top: 0; width: 34px; height: 34px; padding: 0; border-radius: 50%; line-height: 0; background: rgba(255,255,255,0.07); border: 1px solid var(--panel-border); color: var(--text-color); }
+        #btn-settings-game { left: 0; right: auto; }
+        #btn-resign { right: 0; left: auto; color: var(--danger); background: rgba(255,71,87,0.12); border-color: rgba(255,71,87,0.4); }
+        .hdr-btn .ico { display: block; margin: 6px auto; width: 20px; height: 20px; }
+        #history-strip { width: 100%; max-width: none; margin: 0; height: 28px; justify-content: space-between; }
+        #history-strip button { width: 44px; height: 26px; border-radius: 8px; background: var(--input-bg); color: var(--text-color); display: flex; align-items: center; justify-content: center; padding: 0; }
+        #history-strip button .ico { width: 16px; height: 16px; }
+        #game-controls { width: 100%; max-width: none; margin: 0; padding: 4px; gap: 4px; background: var(--input-bg); border: none; border-radius: 16px; align-items: center; justify-content: flex-start; }
+        #btn-emote, #btn-send-chat { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        #btn-emote { background: transparent; color: var(--text-color); }
+        #btn-send-chat { background: var(--primary); color: #fff; }
+        #btn-emote .ico, #btn-send-chat .ico { width: 19px; height: 19px; }
+        #chat-input { background: transparent; border: none; border-radius: 0; padding: 8px 4px; }
+        #chat-input:focus { border: none; }
+        #emote-popup { bottom: calc(100% + 8px); left: 0; width: min(240px, 100%); }
+        body.chat-typing #game-controls, body.augment-picking #game-controls { width: calc(100% - 20px); max-width: 400px; background: var(--panel-bg); border: 1px solid var(--panel-border); box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
+        #game-frame #replay-bar { width: 100%; max-width: none; margin: 0; padding: 6px 0 0; background: none; border: none; border-top: 1px solid var(--panel-border); border-radius: 0; }
+
+        /* 지뢰 / 유망주 / 채팅 입력창 */
+        .mine-mark { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; opacity: 0.55; pointer-events: none; z-index: 1; }
+        body.black-pov .mine-mark { rotate: 180deg; }
+        .piece-prospect { filter: drop-shadow(0 0 5px rgba(255,215,0,0.9)); }
+        .piece-prospect:not(.piece-rooted)::after { content: '🎖️'; position: absolute; top: 0; left: 2px; font-size: 0.95rem; pointer-events: none; z-index: 4; }
+        .piece-prospect .effect-counter { background: #d4a017; color: #222; }
+        body.chat-typing #game-controls { bottom: calc(var(--kb-bottom, 0px) + 6px); padding: 6px; border-radius: 18px; box-shadow: 0 8px 28px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
@@ -545,9 +578,10 @@
     <div id="toast-container"></div>
     <div id="cast-text"></div>
 
+    <div id="game-frame">
     <div class="header">
-        <button id="btn-resign" class="lobby-btn danger">🏳️</button>
-        <button id="btn-settings-game" class="lobby-btn secondary">⚙️</button>
+        <button id="btn-resign" class="lobby-btn danger hdr-btn" aria-label="기권"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></button>
+        <button id="btn-settings-game" class="lobby-btn secondary hdr-btn" aria-label="설정"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
         <div class="header-logo">
             <div class="logo-icon" aria-hidden="true">
                 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -585,9 +619,9 @@
     </div>
 
     <div id="history-strip">
-        <button id="lr-prev" type="button" aria-label="이전 수">◀</button>
+        <button id="lr-prev" type="button" aria-label="이전 수"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></button>
         <div id="lr-label"></div>
-        <button id="lr-next" type="button" aria-label="다음 수" disabled>▶</button>
+        <button id="lr-next" type="button" aria-label="다음 수" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></button>
     </div>
     <div id="chat-spacer"></div>
     <div id="game-controls">
@@ -600,9 +634,9 @@
             <span class="emote-btn">😭</span>
             <span class="emote-btn" style="flex: 1 1 100%; font-size: 1.1rem; padding: 8px;">⏳ 빨리 좀 해라</span>
         </div>
-        <button id="btn-emote" class="ctrl-btn secondary">😀</button>
+        <button id="btn-emote" class="ctrl-btn secondary" aria-label="이모티콘"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
         <input type="text" id="chat-input" placeholder="채팅..." maxlength="40">
-        <button id="btn-send-chat" class="ctrl-btn">➤</button>
+        <button id="btn-send-chat" class="ctrl-btn" aria-label="전송"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
     </div>
 
     <div id="replay-bar">
@@ -627,6 +661,7 @@
             </div>
             <button id="rp-speed" type="button" class="rp-pill">1x</button>
         </div>
+    </div>
     </div>
     <div id="replay-banner"></div>
 
@@ -655,7 +690,7 @@
     </div>
 
     <div id="main-lobby-overlay" class="overlay" style="display: none;">
-        <div id="btn-settings" style="position: absolute; top: 20px; left: 20px; font-size: 1.8rem; cursor: pointer; z-index: 101; transition: transform 0.2s;">⚙️</div>
+        <div id="btn-settings" style="position: absolute; top: 20px; left: 20px; font-size: 1.8rem; cursor: pointer; z-index: 101; transition: transform 0.2s; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.07); border: 1px solid var(--panel-border); color: var(--text-color);" aria-label="설정"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
         
         <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
             <div style="font-size: 3.5rem; margin-bottom: 5px; animation: pop 0.8s;">♞</div>
@@ -863,7 +898,7 @@
         let roomListenerUnsubscribe = null;
         let soundEnabled = true; let soundVolume = 0.8; let saveBotReplay = true;
         let previousMove = null; let showPreviousMove = true;
-        let replayMode = 'result', replaySavedPrev = null, historySaved = false, lastOppName = '', replayFrames = [], replayActive = false, replayIdx = 0, replayTimer = null, replayPlaying = false, replaySpeed = 1, replayFinalState = null, replayBannerTimer = null;
+        let replayFogLock = false, replayMode = 'result', replaySavedPrev = null, historySaved = false, lastOppName = '', replayFrames = [], replayActive = false, replayIdx = 0, replayTimer = null, replayPlaying = false, replaySpeed = 1, replayFinalState = null, replayBannerTimer = null;
 
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         document.body.addEventListener('pointerdown', () => { if (audioContext.state === 'suspended') audioContext.resume(); }, { once: true });
@@ -1687,10 +1722,10 @@
             } else if (action.type === 'augment_sync') {
                 document.getElementById('augment-overlay').style.display = 'none';
                 deserializeGameState(action.state); 
-                { const ag = AUGMENT_POOL.find(x => x.name === action.name); recordFrame('augment', { name: action.name, icon: ag ? ag.icon : '✨', t: action.t || [], by: action.by || null, fx: { globalVfx: action.globalVfx || null, t: action.t || [], vfx: action.vfx || '', floats: action.floats || null, fxArg: action.fxArg || null, origin: action.origin || null, fxMoves: action.fxMoves || null, msg: action.msg || '', delay: action.delay || 1200 } }); }
+                { const ag = AUGMENT_POOL.find(x => x.name === action.name); recordFrame('augment', { name: action.name, icon: ag ? ag.icon : '✨', t: action.t || [], by: action.by || null, fx: { globalVfx: action.globalVfx || null, t: action.t || [], vfx: action.vfx || '', floats: action.floats || null, fxArg: action.fxArg || null, origin: action.origin || null, fxMoves: action.fxMoves || null, blasts: action.blasts || null, msg: action.msg || '', delay: action.delay || 1200 } }); }
                 persistRoomGameState().catch(() => {});   // 내 커서 기준으로 저장
                 showCastText(action.name || "증강", () => {
-                    const lead = playAugmentVisuals({ name: action.name, globalVfx: action.globalVfx, t: action.t, vfx: action.vfx, floats: action.floats, fxArg: action.fxArg, origin: action.origin, fxMoves: action.fxMoves });
+                    const lead = playAugmentVisuals({ name: action.name, globalVfx: action.globalVfx, t: action.t, vfx: action.vfx, floats: action.floats, fxArg: action.fxArg, origin: action.origin, fxMoves: action.fxMoves, blasts: action.blasts });
                     showToast(action.msg, "var(--primary)", 4000);
                     setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, (action.delay || 1200) + lead);
                 });
@@ -1833,10 +1868,10 @@
             return JSON.stringify({
                 board: game.board(), turn: game.turn(), castling: game.castling, ep_square: game.ep_square,
                 is_game_over: game.is_game_over, moveCount: moveCount, activePoison: activePoison,
-                rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, pendingAugments: pendingAugments,
+                rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, mines: mines, prospects: prospects, pendingAugments: pendingAugments,
                 activeWalls: activeWalls, reversedPawns: reversedPawns, reversedUids: reversedUids,
                 actionCursor: lastActionKey,
-                jackpotBonus: jackpotBonus, lastKiller: lastKiller, babyEffect: babyEffect, blackout: blackout, uidCounter: game.pieceUidCounter, castleUids: game.castleUids,
+                jackpotBonus: jackpotBonus, lastKiller: lastKiller, babyEffect: babyEffect, blackout: blackout, uidCounter: game.pieceUidCounter, castleUids: game.castleUids, keepUids: game.keepUids || {},
                 activeAugmentOptions: activeAugmentOptions,
                 activeAugmentPlayerColor: activeAugmentPlayerColor,
                 selectedAugmentIdx: selectedAugmentIdx
@@ -1846,7 +1881,7 @@
             const state = JSON.parse(stateStr);
             game._board = state.board; game._turn = state.turn; game.castling = state.castling; game.ep_square = state.ep_square;
             game.is_game_over = state.is_game_over; moveCount = state.moveCount; activePoison = state.activePoison;
-            rootedPieces = state.rootedPieces || {}; invinciblePieces = state.invinciblePieces || {}; pendingAugments = state.pendingAugments;
+            rootedPieces = state.rootedPieces || {}; invinciblePieces = state.invinciblePieces || {}; mines = state.mines || []; prospects = state.prospects || {}; pendingAugments = state.pendingAugments;
             activeWalls = state.activeWalls || [];
             { const rp = state.reversedPawns; reversedPawns = (rp && rp.color !== undefined) ? { w: rp.color === 'w' ? rp.duration : 0, b: rp.color === 'b' ? rp.duration : 0 } : (rp || { w: 0, b: 0 }); }   // 이전 저장 형식 호환
             reversedUids = state.reversedUids || { w: {}, b: {} };
@@ -1855,6 +1890,7 @@
             { const be = state.babyEffect; babyEffect = (be && be.color) ? { w: be.color === 'w' ? be : null, b: be.color === 'b' ? be : null } : (be || { w: null, b: null }); }
             { const bo = state.blackout; blackout = (bo && bo.target) ? { w: bo.target === 'w' ? bo.duration : 0, b: bo.target === 'b' ? bo.duration : 0 } : (bo || { w: 0, b: 0 }); }
             if (state.castleUids) game.castleUids = state.castleUids; else game.rebuildCastleUids();
+            game.keepUids = state.keepUids || {};
             if (state.uidCounter) game.pieceUidCounter = Math.max(game.pieceUidCounter, state.uidCounter);
             activeAugmentOptions = state.activeAugmentOptions || null;
             activeAugmentPlayerColor = state.activeAugmentPlayerColor || null;
@@ -1912,7 +1948,7 @@
                     if (!(p && p.type === 'p' && p.color !== this._turn && !this._board[r][c])) this.ep_square = null;
                 }
                 const promoted = [];
-                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const p = this._board[r][c]; if (p && p.type === 'p' && r === (p.color === 'w' ? 0 : 7)) { p.type = 'q'; promoted.push(this.rcToSq(r, c)); } }
+                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const p = this._board[r][c]; if (p && p.type === 'p' && r === (p.color === 'w' ? 0 : 7) && !(this.keepUids && this.keepUids[p.uid])) { p.type = 'q'; promoted.push(this.rcToSq(r, c)); } }
                 return promoted;
             }
 
@@ -2053,7 +2089,7 @@
         
         let selectedSquare = null; let legalMoves = []; let moveCount = 0;
         const AUGMENT_INTERVAL = 7; let isSystemLocked = false; let pendingAugments = [];
-        let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {};
+        let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {}; let mines = []; let prospects = {};
         let activeWalls = []; let reversedPawns = { w: 0, b: 0 }; let reversedUids = { w: {}, b: {} };   // 자아 분열 발동 당시 존재하던 폰의 uid만 효과를 받는다
         let jackpotBonus = { w: 0, b: 0 }; let lastKiller = { w: null, b: null }; let babyEffect = { w: null, b: null }; let blackout = { w: 0, b: 0 }; let targeting = null; let lastCheckKey = '';
 
@@ -2074,7 +2110,7 @@
 
         function resetGameUI() {
             if (networkUnsub) { try { networkUnsub(); } catch (e) {} networkUnsub = null; }
-            game.reset(); moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; pendingAugments = [];
+            game.reset(); game.keepUids = {}; moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; mines = []; prospects = {}; pendingAugments = [];
             activeWalls = []; reversedPawns = { w: 0, b: 0 }; reversedUids = { w: {}, b: {} }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = { w: null, b: null }; blackout = { w: 0, b: 0 }; lastCheckKey = '';
             if (targeting) { clearTargetVisuals(); targeting = null; }
             clearTimeout(endRevealTimer);
@@ -2085,6 +2121,7 @@
         }
 
         function updateTurnIndicator() {
+            if (replayActive && replayMode === 'live') return;   // 이전 수를 보는 동안에도 현재 턴 표시는 그대로
             if(game.turn() === 'w') { turnDisplayEl.className = 'turn-indicator white-turn'; turnDisplayEl.innerHTML = '백'; } 
             else { turnDisplayEl.className = 'turn-indicator black-turn'; turnDisplayEl.innerHTML = '흑'; }
             if(game.turn() === myColor) turnDisplayEl.classList.add('my-turn');
@@ -2121,6 +2158,7 @@
                 const isReversed = reversedPawns[piece.color] > 0 && piece.type === 'p' && !!reversedUids[piece.color][piece.uid];
                 el.classList.toggle('piece-rooted', rootedPieces[piece.uid] > 0);
                 el.classList.toggle('piece-invincible', invinciblePieces[piece.uid] > 0);
+                el.classList.toggle('piece-prospect', prospects[piece.uid] > 0);
                 const blessEff = ['w', 'b'].map(c => babyEffect[c]).find(be => be && (piece.uid === be.kUid || piece.uid === be.qUid)), isBlessed = !!blessEff;
                 el.classList.toggle('piece-blessed', isBlessed);
                 el.classList.toggle('piece-reversed', isReversed);
@@ -2132,6 +2170,8 @@
                 else if (piece.type === 'wall') {
                     const wallEntry = activeWalls.find(w => w.sq === sq);
                     duration = wallEntry ? wallEntry.duration : 0;
+                } else if (prospects[piece.uid] > 0) {
+                    duration = prospects[piece.uid];
                 } else if (isReversed) {
                     duration = reversedPawns[piece.color];
                 }
@@ -2167,6 +2207,7 @@
         }
 
         function updateProgressBar() {
+            if (replayActive && replayMode === 'live') return;
             const bar = document.getElementById('augment-progress'); const txt = document.getElementById('augment-text');
             const remain = AUGMENT_INTERVAL - (moveCount % AUGMENT_INTERVAL); const pct = (moveCount % AUGMENT_INTERVAL) / AUGMENT_INTERVAL * 100;
             bar.style.width = pct + '%';
@@ -2781,7 +2822,7 @@
             '독구름': 'poison', '네크로맨서': 'summon', '축복': 'summon', '징집': 'summon', '숲의 망령': 'summon', '아기는 어떻게 태어나?': 'summon', '차원 장벽': 'summon',
             '저주': 'curse', '마인드 컨트롤': 'curse', '광기': 'curse', '자아 분열': 'curse', '암전': 'curse',
             '빛의 수호': 'shield', '여신의 가호': 'shield', '덩굴': 'bind',
-            '혼란': 'move', '강제 이주': 'move', '그림자 교체': 'move', '파도': 'move', '진군 명령': 'move', '운명의 수레바퀴': 'move',
+            '지뢰 찾기': 'summon', '수퍼 워너비': 'upgrade', '혼란': 'move', '강제 이주': 'move', '그림자 교체': 'move', '파도': 'move', '진군 명령': 'move', '운명의 수레바퀴': 'move',
             '기사 서임': 'upgrade', '프로모션': 'upgrade', '캐슬링+': 'upgrade', '나이트 클럽': 'upgrade', '잭팟': 'upgrade'
         };
         const KIND_COLOR = {
@@ -2790,7 +2831,7 @@
         };
         const AUG_STAGGER = { '신의 심판': 60, '벼락': 140, '흑사': 70 };
         const AUG_SCALE = { '신성한 폭발': 1.35 };
-        const AUG_NO_LEAD = new Set(['파도', '진군 명령', '운명의 수레바퀴']);
+        const AUG_NO_LEAD = new Set(['파도', '진군 명령', '운명의 수레바퀴', '지뢰 찾기']);
         const WAVE_TRAVEL_SEC = 1.15; // FX 엔진의 WAVE_TRAVEL과 같은 값
 
         function highlightAffected(squares, color, delayOf) {
@@ -2848,6 +2889,7 @@
                 }
                 if (isVine) FX.vines(t);
                 drawPieces(true); updateCheckStatus();
+                if (a.blasts && a.blasts.length) setTimeout(() => playBlasts(a.blasts), 350);   // 증강으로 지뢰를 밟은 경우도 양쪽에서 폭발 연출
                 (a.floats || []).forEach(f => { if (isWave) setTimeout(() => spawnFloatingText(f.sq, f.text), rowSec(f.sq) * 1000); else spawnFloatingText(f.sq, f.text); });
                 if (a.globalVfx) playGlobalVFX(a.globalVfx, a.fxArg, origin);
                 if (t.length && !slides && !isVine) triggerVFX(t, a.vfx, AUG_STAGGER[a.name] || 0, AUG_SCALE[a.name] || 1);
@@ -2874,6 +2916,43 @@
                     }
                 });
             });
+            squareList.forEach(sqEl => { const mk = sqEl.querySelector('.mine-mark'); if (mk) mk.remove(); });
+            mines.forEach(mi => {   // 지뢰는 설치한 사람에게만 보인다 (리플레이에서는 모두 공개)
+                if (!(mi.owner === myColor || (replayActive && replayMode !== 'live'))) return;
+                const el = squareEls.get(mi.sq); if (!el) return;
+                const mk = document.createElement('span'); mk.className = 'mine-mark'; mk.textContent = '💣'; el.appendChild(mk);
+            });
+        }
+
+        function playBlasts(hit) {   // 폭발 연출 (양쪽 화면 모두에서 재생)
+            if (!hit || !hit.length) return;
+            hit.forEach(sq => spawnFloatingText(sq, '💥'));
+            triggerVFX(hit, 'vfx-explosion');
+            showToast('💣 지뢰가 폭발했습니다!', '#ff7a45', 2000);
+        }
+        function resolveMines(playFx = true) {   // 지뢰 칸에 기물이 도달하면 피아 구분 없이 파괴 (단, 킹은 폭발만 겪고 살아남는다)
+            const hitSq = new Set();
+            mines.forEach(mi => { const pc = game.get(mi.sq); if (pc && pc.type !== 'wall') hitSq.add(mi.sq); });
+            if (!hitSq.size) return [];
+            const hit = Array.from(hitSq);
+            hit.forEach(sq => { const pc = game.get(sq); if (pc && pc.type !== 'k') game.remove(sq); });
+            mines = mines.filter(mi => !hitSq.has(mi.sq));
+            if (playFx) playBlasts(hit);
+            return hit;
+        }
+        function promoteProspects() {   // 카운트가 끝난 유망주 폰을 퀸으로 승급
+            const done = [];
+            for (const uid in prospects) {
+                prospects[uid]--;
+                if (prospects[uid] > 0) continue;
+                delete prospects[uid];
+                for (const sq of squareEls.keys()) {
+                    const pc = game.get(sq);
+                    if (pc && String(pc.uid) === String(uid)) { if (pc.type === 'p') { game.remove(sq); game.put({ ...pc, type: 'q' }, sq); done.push(sq); spawnFloatingText(sq, '👑'); } break; }
+                }
+            }
+            if (done.length) showToast('🎖️ 수퍼 워너비가 퀸으로 승급했습니다!', '#f1c40f', 2400);
+            return done;
         }
 
         function updatePreviousMoveHighlights() {
@@ -2928,7 +3007,7 @@
                 try { showCastText(f.name, () => {
                     if (!replayActive || token !== replayToken) return;
                     scaleAnimsSoon(kSpd);
-                    playAugmentVisuals({ name: f.name, globalVfx: fx.globalVfx, t: fx.t, vfx: fx.vfx, floats: fx.floats, fxArg: fx.fxArg, origin: fx.origin, fxMoves: fx.fxMoves });
+                    playAugmentVisuals({ name: f.name, globalVfx: fx.globalVfx, t: fx.t, vfx: fx.vfx, floats: fx.floats, fxArg: fx.fxArg, origin: fx.origin, fxMoves: fx.fxMoves, blasts: fx.blasts });
                     playSFX('augment'); if (fx.msg) showToast(fx.msg, 'var(--primary)', 2600);
                     setTimeout(() => { if (replayActive && token === replayToken) replayMarkChecks(); }, 700);
                 }); } finally { __timeScale = 1; }
@@ -3002,6 +3081,7 @@
         }
         function startLiveReview() {   // 경기 중 이전 한두 수 되돌아보기
             if (replayFrames.length < 2) { showToast('아직 볼 이전 수가 없어요', 'var(--danger)', 1600); return; }
+            replayFogLock = blackout[myColor] > 0;
             replayMode = 'live'; liveMinIdx = Math.max(0, replayFrames.length - 1 - LIVE_BACK);
             replayFinalState = serializeGameState(); replaySavedPrev = previousMove; replayQueue = []; replayActive = true;
             document.body.classList.add('replay-mode', 'live-review');
@@ -3130,18 +3210,20 @@
         // 화면 높이에 맞춰 판 크기를 자동 조절: 헤더/채팅/이전 수 줄/리플레이 바까지 한 화면에 들어오게
         let fitRaf = 0;
         function fitBoard() {
-            const cont = document.getElementById('board-container'); if (!cont) return;
+            const frame = document.getElementById('game-frame'), cont = document.getElementById('board-container'); if (!frame || !cont) return;
             const cl = document.body.classList; if (cl.contains('chat-typing') || cl.contains('augment-picking')) return;   // 키보드·오버레이 중에는 크기 고정
             let others = 0;
             Array.from(document.body.children).forEach(el => {
-                if (el === cont) return; const cs = getComputedStyle(el);
+                if (el === frame) return; const cs = getComputedStyle(el);
                 if (cs.display === 'none' || cs.position === 'fixed' || cs.position === 'absolute' || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
                 others += el.offsetHeight + parseFloat(cs.marginTop || 0) + parseFloat(cs.marginBottom || 0);
             });
-            const bs = getComputedStyle(document.body), pad = parseFloat(bs.paddingTop || 0) + parseFloat(bs.paddingBottom || 0), contMargin = parseFloat(getComputedStyle(cont).marginTop || 0);
-            const avail = window.innerHeight - others - pad - contMargin - 14;   // 판 영역에 쓸 수 있는 높이
-            const size = Math.max(250, Math.min(420, Math.floor(avail) + 20));   // 컨테이너 좌우 패딩 20px 포함
-            if (cont.dataset.fit !== String(size)) { cont.dataset.fit = String(size); document.documentElement.style.setProperty('--board-max', size + 'px'); }
+            const bs = getComputedStyle(document.body), fs = getComputedStyle(frame);
+            const pad = parseFloat(bs.paddingTop || 0) + parseFloat(bs.paddingBottom || 0) + parseFloat(fs.marginTop || 0) + parseFloat(fs.marginBottom || 0);
+            const inFrame = frame.offsetHeight - cont.offsetHeight;   // 틀 안에서 판을 뺀 나머지 높이(헤더, 줄, 채팅, 간격, 패딩)
+            const avail = window.innerHeight - others - pad - inFrame - 8;   // 판에 쓸 수 있는 높이
+            const size = Math.max(270, Math.min(420, Math.floor(avail) + 22));   // 틀 너비 = 판 + 좌우 패딩/테두리 22px
+            if (frame.dataset.fit !== String(size)) { frame.dataset.fit = String(size); document.documentElement.style.setProperty('--board-max', size + 'px'); }
         }
         function scheduleFit() { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitBoard); }
         window.addEventListener('resize', scheduleFit); window.addEventListener('orientationchange', () => setTimeout(scheduleFit, 200));
@@ -3321,6 +3403,7 @@
                 activePoison.forEach(p => { if (p.squares.includes(to) && p.owner !== pieceNow.color) poisoned = true; });
                 if (poisoned && pieceNow.type !== 'k' && pieceNow.type !== 'wall' && !invinciblePieces[pieceNow.uid]) { game.remove(to); spawnFloatingText(to, '☠️'); triggerVFX([to], 'vfx-explosion'); }
             }
+            resolveMines();
 
             previousMove = { from, to };
             recordFrame('move', { from, to, by: moveResult.color, captured: moveResult.captured || null });
@@ -3349,6 +3432,8 @@
             ['w', 'b'].forEach(c => { if (blackout[c] > 0) blackout[c]--; });
             const poisonKilled = enforcePoison();
             const babyBorn = processBaby();
+            const promotedSq = promoteProspects();
+            resolveMines();
             
             ['w', 'b'].forEach(c => { if (reversedPawns[c] > 0) { reversedPawns[c]--; if (reversedPawns[c] <= 0) reversedUids[c] = {}; } });
 
@@ -3359,7 +3444,8 @@
             });
 
             game.sanitizeSpecialStates();
-            drawPieces(babyBorn.length > 0);
+            drawPieces(babyBorn.length > 0 || promotedSq.length > 0);
+            if (promotedSq.length) { triggerVFX(promotedSq, 'vfx-heal'); highlightAffected(promotedSq, KIND_COLOR.upgrade); updateCheckStatus(); }
             if (poisonKilled.length) triggerVFX(poisonKilled, 'vfx-void');
             if (babyBorn.length) { triggerVFX(babyBorn, 'vfx-heal'); highlightAffected(babyBorn, KIND_COLOR.summon); updateCheckStatus(); }
             activePoison.forEach(p => p.duration--); activePoison = activePoison.filter(p => p.duration > 0); updateBoardVisuals(); updateProgressBar();
@@ -3508,7 +3594,7 @@
             }
             return born;
         }
-        const isFogOn = () => !!(blackout[myColor] > 0 && isGameStarted && !replayActive);
+        const isFogOn = () => !!(isGameStarted && (replayActive ? (replayMode === 'live' && replayFogLock) : blackout[myColor] > 0));   // 이전 수 보기 중에도 현재 암전 상태면 그대로 어둡게 (되감아서 정보를 훔쳐보지 못하게)
         function updateBlackoutBadge() {
             const el = document.getElementById('blackout-badge'); if (!el) return;
             const e = myColor === 'w' ? 'b' : 'w', turns = n => n, parts = [];
@@ -3523,6 +3609,16 @@
             pieceEls.forEach(el => el.classList.toggle('piece-hidden', on && el.dataset.color !== myColor));
         }
 
+        // 가중치(소수 가능)에 비례해 중복 없이 count개를 뽑는다
+        function weightedSample(list, count) {
+            const pool = list.map(a => ({ a, w: a.weight !== undefined ? a.weight : (a.isKillType ? 1 : 4) })), out = [];
+            while (out.length < count && pool.length) {
+                const tot = pool.reduce((t, x) => t + x.w, 0); let r = Math.random() * tot, i = 0;
+                for (; i < pool.length - 1; i++) { r -= pool[i].w; if (r <= 0) break; }
+                out.push(pool[i].a); pool.splice(i, 1);
+            }
+            return out;
+        }
         function findPieces(color, type = null) { let res = []; for(let r=0; r<8; r++) for(let c=0; c<8; c++) { const p = game.board()[r][c]; if(p && p.color === color && (!type || p.type === type)) res.push(game.rcToSq(r,c)); } return res; }
         function findVulnerable(color) { return findPieces(color).filter(sq => { const p = game.get(sq); return p && p.type !== 'k' && !invinciblePieces[p.uid]; }); }
         function getEmptySquares() { let res = []; for(let f=97; f<=104; f++) for(let r=1; r<=8; r++) { const sq = String.fromCharCode(f)+r; if(!game.get(sq)) res.push(sq); } return res; }
@@ -3701,7 +3797,7 @@
                   return { t: squares, vfx: 'vfx-void', msg: '☠️ 맹독 지대가 형성되었습니다!' }; } },
             { name: '암살', icon: '🗡️', desc: '가치가 가장 낮은 적 기물 {2개}를 [파괴]합니다.', globalVfx: 'vfx-global-assassinate', isKillType: true, condition: (m, e) => findVulnerable(e).length > 1,
               apply: (m, e) => { const targets = findVulnerable(e).sort((a, b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]).slice(0, 2); targets.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '🗡️'); }); return { t: targets, vfx: 'vfx-explosion', msg: '🗡️ 어둠 속 암살자가 습격했습니다!' }; } },
-            { name: '연계 분쇄', icon: '⛓️', weight: 3, desc: '킹이 {체크} 상태일 때, 킹을 위협하는 적 기물을 역으로 즉시 [파괴]합니다.', globalVfx: 'vfx-global-explosion', isKillType: true,
+            { name: '연계 분쇄', icon: '⛓️', weight: 2.48, desc: '킹이 {체크} 상태일 때, 킹을 위협하는 적 기물을 역으로 즉시 [파괴]합니다.', globalVfx: 'vfx-global-explosion', isKillType: true,
               condition: (m, e) => game.in_check(m) && findCheckers(m).length > 0,
               apply: (m, e) => { const sqs = findCheckers(m); if (!sqs.length) return { t: [], vfx: '', msg: '위협하는 적 기물을 찾지 못했습니다.' };
                   sqs.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '⛓️'); });
@@ -3799,7 +3895,7 @@
             { name: '암전', icon: '💡', weight: 1, desc: '{4수} 동안 상대방의 기물들이 차지한 칸을 제외한 모든 칸을 [암전]시켜 시야를 방해합니다.', globalVfx: 'vfx-global-blackout', isKillType: false,
               condition: (m, e) => !(blackout[e] > 0) && !(isBotMode && m === myColor),
               apply: (m, e) => { blackout[e] = 4; return { t: [], vfx: '', msg: '💡 상대의 시야가 어둠에 잠겼습니다!' }; } },
-            { name: '운명의 수레바퀴', icon: '🎡', desc: '체스보드의 [맨 바깥쪽] 칸들에 있는 기물들을 {시계방향}으로 {한 칸씩} [회전]시킵니다. 벽은 움직이지 않고, 폰이 승급 칸에 도착하면 퀸으로 승급합니다.', globalVfx: 'vfx-global-void', isKillType: false, delay: 1500,
+            { name: '운명의 수레바퀴', icon: '🎡', desc: '체스보드의 [맨 바깥쪽] 칸들에 있는 기물들을 {시계방향}으로 {한 칸씩} [회전]시킵니다. 벽은 움직이지 않습니다.', globalVfx: 'vfx-global-void', isKillType: false, delay: 1500,
               condition: (m, e) => getWheelRing().some(sq => { const p = game.get(sq); return p && p.type !== 'wall'; }),
               apply: (m, e) => {
                   const ring = getWheelRing().filter(sq => { const p = game.get(sq); return !p || p.type !== 'wall'; }), n = ring.length;   // 벽 칸은 건너뜀
@@ -3807,12 +3903,26 @@
                   const moved = [];
                   contents.forEach((pc, i) => { if (!pc) return; const to = ring[(i + 1) % n]; game.put(pc, to); moved.push(to); });
                   game.ep_square = null;   // 회전으로 앙파상 가능 칸이 어긋나지 않도록 초기화
-                  moved.forEach(sq => {   // 폰이 승급 칸에 도착하면 퀸으로 승급
-                      const pc = game.get(sq); if (!pc || pc.type !== 'p') return; const rank = parseInt(sq[1]), rev = reversedPawns[pc.color] > 0 && !!reversedUids[pc.color][pc.uid];
-                      const promoRank = (pc.color === 'w') !== rev ? 8 : 1;
-                      if (rank === promoRank) { game.remove(sq); game.put({ ...pc, type: 'q' }, sq); }
-                  });
-                  return { t: moved, vfx: 'vfx-lightning', msg: '🎡 운명의 수레바퀴가 돌아갑니다!' }; } }
+                  game.keepUids = game.keepUids || {};
+                  moved.forEach(sq => { const pc = game.get(sq); if (pc && pc.type === 'p' && parseInt(sq[1]) === (pc.color === 'w' ? 8 : 1)) game.keepUids[pc.uid] = true; });   // 끝줄에 닿은 폰은 퀸이 되지 않고 그대로 남는다
+                  return { t: moved, vfx: 'vfx-lightning', msg: '🎡 운명의 수레바퀴가 돌아갑니다!' }; } },
+            { name: '지뢰 찾기', icon: '💣', desc: '원하는 빈칸 {한 곳}에 [지뢰]를 매설합니다. 지뢰는 [상대방에게 보이지 않으며], 해당 칸에 도달한 기물은 {피아 구분 없이} [파괴]됩니다.', globalVfx: 'vfx-global-void', isKillType: false,
+              target: { mode: 'square', prompt: '지뢰를 묻을 빈칸을 선택하세요', valid: (m) => getEmptySquares().filter(sq => !mines.some(x => x.sq === sq && x.owner === m)) },
+              condition: (m) => getEmptySquares().some(sq => !mines.some(x => x.sq === sq && x.owner === m)),
+              apply: (m, e, target) => {
+                  const ok = sq => sq && !game.get(sq) && !mines.some(x => x.sq === sq && x.owner === m);
+                  const sq = ok(target) ? target : shuffle(getEmptySquares().filter(ok))[0];
+                  if (sq) mines.push({ sq, owner: m });
+                  return { t: [], vfx: '', msg: '💣 지뢰가 매설되었습니다!' }; } },
+            { name: '수퍼 워너비', icon: '🎖️', desc: '아군 폰 {하나}를 지정하여 [유망주]로 만듭니다. 해당 폰은 {9수} 뒤 [퀸]으로 프로모션합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+              target: { mode: 'piece', prompt: '유망주로 만들 아군 폰을 선택하세요', valid: (m) => findPieces(m, 'p').filter(sq => !(prospects[game.get(sq).uid] > 0)) },
+              condition: (m) => findPieces(m, 'p').some(sq => !(prospects[game.get(sq).uid] > 0)),
+              apply: (m, e, target) => {
+                  const cands = findPieces(m, 'p').filter(sq => !(prospects[game.get(sq).uid] > 0));
+                  const sq = (target && cands.includes(target)) ? target : shuffle(cands)[0];
+                  if (!sq) return { t: [], vfx: '', msg: '' };
+                  prospects[game.get(sq).uid] = 9; spawnFloatingText(sq, '🎖️');
+                  return { t: [sq], vfx: 'vfx-heal', msg: '🎖️ 유망주가 탄생했습니다! 9수 뒤 퀸으로 승급합니다.' }; } }
         ];
 
         // 가장자리 28칸을 시계방향(a8→h8→h1→a1→a8) 순서로 반환
@@ -3832,7 +3942,7 @@
             '기사 서임': { category: '유틸' }, '프로모션': { category: '유틸' }, '캐슬링+': { category: '유틸' }, '진군 명령': { category: '유틸' }, '그림자 교체': { category: '유틸' },
             '저주': { category: '유틸' }, '혼란': { category: '유틸' }, '광기': { category: '유틸', risk: '대상 지정' }, '강제 이주': { category: '유틸' }, '파도': { category: '유틸' }, '운명의 수레바퀴': { category: '유틸' },
             '덩굴': { category: '유틸' }, '빛의 수호': { category: '유틸' }, '여신의 가호': { category: '유틸' }, '마인드 컨트롤': { category: '유틸' },
-            '차원 장벽': { category: '유틸', risk: '위치 지정' }, '자아 분열': { category: '유틸' }, '나이트 클럽': { category: '유틸' }, '잭팟': { category: '유틸' }, '암전': { category: '유틸' }
+            '차원 장벽': { category: '유틸', risk: '위치 지정' }, '지뢰 찾기': { category: '피해', risk: '위치 지정' }, '수퍼 워너비': { category: '유틸', risk: '대상 지정' }, '자아 분열': { category: '유틸' }, '나이트 클럽': { category: '유틸' }, '잭팟': { category: '유틸' }, '암전': { category: '유틸' }
         };
 
         function getAugmentCategoryLabel(aug) {
@@ -3942,17 +4052,7 @@
                 }
                 const enemyColor = playerColor === 'w' ? 'b' : 'w';
                 let available = AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
-                let weighted = [];
-                available.forEach(aug => {
-                    let w = aug.weight !== undefined ? aug.weight : (aug.isKillType ? 1 : 4);
-                    for (let i = 0; i < w; i++) weighted.push(aug);
-                });
-                weighted.sort(() => 0.5 - Math.random());
-                const previewOptions = [];
-                for (let aug of weighted) {
-                    if (previewOptions.length >= augmentOptionCount(playerColor)) break;
-                    if (!previewOptions.find(o => o.name === aug.name)) previewOptions.push(aug);
-                }
+                const previewOptions = weightedSample(available, augmentOptionCount(playerColor));
                 if (previewOptions.length === 0) { processNextAugmentPhase(); return; }
                 renderOpponentPreviewCards(previewOptions, playerColor, overlay);
                 return; 
@@ -3963,14 +4063,7 @@
             let available = resolvedOptions.length > 0 ? resolvedOptions : AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
 
             if (!options) {
-                let weighted = [];
-                available.forEach(aug => {
-                    let w = aug.weight !== undefined ? aug.weight : (aug.isKillType ? 1 : 4);
-                    for(let i=0; i<w; i++) weighted.push(aug);
-                });
-                weighted.sort(() => 0.5 - Math.random()); 
-                options = [];
-                for(let a of weighted) { if(options.length<augmentOptionCount(playerColor) && !options.find(o=>o.name===a.name)) options.push(a); }
+                options = weightedSample(available, augmentOptionCount(playerColor));
             } else {
                 options = resolveAugmentOptions(options);
             }
@@ -4038,17 +4131,17 @@
             showCastText(selectedAug.name, () => {
                 floatLog = [];
                 let res;
-                try { res = selectedAug.apply(pColor, eColor, target); const poisoned = enforcePoison(); game.sanitizeSpecialStates(); if (poisoned.length) res.t = [...new Set([...(res.t || []), ...poisoned])]; }
+                try { res = selectedAug.apply(pColor, eColor, target); const poisoned = enforcePoison(); game.sanitizeSpecialStates(); if (poisoned.length) res.t = [...new Set([...(res.t || []), ...poisoned])]; const blasts = resolveMines(false); res.blasts = blasts; if (blasts.length) res.t = [...new Set([...(res.t || []), ...blasts])]; }
                 finally { var floats = floatLog; floatLog = null; }
 
-                recordFrame('augment', { name: selectedAug.name, icon: selectedAug.icon, t: res.t || [], by: pColor, fx: { globalVfx: selectedAug.globalVfx || null, t: res.t || [], vfx: res.vfx || '', floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null, msg: res.msg || '', delay: selectedAug.delay || 1200 } });
+                recordFrame('augment', { name: selectedAug.name, icon: selectedAug.icon, t: res.t || [], by: pColor, fx: { globalVfx: selectedAug.globalVfx || null, t: res.t || [], vfx: res.vfx || '', floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null, blasts: res.blasts || null, msg: res.msg || '', delay: selectedAug.delay || 1200 } });
                 pushGameAction({
                     type: 'augment_sync', by: pColor, name: selectedAug.name, state: serializeGameState(),
                     globalVfx: selectedAug.globalVfx || null,
-                    t: res.t || [], vfx: res.vfx || '', msg: res.msg || '', delay: selectedAug.delay || 1200, floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null
+                    t: res.t || [], vfx: res.vfx || '', msg: res.msg || '', delay: selectedAug.delay || 1200, floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null, blasts: res.blasts || null
                 });
 
-                const lead = playAugmentVisuals({ name: selectedAug.name, globalVfx: selectedAug.globalVfx, t: res.t, vfx: res.vfx, floats: floats, fxArg: res.fxArg, origin: res.origin, fxMoves: res.fxMoves });
+                const lead = playAugmentVisuals({ name: selectedAug.name, globalVfx: selectedAug.globalVfx, t: res.t, vfx: res.vfx, floats: floats, fxArg: res.fxArg, origin: res.origin, fxMoves: res.fxMoves, blasts: res.blasts });
                 playSFX('augment');
                 showToast(res.msg, "var(--primary)", 4000);
                 persistRoomGameState().catch(() => {});
