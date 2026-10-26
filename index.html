@@ -538,6 +538,63 @@
         /* 길게 눌러 판을 볼 때 텍스트/이미지가 선택·복사되지 않게 (입력창은 제외) */
         html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
         input, textarea { -webkit-user-select: text; user-select: text; }
+
+        /* ================= 게임 화면: 하나의 틀 + 아이콘 ================= */
+        .ico { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+        #game-frame { width: calc(100% - 20px); max-width: var(--board-max, 420px); margin: 6px auto 8px; box-sizing: border-box; padding: 10px; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        #game-frame .header { max-width: none; width: 100%; margin: 0; padding-top: 0; }
+        #game-frame #board-container { max-width: none; width: 100%; padding: 0; margin-top: 0; }
+        #game-frame #board { box-shadow: none; }
+        #game-frame .progress-container { width: 100%; max-width: none; }
+        #btn-resign, #btn-settings-game { top: 0; width: 34px; height: 34px; padding: 0; border-radius: 50%; line-height: 0; background: rgba(255,255,255,0.07); border: 1px solid var(--panel-border); color: var(--text-color); }
+        #btn-settings-game { left: 0; right: auto; }
+        #btn-resign { right: 0; left: auto; color: var(--danger); background: rgba(255,71,87,0.12); border-color: rgba(255,71,87,0.4); }
+        .hdr-btn .ico { display: block; margin: 6px auto; width: 20px; height: 20px; }
+        #history-strip { width: 100%; max-width: none; margin: 0; height: 28px; justify-content: space-between; }
+        #history-strip button { width: 44px; height: 26px; border-radius: 8px; background: var(--input-bg); color: var(--text-color); display: flex; align-items: center; justify-content: center; padding: 0; }
+        #history-strip button .ico { width: 16px; height: 16px; }
+        #game-controls { width: 100%; max-width: none; margin: 0; padding: 4px; gap: 4px; background: var(--input-bg); border: none; border-radius: 16px; align-items: center; justify-content: flex-start; }
+        #btn-emote, #btn-send-chat { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        #btn-emote { background: transparent; color: var(--text-color); }
+        #btn-send-chat { background: var(--primary); color: #fff; }
+        #btn-emote .ico, #btn-send-chat .ico { width: 19px; height: 19px; }
+        #chat-input { background: transparent; border: none; border-radius: 0; padding: 8px 4px; }
+        #chat-input:focus { border: none; }
+        #emote-popup { bottom: calc(100% + 8px); left: 0; width: min(240px, 100%); }
+        body.chat-typing #game-controls, body.augment-picking #game-controls { width: calc(100% - 20px); max-width: 400px; background: var(--panel-bg); border: 1px solid var(--panel-border); box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
+        #game-frame #replay-bar { width: 100%; max-width: none; margin: 0; padding: 6px 0 0; background: none; border: none; border-top: 1px solid var(--panel-border); border-radius: 0; }
+
+        /* 지뢰 / 유망주 / 채팅 입력창 */
+        .mine-mark { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; opacity: 0.55; pointer-events: none; z-index: 1; }
+        body.black-pov .mine-mark { rotate: 180deg; }
+        .piece-prospect { filter: drop-shadow(0 0 5px rgba(255,215,0,0.9)); }
+        .piece-prospect:not(.piece-rooted)::after { content: '🎖️'; position: absolute; top: 0; left: 2px; font-size: 0.95rem; pointer-events: none; z-index: 4; }
+        .piece-prospect .effect-counter { background: #d4a017; color: #222; }
+        body.chat-typing #game-controls { bottom: calc(var(--kb-bottom, 0px) + 6px); padding: 6px; border-radius: 18px; box-shadow: 0 8px 28px rgba(0,0,0,0.5); }
+
+        /* ===== 설정창: 탭 구조 ===== */
+        .settings-box { max-width: 360px; padding: 0 !important; overflow: hidden; display: flex; flex-direction: column; max-height: min(88vh, 600px); text-align: left; }
+        .settings-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 8px 20px; }
+        .settings-head h2 { margin: 0; font-size: 1.2rem; }
+        .settings-x { width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 1px solid var(--panel-border); background: rgba(255,255,255,0.07); color: var(--text-color); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .settings-x .ico { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+        .settings-tabs { display: flex; gap: 4px; padding: 0 14px; border-bottom: 1px solid var(--panel-border); }
+        .stab { flex: 1; padding: 11px 0; background: none; border: none; border-bottom: 2px solid transparent; color: #888; font-weight: 700; font-size: 0.92rem; cursor: pointer; margin-bottom: -1px; transition: color 0.15s, border-color 0.15s; }
+        .stab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .settings-body { padding: 16px 20px 20px; overflow-y: auto; height: 340px; max-height: calc(88vh - 120px); box-sizing: border-box; -webkit-overflow-scrolling: touch; }
+        .spane { display: none; }
+        .spane.active { display: block; }
+        .s-profile-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .s-profile-row .lobby-input { margin: 0; flex: 1; text-align: left; }
+        #selected-icon-display { font-size: 2rem; background: var(--input-bg); padding: 5px 15px; border-radius: 8px; border: 1px solid var(--panel-border); }
+        .s-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 2px; border-bottom: 1px solid var(--panel-border); }
+        .s-row:last-child { border-bottom: none; }
+        .s-row.s-col { flex-direction: column; align-items: stretch; gap: 10px; }
+        .s-line { display: flex; align-items: center; justify-content: space-between; }
+        .s-txt b { display: block; font-size: 1rem; }
+        .s-txt small { display: block; margin-top: 3px; color: #888; font-size: 0.78rem; line-height: 1.35; }
+        .s-val { font-size: 0.9rem; color: #aaa; }
+        .s-row .switch { flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -545,9 +602,10 @@
     <div id="toast-container"></div>
     <div id="cast-text"></div>
 
+    <div id="game-frame">
     <div class="header">
-        <button id="btn-resign" class="lobby-btn danger">🏳️</button>
-        <button id="btn-settings-game" class="lobby-btn secondary">⚙️</button>
+        <button id="btn-resign" class="lobby-btn danger hdr-btn" aria-label="기권"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></button>
+        <button id="btn-settings-game" class="lobby-btn secondary hdr-btn" aria-label="설정"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
         <div class="header-logo">
             <div class="logo-icon" aria-hidden="true">
                 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -585,9 +643,9 @@
     </div>
 
     <div id="history-strip">
-        <button id="lr-prev" type="button" aria-label="이전 수">◀</button>
+        <button id="lr-prev" type="button" aria-label="이전 수"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></button>
         <div id="lr-label"></div>
-        <button id="lr-next" type="button" aria-label="다음 수" disabled>▶</button>
+        <button id="lr-next" type="button" aria-label="다음 수" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></button>
     </div>
     <div id="chat-spacer"></div>
     <div id="game-controls">
@@ -600,9 +658,9 @@
             <span class="emote-btn">😭</span>
             <span class="emote-btn" style="flex: 1 1 100%; font-size: 1.1rem; padding: 8px;">⏳ 빨리 좀 해라</span>
         </div>
-        <button id="btn-emote" class="ctrl-btn secondary">😀</button>
+        <button id="btn-emote" class="ctrl-btn secondary" aria-label="이모티콘"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
         <input type="text" id="chat-input" placeholder="채팅..." maxlength="40">
-        <button id="btn-send-chat" class="ctrl-btn">➤</button>
+        <button id="btn-send-chat" class="ctrl-btn" aria-label="전송"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
     </div>
 
     <div id="replay-bar">
@@ -627,6 +685,7 @@
             </div>
             <button id="rp-speed" type="button" class="rp-pill">1x</button>
         </div>
+    </div>
     </div>
     <div id="replay-banner"></div>
 
@@ -655,7 +714,7 @@
     </div>
 
     <div id="main-lobby-overlay" class="overlay" style="display: none;">
-        <div id="btn-settings" style="position: absolute; top: 20px; left: 20px; font-size: 1.8rem; cursor: pointer; z-index: 101; transition: transform 0.2s;">⚙️</div>
+        <div id="btn-settings" style="position: absolute; top: 20px; left: 20px; font-size: 1.8rem; cursor: pointer; z-index: 101; transition: transform 0.2s; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.07); border: 1px solid var(--panel-border); color: var(--text-color);" aria-label="설정"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
         
         <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
             <div style="font-size: 3.5rem; margin-bottom: 5px; animation: pop 0.8s;">♞</div>
@@ -717,60 +776,45 @@
     </div>
 
     <div id="settings-overlay" class="overlay" style="display: none; z-index: 300;">
-        <div class="lobby-box">
-            <h2 style="margin-bottom: 20px;">⚙️ 설정</h2>
-            
-            <div style="text-align: left; margin-bottom: 20px;">
-                <p style="margin: 0 0 10px 0; color: #888; font-size: 0.85rem; font-weight: bold;">프로필 아이콘 선택 (<span id="settings-account-info"></span>)</p>
-                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-                    <div id="selected-icon-display" style="font-size: 2rem; background: var(--input-bg); padding: 5px 15px; border-radius: 8px; border: 1px solid var(--panel-border);">👤</div>
-                    <input type="text" id="profile-name-input" class="lobby-input" style="margin:0; flex: 1;" maxlength="10" placeholder="닉네임">
-                </div>
-                
-                <div class="emoji-grid" id="emoji-picker-container"></div>
-                
-                <button id="btn-save-profile" class="lobby-btn" style="padding: 8px; margin: 0;">프로필 저장</button>
+        <div class="lobby-box settings-box">
+            <div class="settings-head">
+                <h2>설정</h2>
+                <button id="btn-close-settings" class="settings-x" aria-label="닫기"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
             </div>
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px;">
-                <span style="font-weight: bold; font-size: 1.1rem;">효과음</span>
-                <label class="switch">
-                    <input type="checkbox" id="sound-toggle" checked>
-                    <span class="slider round"></span>
-                </label>
+            <div class="settings-tabs" role="tablist">
+                <button class="stab active" data-tab="profile" role="tab">프로필</button>
+                <button class="stab" data-tab="game" role="tab">게임</button>
+                <button class="stab" data-tab="account" role="tab">계정</button>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px;">
-                <span style="font-weight: bold; font-size: 1.1rem;">이전 이동 표시</span>
-                <label class="switch">
-                    <input type="checkbox" id="previous-move-toggle" checked>
-                    <span class="slider round"></span>
-                </label>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px;">
-                <span style="font-weight: bold; font-size: 1.1rem;">봇 대전 리플레이 저장</span>
-                <label class="switch">
-                    <input type="checkbox" id="bot-replay-toggle" checked>
-                    <span class="slider round"></span>
-                </label>
-            </div>
-            <div style="margin-bottom: 20px; text-align: left; padding: 0 5px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span style="font-weight: bold; font-size: 1.1rem;">효과음 볼륨</span>
-                    <span id="sound-volume-value" style="font-size: 0.9rem; color: #aaa;">80%</span>
-                </div>
-                <input id="sound-volume-slider" type="range" min="0" max="100" value="80" style="width: 100%;">
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 0 5px;">
-                <span style="font-weight: bold; font-size: 1.1rem;">다크 모드</span>
-                <label class="switch">
-                    <input type="checkbox" id="theme-toggle" checked>
-                    <span class="slider round"></span>
-                </label>
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <button id="btn-logout" class="lobby-btn danger" style="flex: 1; margin: 0;">로그아웃</button>
-                <button id="btn-close-settings" class="lobby-btn secondary" style="flex: 1; margin: 0;">닫기</button>
+            <div class="settings-body">
+                <section class="spane active" data-pane="profile">
+                    <div class="s-profile-row">
+                        <div id="selected-icon-display">👤</div>
+                        <input type="text" id="profile-name-input" class="lobby-input" maxlength="10" placeholder="닉네임">
+                    </div>
+                    <div class="emoji-grid" id="emoji-picker-container"></div>
+                    <button id="btn-save-profile" class="lobby-btn" style="padding: 10px; margin: 0;">프로필 저장</button>
+                </section>
+                <section class="spane" data-pane="game">
+                    <div class="s-row">
+                        <div class="s-txt"><b>이전 이동 표시</b><small>직전에 둔 수의 출발·도착 칸을 판 위에 표시합니다.</small></div>
+                        <label class="switch"><input type="checkbox" id="previous-move-toggle" checked><span class="slider round"></span></label>
+                    </div>
+                    <div class="s-row">
+                        <div class="s-txt"><b>봇 대전 리플레이 저장</b><small>컴퓨터 대전도 최근 대전 기록에 저장합니다.</small></div>
+                        <label class="switch"><input type="checkbox" id="bot-replay-toggle" checked><span class="slider round"></span></label>
+                    </div>
+                    <div class="s-row">
+                        <div class="s-txt"><b>다크 모드</b><small>어두운 화면 / 밝은 화면을 전환합니다.</small></div>
+                        <label class="switch"><input type="checkbox" id="theme-toggle" checked><span class="slider round"></span></label>
+                    </div>
+                </section>
+                <section class="spane" data-pane="account">
+                    <div class="s-row">
+                        <div class="s-txt"><b>로그인 방식</b><small id="settings-account-wrap"><span id="settings-account-info"></span> 계정으로 접속 중입니다.</small></div>
+                    </div>
+                    <button id="btn-logout" class="lobby-btn danger" style="margin: 14px 0 0;">로그아웃</button>
+                </section>
             </div>
         </div>
     </div>
@@ -861,67 +905,9 @@
         
         let isMatchmaking = false; 
         let roomListenerUnsubscribe = null;
-        let soundEnabled = true; let soundVolume = 0.8; let saveBotReplay = true;
+        let saveBotReplay = true;
         let previousMove = null; let showPreviousMove = true;
-        let replayMode = 'result', replaySavedPrev = null, historySaved = false, lastOppName = '', replayFrames = [], replayActive = false, replayIdx = 0, replayTimer = null, replayPlaying = false, replaySpeed = 1, replayFinalState = null, replayBannerTimer = null;
-
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        document.body.addEventListener('pointerdown', () => { if (audioContext.state === 'suspended') audioContext.resume(); }, { once: true });
-
-        function playPercussiveTone(freq, duration = 0.06, volume = 0.08) {
-            if (!audioContext || audioContext.state === 'suspended' || !soundEnabled) return;
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            const filter = audioContext.createBiquadFilter();
-            const now = audioContext.currentTime;
-            osc.type = 'triangle';
-            osc.frequency.value = freq + (Math.random() * 12 - 6);
-            filter.type = 'highpass';
-            filter.frequency.value = Math.max(700, freq * 1.2);
-            filter.Q.value = 1.3;
-            gain.gain.setValueAtTime(0.0001, now);
-            gain.gain.linearRampToValueAtTime(Math.max(0.01, volume * soundVolume), now + 0.002);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-            osc.connect(filter);
-            filter.connect(gain);
-            gain.connect(audioContext.destination);
-            osc.start(now);
-            osc.stop(now + duration);
-        }
-
-        function playSFX(name) {
-            if (!audioContext || audioContext.state === 'suspended' || !soundEnabled) return;
-            switch (name) {
-                case 'move':
-                    playPercussiveTone(360, 0.03, 0.06);
-                    break;
-                case 'capture':
-                    playPercussiveTone(280, 0.05, 0.1);
-                    setTimeout(() => playPercussiveTone(380, 0.03, 0.07), 30);
-                    break;
-                case 'check':
-                    playPercussiveTone(320, 0.05, 0.1);
-                    setTimeout(() => playPercussiveTone(440, 0.03, 0.06), 25);
-                    break;
-                case 'augment':
-                    playPercussiveTone(320, 0.05, 0.09);
-                    setTimeout(() => playPercussiveTone(420, 0.04, 0.07), 40);
-                    break;
-                case 'win':
-                    playPercussiveTone(360, 0.06, 0.1);
-                    setTimeout(() => playPercussiveTone(460, 0.04, 0.08), 80);
-                    break;
-                case 'lose':
-                    playPercussiveTone(260, 0.07, 0.1);
-                    setTimeout(() => playPercussiveTone(200, 0.05, 0.07), 100);
-                    break;
-                case 'message':
-                    playPercussiveTone(400, 0.03, 0.06);
-                    break;
-                default:
-                    break;
-            }
-        }
+        let replayFogLock = false, replayMode = 'result', replaySavedPrev = null, historySaved = false, lastOppName = '', replayFrames = [], replayActive = false, replayIdx = 0, replayTimer = null, replayPlaying = false, replaySpeed = 1, replayFinalState = null, replayBannerTimer = null;
 
         // UI 오버레이 요소들
         const loginOverlay = document.getElementById('login-overlay');
@@ -929,10 +915,7 @@
         const modeSelectOverlay = document.getElementById('mode-select-overlay');
         const botDiffOverlay = document.getElementById('bot-diff-overlay');
         const settingsOverlay = document.getElementById('settings-overlay');
-        const soundToggle = document.getElementById('sound-toggle');
         const previousMoveToggle = document.getElementById('previous-move-toggle');
-        const soundVolumeSlider = document.getElementById('sound-volume-slider');
-        const soundVolumeValue = document.getElementById('sound-volume-value');
         const vsOverlay = document.getElementById('vs-overlay');
         const lobbyMsg = document.getElementById('lobby-msg');
         const playerInfo = document.getElementById('player-info');
@@ -950,7 +933,7 @@
         let lastActionKey = '', resumeCursor = null, networkUnsub = null, matchKind = '', queueOD = null;
         const appliedActionKeys = new Set();
         const roomInfoText = () => `${matchKind === 'quick' ? '빠른 대전' : matchKind === 'friend' ? '친구 대전' : '온라인 대전'} · 당신은 ${myColor === 'w' ? '백' : '흑'}입니다`;
-        const DEFAULT_SETTINGS = { soundEnabled: true, showPreviousMove: true, soundVolume: 0.8, darkMode: true, saveBotReplay: true };
+        const DEFAULT_SETTINGS = { showPreviousMove: true, darkMode: true, saveBotReplay: true };
         let isAugmentPeeked = false;
 
         function saveRoomSession(extra = {}) {
@@ -1067,26 +1050,19 @@
         }
         function applySettingsToUI() {
             const settings = Object.assign({}, DEFAULT_SETTINGS, userProfile.settings || {});
-            soundEnabled = settings.soundEnabled;
             showPreviousMove = settings.showPreviousMove;
             saveBotReplay = settings.saveBotReplay !== false;
             document.getElementById('bot-replay-toggle').checked = saveBotReplay;
-            soundVolume = Number(settings.soundVolume) || 0.8;
             const darkMode = settings.darkMode;
-            soundToggle.checked = soundEnabled;
             previousMoveToggle.checked = showPreviousMove;
-            soundVolumeSlider.value = Math.round(soundVolume * 100);
-            soundVolumeValue.innerText = `${soundVolumeSlider.value}%`;
             document.getElementById('theme-toggle').checked = darkMode;
             if (darkMode) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode');
             updatePreviousMoveHighlights();
         }
         function saveUserSettings() {
             if (!userProfile.settings) userProfile.settings = {};
-            userProfile.settings.soundEnabled = soundEnabled;
             userProfile.settings.showPreviousMove = showPreviousMove;
             userProfile.settings.saveBotReplay = saveBotReplay;
-            userProfile.settings.soundVolume = soundVolume;
             userProfile.settings.darkMode = document.getElementById('theme-toggle').checked;
             saveLocalSettings();
             if (myUid) update(ref(db, `users/${myUid}`), { settings: userProfile.settings });
@@ -1324,14 +1300,22 @@
 
         document.getElementById('btn-play-main').addEventListener('click', () => { mainLobbyOverlay.style.display = 'none'; modeSelectOverlay.style.display = 'flex'; });
         document.getElementById('btn-back-main').addEventListener('click', async () => { await cancelMatchmaking(); modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'flex'; setLobbyMsg(""); });
-        document.getElementById('btn-settings').addEventListener('click', () => { settingsOverlay.style.display = 'flex'; });
-        document.getElementById('btn-settings-game').addEventListener('click', () => { settingsOverlay.style.display = 'flex'; });
+        let settingsTab = 'profile';
+        function selectSettingsTab(name) {
+            settingsTab = name;
+            document.querySelectorAll('#settings-overlay .stab').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+            document.querySelectorAll('#settings-overlay .spane').forEach(p => p.classList.toggle('active', p.dataset.pane === name));
+            const body = document.querySelector('#settings-overlay .settings-body'); if (body) body.scrollTop = 0;
+        }
+        function openSettings() { selectSettingsTab(settingsTab); settingsOverlay.style.display = 'flex'; }
+        document.querySelectorAll('#settings-overlay .stab').forEach(b => b.addEventListener('click', () => selectSettingsTab(b.dataset.tab)));
+        document.getElementById('btn-settings').addEventListener('click', openSettings);
+        document.getElementById('btn-settings-game').addEventListener('click', openSettings);
         document.getElementById('btn-close-settings').addEventListener('click', () => { settingsOverlay.style.display = 'none'; });
+        settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) settingsOverlay.style.display = 'none'; });
         document.getElementById('theme-toggle').addEventListener('change', (e) => { if(e.target.checked) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode'); saveUserSettings(); });
-        soundToggle.addEventListener('change', (e) => { soundEnabled = e.target.checked; saveUserSettings(); });
         document.getElementById('bot-replay-toggle').addEventListener('change', (e) => { saveBotReplay = e.target.checked; saveUserSettings(); });
         previousMoveToggle.addEventListener('change', (e) => { showPreviousMove = e.target.checked; updatePreviousMoveHighlights(); saveUserSettings(); });
-        soundVolumeSlider.addEventListener('input', (e) => { soundVolume = e.target.value / 100; soundVolumeValue.innerText = `${e.target.value}%`; saveUserSettings(); });
 
         // -------------------- 로그인 제어 --------------------
         // ---- 로그인 제어: 진행 표시 / 시간 제한 / 오류 안내 ----
@@ -1687,10 +1671,10 @@
             } else if (action.type === 'augment_sync') {
                 document.getElementById('augment-overlay').style.display = 'none';
                 deserializeGameState(action.state); 
-                { const ag = AUGMENT_POOL.find(x => x.name === action.name); recordFrame('augment', { name: action.name, icon: ag ? ag.icon : '✨', t: action.t || [], by: action.by || null, fx: { globalVfx: action.globalVfx || null, t: action.t || [], vfx: action.vfx || '', floats: action.floats || null, fxArg: action.fxArg || null, origin: action.origin || null, fxMoves: action.fxMoves || null, msg: action.msg || '', delay: action.delay || 1200 } }); }
+                { const ag = AUGMENT_POOL.find(x => x.name === action.name); recordFrame('augment', { name: action.name, icon: ag ? ag.icon : '✨', t: action.t || [], by: action.by || null, fx: { globalVfx: action.globalVfx || null, t: action.t || [], vfx: action.vfx || '', floats: action.floats || null, fxArg: action.fxArg || null, origin: action.origin || null, fxMoves: action.fxMoves || null, blasts: action.blasts || null, msg: action.msg || '', delay: action.delay || 1200 } }); }
                 persistRoomGameState().catch(() => {});   // 내 커서 기준으로 저장
                 showCastText(action.name || "증강", () => {
-                    const lead = playAugmentVisuals({ name: action.name, globalVfx: action.globalVfx, t: action.t, vfx: action.vfx, floats: action.floats, fxArg: action.fxArg, origin: action.origin, fxMoves: action.fxMoves });
+                    const lead = playAugmentVisuals({ name: action.name, globalVfx: action.globalVfx, t: action.t, vfx: action.vfx, floats: action.floats, fxArg: action.fxArg, origin: action.origin, fxMoves: action.fxMoves, blasts: action.blasts });
                     showToast(action.msg, "var(--primary)", 4000);
                     setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, (action.delay || 1200) + lead);
                 });
@@ -1799,7 +1783,6 @@
             bubble.style.animation = '';
             if (!isTyping && emoteAnimations[msg]) { bubble.classList.add(emoteAnimations[msg]); }
             else if (!isTyping) { bubble.style.animation = 'pop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)'; }
-            if (side === 'opponent' && !isTyping && soundEnabled) playSFX('message');
             if (side === 'opponent') isOpponentTyping = isTyping;
             if (chatTimers[side]) clearTimeout(chatTimers[side]);
             if (!isTyping) chatTimers[side] = setTimeout(() => { bubble.style.display = 'none'; }, 3500);
@@ -1833,10 +1816,10 @@
             return JSON.stringify({
                 board: game.board(), turn: game.turn(), castling: game.castling, ep_square: game.ep_square,
                 is_game_over: game.is_game_over, moveCount: moveCount, activePoison: activePoison,
-                rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, pendingAugments: pendingAugments,
+                rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, mines: mines, prospects: prospects, pendingAugments: pendingAugments,
                 activeWalls: activeWalls, reversedPawns: reversedPawns, reversedUids: reversedUids,
                 actionCursor: lastActionKey,
-                jackpotBonus: jackpotBonus, lastKiller: lastKiller, babyEffect: babyEffect, blackout: blackout, uidCounter: game.pieceUidCounter, castleUids: game.castleUids,
+                jackpotBonus: jackpotBonus, lastKiller: lastKiller, babyEffect: babyEffect, blackout: blackout, uidCounter: game.pieceUidCounter, castleUids: game.castleUids, keepUids: game.keepUids || {},
                 activeAugmentOptions: activeAugmentOptions,
                 activeAugmentPlayerColor: activeAugmentPlayerColor,
                 selectedAugmentIdx: selectedAugmentIdx
@@ -1846,7 +1829,7 @@
             const state = JSON.parse(stateStr);
             game._board = state.board; game._turn = state.turn; game.castling = state.castling; game.ep_square = state.ep_square;
             game.is_game_over = state.is_game_over; moveCount = state.moveCount; activePoison = state.activePoison;
-            rootedPieces = state.rootedPieces || {}; invinciblePieces = state.invinciblePieces || {}; pendingAugments = state.pendingAugments;
+            rootedPieces = state.rootedPieces || {}; invinciblePieces = state.invinciblePieces || {}; mines = state.mines || []; prospects = state.prospects || {}; pendingAugments = state.pendingAugments;
             activeWalls = state.activeWalls || [];
             { const rp = state.reversedPawns; reversedPawns = (rp && rp.color !== undefined) ? { w: rp.color === 'w' ? rp.duration : 0, b: rp.color === 'b' ? rp.duration : 0 } : (rp || { w: 0, b: 0 }); }   // 이전 저장 형식 호환
             reversedUids = state.reversedUids || { w: {}, b: {} };
@@ -1855,6 +1838,7 @@
             { const be = state.babyEffect; babyEffect = (be && be.color) ? { w: be.color === 'w' ? be : null, b: be.color === 'b' ? be : null } : (be || { w: null, b: null }); }
             { const bo = state.blackout; blackout = (bo && bo.target) ? { w: bo.target === 'w' ? bo.duration : 0, b: bo.target === 'b' ? bo.duration : 0 } : (bo || { w: 0, b: 0 }); }
             if (state.castleUids) game.castleUids = state.castleUids; else game.rebuildCastleUids();
+            game.keepUids = state.keepUids || {};
             if (state.uidCounter) game.pieceUidCounter = Math.max(game.pieceUidCounter, state.uidCounter);
             activeAugmentOptions = state.activeAugmentOptions || null;
             activeAugmentPlayerColor = state.activeAugmentPlayerColor || null;
@@ -1911,9 +1895,8 @@
                     const { r, c } = this.sqToRC(this.ep_square), pawnR = r === 5 ? 4 : (r === 2 ? 3 : -1), p = pawnR >= 0 ? this._board[pawnR][c] : null;
                     if (!(p && p.type === 'p' && p.color !== this._turn && !this._board[r][c])) this.ep_square = null;
                 }
-                const promoted = [];
-                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const p = this._board[r][c]; if (p && p.type === 'p' && r === (p.color === 'w' ? 0 : 7)) { p.type = 'q'; promoted.push(this.rcToSq(r, c)); } }
-                return promoted;
+                // 증강으로 끝줄에 놓인 폰은 자동으로 프로모션하지 않는다(수레바퀴 등). 프로모션은 폰이 직접 끝줄로 이동할 때만 일어난다.
+                return [];
             }
 
             isSquareAttacked(r, c, attackerColor, boardState = this._board) {
@@ -2053,7 +2036,7 @@
         
         let selectedSquare = null; let legalMoves = []; let moveCount = 0;
         const AUGMENT_INTERVAL = 7; let isSystemLocked = false; let pendingAugments = [];
-        let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {};
+        let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {}; let mines = []; let prospects = {};
         let activeWalls = []; let reversedPawns = { w: 0, b: 0 }; let reversedUids = { w: {}, b: {} };   // 자아 분열 발동 당시 존재하던 폰의 uid만 효과를 받는다
         let jackpotBonus = { w: 0, b: 0 }; let lastKiller = { w: null, b: null }; let babyEffect = { w: null, b: null }; let blackout = { w: 0, b: 0 }; let targeting = null; let lastCheckKey = '';
 
@@ -2074,7 +2057,7 @@
 
         function resetGameUI() {
             if (networkUnsub) { try { networkUnsub(); } catch (e) {} networkUnsub = null; }
-            game.reset(); moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; pendingAugments = [];
+            game.reset(); game.keepUids = {}; moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; mines = []; prospects = {}; pendingAugments = [];
             activeWalls = []; reversedPawns = { w: 0, b: 0 }; reversedUids = { w: {}, b: {} }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = { w: null, b: null }; blackout = { w: 0, b: 0 }; lastCheckKey = '';
             if (targeting) { clearTargetVisuals(); targeting = null; }
             clearTimeout(endRevealTimer);
@@ -2085,6 +2068,7 @@
         }
 
         function updateTurnIndicator() {
+            if (replayActive && replayMode === 'live') return;   // 이전 수를 보는 동안에도 현재 턴 표시는 그대로
             if(game.turn() === 'w') { turnDisplayEl.className = 'turn-indicator white-turn'; turnDisplayEl.innerHTML = '백'; } 
             else { turnDisplayEl.className = 'turn-indicator black-turn'; turnDisplayEl.innerHTML = '흑'; }
             if(game.turn() === myColor) turnDisplayEl.classList.add('my-turn');
@@ -2121,6 +2105,7 @@
                 const isReversed = reversedPawns[piece.color] > 0 && piece.type === 'p' && !!reversedUids[piece.color][piece.uid];
                 el.classList.toggle('piece-rooted', rootedPieces[piece.uid] > 0);
                 el.classList.toggle('piece-invincible', invinciblePieces[piece.uid] > 0);
+                el.classList.toggle('piece-prospect', prospects[piece.uid] > 0);
                 const blessEff = ['w', 'b'].map(c => babyEffect[c]).find(be => be && (piece.uid === be.kUid || piece.uid === be.qUid)), isBlessed = !!blessEff;
                 el.classList.toggle('piece-blessed', isBlessed);
                 el.classList.toggle('piece-reversed', isReversed);
@@ -2132,6 +2117,8 @@
                 else if (piece.type === 'wall') {
                     const wallEntry = activeWalls.find(w => w.sq === sq);
                     duration = wallEntry ? wallEntry.duration : 0;
+                } else if (prospects[piece.uid] > 0) {
+                    duration = prospects[piece.uid];
                 } else if (isReversed) {
                     duration = reversedPawns[piece.color];
                 }
@@ -2167,6 +2154,7 @@
         }
 
         function updateProgressBar() {
+            if (replayActive && replayMode === 'live') return;
             const bar = document.getElementById('augment-progress'); const txt = document.getElementById('augment-text');
             const remain = AUGMENT_INTERVAL - (moveCount % AUGMENT_INTERVAL); const pct = (moveCount % AUGMENT_INTERVAL) / AUGMENT_INTERVAL * 100;
             bar.style.width = pct + '%';
@@ -2187,8 +2175,8 @@
             const canvas = document.getElementById('fx-canvas');
             const ctx = canvas.getContext('2d');
             let W = 0, H = 0, cell = 0, dpr = 1, running = false, last = 0;
-            const parts = [], rings = [], flashes = [], bolts = [], beams = [], slashes = [], rays = [], marks = [], waves = [], dims = [], trails = [], charges = [], wheels = [], vines = [];
-            const lists = [parts, rings, flashes, bolts, beams, slashes, rays, marks, waves, dims, trails, charges, wheels, vines];
+            const parts = [], rings = [], flashes = [], bolts = [], beams = [], slashes = [], rays = [], marks = [], waves = [], dims = [], trails = [], charges = [], wheels = [], vines = [], chains = [], sigils = [], shields = [], halos = [], scorches = [];
+            const lists = [parts, rings, flashes, bolts, beams, slashes, rays, marks, waves, dims, trails, charges, wheels, vines, chains, sigils, shields, halos, scorches];
             const rnd = (a, b) => a + Math.random() * (b - a);
             const pick = arr => arr[(Math.random() * arr.length) | 0];
             const TAU = Math.PI * 2;
@@ -2507,9 +2495,10 @@
 
             function moveP(p, dt) {
                 p.t += dt;
+                if (p.path) { const q = p.path, k = Math.min(1, p.t / p.dur), e = k * k * (3 - 2 * k); p.x = q.x0 + (q.x1 - q.x0) * e + q.nx * q.arc * Math.sin(Math.PI * e); p.y = q.y0 + (q.y1 - q.y0) * e + q.ny * q.arc * Math.sin(Math.PI * e); if (p.vr) p.rot = (p.rot || 0) + p.vr * dt; return; }
                 if (p.orbit) { p.a += p.va * dt; p.r *= Math.exp(-p.rd * dt); p.x = p.cx + Math.cos(p.a) * p.r; p.y = p.cy + Math.sin(p.a) * p.r; return; }
                 const d = Math.exp(-p.drag * dt); p.vx *= d; p.vy *= d; p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt;
-                if (p.kind === 'shard') p.rot += p.vr * dt;
+                if (p.vr) p.rot = (p.rot || 0) + p.vr * dt;
             }
             function drawSmoke(p) {
                 const k = p.t / p.dur; ctx.globalAlpha = p.alpha * (k < 0.15 ? k / 0.15 : 1) * (1 - k) * (1 - k);
@@ -2709,6 +2698,324 @@
                 }
                 ctx.restore();
             }
+            // ==================================================================
+            // 증강 고유 연출 (Signature) + 지뢰 폭발
+            // 증강마다 이름·효과에 맞는 전용 연출을 재생한다. 좌표는 칸 중심(ctr)과 UP()/DOWN()으로만 계산해 흑 시점에서도 화면 기준으로 보인다.
+            // ==================================================================
+            const SC = {
+                toxic: [[70, 170, 70], [50, 120, 60], [110, 200, 80]], dark: [26, 18, 36], neon: [[255, 80, 200], [80, 230, 255], [255, 230, 90], [140, 255, 120]],
+                petal: [[190, 25, 55], [140, 15, 40], [230, 70, 90]], steel: [200, 215, 235], tan: [205, 185, 145], indigo: [120, 130, 255], pink: [255, 140, 190], psy: [235, 90, 220]
+            };
+            const at = (ms, fn) => { if (ms <= 0) { fn(); return; } setTimeout(() => { fn(); kick(); }, ms); };
+
+            // ---------- 새 입자 그리기 ----------
+            function drawPetal(p) {
+                const k = p.t / p.dur, a = p.alpha * (k < 0.7 ? 1 : 1 - (k - 0.7) / 0.3); if (a <= 0) return;
+                ctx.save(); ctx.globalAlpha = a; ctx.translate(p.x, p.y); ctx.rotate(p.rot || 0); ctx.fillStyle = p.css;
+                ctx.beginPath(); ctx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, TAU); ctx.fill(); ctx.restore();
+            }
+            function drawFeather(p) {
+                const k = p.t / p.dur, a = p.alpha * Math.min(1, k * 6) * (1 - k); if (a <= 0) return;
+                const sw = Math.sin(p.t * 3 + p.seed);
+                ctx.save(); ctx.globalAlpha = a; ctx.translate(p.x + sw * cell * 0.06, p.y); ctx.rotate((p.rot || 0) + sw * 0.5); ctx.fillStyle = p.css;
+                ctx.beginPath(); ctx.ellipse(0, 0, p.size * 2.3, p.size * 0.7, 0, 0, TAU); ctx.fill();
+                ctx.strokeStyle = 'rgba(200,200,215,0.8)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-p.size * 2.3, 0); ctx.lineTo(p.size * 2.3, 0); ctx.stroke(); ctx.restore();
+            }
+            function drawHeart(p) {
+                const k = p.t / p.dur, a = p.alpha * Math.min(1, k * 6) * (1 - k); if (a <= 0) return; const s = p.size;
+                ctx.save(); ctx.globalAlpha = a; ctx.translate(p.x, p.y); if (UP() > 0) ctx.rotate(Math.PI); ctx.fillStyle = p.css;
+                ctx.beginPath(); ctx.moveTo(0, s * 0.35); ctx.bezierCurveTo(-s * 1.1, -s * 0.35, -s * 0.45, -s * 1.05, 0, -s * 0.4);
+                ctx.bezierCurveTo(s * 0.45, -s * 1.05, s * 1.1, -s * 0.35, 0, s * 0.35); ctx.fill(); ctx.restore();
+            }
+            function drawStar(p) {
+                const k = p.t / p.dur, a = p.alpha * (1 - k) * (p.tw ? 0.7 + 0.3 * Math.sin(p.t * 16 + p.seed) : 1); if (a <= 0) return; const s = p.size * (1 - 0.3 * k);
+                ctx.save(); ctx.globalAlpha = a; ctx.translate(p.x, p.y); ctx.rotate(p.rot || 0); ctx.fillStyle = p.css; ctx.beginPath();
+                for (let i = 0; i < 8; i++) { const r = i % 2 ? s * 0.32 : s, ang = i * Math.PI / 4; ctx.lineTo(Math.cos(ang) * r, Math.sin(ang) * r); }
+                ctx.closePath(); ctx.fill(); ctx.restore();
+            }
+            function drawCoin(p) {
+                const k = p.t / p.dur, a = p.alpha * (k < 0.8 ? 1 : 1 - (k - 0.8) / 0.2); if (a <= 0) return;
+                const w = Math.max(0.12, Math.abs(Math.cos(p.rot || 0))) * p.size;
+                ctx.save(); ctx.globalAlpha = a; ctx.translate(p.x, p.y); ctx.fillStyle = 'rgb(255,208,70)'; ctx.strokeStyle = 'rgb(176,120,20)'; ctx.lineWidth = 1.4;
+                ctx.beginPath(); ctx.ellipse(0, 0, w, p.size, 0, 0, TAU); ctx.fill(); ctx.stroke();
+                if (w > p.size * 0.5) { ctx.fillStyle = 'rgba(255,245,170,0.8)'; ctx.beginPath(); ctx.ellipse(-w * 0.25, -p.size * 0.25, w * 0.28, p.size * 0.28, 0, 0, TAU); ctx.fill(); }
+                ctx.restore();
+            }
+            function drawGlyph(p) {
+                const k = p.t / p.dur, a = p.alpha * Math.min(1, k * 8) * (1 - k * k); if (a <= 0) return;
+                ctx.save(); ctx.globalAlpha = a; ctx.translate(p.x, p.y); if (UP() > 0) ctx.rotate(Math.PI);
+                ctx.font = `800 ${Math.round(p.size)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.lineWidth = Math.max(2, p.size * 0.08); ctx.strokeStyle = 'rgba(0,0,0,0.55)'; ctx.strokeText(p.text, 0, 0); ctx.fillStyle = p.css; ctx.fillText(p.text, 0, 0); ctx.restore();
+            }
+            const DRAWK = { smoke: drawSmoke, shard: drawShard, petal: drawPetal, feather: drawFeather, heart: drawHeart, star: drawStar, coin: drawCoin, glyph: drawGlyph };
+
+            // ---------- 입자 생성 도우미 ----------
+            function glyph(x, y, text, color, dur, size, vy = 26) { P({ x, y, vx: 0, vy: UP() * vy, drag: 0.5, size, dur, kind: 'glyph', text, color, alpha: 0.95 }); }
+            function petals(x, y, n, spread, colors, h = 1.4) {
+                for (let i = 0; i < n; i++) P({ x: x + rnd(-spread, spread), y: y + UP() * rnd(cell * 0.3, cell * h), vx: rnd(-22, 22), vy: DOWN() * rnd(40, 95), drag: 0.45,
+                    size: rnd(cell * 0.05, cell * 0.085), rot: rnd(0, TAU), vr: rnd(-6, 6), dur: rnd(0.9, 1.5), kind: 'petal', color: pick(colors) });
+            }
+            function feathers(x, y, n, spread) {
+                for (let i = 0; i < n; i++) P({ x: x + rnd(-spread, spread), y: y + UP() * rnd(cell * 0.3, cell * 1.0), vx: rnd(-15, 15), vy: DOWN() * rnd(18, 45), drag: 0.2,
+                    size: rnd(cell * 0.06, cell * 0.1), rot: rnd(0, TAU), vr: rnd(-2, 2), dur: rnd(1.1, 1.8), kind: 'feather', color: [250, 250, 255], alpha: 0.9 });
+            }
+            function stars(x, y, n, spread, colors) {
+                for (let i = 0; i < n; i++) P({ x: x + rnd(-spread, spread), y: y + rnd(-spread, spread) * 0.6, vx: rnd(-14, 14), vy: UP() * rnd(40, 110), drag: 0.3,
+                    size: rnd(cell * 0.05, cell * 0.09), rot: rnd(0, TAU), vr: rnd(-4, 4), dur: rnd(0.8, 1.3), kind: 'star', color: pick(colors), tw: true });
+            }
+            function hearts(x, y, n, spread) {
+                for (let i = 0; i < n; i++) P({ x: x + rnd(-spread, spread), y: y + rnd(-spread, spread) * 0.6, vx: rnd(-14, 14), vy: UP() * rnd(30, 70), drag: 0.2,
+                    size: rnd(cell * 0.07, cell * 0.11), dur: rnd(1.0, 1.5), kind: 'heart', color: pick([SC.pink, [255, 200, 220], [255, 110, 160]]) });
+            }
+            function confetti(x, y, n) {
+                for (let i = 0; i < n; i++) { const ang = rnd(0, TAU), sp = rnd(80, 240);
+                    P({ x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, g: DOWN() * 260, drag: 1.3, size: rnd(cell * 0.04, cell * 0.07), rot: rnd(0, TAU), vr: rnd(-12, 12), dur: rnd(0.7, 1.1), kind: 'petal', color: pick(SC.neon) }); }
+            }
+            function swirl(x, y, n, colors, r0, r1, dur, dir) {   // 소용돌이: 반지름 r0 → r1 로 돌며 이동
+                for (let i = 0; i < n; i++) P({ orbit: true, cx: x, cy: y, a: rnd(0, TAU), r: r0 * rnd(0.8, 1), va: dir * rnd(5, 8), rd: -Math.log(Math.max(0.01, r1 / r0)) / dur,
+                    size: rnd(2, 3.6), dur: dur * rnd(0.85, 1), kind: 'glow', color: pick(colors) });
+            }
+            function streak(a, b, n, colors, dur, arc, extra = {}) {   // a → b 로 곡선을 그리며 날아가는 입자
+                const dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1;
+                for (let i = 0; i < n; i++) setTimeout(() => {
+                    P(Object.assign({ x: a.x, y: a.y, path: { x0: a.x, y0: a.y, x1: b.x, y1: b.y, nx: -dy / L, ny: dx / L, arc: rnd(-arc, arc) * cell },
+                        size: rnd(1.8, 3.4), dur: dur * rnd(0.85, 1.15), kind: 'glow', color: pick(colors), tw: true }, extra)); kick();
+                }, i / n * dur * 600);
+            }
+
+            // ---------- 새 오브젝트: 사슬 / 마법진 / 방패 / 후광 / 그을음 ----------
+            function chain(from, to, dur = 1.0, breakAt = 0.5) { chains.push({ x0: from.x, y0: from.y, x1: to.x, y1: to.y, dur, breakAt, t: 0 }); }
+            function drawChain(o) {
+                const dx = o.x1 - o.x0, dy = o.y1 - o.y0, L = Math.hypot(dx, dy) || 1, ang = Math.atan2(dy, dx), n = Math.max(3, Math.round(L / (cell * 0.2)));
+                const grow = Math.min(1, o.t / (o.breakAt * 0.55)), broke = o.t > o.breakAt, bk = broke ? (o.t - o.breakAt) / (o.dur - o.breakAt) : 0;
+                const nx = -dy / L, ny = dx / L, tension = !broke && grow >= 1 ? Math.sin(o.t * 70) * 1.3 : 0, cnt = Math.round(n * (1 - Math.pow(1 - grow, 2)));
+                ctx.save(); ctx.lineWidth = Math.max(1.6, cell * 0.035);
+                for (let i = 0; i <= cnt; i++) {
+                    const f = i / n; let x = o.x0 + dx * f + nx * tension, y = o.y0 + dy * f + ny * tension, a = 1;
+                    if (broke) { const h = Math.sin(i * 12.9898) * 43758.5453, r = h - Math.floor(h) - 0.5, dir = f - 0.5; x += (dir * 0.6 + r * 0.9) * cell * 1.2 * bk + nx * r * cell * 0.8 * bk; y += cell * 0.9 * bk * bk * DOWN() + ny * r * cell * 0.8 * bk; a = 1 - bk; }
+                    ctx.globalAlpha = a; ctx.strokeStyle = i % 2 ? 'rgb(228,233,243)' : 'rgb(150,160,180)'; ctx.beginPath();
+                    if (i % 2) ctx.ellipse(x, y, cell * 0.09, cell * 0.022, ang, 0, TAU); else ctx.ellipse(x, y, cell * 0.075, cell * 0.05, ang, 0, TAU);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+            function sigil(x, y, r, color, dur, n = 5, spin = 2) { sigils.push({ x, y, r, color, dur, n, spin, t: 0 }); }
+            function drawSigil(o) {
+                const a = Math.min(1, o.t / 0.2) * Math.min(1, (o.dur - o.t) / 0.35); if (a <= 0) return;
+                const rr = o.r * (0.6 + 0.4 * Math.min(1, o.t / 0.25)), c = rgb(o.color);
+                ctx.save(); ctx.translate(o.x, o.y); ctx.rotate(o.spin * o.t); ctx.strokeStyle = `rgb(${c})`; ctx.fillStyle = `rgb(${c})`; ctx.lineWidth = Math.max(1.5, cell * 0.03);
+                ctx.globalAlpha = a * 0.12; ctx.beginPath(); ctx.arc(0, 0, rr, 0, TAU); ctx.fill();
+                ctx.globalAlpha = a * 0.9; ctx.beginPath(); ctx.arc(0, 0, rr, 0, TAU); ctx.stroke();
+                ctx.setLineDash([cell * 0.06, cell * 0.05]); ctx.globalAlpha = a * 0.6; ctx.beginPath(); ctx.arc(0, 0, rr * 0.82, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+                ctx.globalAlpha = a * 0.85; ctx.beginPath();
+                for (let i = 0; i <= o.n; i++) { const ang = -Math.PI / 2 + ((i * 2) % o.n) * TAU / o.n, px = Math.cos(ang) * rr * 0.82, py = Math.sin(ang) * rr * 0.82; if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py); }
+                ctx.stroke(); ctx.restore();
+            }
+            function shieldFx(x, y, r, color, dur, sides = 6) { shields.push({ x, y, r, color, dur, sides, t: 0 }); }
+            function drawShield(o) {
+                const ap = Math.min(1, o.t / 0.24), c1 = 1.70158, e = 1 + (c1 + 1) * Math.pow(ap - 1, 3) + c1 * Math.pow(ap - 1, 2);
+                const a = Math.min(1, ap * 1.6) * Math.min(1, (o.dur - o.t) / 0.4); if (a <= 0) return;
+                const rr = o.r * e * (1 + 0.035 * Math.sin(o.t * 12)), rot = o.sides === 4 ? Math.PI / 4 : -Math.PI / 2, c = rgb(o.color);
+                ctx.save(); ctx.translate(o.x, o.y); ctx.beginPath();
+                for (let i = 0; i < o.sides; i++) { const ang = rot + i * TAU / o.sides; if (i) ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr); else ctx.moveTo(Math.cos(ang) * rr, Math.sin(ang) * rr); }
+                ctx.closePath(); ctx.globalAlpha = a * 0.16; ctx.fillStyle = `rgb(${c})`; ctx.fill();
+                ctx.globalAlpha = a * 0.95; ctx.strokeStyle = `rgb(${c})`; ctx.lineWidth = Math.max(1.5, cell * 0.04); ctx.lineJoin = 'round'; ctx.stroke(); ctx.restore();
+            }
+            function halo(x, y, color, dur) { halos.push({ x, y, color, dur, t: 0 }); }
+            function drawHalo(o) {
+                const ap = Math.min(1, o.t / 0.4), e = 1 - Math.pow(1 - ap, 3), a = Math.min(1, ap * 2) * Math.min(1, (o.dur - o.t) / 0.4); if (a <= 0) return;
+                const yy = o.y + UP() * cell * (0.62 - 0.2 * e), c = rgb(o.color);
+                ctx.save(); ctx.globalAlpha = a * 0.35; ctx.strokeStyle = `rgb(${c})`; ctx.lineWidth = cell * 0.1; ctx.beginPath(); ctx.ellipse(o.x, yy, cell * 0.27, cell * 0.08, 0, 0, TAU); ctx.stroke();
+                ctx.globalAlpha = a; ctx.lineWidth = cell * 0.04; ctx.strokeStyle = 'rgb(255,250,215)'; ctx.beginPath(); ctx.ellipse(o.x, yy, cell * 0.27, cell * 0.08, 0, 0, TAU); ctx.stroke(); ctx.restore();
+            }
+            function drawScorch(o) {
+                const k = o.t / o.dur, a = 0.5 * Math.min(1, o.t / 0.08) * (1 - k); if (a <= 0) return; const r = cell * 0.62;
+                const g = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, r); g.addColorStop(0, 'rgba(10,8,8,1)'); g.addColorStop(0.6, 'rgba(25,18,14,0.7)'); g.addColorStop(1, 'rgba(25,18,14,0)');
+                ctx.globalAlpha = a; ctx.fillStyle = g; ctx.fillRect(o.x - r, o.y - r, r * 2, r * 2);
+            }
+
+            // ---------- 지뢰 폭발: 섬광 → 화염구 → 이중 충격파 → 파편·먼지 → 검은 연기 → 그을음 ----------
+            function mineBlast(sq) {
+                const { x, y } = ctr(sq); resize(); if (!W) return;
+                scorches.push({ x, y, dur: 2.2, t: 0 });
+                flash(x, y, cell * 1.0, C.white, 0.14, 1);
+                flash(x, y, cell * 2.4, C.orange, 0.5, 0.9);
+                flash(x, y, cell * 1.4, C.yellow, 0.3, 0.8);
+                ring(x, y, cell * 0.1, cell * 2.0, C.orange, 0.55, 7);
+                setTimeout(() => { ring(x, y, cell * 0.2, cell * 2.5, C.yellow, 0.6, 3, 0.8); kick(); }, 90);
+                for (let i = 0; i < 12; i++) { const ang = i / 12 * TAU + rnd(-0.2, 0.2), sp = rnd(120, 200);   // 충격파 먼지 고리
+                    P({ x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp * 0.7, drag: 2.4, size: cell * rnd(0.12, 0.2), grow: 2.2, dur: rnd(0.55, 0.85), kind: 'smoke', color: [170, 145, 115], alpha: 0.55 }); }
+                embers(x, y, 24, 140, 440, [C.orange, C.yellow, C.red, C.white], 300, { size: rnd(2, 4.5) });
+                for (let i = 0; i < 10; i++) { const ang = rnd(0, TAU), sp = rnd(90, 300);   // 땅 파편
+                    P({ x: x + rnd(-6, 6), y: y + rnd(-6, 6), vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp + UP() * rnd(80, 200), g: DOWN() * 560, drag: 0.8, size: rnd(3, 6.5), rot: rnd(0, TAU), vr: rnd(-14, 14), dur: rnd(0.7, 1.1), kind: 'shard', color: [92, 74, 60], edge: 'rgb(40,32,28)' }); }
+                for (let i = 0; i < 6; i++) P({ x: x + rnd(-cell * 0.15, cell * 0.15), y: y + rnd(-6, 6), vx: rnd(-18, 18), vy: UP() * rnd(35, 85), size: cell * rnd(0.2, 0.32), grow: 2.0, dur: rnd(1.2, 1.8), kind: 'smoke', color: pick([[48, 44, 46], [70, 64, 62]]), alpha: 0.6 });
+                shake(6, 340); kick();
+            }
+
+            // ---------- 증강별 고유 연출 ----------
+            const SIG = {
+                '네크로맨서'(t, a) {
+                    const q = a.origin ? ctr(a.origin) : null;
+                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 70, () => { sigil(p.x, p.y, cell * 0.48, [180, 100, 235], 1.0, 5, 2.4); puffs(p.x, p.y, 2, SC.dark, 0.6); }); });
+                    if (q) {
+                        at(420, () => t.forEach(sq => { const p = ctr(sq); streak(p, q, 3, [[160, 255, 190], [200, 130, 255]], 0.5, 0.55); }));
+                        at(880, () => { sigil(q.x, q.y, cell * 0.95, [200, 120, 255], 1.1, 5, -1.8); flash(q.x, q.y, cell * 2.1, C.violet, 0.6, 0.6); ring(q.x, q.y, cell * 0.2, cell * 1.8, C.purple, 0.6, 4);
+                            rising(q.x, q.y, cell * 0.3, 14, [C.lilac, C.purple, C.white], 70, 180, [0.9, 1.4]); shake(3, 220); });
+                    }
+                },
+                '신의 심판'(t) {
+                    if (!t.length) return; const b = ctr(t[0]);
+                    flash(b.x, b.y, cell * 1.4, C.gold, 0.5, 0.8); ring(b.x, b.y, cell * 0.1, cell * 1.1, C.gold, 0.5, 3); rising(b.x, b.y, cell * 0.3, 12, [C.gold, C.white, C.yellow], 70, 170);
+                    at(360, () => { beam(b.x, cell * 1.2, C.gold, 0.85); rayBurst(b.x, b.y, C.gold, 0.6, cell * 1.8); shake(3, 220); });
+                    t.slice(1).forEach((sq, i) => { const p = ctr(sq); at(400 + i * 55, () => lightning(p.x, p.y)); });
+                },
+                '벼락'(t) {
+                    dims.push({ a: 0.32, dur: 0.6, t: 0 });
+                    t.forEach((sq, i) => { const p = ctr(sq); at(120 + i * 140, () => { lightning(p.x, p.y); flash(W / 2, H / 2, W * 0.75, C.white, 0.18, 0.22); puffs(p.x, p.y, 2, C.smoke, 0.4); shake(2.5, 160); }); });
+                },
+                '독구름'(t) {
+                    if (!t.length) return; const pts = t.map(ctr), cx = pts.reduce((s, p) => s + p.x, 0) / pts.length, cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+                    flash(cx, cy, cell * 2.2, [90, 220, 90], 0.8, 0.3);
+                    pts.forEach(p => { for (let i = 0; i < 4; i++) P({ x: p.x + rnd(-cell * 0.25, cell * 0.25), y: p.y + rnd(-cell * 0.25, cell * 0.25), vx: rnd(-16, 16), vy: rnd(-16, 16), size: cell * rnd(0.22, 0.34), grow: 1.9, dur: rnd(1.1, 1.6), kind: 'smoke', color: pick(SC.toxic), alpha: 0.5 }); });
+                    rising(cx, cy, cell * 0.8, 12, [[150, 255, 130], [210, 255, 180]], 25, 70, [1.0, 1.6]);
+                    at(250, () => glyph(cx, cy, '☠', [200, 255, 175], 1.3, cell * 0.7));
+                },
+                '암살'(t) {
+                    dims.push({ a: 0.28, dur: 0.7, t: 0 });
+                    t.forEach((sq, i) => { const p = ctr(sq), L = cell * 0.7; at(120 + i * 170, () => {
+                        slash(p.x - L, p.y - L * 0.6, p.x + L, p.y + L * 0.6, C.white, 0.28, 5); setTimeout(() => { slash(p.x + L, p.y - L * 0.6, p.x - L, p.y + L * 0.6, C.red, 0.28, 5); kick(); }, 80);
+                        flash(p.x, p.y, cell * 1.1, C.red, 0.3, 0.45); embers(p.x, p.y, 7, 90, 240, [C.red, C.white], 220, { kind: 'spark' }); puffs(p.x, p.y, 2, SC.dark, 0.5); }); });
+                },
+                '연계 분쇄'(t, a) {
+                    const k = a.origin ? ctr(a.origin) : null; if (!k) return;
+                    shieldFx(k.x, k.y, cell * 0.45, [255, 215, 100], 0.9, 6);
+                    t.forEach((sq, i) => { const p = ctr(sq); chain(k, p, 1.0, 0.5);
+                        at(500 + i * 40, () => { explosion(p.x, p.y, 1.0); embers(p.x, p.y, 8, 100, 260, [[210, 220, 235], C.white, C.yellow], 240, { kind: 'spark' }); shake(3, 200); }); });
+                },
+                '흑사'(t) {
+                    dims.push({ a: 0.26, dur: 0.8, t: 0 });
+                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 70, () => { puffs(p.x, p.y, 3, [34, 26, 46], 0.7);
+                        for (let j = 0; j < 4; j++) P({ x: p.x + rnd(-cell * 0.2, cell * 0.2), y: p.y, vx: rnd(-10, 10), vy: UP() * rnd(20, 50), drag: 0.3, size: rnd(1.5, 2.6), dur: rnd(0.7, 1.1), kind: 'glow', color: [150, 230, 140], tw: true });
+                        glyph(p.x, p.y, '♠', [215, 190, 245], 1.0, cell * 0.5); }); });
+                },
+                '복수'(t) {
+                    t.forEach(sq => { const p = ctr(sq); petals(p.x, p.y, 14, cell * 0.7, SC.petal, 1.8);
+                        at(380, () => { const L = cell * 0.8; slash(p.x - L, p.y - L, p.x + L, p.y + L, C.red, 0.3, 6); flash(p.x, p.y, cell * 1.4, [200, 30, 55], 0.4, 0.6); embers(p.x, p.y, 8, 90, 240, [C.red, [255, 160, 170]], 220); shake(3, 200); }); });
+                },
+                '징집'(t) {
+                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 110, () => { ring(p.x, p.y, cell * 0.12, cell * 0.8, SC.tan, 0.5, 3, 0.8); puffs(p.x, p.y, 4, [205, 185, 145], 0.5);
+                        embers(p.x, p.y, 5, 60, 160, [SC.steel, C.white, C.yellow], 180, { kind: 'spark' }); shake(2, 140); }); });
+                },
+                '축복'(t) {
+                    t.forEach(sq => { const p = ctr(sq); beam(p.x, cell * 0.75, [255, 248, 225], 0.8);
+                        at(150, () => { flash(p.x, p.y, cell * 1.3, C.white, 0.5, 0.6); ring(p.x, p.y, cell * 0.1, cell * 1.0, C.gold, 0.55, 3); feathers(p.x, p.y, 12, cell * 0.6); rising(p.x, p.y, cell * 0.3, 8, [C.white, C.gold], 40, 110); }); });
+                },
+                '숲의 망령'(t) {
+                    t.forEach(sq => { const p = ctr(sq); flash(p.x, p.y, cell * 1.4, [120, 255, 200], 0.7, 0.3);
+                        for (let i = 0; i < 5; i++) P({ x: p.x + rnd(-cell * 0.25, cell * 0.25), y: p.y + DOWN() * cell * 0.25, vx: rnd(-14, 14), vy: UP() * rnd(20, 50), size: cell * rnd(0.16, 0.26), grow: 2.2, dur: rnd(1.0, 1.5), kind: 'smoke', color: [180, 255, 225], alpha: 0.32 });
+                        rising(p.x, p.y, cell * 0.3, 10, [[150, 255, 215], [220, 255, 240]], 30, 90, [0.9, 1.5]); at(220, () => ring(p.x, p.y, cell * 0.15, cell * 0.9, [150, 255, 215], 0.6, 2.5, 0.7)); });
+                },
+                '기사 서임'(t) {
+                    t.forEach((sq, i) => { const p = ctr(sq), L = cell * 0.62; at(i * 140, () => {
+                        slash(p.x - L, p.y - L, p.x + L, p.y + L, SC.steel, 0.3, 5); setTimeout(() => { slash(p.x + L, p.y - L, p.x - L, p.y + L, C.white, 0.3, 5); kick(); }, 90);
+                        at(180, () => { flash(p.x, p.y, cell * 1.2, C.gold, 0.45, 0.6); ring(p.x, p.y, cell * 0.1, cell * 0.9, C.gold, 0.5, 3); stars(p.x, p.y, 7, cell * 0.4, [C.gold, C.white]); }); }); });
+                },
+                '프로모션'(t) {
+                    t.forEach(sq => { const p = ctr(sq); beam(p.x, cell * 0.9, C.gold, 0.9);
+                        at(200, () => { flash(p.x, p.y, cell * 1.6, C.gold, 0.55, 0.7); ring(p.x, p.y, cell * 0.1, cell * 1.2, C.gold, 0.55, 3); at(120, () => ring(p.x, p.y, cell * 0.1, cell * 1.6, C.white, 0.6, 2));
+                            stars(p.x, p.y, 10, cell * 0.45, [C.gold, C.white, C.yellow]); glyph(p.x, p.y, '♛', [255, 226, 130], 1.2, cell * 0.65); }); });
+                },
+                '캐슬링+'(t) {
+                    const stone = [[150, 140, 125], [110, 100, 90], [190, 180, 165]];
+                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 120, () => { shieldFx(p.x, p.y, cell * 0.5, [200, 190, 170], 0.8, 4); puffs(p.x, p.y, 4, [170, 160, 145], 0.5);
+                        for (let j = 0; j < 8; j++) { const ang = rnd(0, TAU), sp = rnd(70, 200); P({ x: p.x, y: p.y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp + UP() * rnd(40, 120), g: DOWN() * 520, drag: 0.9, size: rnd(3, 6), rot: rnd(0, TAU), vr: rnd(-10, 10), dur: rnd(0.6, 0.9), kind: 'shard', color: pick(stone), edge: 'rgb(70,60,50)' }); }
+                        shake(3, 180); }); });
+                },
+                '나이트 클럽'(t) {
+                    [0, 160, 320].forEach((d, i) => at(d, () => flash(W / 2, H / 2, W * 0.85, SC.neon[i], 0.28, 0.2)));
+                    t.forEach((sq, i) => { const p = ctr(sq), col = SC.neon[i % 4]; at(i * 55, () => { ring(p.x, p.y, cell * 0.1, cell * 0.8, col, 0.5, 3, 0.85); rayBurst(p.x, p.y, col, 0.5, cell * 1.0); embers(p.x, p.y, 5, 70, 200, SC.neon, 120, { kind: 'spark' }); }); });
+                    for (let i = 0; i < 22; i++) at(i * 22, () => P({ x: rnd(0, W), y: UP() < 0 ? -4 : H + 4, vx: rnd(-25, 25), vy: DOWN() * rnd(90, 190), drag: 0.2, size: rnd(cell * 0.035, cell * 0.06), rot: rnd(0, TAU), vr: rnd(-12, 12), dur: rnd(0.9, 1.4), kind: 'petal', color: pick(SC.neon) }));
+                    at(100, () => glyph(W / 2, H / 2, '♪', [255, 230, 90], 1.3, cell * 0.8));
+                },
+                '그림자 교체'(t) {
+                    if (t.length < 2) return; const A = ctr(t[0]), B = ctr(t[1]);
+                    [A, B].forEach(p => { puffs(p.x, p.y, 4, [44, 38, 60], 0.7); ring(p.x, p.y, cell * 0.1, cell * 0.7, [150, 110, 220], 0.4, 2.5, 0.7); });
+                    slash(A.x, A.y, B.x, B.y, [150, 110, 220], 0.4, 3); streak(A, B, 8, [[170, 130, 240], [230, 220, 255]], 0.45, 0.3); streak(B, A, 8, [[170, 130, 240], [230, 220, 255]], 0.45, -0.3);
+                    at(220, () => [A, B].forEach(p => embers(p.x, p.y, 6, 60, 180, [[170, 130, 240], C.white], 80)));
+                },
+                '저주'(t) {
+                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 120, () => { sigil(p.x, p.y, cell * 0.5, [170, 230, 90], 1.0, 5, 2.6);
+                        for (let j = 0; j < 6; j++) P({ x: p.x + rnd(-cell * 0.3, cell * 0.3), y: p.y + UP() * cell * 0.5, vx: rnd(-8, 8), vy: DOWN() * rnd(30, 70), drag: 0.2, size: rnd(1.8, 3), dur: rnd(0.7, 1.1), kind: 'glow', color: pick([[170, 90, 230], [140, 230, 90]]) });
+                        puffs(p.x, p.y, 3, [70, 36, 100], 0.55);
+                        at(430, () => { flash(p.x, p.y, cell * 1.2, [160, 80, 220], 0.4, 0.5); ring(p.x, p.y, cell * 0.1, cell * 0.8, [150, 230, 90], 0.45, 3); }); }); });
+                },
+                '혼란'(t) {
+                    if (t.length < 2) return; const A = ctr(t[0]), B = ctr(t[1]);
+                    [A, B].forEach(p => { swirl(p.x, p.y, 12, [[110, 230, 255], [190, 120, 255]], cell * 0.9, cell * 0.12, 0.8, 1); glyph(p.x, p.y, '?', [255, 255, 255], 1.0, cell * 0.55); });
+                    at(200, () => { streak(A, B, 8, [[110, 230, 255], [255, 255, 255]], 0.5, 0.6); streak(B, A, 8, [[190, 120, 255], [255, 255, 255]], 0.5, 0.6); });
+                },
+                '광기'(t) {
+                    if (t.length < 2) return; const A = ctr(t[0]), B = ctr(t[1]);
+                    confetti(A.x, A.y, 14); puffs(A.x, A.y, 3, [255, 120, 190], 0.45);
+                    at(150, () => streak(A, B, 14, SC.neon, 0.5, 0.8));
+                    at(320, () => { confetti(B.x, B.y, 16); puffs(B.x, B.y, 3, [120, 230, 255], 0.45); ring(B.x, B.y, cell * 0.1, cell * 0.9, [255, 230, 90], 0.5, 3); glyph(B.x, B.y, '!', [255, 230, 90], 1.0, cell * 0.6); });
+                },
+                '강제 이주'(t) {
+                    if (t.length < 2) return; const A = ctr(t[0]), B = ctr(t[1]);
+                    swirl(A.x, A.y, 14, [[120, 160, 255], [200, 220, 255]], cell * 0.9, cell * 0.05, 0.6, -1); ring(A.x, A.y, cell * 0.8, cell * 0.1, [120, 160, 255], 0.55, 3, 0.9);
+                    at(300, () => { ring(B.x, B.y, cell * 0.1, cell * 1.0, [140, 180, 255], 0.55, 3.5); flash(B.x, B.y, cell * 1.4, [140, 180, 255], 0.45, 0.6);
+                        swirl(B.x, B.y, 12, [[120, 160, 255], [255, 255, 255]], cell * 0.1, cell * 0.9, 0.6, 1); streak(A, B, 10, [[170, 200, 255], [255, 255, 255]], 0.35, 0.15); });
+                },
+                '빛의 수호'(t) {
+                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 35, () => { shieldFx(p.x, p.y, cell * 0.4, [255, 215, 100], 1.1, 6); ring(p.x, p.y, cell * 0.1, cell * 0.7, C.gold, 0.45, 2.5, 0.7); }); });
+                    flash(W / 2, H / 2, W * 0.8, C.gold, 0.6, 0.16);
+                },
+                '여신의 가호'(t) {
+                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 150, () => { beam(p.x, cell * 1.1, [255, 248, 225], 1.0); halo(p.x, p.y, C.gold, 1.2); shieldFx(p.x, p.y, cell * 0.46, [255, 235, 170], 1.2, 6); feathers(p.x, p.y, 8, cell * 0.5); flash(p.x, p.y, cell * 1.4, C.white, 0.5, 0.55); }); });
+                },
+                '마인드 컨트롤'(t) {
+                    t.forEach(sq => { const p = ctr(sq); flash(p.x, p.y, cell * 1.5, SC.psy, 0.8, 0.3);
+                        [0, 160, 320].forEach(d => at(d, () => ring(p.x, p.y, cell * 1.4, cell * 0.12, SC.psy, 0.5, 3, 0.9)));
+                        at(650, () => { ring(p.x, p.y, cell * 0.1, cell * 1.3, [90, 230, 255], 0.55, 4); flash(p.x, p.y, cell * 1.3, [90, 230, 255], 0.4, 0.55); embers(p.x, p.y, 8, 70, 190, [[90, 230, 255], SC.psy, C.white], 100); }); });
+                },
+                '차원 장벽'(t) {
+                    t.forEach(sq => { const p = ctr(sq); shieldFx(p.x, p.y, cell * 0.62, SC.indigo, 1.2, 4); shieldFx(p.x, p.y, cell * 0.42, [200, 205, 255], 1.0, 4); flash(p.x, p.y, cell * 1.5, SC.indigo, 0.5, 0.5);
+                        for (let j = 0; j < 8; j++) { const ang = rnd(0, TAU), sp = rnd(40, 140); P({ x: p.x, y: p.y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp + UP() * rnd(30, 90), g: DOWN() * 360, drag: 0.9, size: rnd(3, 5.5), rot: rnd(0, TAU), vr: rnd(-8, 8), dur: rnd(0.6, 0.95), kind: 'shard', color: [110, 120, 240], edge: 'rgb(210,215,255)' }); }
+                        shake(2.5, 180); });
+                },
+                '자아 분열'(t) {
+                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 40, () => { swirl(p.x, p.y, 6, [[255, 120, 220], [255, 230, 90]], cell * 0.5, cell * 0.1, 0.7, i % 2 ? 1 : -1); glyph(p.x, p.y, '↕', [255, 220, 120], 0.9, cell * 0.5); }); });
+                    flash(W / 2, H / 2, W * 0.8, SC.psy, 0.6, 0.14);
+                },
+                '잭팟'(t, a) {
+                    const k = a.origin ? ctr(a.origin) : { x: W / 2, y: H / 2 };
+                    flash(k.x, k.y, cell * 1.6, C.gold, 0.6, 0.6); ring(k.x, k.y, cell * 0.1, cell * 1.5, C.gold, 0.6, 4);
+                    for (let i = 0; i < 26; i++) at(i * 28, () => P({ x: rnd(0, W), y: UP() < 0 ? -cell * 0.2 : H + cell * 0.2, vx: rnd(-20, 20), vy: DOWN() * rnd(110, 200), g: DOWN() * 520, drag: 0.15, size: rnd(cell * 0.07, cell * 0.1), rot: rnd(0, TAU), vr: rnd(9, 16), dur: 1.5, kind: 'coin', color: C.gold }));
+                    at(120, () => glyph(k.x, k.y, '777', [255, 90, 80], 1.5, cell * 0.8, 18));
+                },
+                '아기는 어떻게 태어나?'(t) {
+                    if (t.length < 2) return; const A = ctr(t[0]), B = ctr(t[1]);
+                    [A, B].forEach(p => { flash(p.x, p.y, cell * 1.5, SC.pink, 0.8, 0.4); hearts(p.x, p.y, 5, cell * 0.35); });
+                    at(200, () => { streak(A, B, 4, [SC.pink, [255, 200, 220]], 0.7, 0.3, { kind: 'heart', size: cell * 0.1, tw: false }); streak(B, A, 4, [SC.pink, [255, 200, 220]], 0.7, 0.3, { kind: 'heart', size: cell * 0.1, tw: false }); });
+                },
+                '암전'() {
+                    dims.push({ a: 0.5, dur: 0.22, t: 0 }); at(260, () => dims.push({ a: 0.55, dur: 0.22, t: 0 })); at(520, () => dims.push({ a: 0.62, dur: 1.0, t: 0 }));
+                },
+                '지뢰 찾기'() {   // 위치가 드러나지 않도록 무작위 위치에 먼지만 날린다
+                    shake(1.6, 150);
+                    for (let i = 0; i < 3; i++) { const p = ctr('abcdefgh'[(Math.random() * 8) | 0] + (1 + ((Math.random() * 8) | 0))); at(i * 120, () => puffs(p.x, p.y, 2, [150, 125, 95], 0.35)); }
+                },
+                '수퍼 워너비'(t) {
+                    t.forEach(sq => { const p = ctr(sq); beam(p.x, cell * 0.7, C.gold, 0.8); flash(p.x, p.y, cell * 1.4, C.gold, 0.5, 0.6); ring(p.x, p.y, cell * 0.1, cell * 1.0, C.gold, 0.5, 3);
+                        at(140, () => ring(p.x, p.y, cell * 0.1, cell * 1.4, C.white, 0.55, 2)); stars(p.x, p.y, 10, cell * 0.4, [C.gold, C.white, C.yellow]); glyph(p.x, p.y, '★', [255, 226, 120], 1.2, cell * 0.6); });
+                }
+            };
+            function sig(name, a) {
+                const fn = SIG[name]; if (!fn || reduceMotion) return false;
+                resize(); if (!W) return false;
+                fn(a.t || [], a); kick(); return true;
+            }
+
             let fxSpeed = 1;
             function frame(now) {
                 const dt = Math.min(0.05, (now - last) / 1000) * fxSpeed; last = now;
@@ -2719,9 +3026,11 @@
                 for (let i = 0; i < parts.length; i++) moveP(parts[i], dt);
                 ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
                 waves.forEach(drawWaveBody);
-                for (const p of parts) { if (p.kind === 'smoke') drawSmoke(p); else if (p.kind === 'shard') drawShard(p); }
+                scorches.forEach(drawScorch);
+                for (const p of parts) { const d = DRAWK[p.kind]; if (d) d(p); }
+                chains.forEach(drawChain);
                 ctx.globalCompositeOperation = 'lighter';
-                wheels.forEach(drawWheel); beams.forEach(drawBeam); rays.forEach(drawRays); waves.forEach(drawWaveFoam); marks.forEach(drawMark); flashes.forEach(drawFlash); rings.forEach(drawRing); bolts.forEach(drawBolt); slashes.forEach(drawSlash); trails.forEach(drawTrail); charges.forEach(drawCharge); vines.forEach(drawVines);
+                wheels.forEach(drawWheel); beams.forEach(drawBeam); rays.forEach(drawRays); waves.forEach(drawWaveFoam); marks.forEach(drawMark); flashes.forEach(drawFlash); rings.forEach(drawRing); bolts.forEach(drawBolt); slashes.forEach(drawSlash); trails.forEach(drawTrail); charges.forEach(drawCharge); vines.forEach(drawVines); sigils.forEach(drawSigil); shields.forEach(drawShield); halos.forEach(drawHalo);
                 for (const p of parts) { if (p.kind === 'glow') drawGlow(p); else if (p.kind === 'spark') drawSpark(p); }
                 ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
                 let alive = 0;
@@ -2731,7 +3040,7 @@
                 }
                 if (alive) requestAnimationFrame(frame); else { running = false; ctx.clearRect(0, 0, W, H); }
             }
-            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx, speed: k => { fxSpeed = k; } };
+            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx, sig, hasSig: n => !!SIG[n], mineBlast, speed: k => { fxSpeed = k; } };
         })();
 
         function spawnFloatingText(sq, text) {
@@ -2781,7 +3090,7 @@
             '독구름': 'poison', '네크로맨서': 'summon', '축복': 'summon', '징집': 'summon', '숲의 망령': 'summon', '아기는 어떻게 태어나?': 'summon', '차원 장벽': 'summon',
             '저주': 'curse', '마인드 컨트롤': 'curse', '광기': 'curse', '자아 분열': 'curse', '암전': 'curse',
             '빛의 수호': 'shield', '여신의 가호': 'shield', '덩굴': 'bind',
-            '혼란': 'move', '강제 이주': 'move', '그림자 교체': 'move', '파도': 'move', '진군 명령': 'move', '운명의 수레바퀴': 'move',
+            '지뢰 찾기': 'summon', '수퍼 워너비': 'upgrade', '혼란': 'move', '강제 이주': 'move', '그림자 교체': 'move', '파도': 'move', '진군 명령': 'move', '운명의 수레바퀴': 'move',
             '기사 서임': 'upgrade', '프로모션': 'upgrade', '캐슬링+': 'upgrade', '나이트 클럽': 'upgrade', '잭팟': 'upgrade'
         };
         const KIND_COLOR = {
@@ -2790,7 +3099,9 @@
         };
         const AUG_STAGGER = { '신의 심판': 60, '벼락': 140, '흑사': 70 };
         const AUG_SCALE = { '신성한 폭발': 1.35 };
-        const AUG_NO_LEAD = new Set(['파도', '진군 명령', '운명의 수레바퀴']);
+        const AUG_NO_LEAD = new Set(['파도', '진군 명령', '운명의 수레바퀴', '지뢰 찾기']);
+        // 고유 연출에서 기물 변화(파괴·소환·변이)가 화면에 반영되는 시점(ms)
+        const AUG_REVEAL = { '네크로맨서': 850, '신의 심판': 420, '벼락': 280, '독구름': 450, '암살': 260, '연계 분쇄': 480, '흑사': 350, '복수': 350, '징집': 160, '축복': 250, '숲의 망령': 220, '기사 서임': 220, '프로모션': 280, '캐슬링+': 220, '나이트 클럽': 260, '그림자 교체': 220, '저주': 420, '혼란': 350, '광기': 300, '강제 이주': 350, '마인드 컨트롤': 650, '차원 장벽': 250 };
         const WAVE_TRAVEL_SEC = 1.15; // FX 엔진의 WAVE_TRAVEL과 같은 값
 
         function highlightAffected(squares, color, delayOf) {
@@ -2847,11 +3158,14 @@
                     setTimeout(() => pieceEls.forEach(el => { el.style.transition = ''; el.classList.remove('wheel-focus', 'wheel-dim'); }), 1900);
                 }
                 if (isVine) FX.vines(t);
-                drawPieces(true); updateCheckStatus();
+                const useSig = !slides && !isVine && FX.sig(a.name, a);   // 증강 고유 연출이 있으면 일반 연출(전역/칸 이펙트)을 대신한다
+                const reveal = useSig ? (AUG_REVEAL[a.name] || 0) : 0;   // 효과가 닿는 순간에 맞춰 기물 변화를 보여 준다
+                if (reveal) setTimeout(() => { drawPieces(true); updateCheckStatus(); }, reveal); else { drawPieces(true); updateCheckStatus(); }
+                if (a.blasts && a.blasts.length) setTimeout(() => playBlasts(a.blasts), 350);   // 증강으로 지뢰를 밟은 경우도 양쪽에서 폭발 연출
                 (a.floats || []).forEach(f => { if (isWave) setTimeout(() => spawnFloatingText(f.sq, f.text), rowSec(f.sq) * 1000); else spawnFloatingText(f.sq, f.text); });
-                if (a.globalVfx) playGlobalVFX(a.globalVfx, a.fxArg, origin);
-                if (t.length && !slides && !isVine) triggerVFX(t, a.vfx, AUG_STAGGER[a.name] || 0, AUG_SCALE[a.name] || 1);
-                highlightAffected(t, color, isWave ? sq => rowSec(sq) * 1000 + 250 : null);
+                if (a.globalVfx && !useSig) playGlobalVFX(a.globalVfx, a.fxArg, origin);
+                if (t.length && !slides && !isVine && !useSig) triggerVFX(t, a.vfx, AUG_STAGGER[a.name] || 0, AUG_SCALE[a.name] || 1);
+                if (reveal) setTimeout(() => highlightAffected(t, color, null), reveal + 40); else highlightAffected(t, color, isWave ? sq => rowSec(sq) * 1000 + 250 : null);
                 if (isWave) t.forEach(sq => setTimeout(() => FX.splash(sq), rowSec(sq) * 1000 + 120));
             }, lead);
             return lead;
@@ -2874,6 +3188,47 @@
                     }
                 });
             });
+            squareList.forEach(sqEl => { const mk = sqEl.querySelector('.mine-mark'); if (mk) mk.remove(); });
+            mines.forEach(mi => {   // 지뢰는 설치한 사람에게만 보인다 (리플레이에서는 모두 공개)
+                if (!(mi.owner === myColor || (replayActive && replayMode !== 'live'))) return;
+                const el = squareEls.get(mi.sq); if (!el) return;
+                const mk = document.createElement('span'); mk.className = 'mine-mark'; mk.textContent = '💣'; el.appendChild(mk);
+            });
+        }
+
+        function playBlasts(hit) {   // 폭발 연출 (양쪽 화면 모두에서 재생)
+            if (!hit || !hit.length) return;
+            hit.forEach(sq => spawnFloatingText(sq, '💥'));
+            hit.forEach((sq, i) => setTimeout(() => {   // 지뢰마다 시간차를 두고 터진다
+                const cellEl = squareEls.get(sq); if (cellEl) { cellEl.classList.add('vfx-explosion'); setTimeout(() => cellEl.classList.remove('vfx-explosion'), 1000); }
+                const pc = game.get(sq), pel = pc && pieceEls.get(pc.uid); if (pel) { pel.classList.add('piece-shake'); setTimeout(() => pel.classList.remove('piece-shake'), 500); }
+                FX.mineBlast(sq);
+            }, i * 130));
+            showToast('💣 지뢰가 폭발했습니다!', '#ff7a45', 2000);
+        }
+        function resolveMines(playFx = true) {   // 지뢰 칸에 기물이 도달하면 피아 구분 없이 파괴 (단, 킹은 폭발만 겪고 살아남는다)
+            const hitSq = new Set();
+            mines.forEach(mi => { const pc = game.get(mi.sq); if (pc && pc.type !== 'wall') hitSq.add(mi.sq); });
+            if (!hitSq.size) return [];
+            const hit = Array.from(hitSq);
+            hit.forEach(sq => { const pc = game.get(sq); if (pc && pc.type !== 'k') game.remove(sq); });
+            mines = mines.filter(mi => !hitSq.has(mi.sq));
+            if (playFx) playBlasts(hit);
+            return hit;
+        }
+        function promoteProspects() {   // 카운트가 끝난 유망주 폰을 퀸으로 승급
+            const done = [];
+            for (const uid in prospects) {
+                prospects[uid]--;
+                if (prospects[uid] > 0) continue;
+                delete prospects[uid];
+                for (const sq of squareEls.keys()) {
+                    const pc = game.get(sq);
+                    if (pc && String(pc.uid) === String(uid)) { if (pc.type === 'p') { game.remove(sq); game.put({ ...pc, type: 'q' }, sq); done.push(sq); spawnFloatingText(sq, '👑'); } break; }
+                }
+            }
+            if (done.length) showToast('🎖️ 수퍼 워너비가 퀸으로 승급했습니다!', '#f1c40f', 2400);
+            return done;
         }
 
         function updatePreviousMoveHighlights() {
@@ -2928,8 +3283,8 @@
                 try { showCastText(f.name, () => {
                     if (!replayActive || token !== replayToken) return;
                     scaleAnimsSoon(kSpd);
-                    playAugmentVisuals({ name: f.name, globalVfx: fx.globalVfx, t: fx.t, vfx: fx.vfx, floats: fx.floats, fxArg: fx.fxArg, origin: fx.origin, fxMoves: fx.fxMoves });
-                    playSFX('augment'); if (fx.msg) showToast(fx.msg, 'var(--primary)', 2600);
+                    playAugmentVisuals({ name: f.name, globalVfx: fx.globalVfx, t: fx.t, vfx: fx.vfx, floats: fx.floats, fxArg: fx.fxArg, origin: fx.origin, fxMoves: fx.fxMoves, blasts: fx.blasts });
+                    if (fx.msg) showToast(fx.msg, 'var(--primary)', 2600);
                     setTimeout(() => { if (replayActive && token === replayToken) replayMarkChecks(); }, 700);
                 }); } finally { __timeScale = 1; }
                 scaleAnimsSoon(kSpd);
@@ -2940,7 +3295,6 @@
             previousMove = f.kind === 'move' ? { from: f.from, to: f.to } : null;
             if (animate && f.kind === 'move') {
                 try { FX.land(f.to, f.by); if (f.captured) FX.capture(f.to, f.captured); } catch (e) {}
-                setTimeout(() => playSFX(f.captured ? 'capture' : 'move'), 100);
             }
             muteShatter = !animate; drawPieces(animate); muteShatter = false;
             if (animate) scaleAnimsSoon(kSpd);
@@ -3002,6 +3356,7 @@
         }
         function startLiveReview() {   // 경기 중 이전 한두 수 되돌아보기
             if (replayFrames.length < 2) { showToast('아직 볼 이전 수가 없어요', 'var(--danger)', 1600); return; }
+            replayFogLock = blackout[myColor] > 0;
             replayMode = 'live'; liveMinIdx = Math.max(0, replayFrames.length - 1 - LIVE_BACK);
             replayFinalState = serializeGameState(); replaySavedPrev = previousMove; replayQueue = []; replayActive = true;
             document.body.classList.add('replay-mode', 'live-review');
@@ -3130,18 +3485,20 @@
         // 화면 높이에 맞춰 판 크기를 자동 조절: 헤더/채팅/이전 수 줄/리플레이 바까지 한 화면에 들어오게
         let fitRaf = 0;
         function fitBoard() {
-            const cont = document.getElementById('board-container'); if (!cont) return;
+            const frame = document.getElementById('game-frame'), cont = document.getElementById('board-container'); if (!frame || !cont) return;
             const cl = document.body.classList; if (cl.contains('chat-typing') || cl.contains('augment-picking')) return;   // 키보드·오버레이 중에는 크기 고정
             let others = 0;
             Array.from(document.body.children).forEach(el => {
-                if (el === cont) return; const cs = getComputedStyle(el);
+                if (el === frame) return; const cs = getComputedStyle(el);
                 if (cs.display === 'none' || cs.position === 'fixed' || cs.position === 'absolute' || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
                 others += el.offsetHeight + parseFloat(cs.marginTop || 0) + parseFloat(cs.marginBottom || 0);
             });
-            const bs = getComputedStyle(document.body), pad = parseFloat(bs.paddingTop || 0) + parseFloat(bs.paddingBottom || 0), contMargin = parseFloat(getComputedStyle(cont).marginTop || 0);
-            const avail = window.innerHeight - others - pad - contMargin - 14;   // 판 영역에 쓸 수 있는 높이
-            const size = Math.max(250, Math.min(420, Math.floor(avail) + 20));   // 컨테이너 좌우 패딩 20px 포함
-            if (cont.dataset.fit !== String(size)) { cont.dataset.fit = String(size); document.documentElement.style.setProperty('--board-max', size + 'px'); }
+            const bs = getComputedStyle(document.body), fs = getComputedStyle(frame);
+            const pad = parseFloat(bs.paddingTop || 0) + parseFloat(bs.paddingBottom || 0) + parseFloat(fs.marginTop || 0) + parseFloat(fs.marginBottom || 0);
+            const inFrame = frame.offsetHeight - cont.offsetHeight;   // 틀 안에서 판을 뺀 나머지 높이(헤더, 줄, 채팅, 간격, 패딩)
+            const avail = window.innerHeight - others - pad - inFrame - 8;   // 판에 쓸 수 있는 높이
+            const size = Math.max(270, Math.min(420, Math.floor(avail) + 22));   // 틀 너비 = 판 + 좌우 패딩/테두리 22px
+            if (frame.dataset.fit !== String(size)) { frame.dataset.fit = String(size); document.documentElement.style.setProperty('--board-max', size + 'px'); }
         }
         function scheduleFit() { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitBoard); }
         window.addEventListener('resize', scheduleFit); window.addEventListener('orientationchange', () => setTimeout(scheduleFit, 200));
@@ -3204,7 +3561,6 @@
                 if(!game.is_game_over) return;   // 그 사이 새 게임으로 초기화됐다면 표시하지 않음
                 previousMove = null;
                 updatePreviousMoveHighlights();
-                playSFX(resultType === '승리' ? 'win' : resultType === '패배' ? 'lose' : 'message');
                 const title = document.getElementById('result-title');
                 if(resultType === '승리') { title.innerText = "🎉 승리!"; title.style.color = "#2ecc71"; }
                 else if(resultType === '패배') { title.innerText = "☠️ 패배"; title.style.color = "#ff4757"; }
@@ -3215,7 +3571,6 @@
 
             if(delay > 0) {
                 if(opts.fx === 'checkmate') { FX.checkmate(opts.fxSq, opts.fxCheckers || []); } else if(opts.fx === 'stalemate') FX.stalemate(opts.fxSq);
-                if(opts.fx) playSFX(opts.fx === 'checkmate' ? 'check' : 'message');
                 clearTimeout(endRevealTimer); endRevealTimer = setTimeout(reveal, delay);
             } else reveal();
         }
@@ -3255,7 +3610,6 @@
                 const key = checked.join('');
                 if (checked.length && key !== lastCheckKey) {   // 같은 체크로 알림이 반복되지 않도록
                     showToast("⚠️ 체크!", "#ff4757");
-                    playSFX('check');
                 }
                 lastCheckKey = key;
             }
@@ -3321,12 +3675,12 @@
                 activePoison.forEach(p => { if (p.squares.includes(to) && p.owner !== pieceNow.color) poisoned = true; });
                 if (poisoned && pieceNow.type !== 'k' && pieceNow.type !== 'wall' && !invinciblePieces[pieceNow.uid]) { game.remove(to); spawnFloatingText(to, '☠️'); triggerVFX([to], 'vfx-explosion'); }
             }
+            resolveMines();
 
             previousMove = { from, to };
             recordFrame('move', { from, to, by: moveResult.color, captured: moveResult.captured || null });
             drawPieces(); updateTurnIndicator(); updateCheckStatus();
             updatePreviousMoveHighlights();
-            setTimeout(() => playSFX(moveResult.captured ? 'capture' : 'move'), 100);
             
 
             setTimeout(() => handlePostMove(), 300);
@@ -3349,6 +3703,8 @@
             ['w', 'b'].forEach(c => { if (blackout[c] > 0) blackout[c]--; });
             const poisonKilled = enforcePoison();
             const babyBorn = processBaby();
+            const promotedSq = promoteProspects();
+            resolveMines();
             
             ['w', 'b'].forEach(c => { if (reversedPawns[c] > 0) { reversedPawns[c]--; if (reversedPawns[c] <= 0) reversedUids[c] = {}; } });
 
@@ -3359,7 +3715,8 @@
             });
 
             game.sanitizeSpecialStates();
-            drawPieces(babyBorn.length > 0);
+            drawPieces(babyBorn.length > 0 || promotedSq.length > 0);
+            if (promotedSq.length) { triggerVFX(promotedSq, 'vfx-heal'); highlightAffected(promotedSq, KIND_COLOR.upgrade); updateCheckStatus(); }
             if (poisonKilled.length) triggerVFX(poisonKilled, 'vfx-void');
             if (babyBorn.length) { triggerVFX(babyBorn, 'vfx-heal'); highlightAffected(babyBorn, KIND_COLOR.summon); updateCheckStatus(); }
             activePoison.forEach(p => p.duration--); activePoison = activePoison.filter(p => p.duration > 0); updateBoardVisuals(); updateProgressBar();
@@ -3508,7 +3865,7 @@
             }
             return born;
         }
-        const isFogOn = () => !!(blackout[myColor] > 0 && isGameStarted && !replayActive);
+        const isFogOn = () => !!(isGameStarted && (replayActive ? (replayMode === 'live' && replayFogLock) : blackout[myColor] > 0));   // 이전 수 보기 중에도 현재 암전 상태면 그대로 어둡게 (되감아서 정보를 훔쳐보지 못하게)
         function updateBlackoutBadge() {
             const el = document.getElementById('blackout-badge'); if (!el) return;
             const e = myColor === 'w' ? 'b' : 'w', turns = n => n, parts = [];
@@ -3523,6 +3880,16 @@
             pieceEls.forEach(el => el.classList.toggle('piece-hidden', on && el.dataset.color !== myColor));
         }
 
+        // 가중치(소수 가능)에 비례해 중복 없이 count개를 뽑는다
+        function weightedSample(list, count) {
+            const pool = list.map(a => ({ a, w: a.weight !== undefined ? a.weight : (a.isKillType ? 1 : 4) })), out = [];
+            while (out.length < count && pool.length) {
+                const tot = pool.reduce((t, x) => t + x.w, 0); let r = Math.random() * tot, i = 0;
+                for (; i < pool.length - 1; i++) { r -= pool[i].w; if (r <= 0) break; }
+                out.push(pool[i].a); pool.splice(i, 1);
+            }
+            return out;
+        }
         function findPieces(color, type = null) { let res = []; for(let r=0; r<8; r++) for(let c=0; c<8; c++) { const p = game.board()[r][c]; if(p && p.color === color && (!type || p.type === type)) res.push(game.rcToSq(r,c)); } return res; }
         function findVulnerable(color) { return findPieces(color).filter(sq => { const p = game.get(sq); return p && p.type !== 'k' && !invinciblePieces[p.uid]; }); }
         function getEmptySquares() { let res = []; for(let f=97; f<=104; f++) for(let r=1; r<=8; r++) { const sq = String.fromCharCode(f)+r; if(!game.get(sq)) res.push(sq); } return res; }
@@ -3576,6 +3943,7 @@
             clone.ep_square = source.ep_square;
             clone.is_game_over = source.is_game_over;
             clone.pieceUidCounter = source.pieceUidCounter;
+            clone.keepUids = source.keepUids ? { ...source.keepUids } : {};
             return clone;
         }
 
@@ -3701,7 +4069,7 @@
                   return { t: squares, vfx: 'vfx-void', msg: '☠️ 맹독 지대가 형성되었습니다!' }; } },
             { name: '암살', icon: '🗡️', desc: '가치가 가장 낮은 적 기물 {2개}를 [파괴]합니다.', globalVfx: 'vfx-global-assassinate', isKillType: true, condition: (m, e) => findVulnerable(e).length > 1,
               apply: (m, e) => { const targets = findVulnerable(e).sort((a, b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]).slice(0, 2); targets.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '🗡️'); }); return { t: targets, vfx: 'vfx-explosion', msg: '🗡️ 어둠 속 암살자가 습격했습니다!' }; } },
-            { name: '연계 분쇄', icon: '⛓️', weight: 3, desc: '킹이 {체크} 상태일 때, 킹을 위협하는 적 기물을 역으로 즉시 [파괴]합니다.', globalVfx: 'vfx-global-explosion', isKillType: true,
+            { name: '연계 분쇄', icon: '⛓️', weight: 2.48, desc: '킹이 {체크} 상태일 때, 킹을 위협하는 적 기물을 역으로 즉시 [파괴]합니다.', globalVfx: 'vfx-global-explosion', isKillType: true,
               condition: (m, e) => game.in_check(m) && findCheckers(m).length > 0,
               apply: (m, e) => { const sqs = findCheckers(m); if (!sqs.length) return { t: [], vfx: '', msg: '위협하는 적 기물을 찾지 못했습니다.' };
                   sqs.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '⛓️'); });
@@ -3799,7 +4167,7 @@
             { name: '암전', icon: '💡', weight: 1, desc: '{4수} 동안 상대방의 기물들이 차지한 칸을 제외한 모든 칸을 [암전]시켜 시야를 방해합니다.', globalVfx: 'vfx-global-blackout', isKillType: false,
               condition: (m, e) => !(blackout[e] > 0) && !(isBotMode && m === myColor),
               apply: (m, e) => { blackout[e] = 4; return { t: [], vfx: '', msg: '💡 상대의 시야가 어둠에 잠겼습니다!' }; } },
-            { name: '운명의 수레바퀴', icon: '🎡', desc: '체스보드의 [맨 바깥쪽] 칸들에 있는 기물들을 {시계방향}으로 {한 칸씩} [회전]시킵니다. 벽은 움직이지 않고, 폰이 승급 칸에 도착하면 퀸으로 승급합니다.', globalVfx: 'vfx-global-void', isKillType: false, delay: 1500,
+            { name: '운명의 수레바퀴', icon: '🎡', desc: '체스보드의 [맨 바깥쪽] 칸들에 있는 기물들을 {시계방향}으로 {한 칸씩} [회전]시킵니다. 벽은 움직이지 않습니다.', globalVfx: 'vfx-global-void', isKillType: false, delay: 1500,
               condition: (m, e) => getWheelRing().some(sq => { const p = game.get(sq); return p && p.type !== 'wall'; }),
               apply: (m, e) => {
                   const ring = getWheelRing().filter(sq => { const p = game.get(sq); return !p || p.type !== 'wall'; }), n = ring.length;   // 벽 칸은 건너뜀
@@ -3807,13 +4175,31 @@
                   const moved = [];
                   contents.forEach((pc, i) => { if (!pc) return; const to = ring[(i + 1) % n]; game.put(pc, to); moved.push(to); });
                   game.ep_square = null;   // 회전으로 앙파상 가능 칸이 어긋나지 않도록 초기화
-                  moved.forEach(sq => {   // 폰이 승급 칸에 도착하면 퀸으로 승급
-                      const pc = game.get(sq); if (!pc || pc.type !== 'p') return; const rank = parseInt(sq[1]), rev = reversedPawns[pc.color] > 0 && !!reversedUids[pc.color][pc.uid];
-                      const promoRank = (pc.color === 'w') !== rev ? 8 : 1;
-                      if (rank === promoRank) { game.remove(sq); game.put({ ...pc, type: 'q' }, sq); }
-                  });
-                  return { t: moved, vfx: 'vfx-lightning', msg: '🎡 운명의 수레바퀴가 돌아갑니다!' }; } }
+                  game.keepUids = game.keepUids || {};
+                  ring.forEach(sq => { const pc = game.get(sq); if (pc && pc.type === 'p' && parseInt(sq[1]) === (pc.color === 'w' ? 8 : 1)) game.keepUids[pc.uid] = true; });   // 끝줄에 닿은 폰은 퀸이 되지 않고 그대로 남는다
+                  return { t: moved, vfx: 'vfx-lightning', msg: '🎡 운명의 수레바퀴가 돌아갑니다!' }; } },
+            { name: '지뢰 찾기', icon: '💣', desc: '원하는 빈칸 {한 곳}에 [지뢰]를 매설합니다. 지뢰는 [상대방에게 보이지 않으며], 해당 칸에 도달한 기물은 {피아 구분 없이} [파괴]됩니다.', globalVfx: 'vfx-global-void', isKillType: false,
+              target: { mode: 'square', prompt: '지뢰를 묻을 빈칸을 선택하세요', valid: (m) => getEmptySquares().filter(sq => !mines.some(x => x.sq === sq && x.owner === m)) },
+              condition: (m) => getEmptySquares().some(sq => !mines.some(x => x.sq === sq && x.owner === m)),
+              apply: (m, e, target) => {
+                  const ok = sq => sq && !game.get(sq) && !mines.some(x => x.sq === sq && x.owner === m);
+                  const sq = ok(target) ? target : shuffle(getEmptySquares().filter(ok))[0];
+                  if (sq) mines.push({ sq, owner: m });
+                  return { t: [], vfx: '', msg: '💣 지뢰가 매설되었습니다!' }; } },
+            { name: '수퍼 워너비', icon: '🎖️', desc: '아군 폰 {하나}를 지정하여 [유망주]로 만듭니다. 해당 폰은 {9수} 뒤 [퀸]으로 프로모션합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+              target: { mode: 'piece', prompt: '유망주로 만들 아군 폰을 선택하세요', valid: (m) => findPieces(m, 'p').filter(sq => !(prospects[game.get(sq).uid] > 0)) },
+              condition: (m) => findPieces(m, 'p').some(sq => !(prospects[game.get(sq).uid] > 0)),
+              apply: (m, e, target) => {
+                  const cands = findPieces(m, 'p').filter(sq => !(prospects[game.get(sq).uid] > 0));
+                  const sq = (target && cands.includes(target)) ? target : shuffle(cands)[0];
+                  if (!sq) return { t: [], vfx: '', msg: '' };
+                  prospects[game.get(sq).uid] = 9; spawnFloatingText(sq, '🎖️');
+                  return { t: [sq], vfx: 'vfx-heal', msg: '🎖️ 유망주가 탄생했습니다! 9수 뒤 퀸으로 승급합니다.' }; } }
         ];
+
+        // 고유 연출이 끝난 뒤 다음 단계로 넘어가도록 증강별 대기 시간(ms)을 늘린다 (이미 지정된 delay는 유지)
+        const AUG_DELAY = { '네크로맨서': 1900, '신의 심판': 1500, '벼락': 1300, '독구름': 1500, '암살': 1300, '연계 분쇄': 1500, '흑사': 1400, '복수': 1400, '징집': 1300, '축복': 1400, '숲의 망령': 1400, '기사 서임': 1300, '프로모션': 1400, '캐슬링+': 1300, '나이트 클럽': 1500, '그림자 교체': 1300, '저주': 1600, '혼란': 1500, '광기': 1400, '강제 이주': 1400, '마인드 컨트롤': 1800, '차원 장벽': 1300, '잭팟': 1700, '아기는 어떻게 태어나?': 1600, '암전': 1600, '자아 분열': 1500, '빛의 수호': 1400, '여신의 가호': 1600, '수퍼 워너비': 1500 };
+        AUGMENT_POOL.forEach(ag => { if (!ag.delay && AUG_DELAY[ag.name]) ag.delay = AUG_DELAY[ag.name]; });
 
         // 가장자리 28칸을 시계방향(a8→h8→h1→a1→a8) 순서로 반환
         function getWheelRing() {
@@ -3832,7 +4218,7 @@
             '기사 서임': { category: '유틸' }, '프로모션': { category: '유틸' }, '캐슬링+': { category: '유틸' }, '진군 명령': { category: '유틸' }, '그림자 교체': { category: '유틸' },
             '저주': { category: '유틸' }, '혼란': { category: '유틸' }, '광기': { category: '유틸', risk: '대상 지정' }, '강제 이주': { category: '유틸' }, '파도': { category: '유틸' }, '운명의 수레바퀴': { category: '유틸' },
             '덩굴': { category: '유틸' }, '빛의 수호': { category: '유틸' }, '여신의 가호': { category: '유틸' }, '마인드 컨트롤': { category: '유틸' },
-            '차원 장벽': { category: '유틸', risk: '위치 지정' }, '자아 분열': { category: '유틸' }, '나이트 클럽': { category: '유틸' }, '잭팟': { category: '유틸' }, '암전': { category: '유틸' }
+            '차원 장벽': { category: '유틸', risk: '위치 지정' }, '지뢰 찾기': { category: '피해', risk: '위치 지정' }, '수퍼 워너비': { category: '유틸', risk: '대상 지정' }, '자아 분열': { category: '유틸' }, '나이트 클럽': { category: '유틸' }, '잭팟': { category: '유틸' }, '암전': { category: '유틸' }
         };
 
         function getAugmentCategoryLabel(aug) {
@@ -3942,17 +4328,7 @@
                 }
                 const enemyColor = playerColor === 'w' ? 'b' : 'w';
                 let available = AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
-                let weighted = [];
-                available.forEach(aug => {
-                    let w = aug.weight !== undefined ? aug.weight : (aug.isKillType ? 1 : 4);
-                    for (let i = 0; i < w; i++) weighted.push(aug);
-                });
-                weighted.sort(() => 0.5 - Math.random());
-                const previewOptions = [];
-                for (let aug of weighted) {
-                    if (previewOptions.length >= augmentOptionCount(playerColor)) break;
-                    if (!previewOptions.find(o => o.name === aug.name)) previewOptions.push(aug);
-                }
+                const previewOptions = weightedSample(available, augmentOptionCount(playerColor));
                 if (previewOptions.length === 0) { processNextAugmentPhase(); return; }
                 renderOpponentPreviewCards(previewOptions, playerColor, overlay);
                 return; 
@@ -3963,14 +4339,7 @@
             let available = resolvedOptions.length > 0 ? resolvedOptions : AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
 
             if (!options) {
-                let weighted = [];
-                available.forEach(aug => {
-                    let w = aug.weight !== undefined ? aug.weight : (aug.isKillType ? 1 : 4);
-                    for(let i=0; i<w; i++) weighted.push(aug);
-                });
-                weighted.sort(() => 0.5 - Math.random()); 
-                options = [];
-                for(let a of weighted) { if(options.length<augmentOptionCount(playerColor) && !options.find(o=>o.name===a.name)) options.push(a); }
+                options = weightedSample(available, augmentOptionCount(playerColor));
             } else {
                 options = resolveAugmentOptions(options);
             }
@@ -4038,18 +4407,17 @@
             showCastText(selectedAug.name, () => {
                 floatLog = [];
                 let res;
-                try { res = selectedAug.apply(pColor, eColor, target); const poisoned = enforcePoison(); game.sanitizeSpecialStates(); if (poisoned.length) res.t = [...new Set([...(res.t || []), ...poisoned])]; }
+                try { res = selectedAug.apply(pColor, eColor, target); const poisoned = enforcePoison(); game.sanitizeSpecialStates(); if (poisoned.length) res.t = [...new Set([...(res.t || []), ...poisoned])]; const blasts = resolveMines(false); res.blasts = blasts; if (blasts.length) res.t = [...new Set([...(res.t || []), ...blasts])]; }
                 finally { var floats = floatLog; floatLog = null; }
 
-                recordFrame('augment', { name: selectedAug.name, icon: selectedAug.icon, t: res.t || [], by: pColor, fx: { globalVfx: selectedAug.globalVfx || null, t: res.t || [], vfx: res.vfx || '', floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null, msg: res.msg || '', delay: selectedAug.delay || 1200 } });
+                recordFrame('augment', { name: selectedAug.name, icon: selectedAug.icon, t: res.t || [], by: pColor, fx: { globalVfx: selectedAug.globalVfx || null, t: res.t || [], vfx: res.vfx || '', floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null, blasts: res.blasts || null, msg: res.msg || '', delay: selectedAug.delay || 1200 } });
                 pushGameAction({
                     type: 'augment_sync', by: pColor, name: selectedAug.name, state: serializeGameState(),
                     globalVfx: selectedAug.globalVfx || null,
-                    t: res.t || [], vfx: res.vfx || '', msg: res.msg || '', delay: selectedAug.delay || 1200, floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null
+                    t: res.t || [], vfx: res.vfx || '', msg: res.msg || '', delay: selectedAug.delay || 1200, floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null, blasts: res.blasts || null
                 });
 
-                const lead = playAugmentVisuals({ name: selectedAug.name, globalVfx: selectedAug.globalVfx, t: res.t, vfx: res.vfx, floats: floats, fxArg: res.fxArg, origin: res.origin, fxMoves: res.fxMoves });
-                playSFX('augment');
+                const lead = playAugmentVisuals({ name: selectedAug.name, globalVfx: selectedAug.globalVfx, t: res.t, vfx: res.vfx, floats: floats, fxArg: res.fxArg, origin: res.origin, fxMoves: res.fxMoves, blasts: res.blasts });
                 showToast(res.msg, "var(--primary)", 4000);
                 persistRoomGameState().catch(() => {});
 
