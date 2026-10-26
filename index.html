@@ -180,6 +180,7 @@
         .augment-card.augment-type-summon { border-color: #27ae60; box-shadow: 0 5px 15px rgba(39, 174, 96, 0.15); }
         .augment-card.augment-type-utility { border-color: #3498db; box-shadow: 0 5px 15px rgba(52, 152, 219, 0.15); }
         .augment-card.augment-type-other { border-color: #9b59b6; box-shadow: 0 5px 15px rgba(155, 89, 182, 0.15); }
+        .augment-card.augment-type-move { border-color: #e67e22; box-shadow: 0 5px 15px rgba(230, 126, 34, 0.15); }
         .augment-card.dimmed { filter: brightness(0.68); opacity: 0.85; cursor: default; pointer-events: none; }
         .augment-card.dimmed .augment-title, .augment-card.dimmed .augment-subtitle, .augment-card.dimmed .augment-desc { color: #ddd; }
         .augment-card.dimmed .augment-icon { opacity: 0.9; }
@@ -365,6 +366,7 @@
         .augment-card.augment-type-summon { border-color: var(--panel-border); border-top-color: #27ae60; }
         .augment-card.augment-type-utility { border-color: var(--panel-border); border-top-color: #3498db; }
         .augment-card.augment-type-other { border-color: var(--panel-border); border-top-color: #9b59b6; }
+        .augment-card.augment-type-move { border-color: var(--panel-border); border-top-color: #e67e22; }
         .augment-card.selected { border-color: var(--primary); background: #272732; transform: translateY(-3px); box-shadow: 0 6px 18px rgba(243,156,18,0.22) !important; }
         .augment-icon { font-size: 1.9rem !important; margin-bottom: 6px !important; }
         .augment-title { font-size: 0.85rem !important; margin-bottom: 3px !important; }
@@ -424,6 +426,7 @@
         .augment-card.augment-type-summon  { --acc: 61,220,151;  --acc-soft: 176,244,212; }
         .augment-card.augment-type-utility { --acc: 90,169,255;  --acc-soft: 190,220,255; }
         .augment-card.augment-type-other   { --acc: 176,124,255; --acc-soft: 222,200,255; }
+        .augment-card.augment-type-move    { --acc: 255,170,80;  --acc-soft: 255,215,170; }
         .cards-container .augment-card {
             position: relative; overflow: hidden; border: 1px solid rgba(var(--acc), 0.42); border-radius: 16px; padding: 12px 7px 10px;
             background: linear-gradient(165deg, rgba(var(--acc), 0.2) 0%, rgba(var(--acc), 0.05) 42%, #16161e 100%);
@@ -462,8 +465,10 @@
         .square.target-file::before { content: ''; position: absolute; inset: 0; background: rgba(255,214,90,0.22); pointer-events: none; z-index: 1; }
     
         /* 채팅 입력 시 키보드가 체스판 위로 겹치도록: 레이아웃을 밀지 않고 채팅바만 키보드 위에 고정 */
-        body.chat-typing #game-controls { position: fixed; left: 50%; translate: -50% 0; bottom: var(--kb-bottom, 0px); z-index: 120; background: var(--bg-color); margin-top: 0; }
-        body.chat-typing .chat-bubble.mine { position: fixed; z-index: 130; left: auto; top: auto; right: max(14px, calc((100vw - 420px) / 2 + 14px)); bottom: calc(var(--kb-bottom, 0px) + var(--chat-bar-h, 60px) + 8px); }
+        #game-controls { z-index: 120; transform: translateY(calc(-1 * var(--kb-lift, 0px))); }
+        body.chat-typing:not(.augment-picking) #game-controls { background: var(--panel-bg); box-shadow: 0 0 0 1px var(--panel-border), 0 8px 28px rgba(0,0,0,0.5); }
+        body.augment-picking #game-controls { transform: none; }
+        body.chat-typing .chat-bubble.mine { position: fixed; z-index: 130; left: auto; top: auto; right: max(14px, calc((100vw - 420px) / 2 + 14px)); bottom: var(--bubble-bottom, 80px); }
         #chat-spacer { display: none; width: 100%; flex-shrink: 0; }
         body.chat-typing #chat-spacer { display: block; }
         #blackout-badge { display: none; margin-top: 6px; font-size: 0.78rem; font-weight: 700; color: #ffe27a; background: rgba(20,20,40,0.75); border: 1px solid rgba(255,226,122,0.45); border-radius: 999px; padding: 3px 12px; text-align: center; }
@@ -551,14 +556,13 @@
         #chat-input { background: transparent; border: none; border-radius: 0; padding: 8px 4px; }
         #chat-input:focus { border: none; }
         #emote-popup { bottom: calc(100% + 8px); left: 0; width: min(240px, 100%); }
-        body.chat-typing #game-controls, body.augment-picking #game-controls { width: calc(100% - 20px); max-width: 400px; background: var(--panel-bg); border: 1px solid var(--panel-border); box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
+        body.augment-picking #game-controls { width: calc(100% - 20px); max-width: 400px; background: var(--panel-bg); border: 1px solid var(--panel-border); box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
         #game-frame #replay-bar { width: 100%; max-width: none; margin: 0; padding: 6px 0 0; background: none; border: none; border-top: 1px solid var(--panel-border); border-radius: 0; }
 
         /* 지뢰 / 유망주 / 채팅 입력창 */
         .mine-mark { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; opacity: 0.55; pointer-events: none; z-index: 1; }
         body.black-pov .mine-mark { rotate: 180deg; }
         .piece-prospect { filter: drop-shadow(0 0 5px rgba(255,215,0,0.9)); }
-        body.chat-typing #game-controls { bottom: calc(var(--kb-bottom, 0px) + 6px); padding: 6px; border-radius: 18px; box-shadow: 0 8px 28px rgba(0,0,0,0.5); }
 
         /* ===== 설정창: 탭 구조 ===== */
         .settings-box { max-width: 360px; padding: 0 !important; overflow: hidden; display: flex; flex-direction: column; max-height: min(88vh, 600px); text-align: left; }
@@ -605,6 +609,10 @@
         .fx-chip.c-pro { background: #d4a017; color: #222; }
         .fx-chip.c-rev { background: rgba(115,60,170,0.94); }
         .fx-chip.c-pact { background: rgba(170,35,35,0.94); }
+        @keyframes pieceSpawn { 0% { transform: scale(0.35); opacity: 0; filter: brightness(2.2); } 55% { transform: scale(1.12); opacity: 1; filter: brightness(1.45); } 100% { transform: scale(1); opacity: 1; filter: none; } }
+        @keyframes pieceMorph { 0% { transform: scale(1); filter: brightness(1); } 28% { transform: scale(0.62) rotate(-8deg); filter: brightness(2.4); } 60% { transform: scale(1.2) rotate(4deg); filter: brightness(1.6); } 100% { transform: scale(1) rotate(0); filter: none; } }
+        .piece-spawn { animation: pieceSpawn 0.45s cubic-bezier(.2, .9, .3, 1.2); }
+        .piece-morph { animation: pieceMorph 0.55s ease-out; }
     </style>
 </head>
 <body>
@@ -1728,44 +1736,50 @@
 
         chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnSendChat.click(); });
 
-        // 모바일 키보드: 입력창+전송 버튼 줄만 키보드 바로 위에 떠서 보이게 하고, 키보드가 내려가면 제자리로 복귀
+        // 모바일 키보드: 입력줄은 제자리(레이아웃 그대로)에 두고, 키보드에 가릴 때만 transform으로 위로 띄운다.
+        // 포커스/블러 때 DOM·위치 방식이 바뀌지 않으므로 키보드가 안 뜨거나 화면이 밀리는 일이 없다.
         (function setupKeyboardOverlay() {
             const vv = window.visualViewport;
             const controls = document.getElementById('game-controls');
             const spacer = document.getElementById('chat-spacer');
-            let focused = false, active = false, sawKb = false;
+            const root = document.documentElement;
             const KB_KEY = 'augchess_kb_h';
+            const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+            let focused = false, lift = 0, lastKb = 0, blurT = null;
             const guessKb = () => { try { const v = parseInt(localStorage.getItem(KB_KEY), 10); if (v >= 150 && v < window.innerHeight * 0.7) return v; } catch (e) {} return Math.round(window.innerHeight * 0.4); };
-            const lockPage = on => { document.documentElement.style.overflow = on ? 'hidden' : ''; };   // 포커스 중에는 문서가 스크롤(=화면 밀림)되지 않게 잠근다
-            function realKb() { return vv ? Math.max(0, Math.round(window.innerHeight - (vv.height + vv.offsetTop))) : 0; }
-            function enter() {
-                if (active) return; active = true;
-                spacer.style.height = controls.offsetHeight + 'px';
-                document.documentElement.style.setProperty('--chat-bar-h', controls.offsetHeight + 'px');
-                lockPage(true);
-                document.body.classList.add('chat-typing');
-            }
-            function exit() {
-                if (!active) return; active = false; sawKb = false;
-                document.body.classList.remove('chat-typing'); lockPage(false);
-                document.documentElement.style.removeProperty('--kb-bottom'); if (!document.body.classList.contains('augment-picking')) spacer.style.height = '';
+            const realKb = () => vv ? Math.max(0, Math.round(window.innerHeight - (vv.height + vv.offsetTop))) : 0;
+            const picking = () => document.body.classList.contains('augment-picking');
+            function apply(kb) {   // kb: 키보드가 가리는 높이(px). 0이면 원위치
+                const r = controls.getBoundingClientRect(), natTop = r.top + lift, natBottom = r.bottom + lift;
+                if (kb <= 0) lift = 0; else if (picking()) lift = 0; else lift = Math.max(0, Math.round(natBottom - (window.innerHeight - kb) + 8));
+                root.style.setProperty('--kb-lift', lift + 'px');
+                root.style.setProperty('--kb-bottom', (kb > 0 ? kb : 0) + 'px');   // 증강 선택 중(고정 입력줄)에 쓰임
+                root.style.setProperty('--bubble-bottom', Math.max(60, Math.round(window.innerHeight - (natTop - lift) + 8)) + 'px');
             }
             function place() {
                 if (!focused) return;
                 const kb = realKb();
-                if (kb >= 80) { sawKb = true; try { localStorage.setItem(KB_KEY, String(Math.round(window.innerHeight - vv.height))); } catch (e) {} enter(); document.documentElement.style.setProperty('--kb-bottom', kb + 'px'); if (window.scrollY || window.scrollX) window.scrollTo(0, 0); }
-                else if (sawKb) exit();   // 키보드만 내려가고 입력창 포커스는 남은 경우도 제자리로 복귀
+                if (kb >= 80) { lastKb = kb; try { localStorage.setItem(KB_KEY, String(Math.round(window.innerHeight - vv.height))); } catch (e) {} apply(kb); if (window.scrollY || window.scrollX) window.scrollTo(0, 0); }
+                else if (lastKb > 0) { lastKb = 0; apply(0); }   // 키보드만 내려가고 포커스는 남은 경우
             }
-            // 터치 순간 입력줄을 키보드가 올라올 자리(마지막 키보드 높이)에 미리 둔다 → 브라우저가 입력창을 보이려고 화면을 밀어 올릴 이유가 없어진다
-            let preT = null;
-            const prePosition = (e) => {
-                if (e.pointerType && e.pointerType !== 'touch') return; if (document.activeElement === chatInput) return;
-                enter(); document.documentElement.style.setProperty('--kb-bottom', guessKb() + 'px');
-                clearTimeout(preT); preT = setTimeout(() => { if (document.activeElement !== chatInput) { focused = false; exit(); } }, 700);
-            };
-            chatInput.addEventListener('pointerdown', prePosition); chatInput.addEventListener('touchstart', prePosition, { passive: true });
-            chatInput.addEventListener('focus', () => { focused = true; enter(); place(); setTimeout(place, 80); setTimeout(place, 350); });
-            chatInput.addEventListener('blur', () => { setTimeout(() => { if (document.activeElement === chatInput) return; focused = false; exit(); }, 250); });
+            chatInput.addEventListener('focus', () => {
+                clearTimeout(blurT); focused = true;
+                document.body.classList.add('chat-typing'); root.style.overflow = 'hidden';   // 입력 중에는 문서가 스크롤(=화면 밀림)되지 않게 잠근다
+                if (coarse) apply(guessKb());   // 키보드가 올라오기 전에 미리 띄워 두어 브라우저가 화면을 밀 이유를 없앤다
+                setTimeout(place, 80); setTimeout(place, 350);
+                setTimeout(() => { if (focused && realKb() < 80) { lastKb = 0; apply(0); } }, 900);   // 키보드가 안 올라오면(외장 키보드 등) 원위치
+            });
+            chatInput.addEventListener('blur', () => {
+                clearTimeout(blurT);
+                blurT = setTimeout(() => {
+                    if (document.activeElement === chatInput) return;
+                    focused = false; lastKb = 0; apply(0);
+                    document.body.classList.remove('chat-typing'); root.style.overflow = '';
+                    root.style.removeProperty('--bubble-bottom');
+                }, 200);
+            });
+            // 전송/이모티콘 버튼을 눌러도 입력창 포커스(=키보드)가 풀리지 않게 한다
+            ['btn-send-chat', 'btn-emote'].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener('pointerdown', e => { if (focused) e.preventDefault(); }); });
             if (vv) { vv.addEventListener('resize', place); vv.addEventListener('scroll', place); }
             window.addEventListener('scroll', place, { passive: true });
 
@@ -1774,8 +1788,8 @@
                 const on = augmentOverlay.style.display === 'flex', was = document.body.classList.contains('augment-picking');
                 if (on === was) return;
                 if (on) {   // 입력 줄이 고정되며 레이아웃이 밀리지 않도록 자리 확보
-                    if (!active) { spacer.style.height = controls.offsetHeight + 'px'; document.documentElement.style.setProperty('--chat-bar-h', controls.offsetHeight + 'px'); }
-                } else { emotePopup.style.display = 'none'; if (!active) spacer.style.height = ''; }
+                    spacer.style.height = controls.offsetHeight + 'px'; document.documentElement.style.setProperty('--chat-bar-h', controls.offsetHeight + 'px');
+                } else { emotePopup.style.display = 'none'; spacer.style.height = ''; }
                 document.body.classList.toggle('augment-picking', on);
                 const bc = document.getElementById('board-container'), bo = document.getElementById('chat-bubble-opponent'), bm = document.getElementById('chat-bubble-mine');
                 if (on) { document.body.appendChild(bo); document.body.appendChild(bm); }   // 오버레이/조상 영향 없이 맨 위에 표시
@@ -1790,7 +1804,7 @@
                 showChatBubble('mine', msg, false);
                 pushGameAction({ type: 'chat', msg: msg });
                 chatInput.value = '';
-                if (document.body.classList.contains('chat-typing')) chatInput.focus();   // 연속 채팅: 키보드 유지
+                if (document.activeElement !== chatInput && document.body.classList.contains('chat-typing')) chatInput.focus({ preventScroll: true });   // 연속 채팅: 키보드 유지
                 
                 if(!isBotMode && currentRoomId) {
                     clearTimeout(typingDebounce);
@@ -2113,31 +2127,39 @@
             return out;
         }
 
+        function playPieceEntry(el, isNew) {   // 새 기물은 피어오르고, 모습이 바뀌는 기물은 번쩍이며 바뀐다
+            const cls = isNew ? 'piece-spawn' : 'piece-morph';
+            el.classList.remove('piece-spawn', 'piece-morph', 'piece-pop'); void el.offsetWidth; el.classList.add(cls);
+            setTimeout(() => el.classList.remove(cls), 650);
+        }
         function drawPieces(isAnimate = false) {
             const boardState = game.board(); const currentIds = new Set();
             for (let r=0; r<8; r++) for (let c=0; c<8; c++) {
                 const piece = boardState[r][c];
                 if (!piece) continue;
                 currentIds.add(piece.uid); const sq = game.rcToSq(r, c);
-                let el = pieceEls.get(piece.uid);
+                let el = pieceEls.get(piece.uid), isNew = false;
                 if (!el) {
                     el = document.createElement('div'); el.id = 'piece-' + piece.uid;
-                    el.className = 'piece-wrapper';
-                    piecesLayer.appendChild(el); pieceEls.set(piece.uid, el);
+                    el.className = 'piece-wrapper'; el.style.transition = 'none';   // 첫 배치는 전환 없이 (왼쪽 위에서 날아오는 현상 방지)
+                    piecesLayer.appendChild(el); pieceEls.set(piece.uid, el); isNew = true;
                 }
 
                 if (piece.type === 'wall') {
                     if (el.dataset.type !== 'wall') {
                         el.innerHTML = svgPieces['WALL'];
                         el.dataset.type = 'wall'; el.dataset.color = 'none';
-                        if(isAnimate) { el.classList.remove('piece-pop'); void el.offsetWidth; el.classList.add('piece-pop'); }
+                        if (isAnimate) playPieceEntry(el, isNew);
                     }
                 } else if (el.dataset.type !== piece.type || el.dataset.color !== piece.color) {
-                    el.innerHTML = svgPieces[piece.type.toUpperCase()]
+                    const html = svgPieces[piece.type.toUpperCase()]
                         .replace(/{fill}/g, piece.color === 'w' ? '#ffffff' : '#222222')
                         .replace(/{stroke}/g, piece.color === 'w' ? '#000000' : '#eeeeee');
                     el.dataset.type = piece.type; el.dataset.color = piece.color;
-                    if(isAnimate) { el.classList.remove('piece-pop'); void el.offsetWidth; el.classList.add('piece-pop'); }
+                    const tk = el._swapTk = (el._swapTk || 0) + 1;
+                    if (isAnimate && !isNew) setTimeout(() => { if (el._swapTk === tk) el.innerHTML = html; }, 150);   // 번쩍이는 순간에 모습이 바뀐다
+                    else el.innerHTML = html;
+                    if (isAnimate) playPieceEntry(el, isNew);
                 }
 
                 const isReversed = reversedPawns[piece.color] > 0 && piece.type === 'p' && !!reversedUids[piece.color][piece.uid];
@@ -2158,6 +2180,7 @@
 
                 // 칸 하나 = 기물 크기의 100%. translate는 자기 크기 기준 %라서 (열*100%, 행*100%)
                 el.dataset.square = sq; el.style.translate = `${c * 100}% ${r * 100}%`;
+                if (isNew) { void el.offsetWidth; el.style.transition = ''; }
             }
             pieceEls.forEach((el, uid) => {
                 if (currentIds.has(uid)) return;
@@ -2191,6 +2214,7 @@
         }
 
         function showToast(msg, color = "#fff", duration = 3000) {
+            return;   // 토스트 알림은 사용하지 않는다 (호출부는 그대로 두고 여기서 막는다)
             const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<span style="color:${color}">${msg}</span>`;
             document.getElementById('toast-container').appendChild(t); setTimeout(() => { t.style.opacity = 0; t.style.transform = 'translateY(-30px) scale(0.8)'; setTimeout(() => t.remove(), 400); }, duration);
         }
@@ -2769,16 +2793,9 @@
                 if (w > p.size * 0.5) { ctx.fillStyle = 'rgba(255,245,170,0.8)'; ctx.beginPath(); ctx.ellipse(-w * 0.25, -p.size * 0.25, w * 0.28, p.size * 0.28, 0, 0, TAU); ctx.fill(); }
                 ctx.restore();
             }
-            function drawGlyph(p) {
-                const k = p.t / p.dur, a = p.alpha * Math.min(1, k * 8) * (1 - k * k); if (a <= 0) return;
-                ctx.save(); ctx.globalAlpha = a; ctx.translate(p.x, p.y); if (UP() > 0) ctx.rotate(Math.PI);
-                ctx.font = `800 ${Math.round(p.size)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.lineWidth = Math.max(2, p.size * 0.08); ctx.strokeStyle = 'rgba(0,0,0,0.55)'; ctx.strokeText(p.text, 0, 0); ctx.fillStyle = p.css; ctx.fillText(p.text, 0, 0); ctx.restore();
-            }
-            const DRAWK = { smoke: drawSmoke, shard: drawShard, petal: drawPetal, feather: drawFeather, heart: drawHeart, star: drawStar, coin: drawCoin, glyph: drawGlyph };
+            const DRAWK = { smoke: drawSmoke, shard: drawShard, petal: drawPetal, feather: drawFeather, heart: drawHeart, star: drawStar, coin: drawCoin };
 
             // ---------- 입자 생성 도우미 ----------
-            function glyph(x, y, text, color, dur, size, vy = 26) { P({ x, y, vx: 0, vy: UP() * vy, drag: 0.5, size, dur, kind: 'glyph', text, color, alpha: 0.95 }); }
             function petals(x, y, n, spread, colors, h = 1.4) {
                 for (let i = 0; i < n; i++) P({ x: x + rnd(-spread, spread), y: y + UP() * rnd(cell * 0.3, cell * h), vx: rnd(-22, 22), vy: DOWN() * rnd(40, 95), drag: 0.45,
                     size: rnd(cell * 0.05, cell * 0.085), rot: rnd(0, TAU), vr: rnd(-6, 6), dur: rnd(0.9, 1.5), kind: 'petal', color: pick(colors) });
@@ -2873,7 +2890,7 @@
                 const p = ctr(sq); resize(); if (!W) return;
                 flash(p.x, p.y, cell * 1.6, C.gold, 0.55, 0.7); ring(p.x, p.y, cell * 0.1, cell * 1.2, C.gold, 0.55, 3);
                 setTimeout(() => { ring(p.x, p.y, cell * 0.1, cell * 1.6, C.white, 0.6, 2); kick(); }, 120);
-                stars(p.x, p.y, 10, cell * 0.45, [C.gold, C.white, C.yellow]); glyph(p.x, p.y, '♛', [255, 226, 130], 1.2, cell * 0.65);
+                stars(p.x, p.y, 10, cell * 0.45, [C.gold, C.white, C.yellow]);
                 shake(2.5, 200); kick();
             }
 
@@ -2917,7 +2934,6 @@
                     flash(cx, cy, cell * 2.2, [90, 220, 90], 0.8, 0.3);
                     pts.forEach(p => { for (let i = 0; i < 4; i++) P({ x: p.x + rnd(-cell * 0.25, cell * 0.25), y: p.y + rnd(-cell * 0.25, cell * 0.25), vx: rnd(-16, 16), vy: rnd(-16, 16), size: cell * rnd(0.22, 0.34), grow: 1.9, dur: rnd(1.1, 1.6), kind: 'smoke', color: pick(SC.toxic), alpha: 0.5 }); });
                     rising(cx, cy, cell * 0.8, 12, [[150, 255, 130], [210, 255, 180]], 25, 70, [1.0, 1.6]);
-                    at(250, () => glyph(cx, cy, '☠', [200, 255, 175], 1.3, cell * 0.7));
                 },
                 '암살'(t) {
                     dims.push({ a: 0.28, dur: 0.7, t: 0 });
@@ -2934,8 +2950,7 @@
                 '흑사'(t) {
                     dims.push({ a: 0.26, dur: 0.8, t: 0 });
                     t.forEach((sq, i) => { const p = ctr(sq); at(i * 70, () => { puffs(p.x, p.y, 3, [34, 26, 46], 0.7);
-                        for (let j = 0; j < 4; j++) P({ x: p.x + rnd(-cell * 0.2, cell * 0.2), y: p.y, vx: rnd(-10, 10), vy: UP() * rnd(20, 50), drag: 0.3, size: rnd(1.5, 2.6), dur: rnd(0.7, 1.1), kind: 'glow', color: [150, 230, 140], tw: true });
-                        glyph(p.x, p.y, '♠', [215, 190, 245], 1.0, cell * 0.5); }); });
+                        for (let j = 0; j < 4; j++) P({ x: p.x + rnd(-cell * 0.2, cell * 0.2), y: p.y, vx: rnd(-10, 10), vy: UP() * rnd(20, 50), drag: 0.3, size: rnd(1.5, 2.6), dur: rnd(0.7, 1.1), kind: 'glow', color: [150, 230, 140], tw: true }); }); });
                 },
                 '복수'(t) {
                     t.forEach(sq => { const p = ctr(sq); petals(p.x, p.y, 14, cell * 0.7, SC.petal, 1.8);
@@ -2972,7 +2987,6 @@
                     [0, 160, 320].forEach((d, i) => at(d, () => flash(W / 2, H / 2, W * 0.85, SC.neon[i], 0.28, 0.2)));
                     t.forEach((sq, i) => { const p = ctr(sq), col = SC.neon[i % 4]; at(i * 55, () => { ring(p.x, p.y, cell * 0.1, cell * 0.8, col, 0.5, 3, 0.85); rayBurst(p.x, p.y, col, 0.5, cell * 1.0); embers(p.x, p.y, 5, 70, 200, SC.neon, 120, { kind: 'spark' }); }); });
                     for (let i = 0; i < 22; i++) at(i * 22, () => P({ x: rnd(0, W), y: UP() < 0 ? -4 : H + 4, vx: rnd(-25, 25), vy: DOWN() * rnd(90, 190), drag: 0.2, size: rnd(cell * 0.035, cell * 0.06), rot: rnd(0, TAU), vr: rnd(-12, 12), dur: rnd(0.9, 1.4), kind: 'petal', color: pick(SC.neon) }));
-                    at(100, () => glyph(W / 2, H / 2, '♪', [255, 230, 90], 1.3, cell * 0.8));
                 },
                 '그림자 교체'(t) {
                     if (t.length < 2) return; const A = ctr(t[0]), B = ctr(t[1]);
@@ -2988,14 +3002,14 @@
                 },
                 '혼란'(t) {
                     if (t.length < 2) return; const A = ctr(t[0]), B = ctr(t[1]);
-                    [A, B].forEach(p => { swirl(p.x, p.y, 12, [[110, 230, 255], [190, 120, 255]], cell * 0.9, cell * 0.12, 0.8, 1); glyph(p.x, p.y, '?', [255, 255, 255], 1.0, cell * 0.55); });
+                    [A, B].forEach(p => { swirl(p.x, p.y, 12, [[110, 230, 255], [190, 120, 255]], cell * 0.9, cell * 0.12, 0.8, 1); });
                     at(200, () => { streak(A, B, 8, [[110, 230, 255], [255, 255, 255]], 0.5, 0.6); streak(B, A, 8, [[190, 120, 255], [255, 255, 255]], 0.5, 0.6); });
                 },
                 '광기'(t) {
                     if (t.length < 2) return; const A = ctr(t[0]), B = ctr(t[1]);
                     confetti(A.x, A.y, 14); puffs(A.x, A.y, 3, [255, 120, 190], 0.45);
                     at(150, () => streak(A, B, 14, SC.neon, 0.5, 0.8));
-                    at(320, () => { confetti(B.x, B.y, 16); puffs(B.x, B.y, 3, [120, 230, 255], 0.45); ring(B.x, B.y, cell * 0.1, cell * 0.9, [255, 230, 90], 0.5, 3); glyph(B.x, B.y, '!', [255, 230, 90], 1.0, cell * 0.6); });
+                    at(320, () => { confetti(B.x, B.y, 16); puffs(B.x, B.y, 3, [120, 230, 255], 0.45); ring(B.x, B.y, cell * 0.1, cell * 0.9, [255, 230, 90], 0.5, 3); });
                 },
                 '강제 이주'(t) {
                     if (t.length < 2) return; const A = ctr(t[0]), B = ctr(t[1]);
@@ -3022,14 +3036,13 @@
                         at(200, () => { ring(p.x, p.y, cell * 0.1, cell * 0.8, SC.indigo, 0.4, 3, 0.8); shake(3, 200); }); });
                 },
                 '자아 분열'(t) {
-                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 40, () => { swirl(p.x, p.y, 6, [[255, 120, 220], [255, 230, 90]], cell * 0.5, cell * 0.1, 0.7, i % 2 ? 1 : -1); glyph(p.x, p.y, '↕', [255, 220, 120], 0.9, cell * 0.5); }); });
+                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 40, () => { swirl(p.x, p.y, 6, [[255, 120, 220], [255, 230, 90]], cell * 0.5, cell * 0.1, 0.7, i % 2 ? 1 : -1); }); });
                     flash(W / 2, H / 2, W * 0.8, SC.psy, 0.6, 0.14);
                 },
                 '잭팟'(t, a) {
                     const k = a.origin ? ctr(a.origin) : { x: W / 2, y: H / 2 };
                     flash(k.x, k.y, cell * 1.6, C.gold, 0.6, 0.6); ring(k.x, k.y, cell * 0.1, cell * 1.5, C.gold, 0.6, 4);
                     for (let i = 0; i < 26; i++) at(i * 28, () => P({ x: rnd(0, W), y: UP() < 0 ? -cell * 0.2 : H + cell * 0.2, vx: rnd(-20, 20), vy: DOWN() * rnd(110, 200), g: DOWN() * 520, drag: 0.15, size: rnd(cell * 0.07, cell * 0.1), rot: rnd(0, TAU), vr: rnd(9, 16), dur: 1.5, kind: 'coin', color: C.gold }));
-                    at(120, () => glyph(k.x, k.y, '777', [255, 90, 80], 1.5, cell * 0.8, 18));
                 },
                 '아기는 어떻게 태어나?'(t) {
                     if (t.length < 2) return; const A = ctr(t[0]), B = ctr(t[1]);
@@ -3046,7 +3059,7 @@
                 '앙파상+'(t, a) {
                     (a.fxMoves || []).forEach((m, i) => { const A = ctr(m.from), B = ctr(m.to);
                         at(i * 40, () => { puffs(A.x, A.y, 2, [200, 190, 170], 0.4); streak(A, B, 5, [[255, 255, 255], [190, 230, 255]], 0.4, 0.3); });
-                        at(380 + i * 40, () => { puffs(B.x, B.y, 3, [200, 190, 170], 0.5); ring(B.x, B.y, cell * 0.1, cell * 0.6, [190, 230, 255], 0.35, 2.5, 0.8); glyph(B.x, B.y, '♪', [255, 255, 255], 0.8, cell * 0.45); }); });
+                        at(380 + i * 40, () => { puffs(B.x, B.y, 3, [200, 190, 170], 0.5); ring(B.x, B.y, cell * 0.1, cell * 0.6, [190, 230, 255], 0.35, 2.5, 0.8); }); });
                 },
                 '동귀어진'(t) {
                     t.forEach(sq => { const p = ctr(sq);
@@ -3055,7 +3068,7 @@
                 },
                 '수퍼 워너비'(t) {
                     t.forEach(sq => { const p = ctr(sq); flash(p.x, p.y, cell * 1.4, C.gold, 0.5, 0.6); ring(p.x, p.y, cell * 0.1, cell * 1.0, C.gold, 0.5, 3);
-                        at(140, () => ring(p.x, p.y, cell * 0.1, cell * 1.4, C.white, 0.55, 2)); stars(p.x, p.y, 10, cell * 0.4, [C.gold, C.white, C.yellow]); glyph(p.x, p.y, '★', [255, 226, 120], 1.2, cell * 0.6); });
+                        at(140, () => ring(p.x, p.y, cell * 0.1, cell * 1.4, C.white, 0.55, 2)); stars(p.x, p.y, 10, cell * 0.4, [C.gold, C.white, C.yellow]); });
                 }
             };
             function sig(name, a) {
@@ -4317,8 +4330,8 @@
             '네크로맨서': { category: '소환', risk: '자기 희생' }, '신의 심판': { category: '피해', risk: '비숍 희생' }, '벼락': { category: '피해' },
             '독구름': { category: '피해' }, '연계 분쇄': { category: '피해' }, '암살': { category: '피해' }, '흑사': { category: '피해' }, '복수': { category: '피해' }, '신성한 폭발': { category: '피해' },
             '징집': { category: '소환' }, '축복': { category: '소환' }, '숲의 망령': { category: '소환' }, '아기는 어떻게 태어나?': { category: '소환' },
-            '기사 서임': { category: '유틸' }, '프로모션': { category: '유틸' }, '캐슬링+': { category: '유틸' }, '진군 명령': { category: '유틸' }, '그림자 교체': { category: '유틸' },
-            '저주': { category: '유틸' }, '혼란': { category: '유틸' }, '광기': { category: '유틸', risk: '대상 지정' }, '강제 이주': { category: '유틸' }, '파도': { category: '유틸' }, '운명의 수레바퀴': { category: '유틸' },
+            '기사 서임': { category: '유틸' }, '프로모션': { category: '유틸' }, '캐슬링+': { category: '유틸' }, '진군 명령': { category: '이동' }, '그림자 교체': { category: '이동' },
+            '저주': { category: '유틸' }, '혼란': { category: '이동' }, '광기': { category: '이동', risk: '대상 지정' }, '강제 이주': { category: '이동' }, '파도': { category: '이동' }, '운명의 수레바퀴': { category: '이동' }, '앙파상+': { category: '이동' }, '동귀어진': { category: '유틸', risk: '대상 지정' },
             '덩굴': { category: '유틸' }, '빛의 수호': { category: '유틸' }, '여신의 가호': { category: '유틸' }, '마인드 컨트롤': { category: '유틸' },
             '차원 장벽': { category: '유틸', risk: '위치 지정' }, '지뢰 찾기': { category: '피해', risk: '위치 지정' }, '수퍼 워너비': { category: '유틸', risk: '대상 지정' }, '자아 분열': { category: '유틸' }, '나이트 클럽': { category: '유틸' }, '잭팟': { category: '유틸' }, '암전': { category: '유틸' }
         };
@@ -4332,6 +4345,7 @@
             if (category === '피해') return 'augment-type-damage';
             if (category === '소환') return 'augment-type-summon';
             if (category === '유틸') return 'augment-type-utility';
+            if (category === '이동') return 'augment-type-move';
             return 'augment-type-other';
         }
 
