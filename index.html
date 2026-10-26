@@ -114,12 +114,6 @@
             transition: translate 0.18s ease-out, transform 0.18s ease-out, opacity 0.18s ease-out;
         }
         .piece-wrapper svg { width: 90%; height: 90%; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4)); pointer-events: none; }
-        .effect-counter {
-            position: absolute; bottom: 3px; right: 3px; width: 20px; height: 20px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 50%; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.7rem;
-            font-weight: bold; pointer-events: none; z-index: 5;
-        }
         .area-counter {
             position: absolute; bottom: 3px; right: 3px; width: 18px; height: 18px;
             display: flex; align-items: center; justify-content: center;
@@ -129,7 +123,6 @@
         
         .piece-rooted { filter: drop-shadow(0 0 3px rgba(90,200,90,0.6)) saturate(0.9); }
         .piece-rooted::after { content: ''; position: absolute; left: 16%; right: 16%; bottom: 4%; height: 56%; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M20 98C46 78 6 60 40 42S72 22 58 2' stroke='%231d5e28' stroke-width='9'/%3E%3Cpath d='M80 98C54 80 94 62 60 46S28 28 42 4' stroke='%231d5e28' stroke-width='9'/%3E%3Cpath d='M20 98C46 78 6 60 40 42S72 22 58 2' stroke='%2352c25a' stroke-width='5'/%3E%3Cpath d='M80 98C54 80 94 62 60 46S28 28 42 4' stroke='%2373d86a' stroke-width='5'/%3E%3C/g%3E%3Cg fill='%2386e07a' stroke='%231d5e28' stroke-width='1.3'%3E%3Cellipse cx='27' cy='74' rx='9' ry='4.5' transform='rotate(-35 27 74)'/%3E%3Cellipse cx='73' cy='76' rx='9' ry='4.5' transform='rotate(35 73 76)'/%3E%3Cellipse cx='30' cy='52' rx='8' ry='4' transform='rotate(25 30 52)'/%3E%3Cellipse cx='71' cy='54' rx='8' ry='4' transform='rotate(-25 71 54)'/%3E%3Cellipse cx='52' cy='33' rx='7' ry='3.6' transform='rotate(-20 52 33)'/%3E%3Cellipse cx='44' cy='18' rx='6' ry='3.2' transform='rotate(30 44 18)'/%3E%3C/g%3E%3C/svg%3E") center / 100% 100% no-repeat; pointer-events: none; z-index: 4; opacity: 0.85; transform-origin: 50% 92%; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5)); animation: vineGrow 0.7s ease-out, vineSway 2.8s ease-in-out 0.7s infinite; }
-        .piece-rooted .effect-counter { background: rgba(28,105,45,0.92); box-shadow: 0 0 6px rgba(110,220,90,0.7); }
         @keyframes vineGrow { from { clip-path: inset(100% 0 0 0); opacity: 0.2; } to { clip-path: inset(0 0 0 0); opacity: 0.85; } }
         @keyframes vineSway { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
         .piece-wrapper.wheel-focus { z-index: 6; scale: 1.1; filter: drop-shadow(0 0 7px rgba(255,255,255,0.85)) brightness(1.08); }
@@ -138,8 +131,6 @@
         @keyframes pieceStruggle { 0%, 100% { translate: 0 0; } 20% { translate: -4px 0; } 40% { translate: 4px 0; } 60% { translate: -3px 0; } 80% { translate: 2px 0; } }
         @media (prefers-reduced-motion: reduce) { .piece-rooted::after { animation: none; } }
         .piece-invincible { filter: drop-shadow(0 0 10px gold) brightness(1.2) !important; }
-        .piece-invincible::before { content: '🛡️'; position: absolute; top: -5px; left: -5px; font-size: 1rem; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5)); z-index: 5;}
-        .piece-reversed::before { content: '😵‍💫'; position: absolute; top: -6px; left: -6px; font-size: 1.1rem; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5)); z-index: 5;}
 
         .dot { position: absolute; width: 12.5%; height: 12.5%; display: flex; justify-content: center; align-items: center; pointer-events: none; }
         .dot::after { content: ''; width: 25%; height: 25%; background: rgba(243, 156, 18, 0.8); border-radius: 50%; box-shadow: 0 0 10px rgba(243, 156, 18, 0.5); }
@@ -425,7 +416,6 @@
 
         /* ===== 아기 증강의 '축복' 표시: 무적(금빛+방패)과 구분되는 분홍 링 + 남은 횟수 ===== */
         .piece-blessed::before { content: ''; position: absolute; inset: 5%; border-radius: 50%; border: 2px solid rgba(255,150,200,0.9); box-shadow: 0 0 9px rgba(255,150,200,0.7), inset 0 0 7px rgba(255,150,200,0.35); pointer-events: none; animation: blessRing 2s ease-in-out infinite; z-index: 4; }
-        .piece-blessed .effect-counter { background: rgba(214,92,150,0.92); }
         @keyframes blessRing { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
 
         /* ===== 증강 카드 디자인 v2: 유형 색을 테두리/배경/아이콘/강조 글자에 일관되게 ===== */
@@ -568,8 +558,6 @@
         .mine-mark { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; opacity: 0.55; pointer-events: none; z-index: 1; }
         body.black-pov .mine-mark { rotate: 180deg; }
         .piece-prospect { filter: drop-shadow(0 0 5px rgba(255,215,0,0.9)); }
-        .piece-prospect:not(.piece-rooted)::after { content: '🎖️'; position: absolute; top: 0; left: 2px; font-size: 0.95rem; pointer-events: none; z-index: 4; }
-        .piece-prospect .effect-counter { background: #d4a017; color: #222; }
         body.chat-typing #game-controls { bottom: calc(var(--kb-bottom, 0px) + 6px); padding: 6px; border-radius: 18px; box-shadow: 0 8px 28px rgba(0,0,0,0.5); }
 
         /* ===== 설정창: 탭 구조 ===== */
@@ -595,6 +583,28 @@
         .s-txt small { display: block; margin-top: 3px; color: #888; font-size: 0.78rem; line-height: 1.35; }
         .s-val { font-size: 0.9rem; color: #aaa; }
         .s-row .switch { flex-shrink: 0; }
+        .piece-pact { filter: drop-shadow(0 0 5px rgba(255,60,50,0.9)); }
+
+        /* 감정표현: ❓ 갸웃거리며 튀어나옴 / ☠️ 덜덜 떨다 초록 기운을 내뿜음 / 💩 떨어져 납작해졌다 튀어 오름 */
+        @keyframes animQuestion { 0% { transform: scale(0.4) rotate(-25deg); opacity: 0; } 25% { transform: scale(1.3) rotate(14deg); opacity: 1; } 50% { transform: scale(1.05) rotate(-12deg); } 75% { transform: scale(1.15) rotate(8deg); } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+        @keyframes animSkull { 0% { transform: translate(0, 0); filter: none; opacity: 0; } 10% { transform: translate(-2px, 1px) rotate(-3deg); opacity: 1; } 20% { transform: translate(2px, -1px) rotate(3deg); } 30% { transform: translate(-2px, -1px) rotate(-3deg); } 40% { transform: translate(2px, 1px) rotate(3deg); } 55% { transform: translate(0, -6px); filter: drop-shadow(0 0 10px #7dff8a) brightness(1.5); } 80% { transform: translate(0, -2px); filter: drop-shadow(0 0 4px #7dff8a); } 100% { transform: translate(0, 0); filter: none; opacity: 1; } }
+        @keyframes animPoop { 0% { transform: translateY(-45px) scale(0.8, 1.25); opacity: 0; } 35% { transform: translateY(0) scale(0.8, 1.25); opacity: 1; } 45% { transform: translateY(2px) scale(1.4, 0.6); } 60% { transform: translateY(-9px) scale(0.9, 1.15); } 75% { transform: translateY(0) scale(1.15, 0.85); } 100% { transform: translateY(0) scale(1, 1); opacity: 1; } }
+        .chat-bubble.anim-question { animation: animQuestion 0.9s ease 1; }
+        .chat-bubble.anim-skull { animation: animSkull 1.2s ease 1; }
+        .chat-bubble.anim-poop { animation: animPoop 0.9s ease 1; transform-origin: 50% 100%; }
+        @keyframes pieceHop { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.38); filter: drop-shadow(0 8px 6px rgba(0,0,0,0.35)); } }
+        .piece-hop { animation: pieceHop 0.5s ease-out; z-index: 30; }
+        /* 효과 칩: 기물 왼쪽 위에 가로로 나열(좁으면 줄바꿈). 효과마다 색이 다르다 */
+        .fx-chips { position: absolute; top: 1px; left: 1px; max-width: 100%; display: flex; flex-wrap: wrap; gap: 2px; pointer-events: none; z-index: 6; }
+        .fx-chips:empty { display: none; }
+        .fx-chip { display: inline-flex; align-items: center; gap: 1px; height: 14px; padding: 0 3px; border-radius: 7px; background: rgba(0,0,0,0.74); color: #fff; font-size: 9px; font-weight: 800; line-height: 1; box-shadow: 0 0 0 1px rgba(255,255,255,0.2); }
+        .fx-chip i { font-style: normal; font-size: 9px; }
+        .fx-chip.c-root { background: rgba(28,105,45,0.94); }
+        .fx-chip.c-inv { background: rgba(150,105,10,0.94); }
+        .fx-chip.c-bless { background: rgba(200,80,140,0.94); }
+        .fx-chip.c-pro { background: #d4a017; color: #222; }
+        .fx-chip.c-rev { background: rgba(115,60,170,0.94); }
+        .fx-chip.c-pact { background: rgba(170,35,35,0.94); }
     </style>
 </head>
 <body>
@@ -656,6 +666,9 @@
             <span class="emote-btn">🤬</span>
             <span class="emote-btn">🤔</span>
             <span class="emote-btn">😭</span>
+<span class="emote-btn">❓</span>
+<span class="emote-btn">☠️</span>
+<span class="emote-btn">💩</span>
             <span class="emote-btn" style="flex: 1 1 100%; font-size: 1.1rem; padding: 8px;">⏳ 빨리 좀 해라</span>
         </div>
         <button id="btn-emote" class="ctrl-btn secondary" aria-label="이모티콘"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
@@ -1694,7 +1707,7 @@
         const btnEmote = document.getElementById('btn-emote');
         const emotePopup = document.getElementById('emote-popup');
 
-        const emoteAnimations = { '👍': 'anim-bounce', '👎': 'anim-shake', '😲': 'anim-expand', '🤬': 'anim-vibrate', '🤔': 'anim-tilt', '😭': 'anim-drop', '⏳ 빨리 좀 해라': 'anim-pulse' };
+        const emoteAnimations = { '👍': 'anim-bounce', '👎': 'anim-shake', '😲': 'anim-expand', '🤬': 'anim-vibrate', '🤔': 'anim-tilt', '😭': 'anim-drop', '❓': 'anim-question', '☠️': 'anim-skull', '💩': 'anim-poop', '⏳ 빨리 좀 해라': 'anim-pulse' };
 
         let chatTimers = { mine: null, opponent: null };
         let isOpponentTyping = false; let typingDebounce = null;
@@ -1721,24 +1734,36 @@
             const controls = document.getElementById('game-controls');
             const spacer = document.getElementById('chat-spacer');
             let focused = false, active = false, sawKb = false;
+            const KB_KEY = 'augchess_kb_h';
+            const guessKb = () => { try { const v = parseInt(localStorage.getItem(KB_KEY), 10); if (v >= 150 && v < window.innerHeight * 0.7) return v; } catch (e) {} return Math.round(window.innerHeight * 0.4); };
+            const lockPage = on => { document.documentElement.style.overflow = on ? 'hidden' : ''; };   // 포커스 중에는 문서가 스크롤(=화면 밀림)되지 않게 잠근다
             function realKb() { return vv ? Math.max(0, Math.round(window.innerHeight - (vv.height + vv.offsetTop))) : 0; }
             function enter() {
                 if (active) return; active = true;
                 spacer.style.height = controls.offsetHeight + 'px';
                 document.documentElement.style.setProperty('--chat-bar-h', controls.offsetHeight + 'px');
+                lockPage(true);
                 document.body.classList.add('chat-typing');
             }
             function exit() {
                 if (!active) return; active = false; sawKb = false;
-                document.body.classList.remove('chat-typing');
+                document.body.classList.remove('chat-typing'); lockPage(false);
                 document.documentElement.style.removeProperty('--kb-bottom'); if (!document.body.classList.contains('augment-picking')) spacer.style.height = '';
             }
             function place() {
                 if (!focused) return;
                 const kb = realKb();
-                if (kb >= 80) { sawKb = true; enter(); document.documentElement.style.setProperty('--kb-bottom', kb + 'px'); if (window.scrollY || window.scrollX) window.scrollTo(0, 0); }
+                if (kb >= 80) { sawKb = true; try { localStorage.setItem(KB_KEY, String(Math.round(window.innerHeight - vv.height))); } catch (e) {} enter(); document.documentElement.style.setProperty('--kb-bottom', kb + 'px'); if (window.scrollY || window.scrollX) window.scrollTo(0, 0); }
                 else if (sawKb) exit();   // 키보드만 내려가고 입력창 포커스는 남은 경우도 제자리로 복귀
             }
+            // 터치 순간 입력줄을 키보드가 올라올 자리(마지막 키보드 높이)에 미리 둔다 → 브라우저가 입력창을 보이려고 화면을 밀어 올릴 이유가 없어진다
+            let preT = null;
+            const prePosition = (e) => {
+                if (e.pointerType && e.pointerType !== 'touch') return; if (document.activeElement === chatInput) return;
+                enter(); document.documentElement.style.setProperty('--kb-bottom', guessKb() + 'px');
+                clearTimeout(preT); preT = setTimeout(() => { if (document.activeElement !== chatInput) { focused = false; exit(); } }, 700);
+            };
+            chatInput.addEventListener('pointerdown', prePosition); chatInput.addEventListener('touchstart', prePosition, { passive: true });
             chatInput.addEventListener('focus', () => { focused = true; enter(); place(); setTimeout(place, 80); setTimeout(place, 350); });
             chatInput.addEventListener('blur', () => { setTimeout(() => { if (document.activeElement === chatInput) return; focused = false; exit(); }, 250); });
             if (vv) { vv.addEventListener('resize', place); vv.addEventListener('scroll', place); }
@@ -1816,7 +1841,7 @@
             return JSON.stringify({
                 board: game.board(), turn: game.turn(), castling: game.castling, ep_square: game.ep_square,
                 is_game_over: game.is_game_over, moveCount: moveCount, activePoison: activePoison,
-                rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, mines: mines, prospects: prospects, pendingAugments: pendingAugments,
+                rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, mines: mines, prospects: prospects, pactPieces: pactPieces, pendingAugments: pendingAugments,
                 activeWalls: activeWalls, reversedPawns: reversedPawns, reversedUids: reversedUids,
                 actionCursor: lastActionKey,
                 jackpotBonus: jackpotBonus, lastKiller: lastKiller, babyEffect: babyEffect, blackout: blackout, uidCounter: game.pieceUidCounter, castleUids: game.castleUids, keepUids: game.keepUids || {},
@@ -1829,7 +1854,7 @@
             const state = JSON.parse(stateStr);
             game._board = state.board; game._turn = state.turn; game.castling = state.castling; game.ep_square = state.ep_square;
             game.is_game_over = state.is_game_over; moveCount = state.moveCount; activePoison = state.activePoison;
-            rootedPieces = state.rootedPieces || {}; invinciblePieces = state.invinciblePieces || {}; mines = state.mines || []; prospects = state.prospects || {}; pendingAugments = state.pendingAugments;
+            rootedPieces = state.rootedPieces || {}; invinciblePieces = state.invinciblePieces || {}; mines = state.mines || []; prospects = state.prospects || {}; pactPieces = state.pactPieces || {}; pendingAugments = state.pendingAugments;
             activeWalls = state.activeWalls || [];
             { const rp = state.reversedPawns; reversedPawns = (rp && rp.color !== undefined) ? { w: rp.color === 'w' ? rp.duration : 0, b: rp.color === 'b' ? rp.duration : 0 } : (rp || { w: 0, b: 0 }); }   // 이전 저장 형식 호환
             reversedUids = state.reversedUids || { w: {}, b: {} };
@@ -2036,7 +2061,7 @@
         
         let selectedSquare = null; let legalMoves = []; let moveCount = 0;
         const AUGMENT_INTERVAL = 7; let isSystemLocked = false; let pendingAugments = [];
-        let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {}; let mines = []; let prospects = {};
+        let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {}; let mines = []; let prospects = {}; let pactPieces = {};
         let activeWalls = []; let reversedPawns = { w: 0, b: 0 }; let reversedUids = { w: {}, b: {} };   // 자아 분열 발동 당시 존재하던 폰의 uid만 효과를 받는다
         let jackpotBonus = { w: 0, b: 0 }; let lastKiller = { w: null, b: null }; let babyEffect = { w: null, b: null }; let blackout = { w: 0, b: 0 }; let targeting = null; let lastCheckKey = '';
 
@@ -2057,7 +2082,7 @@
 
         function resetGameUI() {
             if (networkUnsub) { try { networkUnsub(); } catch (e) {} networkUnsub = null; }
-            game.reset(); game.keepUids = {}; moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; mines = []; prospects = {}; pendingAugments = [];
+            game.reset(); game.keepUids = {}; moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; mines = []; prospects = {}; pactPieces = {}; pendingAugments = [];
             activeWalls = []; reversedPawns = { w: 0, b: 0 }; reversedUids = { w: {}, b: {} }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = { w: null, b: null }; blackout = { w: 0, b: 0 }; lastCheckKey = '';
             if (targeting) { clearTargetVisuals(); targeting = null; }
             clearTimeout(endRevealTimer);
@@ -2073,6 +2098,19 @@
             else { turnDisplayEl.className = 'turn-indicator black-turn'; turnDisplayEl.innerHTML = '흑'; }
             if(game.turn() === myColor) turnDisplayEl.classList.add('my-turn');
             else turnDisplayEl.classList.remove('my-turn');
+        }
+
+        // 기물에 걸린 효과 목록 (표시 순서 = 위에서 아래로 중요도 순)
+        function statusChips(piece, sq, isReversed, blessEff) {
+            const out = [], uid = piece.uid;
+            if (rootedPieces[uid] > 0) out.push({ cls: 'c-root', icon: '🌿', n: rootedPieces[uid] });
+            if (invinciblePieces[uid] > 0) out.push({ cls: 'c-inv', icon: '🛡️', n: invinciblePieces[uid] });
+            if (blessEff) out.push({ cls: 'c-bless', icon: '🦢', n: blessEff.remaining });
+            if (piece.type === 'wall') { const w = activeWalls.find(x => x.sq === sq); if (w && w.duration > 0) out.push({ cls: 'c-wall', icon: '🧱', n: w.duration }); }
+            if (prospects[uid] > 0) out.push({ cls: 'c-pro', icon: '🎖️', n: prospects[uid] });
+            if (isReversed) out.push({ cls: 'c-rev', icon: '😵‍💫', n: reversedPawns[piece.color] });
+            if (pactPieces[uid]) out.push({ cls: 'c-pact', icon: '⛓️', n: null });
+            return out;
         }
 
         function drawPieces(isAnimate = false) {
@@ -2106,27 +2144,17 @@
                 el.classList.toggle('piece-rooted', rootedPieces[piece.uid] > 0);
                 el.classList.toggle('piece-invincible', invinciblePieces[piece.uid] > 0);
                 el.classList.toggle('piece-prospect', prospects[piece.uid] > 0);
+                el.classList.toggle('piece-pact', !!pactPieces[piece.uid]);
                 const blessEff = ['w', 'b'].map(c => babyEffect[c]).find(be => be && (piece.uid === be.kUid || piece.uid === be.qUid)), isBlessed = !!blessEff;
                 el.classList.toggle('piece-blessed', isBlessed);
                 el.classList.toggle('piece-reversed', isReversed);
 
-                let duration = 0;
-                if (rootedPieces[piece.uid] > 0) duration = rootedPieces[piece.uid];
-                else if (invinciblePieces[piece.uid] > 0) duration = invinciblePieces[piece.uid];
-                else if (isBlessed) duration = blessEff.remaining;
-                else if (piece.type === 'wall') {
-                    const wallEntry = activeWalls.find(w => w.sq === sq);
-                    duration = wallEntry ? wallEntry.duration : 0;
-                } else if (prospects[piece.uid] > 0) {
-                    duration = prospects[piece.uid];
-                } else if (isReversed) {
-                    duration = reversedPawns[piece.color];
-                }
-
-                let counter = el.querySelector('.effect-counter');
-                if (!counter) { counter = document.createElement('span'); counter.className = 'effect-counter'; el.appendChild(counter); }
-                if (duration > 0) { counter.innerText = duration; counter.style.display = 'flex'; }
-                else { counter.style.display = 'none'; }
+                // 상태 표시: 효과마다 칩(아이콘 + 남은 수)을 따로 만들어 가로로 나열 → 여러 효과가 걸려도 겹치지 않는다
+                const chips = statusChips(piece, sq, isReversed, isBlessed ? blessEff : null);
+                let box = el.querySelector('.fx-chips');
+                if (!box) { box = document.createElement('div'); box.className = 'fx-chips'; el.appendChild(box); }
+                const sig = chips.map(ch => ch.cls + ch.icon + (ch.n == null ? '' : ch.n)).join('|');
+                if (box.dataset.sig !== sig) { box.dataset.sig = sig; box.innerHTML = chips.map(ch => `<span class="fx-chip ${ch.cls}"><i>${ch.icon}</i>${ch.n == null ? '' : ch.n}</span>`).join(''); }
 
                 // 칸 하나 = 기물 크기의 100%. translate는 자기 크기 기준 %라서 (열*100%, 행*100%)
                 el.dataset.square = sq; el.style.translate = `${c * 100}% ${r * 100}%`;
@@ -2175,8 +2203,8 @@
             const canvas = document.getElementById('fx-canvas');
             const ctx = canvas.getContext('2d');
             let W = 0, H = 0, cell = 0, dpr = 1, running = false, last = 0;
-            const parts = [], rings = [], flashes = [], bolts = [], beams = [], slashes = [], rays = [], marks = [], waves = [], dims = [], trails = [], charges = [], wheels = [], vines = [], chains = [], sigils = [], shields = [], halos = [], scorches = [];
-            const lists = [parts, rings, flashes, bolts, beams, slashes, rays, marks, waves, dims, trails, charges, wheels, vines, chains, sigils, shields, halos, scorches];
+            const parts = [], rings = [], flashes = [], bolts = [], beams = [], slashes = [], rays = [], marks = [], waves = [], dims = [], trails = [], charges = [], wheels = [], vines = [], chains = [], shields = [], halos = [], scorches = [];
+            const lists = [parts, rings, flashes, bolts, beams, slashes, rays, marks, waves, dims, trails, charges, wheels, vines, chains, shields, halos, scorches];
             const rnd = (a, b) => a + Math.random() * (b - a);
             const pick = arr => arr[(Math.random() * arr.length) | 0];
             const TAU = Math.PI * 2;
@@ -2799,18 +2827,6 @@
                 }
                 ctx.restore();
             }
-            function sigil(x, y, r, color, dur, n = 5, spin = 2) { sigils.push({ x, y, r, color, dur, n, spin, t: 0 }); }
-            function drawSigil(o) {
-                const a = Math.min(1, o.t / 0.2) * Math.min(1, (o.dur - o.t) / 0.35); if (a <= 0) return;
-                const rr = o.r * (0.6 + 0.4 * Math.min(1, o.t / 0.25)), c = rgb(o.color);
-                ctx.save(); ctx.translate(o.x, o.y); ctx.rotate(o.spin * o.t); ctx.strokeStyle = `rgb(${c})`; ctx.fillStyle = `rgb(${c})`; ctx.lineWidth = Math.max(1.5, cell * 0.03);
-                ctx.globalAlpha = a * 0.12; ctx.beginPath(); ctx.arc(0, 0, rr, 0, TAU); ctx.fill();
-                ctx.globalAlpha = a * 0.9; ctx.beginPath(); ctx.arc(0, 0, rr, 0, TAU); ctx.stroke();
-                ctx.setLineDash([cell * 0.06, cell * 0.05]); ctx.globalAlpha = a * 0.6; ctx.beginPath(); ctx.arc(0, 0, rr * 0.82, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
-                ctx.globalAlpha = a * 0.85; ctx.beginPath();
-                for (let i = 0; i <= o.n; i++) { const ang = -Math.PI / 2 + ((i * 2) % o.n) * TAU / o.n, px = Math.cos(ang) * rr * 0.82, py = Math.sin(ang) * rr * 0.82; if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py); }
-                ctx.stroke(); ctx.restore();
-            }
             function shieldFx(x, y, r, color, dur, sides = 6) { shields.push({ x, y, r, color, dur, sides, t: 0 }); }
             function drawShield(o) {
                 const ap = Math.min(1, o.t / 0.24), c1 = 1.70158, e = 1 + (c1 + 1) * Math.pow(ap - 1, 3) + c1 * Math.pow(ap - 1, 2);
@@ -2852,14 +2868,37 @@
                 shake(6, 340); kick();
             }
 
+            // ---------- 대관식: 프로모션·유망주 승급 때 쓰는 가벼운 왕관 연출 (빛줄기 없음) ----------
+            function crown(sq) {
+                const p = ctr(sq); resize(); if (!W) return;
+                flash(p.x, p.y, cell * 1.6, C.gold, 0.55, 0.7); ring(p.x, p.y, cell * 0.1, cell * 1.2, C.gold, 0.55, 3);
+                setTimeout(() => { ring(p.x, p.y, cell * 0.1, cell * 1.6, C.white, 0.6, 2); kick(); }, 120);
+                stars(p.x, p.y, 10, cell * 0.45, [C.gold, C.white, C.yellow]); glyph(p.x, p.y, '♛', [255, 226, 130], 1.2, cell * 0.65);
+                shake(2.5, 200); kick();
+            }
+
+            // ---------- 동귀어진 발동: 안으로 빨려들었다가 터지며 사슬이 끊어진다 ----------
+            function pactBlast(sq) {
+                const { x, y } = ctr(sq); resize(); if (!W) return;
+                flash(x, y, cell * 1.6, [255, 50, 40], 0.5, 0.9); flash(x, y, cell * 0.9, C.white, 0.12, 0.9);
+                ring(x, y, cell * 1.1, cell * 0.1, [255, 70, 50], 0.28, 4);
+                chain({ x: x - cell * 0.42, y }, { x: x + cell * 0.42, y }, 0.8, 0.28);
+                setTimeout(() => {
+                    ring(x, y, cell * 0.1, cell * 1.7, [255, 90, 60], 0.5, 5);
+                    embers(x, y, 18, 100, 360, [[255, 70, 50], [255, 150, 80], [30, 20, 20]], 260, { size: rnd(2, 4) });
+                    puffs(x, y, 4, [40, 30, 34], 0.7); shake(4, 260); kick();
+                }, 220);
+                kick();
+            }
+
             // ---------- 증강별 고유 연출 ----------
             const SIG = {
                 '네크로맨서'(t, a) {
                     const q = a.origin ? ctr(a.origin) : null;
-                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 70, () => { sigil(p.x, p.y, cell * 0.48, [180, 100, 235], 1.0, 5, 2.4); puffs(p.x, p.y, 2, SC.dark, 0.6); }); });
+                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 70, () => { puffs(p.x, p.y, 3, SC.dark, 0.7); rising(p.x, p.y, cell * 0.25, 5, [[160, 255, 190], [200, 130, 255]], 30, 90, [0.8, 1.2]); }); });   // 희생되는 폰에서 영혼이 피어오른다
                     if (q) {
-                        at(420, () => t.forEach(sq => { const p = ctr(sq); streak(p, q, 3, [[160, 255, 190], [200, 130, 255]], 0.5, 0.55); }));
-                        at(880, () => { sigil(q.x, q.y, cell * 0.95, [200, 120, 255], 1.1, 5, -1.8); flash(q.x, q.y, cell * 2.1, C.violet, 0.6, 0.6); ring(q.x, q.y, cell * 0.2, cell * 1.8, C.purple, 0.6, 4);
+                        at(420, () => t.forEach(sq => { const p = ctr(sq); streak(p, q, 3, [[160, 255, 190], [200, 130, 255]], 0.5, 0.55); }));   // 영혼이 퀸 자리로 모인다
+                        at(880, () => { flash(q.x, q.y, cell * 2.1, C.violet, 0.6, 0.6); ring(q.x, q.y, cell * 0.2, cell * 1.6, C.purple, 0.55, 4);
                             rising(q.x, q.y, cell * 0.3, 14, [C.lilac, C.purple, C.white], 70, 180, [0.9, 1.4]); shake(3, 220); });
                     }
                 },
@@ -2907,8 +2946,8 @@
                         embers(p.x, p.y, 5, 60, 160, [SC.steel, C.white, C.yellow], 180, { kind: 'spark' }); shake(2, 140); }); });
                 },
                 '축복'(t) {
-                    t.forEach(sq => { const p = ctr(sq); beam(p.x, cell * 0.75, [255, 248, 225], 0.8);
-                        at(150, () => { flash(p.x, p.y, cell * 1.3, C.white, 0.5, 0.6); ring(p.x, p.y, cell * 0.1, cell * 1.0, C.gold, 0.55, 3); feathers(p.x, p.y, 12, cell * 0.6); rising(p.x, p.y, cell * 0.3, 8, [C.white, C.gold], 40, 110); }); });
+                    t.forEach(sq => { const p = ctr(sq); feathers(p.x, p.y, 12, cell * 0.6);   // 깃털이 내려앉고
+                        at(220, () => { flash(p.x, p.y, cell * 1.3, C.white, 0.5, 0.6); ring(p.x, p.y, cell * 0.1, cell * 1.0, C.gold, 0.55, 3); rising(p.x, p.y, cell * 0.3, 8, [C.white, C.gold], 40, 110); }); });
                 },
                 '숲의 망령'(t) {
                     t.forEach(sq => { const p = ctr(sq); flash(p.x, p.y, cell * 1.4, [120, 255, 200], 0.7, 0.3);
@@ -2921,13 +2960,11 @@
                         at(180, () => { flash(p.x, p.y, cell * 1.2, C.gold, 0.45, 0.6); ring(p.x, p.y, cell * 0.1, cell * 0.9, C.gold, 0.5, 3); stars(p.x, p.y, 7, cell * 0.4, [C.gold, C.white]); }); }); });
                 },
                 '프로모션'(t) {
-                    t.forEach(sq => { const p = ctr(sq); beam(p.x, cell * 0.9, C.gold, 0.9);
-                        at(200, () => { flash(p.x, p.y, cell * 1.6, C.gold, 0.55, 0.7); ring(p.x, p.y, cell * 0.1, cell * 1.2, C.gold, 0.55, 3); at(120, () => ring(p.x, p.y, cell * 0.1, cell * 1.6, C.white, 0.6, 2));
-                            stars(p.x, p.y, 10, cell * 0.45, [C.gold, C.white, C.yellow]); glyph(p.x, p.y, '♛', [255, 226, 130], 1.2, cell * 0.65); }); });
+                    t.forEach(sq => at(200, () => crown(sq)));
                 },
                 '캐슬링+'(t) {
                     const stone = [[150, 140, 125], [110, 100, 90], [190, 180, 165]];
-                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 120, () => { shieldFx(p.x, p.y, cell * 0.5, [200, 190, 170], 0.8, 4); puffs(p.x, p.y, 4, [170, 160, 145], 0.5);
+                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 120, () => { ring(p.x, p.y, cell * 0.12, cell * 0.8, [200, 190, 170], 0.5, 3, 0.8); puffs(p.x, p.y, 4, [170, 160, 145], 0.5);
                         for (let j = 0; j < 8; j++) { const ang = rnd(0, TAU), sp = rnd(70, 200); P({ x: p.x, y: p.y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp + UP() * rnd(40, 120), g: DOWN() * 520, drag: 0.9, size: rnd(3, 6), rot: rnd(0, TAU), vr: rnd(-10, 10), dur: rnd(0.6, 0.9), kind: 'shard', color: pick(stone), edge: 'rgb(70,60,50)' }); }
                         shake(3, 180); }); });
                 },
@@ -2944,10 +2981,10 @@
                     at(220, () => [A, B].forEach(p => embers(p.x, p.y, 6, 60, 180, [[170, 130, 240], C.white], 80)));
                 },
                 '저주'(t) {
-                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 120, () => { sigil(p.x, p.y, cell * 0.5, [170, 230, 90], 1.0, 5, 2.6);
-                        for (let j = 0; j < 6; j++) P({ x: p.x + rnd(-cell * 0.3, cell * 0.3), y: p.y + UP() * cell * 0.5, vx: rnd(-8, 8), vy: DOWN() * rnd(30, 70), drag: 0.2, size: rnd(1.8, 3), dur: rnd(0.7, 1.1), kind: 'glow', color: pick([[170, 90, 230], [140, 230, 90]]) });
-                        puffs(p.x, p.y, 3, [70, 36, 100], 0.55);
-                        at(430, () => { flash(p.x, p.y, cell * 1.2, [160, 80, 220], 0.4, 0.5); ring(p.x, p.y, cell * 0.1, cell * 0.8, [150, 230, 90], 0.45, 3); }); }); });
+                    t.forEach((sq, i) => { const p = ctr(sq); at(i * 120, () => {
+                        puffs(p.x, p.y, 3, [70, 36, 100], 0.6);   // 어두운 저주 연기가 내려앉고
+                        for (let j = 0; j < 6; j++) P({ x: p.x + rnd(-cell * 0.3, cell * 0.3), y: p.y + UP() * cell * 0.5, vx: rnd(-8, 8), vy: DOWN() * rnd(30, 70), drag: 0.2, size: rnd(1.8, 3), dur: rnd(0.7, 1.1), kind: 'glow', color: pick([[170, 90, 230], [140, 230, 90]]) });   // 독즙이 뚝뚝 떨어진다
+                        at(380, () => { flash(p.x, p.y, cell * 1.2, [160, 80, 220], 0.4, 0.5); ring(p.x, p.y, cell * 0.1, cell * 0.8, [150, 230, 90], 0.45, 3); }); }); });
                 },
                 '혼란'(t) {
                     if (t.length < 2) return; const A = ctr(t[0]), B = ctr(t[1]);
@@ -2979,9 +3016,10 @@
                         at(650, () => { ring(p.x, p.y, cell * 0.1, cell * 1.3, [90, 230, 255], 0.55, 4); flash(p.x, p.y, cell * 1.3, [90, 230, 255], 0.4, 0.55); embers(p.x, p.y, 8, 70, 190, [[90, 230, 255], SC.psy, C.white], 100); }); });
                 },
                 '차원 장벽'(t) {
-                    t.forEach(sq => { const p = ctr(sq); shieldFx(p.x, p.y, cell * 0.62, SC.indigo, 1.2, 4); shieldFx(p.x, p.y, cell * 0.42, [200, 205, 255], 1.0, 4); flash(p.x, p.y, cell * 1.5, SC.indigo, 0.5, 0.5);
-                        for (let j = 0; j < 8; j++) { const ang = rnd(0, TAU), sp = rnd(40, 140); P({ x: p.x, y: p.y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp + UP() * rnd(30, 90), g: DOWN() * 360, drag: 0.9, size: rnd(3, 5.5), rot: rnd(0, TAU), vr: rnd(-8, 8), dur: rnd(0.6, 0.95), kind: 'shard', color: [110, 120, 240], edge: 'rgb(210,215,255)' }); }
-                        shake(2.5, 180); });
+                    t.forEach(sq => { const p = ctr(sq);
+                        puffs(p.x, p.y, 4, [140, 135, 170], 0.6); flash(p.x, p.y, cell * 1.3, SC.indigo, 0.5, 0.4);
+                        for (let j = 0; j < 9; j++) P({ x: p.x + rnd(-cell * 0.3, cell * 0.3), y: p.y + DOWN() * cell * 0.3, vx: rnd(-25, 25), vy: UP() * rnd(150, 260), g: DOWN() * 520, drag: 0.6, size: rnd(3.5, 6.5), rot: rnd(0, TAU), vr: rnd(-8, 8), dur: rnd(0.55, 0.85), kind: 'shard', color: pick([[110, 120, 240], [150, 160, 255], [90, 95, 200]]), edge: 'rgb(215,220,255)' });   // 땅에서 장벽 조각이 솟구친다
+                        at(200, () => { ring(p.x, p.y, cell * 0.1, cell * 0.8, SC.indigo, 0.4, 3, 0.8); shake(3, 200); }); });
                 },
                 '자아 분열'(t) {
                     t.forEach((sq, i) => { const p = ctr(sq); at(i * 40, () => { swirl(p.x, p.y, 6, [[255, 120, 220], [255, 230, 90]], cell * 0.5, cell * 0.1, 0.7, i % 2 ? 1 : -1); glyph(p.x, p.y, '↕', [255, 220, 120], 0.9, cell * 0.5); }); });
@@ -3005,8 +3043,18 @@
                     shake(1.6, 150);
                     for (let i = 0; i < 3; i++) { const p = ctr('abcdefgh'[(Math.random() * 8) | 0] + (1 + ((Math.random() * 8) | 0))); at(i * 120, () => puffs(p.x, p.y, 2, [150, 125, 95], 0.35)); }
                 },
+                '앙파상+'(t, a) {
+                    (a.fxMoves || []).forEach((m, i) => { const A = ctr(m.from), B = ctr(m.to);
+                        at(i * 40, () => { puffs(A.x, A.y, 2, [200, 190, 170], 0.4); streak(A, B, 5, [[255, 255, 255], [190, 230, 255]], 0.4, 0.3); });
+                        at(380 + i * 40, () => { puffs(B.x, B.y, 3, [200, 190, 170], 0.5); ring(B.x, B.y, cell * 0.1, cell * 0.6, [190, 230, 255], 0.35, 2.5, 0.8); glyph(B.x, B.y, '♪', [255, 255, 255], 0.8, cell * 0.45); }); });
+                },
+                '동귀어진'(t) {
+                    t.forEach(sq => { const p = ctr(sq);
+                        swirl(p.x, p.y, 10, [[255, 70, 60], [255, 160, 90]], cell * 0.55, cell * 0.1, 0.65, 1);   // 붉은 기운이 기물로 모여든다
+                        at(620, () => { flash(p.x, p.y, cell * 1.2, [255, 60, 50], 0.45, 0.55); ring(p.x, p.y, cell * 0.1, cell * 0.8, [255, 80, 60], 0.45, 3); }); });
+                },
                 '수퍼 워너비'(t) {
-                    t.forEach(sq => { const p = ctr(sq); beam(p.x, cell * 0.7, C.gold, 0.8); flash(p.x, p.y, cell * 1.4, C.gold, 0.5, 0.6); ring(p.x, p.y, cell * 0.1, cell * 1.0, C.gold, 0.5, 3);
+                    t.forEach(sq => { const p = ctr(sq); flash(p.x, p.y, cell * 1.4, C.gold, 0.5, 0.6); ring(p.x, p.y, cell * 0.1, cell * 1.0, C.gold, 0.5, 3);
                         at(140, () => ring(p.x, p.y, cell * 0.1, cell * 1.4, C.white, 0.55, 2)); stars(p.x, p.y, 10, cell * 0.4, [C.gold, C.white, C.yellow]); glyph(p.x, p.y, '★', [255, 226, 120], 1.2, cell * 0.6); });
                 }
             };
@@ -3030,7 +3078,7 @@
                 for (const p of parts) { const d = DRAWK[p.kind]; if (d) d(p); }
                 chains.forEach(drawChain);
                 ctx.globalCompositeOperation = 'lighter';
-                wheels.forEach(drawWheel); beams.forEach(drawBeam); rays.forEach(drawRays); waves.forEach(drawWaveFoam); marks.forEach(drawMark); flashes.forEach(drawFlash); rings.forEach(drawRing); bolts.forEach(drawBolt); slashes.forEach(drawSlash); trails.forEach(drawTrail); charges.forEach(drawCharge); vines.forEach(drawVines); sigils.forEach(drawSigil); shields.forEach(drawShield); halos.forEach(drawHalo);
+                wheels.forEach(drawWheel); beams.forEach(drawBeam); rays.forEach(drawRays); waves.forEach(drawWaveFoam); marks.forEach(drawMark); flashes.forEach(drawFlash); rings.forEach(drawRing); bolts.forEach(drawBolt); slashes.forEach(drawSlash); trails.forEach(drawTrail); charges.forEach(drawCharge); vines.forEach(drawVines); shields.forEach(drawShield); halos.forEach(drawHalo);
                 for (const p of parts) { if (p.kind === 'glow') drawGlow(p); else if (p.kind === 'spark') drawSpark(p); }
                 ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
                 let alive = 0;
@@ -3040,7 +3088,7 @@
                 }
                 if (alive) requestAnimationFrame(frame); else { running = false; ctx.clearRect(0, 0, W, H); }
             }
-            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx, sig, hasSig: n => !!SIG[n], mineBlast, speed: k => { fxSpeed = k; } };
+            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx, sig, hasSig: n => !!SIG[n], mineBlast, pactBlast, crown, speed: k => { fxSpeed = k; } };
         })();
 
         function spawnFloatingText(sq, text) {
@@ -3090,7 +3138,7 @@
             '독구름': 'poison', '네크로맨서': 'summon', '축복': 'summon', '징집': 'summon', '숲의 망령': 'summon', '아기는 어떻게 태어나?': 'summon', '차원 장벽': 'summon',
             '저주': 'curse', '마인드 컨트롤': 'curse', '광기': 'curse', '자아 분열': 'curse', '암전': 'curse',
             '빛의 수호': 'shield', '여신의 가호': 'shield', '덩굴': 'bind',
-            '지뢰 찾기': 'summon', '수퍼 워너비': 'upgrade', '혼란': 'move', '강제 이주': 'move', '그림자 교체': 'move', '파도': 'move', '진군 명령': 'move', '운명의 수레바퀴': 'move',
+            '지뢰 찾기': 'summon', '동귀어진': 'damage', '앙파상+': 'move', '수퍼 워너비': 'upgrade', '혼란': 'move', '강제 이주': 'move', '그림자 교체': 'move', '파도': 'move', '진군 명령': 'move', '운명의 수레바퀴': 'move',
             '기사 서임': 'upgrade', '프로모션': 'upgrade', '캐슬링+': 'upgrade', '나이트 클럽': 'upgrade', '잭팟': 'upgrade'
         };
         const KIND_COLOR = {
@@ -3099,7 +3147,7 @@
         };
         const AUG_STAGGER = { '신의 심판': 60, '벼락': 140, '흑사': 70 };
         const AUG_SCALE = { '신성한 폭발': 1.35 };
-        const AUG_NO_LEAD = new Set(['파도', '진군 명령', '운명의 수레바퀴', '지뢰 찾기']);
+        const AUG_NO_LEAD = new Set(['파도', '진군 명령', '운명의 수레바퀴', '지뢰 찾기', '앙파상+']);
         // 고유 연출에서 기물 변화(파괴·소환·변이)가 화면에 반영되는 시점(ms)
         const AUG_REVEAL = { '네크로맨서': 850, '신의 심판': 420, '벼락': 280, '독구름': 450, '암살': 260, '연계 분쇄': 480, '흑사': 350, '복수': 350, '징집': 160, '축복': 250, '숲의 망령': 220, '기사 서임': 220, '프로모션': 280, '캐슬링+': 220, '나이트 클럽': 260, '그림자 교체': 220, '저주': 420, '혼란': 350, '광기': 300, '강제 이주': 350, '마인드 컨트롤': 650, '차원 장벽': 250 };
         const WAVE_TRAVEL_SEC = 1.15; // FX 엔진의 WAVE_TRAVEL과 같은 값
@@ -3118,7 +3166,7 @@
         // 반환값: 락온 연출에 쓴 대기 시간(ms). 호출한 쪽은 다음 단계 대기 시간에 더해준다.
         function playAugmentVisuals(a) {
             const t = a.t || [], kind = AUG_KIND[a.name] || 'damage', color = KIND_COLOR[kind];
-            const isWave = a.globalVfx === 'vfx-global-wave', isMarch = a.name === '진군 명령', isWheel = a.name === '운명의 수레바퀴', isVine = a.name === '덩굴', slides = isWave || isMarch || isWheel;
+            const isWave = a.globalVfx === 'vfx-global-wave', isMarch = a.name === '진군 명령', isWheel = a.name === '운명의 수레바퀴', isVine = a.name === '덩굴', isHop = a.name === '앙파상+', slides = isWave || isMarch || isWheel;
             const lead = (!AUG_NO_LEAD.has(a.name) && t.length && !reduceMotion) ? 520 : 0;
             const toRank = a.fxArg === 'b' ? 8 : 1;
             // 파도 앞면이 해당 행을 지나가는 시각(초)
@@ -3147,6 +3195,11 @@
                         FX.charge(m.from, m.to, d);
                     });
                     setTimeout(() => pieceEls.forEach(el => { el.style.transition = ''; }), 1500);
+                }
+                if (isHop) {   // 도약: 장애물 위로 솟았다가 내려앉는다
+                    (a.fxMoves || []).forEach((m, i) => { const d = i * 0.04;
+                        pieceEls.forEach(el => { if (el.dataset.square === m.from) { el.style.transition = `translate 0.5s cubic-bezier(.3,.7,.4,1) ${d.toFixed(2)}s, transform 0.18s ease-out, opacity 0.18s ease-out`; setTimeout(() => { el.classList.add('piece-hop'); setTimeout(() => el.classList.remove('piece-hop'), 560); }, d * 1000); } }); });
+                    setTimeout(() => pieceEls.forEach(el => { el.style.transition = ''; }), 1200);
                 }
                 if (isWheel) {   // 톱니바퀴와 같은 곡선: 팽팽하게 뜸을 들이다 한 번에 딱 맞물리며 안착
                     pieceEls.forEach(el => { if (el.dataset.square) el.style.transition = 'translate 1.25s cubic-bezier(.75,-0.1,.88,.5), transform 0.18s ease-out, opacity 0.18s ease-out'; });
@@ -3293,8 +3346,9 @@
             }
             deserializeGameState(f.s);
             previousMove = f.kind === 'move' ? { from: f.from, to: f.to } : null;
+            if (f.kind === 'move' && f.pact) { const pe = pieceEls.get(f.pact); if (pe) pe.dataset.square = f.to; }
             if (animate && f.kind === 'move') {
-                try { FX.land(f.to, f.by); if (f.captured) FX.capture(f.to, f.captured); } catch (e) {}
+                try { FX.land(f.to, f.by); if (f.captured) FX.capture(f.to, f.captured); if (f.pact) FX.pactBlast(f.to); } catch (e) {}
             }
             muteShatter = !animate; drawPieces(animate); muteShatter = false;
             if (animate) scaleAnimsSoon(kSpd);
@@ -3662,6 +3716,8 @@
         }
 
         function executeMoveLocal(from, to, promo) {
+            // 동귀어진: 이동 전에 잡힐 기물을 확인해 둔다 (앙파상은 다른 칸의 폰)
+            let pactVictim = null; { const mv = game.get(from); let vic = game.get(to); if (!vic && mv && mv.type === 'p' && to === game.ep_square) vic = game.get(to[0] + from[1]); if (vic && pactPieces[vic.uid]) pactVictim = vic.uid; }
             const moveResult = game.move({ from: from, to: to, promotion: promo });
             if (!moveResult) return;
             isSystemLocked = true; selectedSquare = null; legalMoves = []; drawDots(); pendingMove = null;
@@ -3669,6 +3725,16 @@
             if (moveResult.captured) { FX.capture(to, moveResult.captured); const mover = game.get(to); if (mover) lastKiller[moveResult.color === 'w' ? 'b' : 'w'] = mover.uid; }
             if (moveResult.flags === 'k' || moveResult.flags === 'q') showToast("🏰 캐슬링!", "#f1c40f", 2000);
             
+            let pactDeath = null;
+            if (pactVictim) {
+                delete pactPieces[pactVictim];
+                const killer = game.get(to);
+                if (killer && killer.type !== 'k' && killer.type !== 'wall') {   // 잡은 기물도 함께 사라진다 (킹은 살아남는다)
+                    pactDeath = killer.uid; const ke = pieceEls.get(killer.uid); if (ke) ke.dataset.square = to;   // 사라지는 연출이 도착 칸에서 나오도록
+                    game.remove(to); FX.pactBlast(to); spawnFloatingText(to, '⛓️');
+                    showToast('⛓️ 동귀어진! 잡은 기물도 함께 사라졌습니다', '#ff5a4d', 2200);
+                }
+            }
             const pieceNow = game.get(to);
             if (pieceNow) {
                 let poisoned = false;
@@ -3678,7 +3744,7 @@
             resolveMines();
 
             previousMove = { from, to };
-            recordFrame('move', { from, to, by: moveResult.color, captured: moveResult.captured || null });
+            recordFrame('move', { from, to, by: moveResult.color, captured: moveResult.captured || null, pact: pactDeath });
             drawPieces(); updateTurnIndicator(); updateCheckStatus();
             updatePreviousMoveHighlights();
             
@@ -3716,7 +3782,7 @@
 
             game.sanitizeSpecialStates();
             drawPieces(babyBorn.length > 0 || promotedSq.length > 0);
-            if (promotedSq.length) { triggerVFX(promotedSq, 'vfx-heal'); highlightAffected(promotedSq, KIND_COLOR.upgrade); updateCheckStatus(); }
+            if (promotedSq.length) { promotedSq.forEach(sq => FX.crown(sq)); highlightAffected(promotedSq, KIND_COLOR.upgrade); updateCheckStatus(); }
             if (poisonKilled.length) triggerVFX(poisonKilled, 'vfx-void');
             if (babyBorn.length) { triggerVFX(babyBorn, 'vfx-heal'); highlightAffected(babyBorn, KIND_COLOR.summon); updateCheckStatus(); }
             activePoison.forEach(p => p.duration--); activePoison = activePoison.filter(p => p.duration > 0); updateBoardVisuals(); updateProgressBar();
@@ -3840,6 +3906,15 @@
             }
             return res;
         }
+        // 앙파상+: 앞이 막힌 폰이 장애물을 뛰어넘어 도착할 칸 (없으면 null)
+        function hopTarget(sq, m) {
+            const p = game.get(sq); if (!p || p.type !== 'p' || p.color !== m || rootedPieces[p.uid] > 0) return null;
+            const rev = reversedPawns[m] > 0 && reversedUids[m] && reversedUids[m][p.uid], dir = (m === 'w' ? 1 : -1) * (rev ? -1 : 1), r = parseInt(sq[1]), r2 = r + 2 * dir, f = sq[0];
+            if (r2 < 1 || r2 > 8) return null;
+            if (!game.get(f + (r + dir)) || game.get(f + r2) || !pawnSafeAt(p, f + r2)) return null;
+            return f + r2;
+        }
+        function canHop(m) { return findPieces(m, 'p').some(sq => !!hopTarget(sq, m)); }
         function canMarch(m) {
             const dir = m === 'w' ? 1 : -1, promoRank = m === 'w' ? 8 : 1;
             return findPieces(m, 'p').some(sq => { const r = parseInt(sq[1]), r2 = r + 2 * dir; return r2 >= 1 && r2 <= 8 && r2 !== promoRank && !game.get(sq[0] + (r + dir)) && !game.get(sq[0] + r2); });
@@ -3850,11 +3925,12 @@
             const born = [];
             for (const owner of ['w', 'b']) {
                 const eff = babyEffect[owner];
-                if (!eff || game.turn() === owner) continue;   // 방금 둔 사람이 효과 주인일 때만 진행
-                eff.remaining--;
+                if (!eff) continue;
+                eff.remaining--;   // 지속 시간은 매 수(양쪽 모두) 줄어든다
+                const ownerMoved = game.turn() !== owner;   // 방금 둔 사람이 효과 주인일 때만 폰이 생성된다 = 2수마다 한 번
                 const k = eff.kUid ? findSqByUid(eff.kUid) : findPieces(owner, 'k')[0], q = eff.qUid ? findSqByUid(eff.qUid) : findPieces(owner, 'q')[0];
                 if (!k || !q) { babyEffect[owner] = null; continue; }   // 축복받은 킹/퀸 중 하나가 사라지면 효과 종료
-                if (Math.abs(k.charCodeAt(0) - q.charCodeAt(0)) <= 1 && Math.abs(parseInt(k[1]) - parseInt(q[1])) <= 1) {
+                if (ownerMoved && Math.abs(k.charCodeAt(0) - q.charCodeAt(0)) <= 1 && Math.abs(parseInt(k[1]) - parseInt(q[1])) <= 1) {
                     const rand = mulberry32(eff.seed + moveCount * 7919);
                     let type = 'p';
                     if (rand() < 0.12) { const r2 = rand(); type = r2 < 0.35 ? 'n' : r2 < 0.7 ? 'b' : r2 < 0.92 ? 'r' : 'q'; }
@@ -3978,7 +4054,7 @@
                     let best = -99999;
                     for (const m of moves) {
                         const next = cloneGameState(state);
-                        next.move({ from: m.from, to: m.to, promotion: m.promotion ? 'q' : null });
+                        searchMove(next, m);
                         const value = minimaxSearch(next, depth - 1, alpha, beta, false, perspectiveColor, searchState);
                         if (value > best) best = value;
                         if (value > alpha) alpha = value;
@@ -3989,7 +4065,7 @@
                     let best = 99999;
                     for (const m of moves) {
                         const next = cloneGameState(state);
-                        next.move({ from: m.from, to: m.to, promotion: m.promotion ? 'q' : null });
+                        searchMove(next, m);
                         const value = minimaxSearch(next, depth - 1, alpha, beta, true, perspectiveColor, searchState);
                         if (value < best) best = value;
                         if (value < beta) beta = value;
@@ -4000,6 +4076,14 @@
             });
         }
 
+        function searchMove(state, m) {   // 탐색용 이동 + 동귀어진 반영
+            const mv = state.get(m.from); let vic = state.get(m.to);
+            if (!vic && mv && mv.type === 'p' && m.to === state.ep_square) vic = state.get(m.to[0] + m.from[1]);
+            const vuid = vic ? vic.uid : null, r = state.move({ from: m.from, to: m.to, promotion: m.promotion ? 'q' : null });
+            if (r && vuid && pactPieces[vuid]) { const k = state.get(m.to); if (k && k.type !== 'k') state.remove(m.to); }
+            return r;
+        }
+
         function getMoveHeuristic(m) {
             let score = 0;
             if (m.promotion) score += 220;
@@ -4007,6 +4091,7 @@
                 const captured = game.get(m.to);
                 const value = captured ? pieceValue[captured.type] || 1 : 1;
                 score += value * 130;
+                const mover = game.get(m.from); if (captured && pactPieces[captured.uid] && mover && mover.type !== 'k') score -= (pieceValue[mover.type] || 1) * 130;
             }
             if (m.flags === 'k' || m.flags === 'q') score += 90;
             const file = m.to.charCodeAt(0) - 97;
@@ -4032,7 +4117,7 @@
             let bestMoves = [];
             for (const m of candidates) {
                 const next = cloneGameState(game);
-                next.move({ from: m.from, to: m.to, promotion: m.promotion ? 'q' : null });
+                searchMove(next, m);
                 const score = minimaxSearch(next, 3, -99999, 99999, false, game.turn(), searchState);
                 if (score > bestScore) { bestScore = score; bestMoves = [m]; }
                 else if (score === bestScore) bestMoves.push(m);
@@ -4106,7 +4191,7 @@
               apply: (m, e) => { const tgts = findPieces(m).filter(sq => ['b', 'r'].includes(game.get(sq).type));
                   tgts.forEach(sq => { game.remove(sq); game.put({ type: 'n', color: m }, sq); spawnFloatingText(sq, '🐴'); });
                   return { t: tgts, vfx: 'vfx-heal', msg: `🕺 나이트 클럽이 열렸습니다! ${tgts.length}개의 기물이 나이트가 되었습니다.` }; } },
-            { name: '진군 명령', icon: '🛡️', desc: '모든 아군 폰이 일제히 {두 칸씩} [전진]합니다. 이동할 칸이 막혀 있거나 보드 밖이라면 해당 기물은 이동하지 않습니다.', globalVfx: null, isKillType: false, condition: (m) => canMarch(m),
+            { name: '진군 명령', icon: '🚩', desc: '모든 아군 폰이 일제히 {두 칸씩} [전진]합니다. 이동할 칸이 막혀 있거나 보드 밖이라면 해당 기물은 이동하지 않습니다.', globalVfx: null, isKillType: false, condition: (m) => canMarch(m),
               apply: (m, e) => { const dir = m === 'w' ? 1 : -1, promoRank = m === 'w' ? 8 : 1, moved = [], fxMoves = [], wasInCheck = game.in_check(m);
                   const pawns = findPieces(m, 'p').sort((a, b) => (parseInt(b[1]) - parseInt(a[1])) * dir);
                   pawns.forEach(sq => { const f = sq[0], r = parseInt(sq[1]), r2 = r + 2 * dir; if (r2 < 1 || r2 > 8 || r2 === promoRank) return;
@@ -4119,9 +4204,9 @@
               apply: (m, e) => { const kingSq = findPieces(m, 'k')[0], tg = pickShadowTarget(m); if (!tg) return { t: [], vfx: '', msg: '교체할 대상을 찾지 못했습니다.' };
                   const kInfo = game.get(kingSq), aInfo = game.get(tg); game.remove(kingSq); game.remove(tg); game.put(aInfo, kingSq); game.put(kInfo, tg);
                   spawnFloatingText(kingSq, '🥷'); spawnFloatingText(tg, '🥷'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🥷 킹이 그림자 속으로 위치를 바꿨습니다!' }; } },
-            { name: '저주', icon: '🐸', desc: '폰이 아닌 적 기물 {1~3개}를 폰으로 [변이]시킵니다.', globalVfx: 'vfx-global-void', isKillType: false,
+            { name: '저주', icon: '🐸', desc: '폰이 아닌 적 기물 {1~2개}를 폰으로 [변이]시킵니다.', globalVfx: 'vfx-global-void', isKillType: false,
               condition: (m, e) => findVulnerable(e).some(sq => game.get(sq).type !== 'p' && pawnSafeAt({ type: 'p', color: e }, sq)),
-              apply: (m, e) => { const targets = shuffle(findVulnerable(e).filter(sq => game.get(sq).type !== 'p' && pawnSafeAt({ type: 'p', color: e }, sq))).slice(0, 1 + Math.floor(Math.random() * 3));
+              apply: (m, e) => { const targets = shuffle(findVulnerable(e).filter(sq => game.get(sq).type !== 'p' && pawnSafeAt({ type: 'p', color: e }, sq))).slice(0, 1 + Math.floor(Math.random() * 2));
                   targets.forEach(tg => { game.remove(tg); game.put({ type: 'p', color: e }, tg); spawnFloatingText(tg, '🐸'); }); return { t: targets, vfx: 'vfx-lightning', msg: '🐸 적들이 폰으로 변했습니다!' }; } },
             { name: '혼란', icon: '🌀', desc: '무작위 적 기물 {2개}의 위치를 서로 [바꿉니다].', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => !!pickSwapPair(e),
               apply: (m, e) => { const pair = pickSwapPair(e); if (!pair) return { t: [], vfx: '', msg: '위치를 바꿀 대상이 없습니다.' };
@@ -4133,7 +4218,7 @@
               apply: (m, e, target) => { const list = findVulnerable(e), tg = (target && list.includes(target)) ? target : shuffle(list)[0], pInfo = game.get(tg), empties = shuffle(getSafeEmptySquares(pInfo.color, pInfo.type));
                   if (empties.length > 0) { game.remove(tg); game.put(pInfo, empties[0]); spawnFloatingText(tg, '🤡'); spawnFloatingText(empties[0], '🌀'); return { t: [tg, empties[0]], vfx: 'vfx-lightning', msg: '🤡 적이 알 수 없는 곳으로 이동했습니다!' }; }
                   return { t: [], vfx: '', msg: '공간이 부족해 실패했습니다.' }; } },
-            { name: '강제 이주', icon: '🌀', desc: '적 킹을 인접한 무작위 빈칸으로 강제 [이동]시킵니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => getAdjEmptySquares(findPieces(e, 'k')[0]).length > 0,
+            { name: '강제 이주', icon: '🧳', desc: '적 킹을 인접한 무작위 빈칸으로 강제 [이동]시킵니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => getAdjEmptySquares(findPieces(e, 'k')[0]).length > 0,
               apply: (m, e) => { const kingSq = findPieces(e, 'k')[0], tg = shuffle(getAdjEmptySquares(kingSq))[0], kingInfo = game.get(kingSq); game.remove(kingSq); game.put(kingInfo, tg); spawnFloatingText(tg, '🌀'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🌀 적 킹이 이동당했습니다!' }; } },
             { name: '파도', icon: '🌊', desc: '적 기물들을 {한 칸씩} 뒤로 [밀어냅니다]. 이동할 칸이 막혀 있거나 보드 밖이라면 해당 기물은 이동하지 않습니다.', globalVfx: 'vfx-global-wave', isKillType: false, delay: 1900, condition: (m, e) => findPieces(e).length > 0,
               apply: (m, e) => { const moved = [], eTgts = findPieces(e);
@@ -4158,10 +4243,10 @@
               apply: (m, e) => { reversedPawns[e] = 6; reversedUids[e] = {}; findPieces(e, 'p').forEach(sq => { reversedUids[e][game.get(sq).uid] = true; }); return { t: findPieces(e, 'p'), vfx: 'vfx-void', msg: '😵‍💫 적 폰들이 방향 감각을 잃었습니다!' }; } },
             { name: '잭팟', icon: '🎰', desc: '이제부터 자신에게 등장하는 모든 증강 선택지가 {1개} [증가]합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => jackpotBonus[m] < 1,
               apply: (m, e) => { jackpotBonus[m] = (jackpotBonus[m] || 0) + 1; const k = findPieces(m, 'k')[0]; if (k) spawnFloatingText(k, '🎰'); return { t: [], vfx: '', origin: k || null, msg: '🎰 잭팟! 앞으로 증강 선택지가 하나 더 늘어납니다.' }; } },
-            { name: '아기는 어떻게 태어나?', icon: '🦢', desc: '{5수} 동안 아군 킹과 퀸에게 [축복]이 적용되며, 두 기물이 인접해 있을 경우 매 수 무작위 빈칸에 새로운 폰을 [생성]합니다. 낮은 확률로 가치가 높은 기물이 등장합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+            { name: '아기는 어떻게 태어나?', icon: '🦢', desc: '{10수} 동안 아군 킹과 퀸에게 [축복]이 적용되며, 두 기물이 인접해 있을 경우 {2수마다} 무작위 빈칸에 새로운 폰을 [생성]합니다. 낮은 확률로 가치가 높은 기물이 등장합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
               condition: (m) => !babyEffect[m] && findPieces(m, 'k').length > 0 && findPieces(m, 'q').length > 0,
               apply: (m, e) => { const k = findPieces(m, 'k')[0], q = findPieces(m, 'q')[0];
-                  babyEffect[m] = { color: m, remaining: 5, seed: Math.floor(Math.random() * 1e9), kUid: game.get(k).uid, qUid: game.get(q).uid };
+                  babyEffect[m] = { color: m, remaining: 10, seed: Math.floor(Math.random() * 1e9), kUid: game.get(k).uid, qUid: game.get(q).uid };
                   [k, q].forEach(sq => spawnFloatingText(sq, '🦢'));
                   return { t: [k, q], vfx: 'vfx-heal', msg: '🦢 왕과 왕비에게 축복이 내려졌습니다!' }; } },
             { name: '암전', icon: '💡', weight: 1, desc: '{4수} 동안 상대방의 기물들이 차지한 칸을 제외한 모든 칸을 [암전]시켜 시야를 방해합니다.', globalVfx: 'vfx-global-blackout', isKillType: false,
@@ -4186,6 +4271,23 @@
                   const sq = ok(target) ? target : shuffle(getEmptySquares().filter(ok))[0];
                   if (sq) mines.push({ sq, owner: m });
                   return { t: [], vfx: '', msg: '💣 지뢰가 매설되었습니다!' }; } },
+            { name: '앙파상+', icon: '🎼', desc: '앞이 가로막힌 모든 아군 폰이 장애물을 {뛰어넘어} {두 칸 앞}으로 [도약]합니다. 도착할 칸이 막혀 있거나 보드 밖이라면 이동하지 않습니다.', globalVfx: null, isKillType: false, condition: (m) => canHop(m),
+              apply: (m, e) => { const wasInCheck = game.in_check(m), moved = [], fxMoves = [];
+                  const pawns = findPieces(m, 'p').sort((a, b) => (parseInt(b[1]) - parseInt(a[1])) * (m === 'w' ? 1 : -1));
+                  pawns.forEach(sq => { const to = hopTarget(sq, m); if (!to) return;
+                      const p = game.get(sq); game.remove(sq); game.put(p, to);
+                      if (!wasInCheck && game.in_check(m)) { game.remove(to); game.put(p, sq); return; }
+                      moved.push(to); fxMoves.push({ from: sq, to }); });
+                  return { t: moved, vfx: '', fxMoves, msg: '🎼 폰들이 장애물을 뛰어넘었습니다!' }; } },
+            { name: '동귀어진', icon: '🪦', desc: '아군 기물 {하나}를 지정하여 [동귀어진]을 겁니다. 해당 기물이 잡히면 {잡은 기물도 함께} 사라집니다. {영구} 지속, 킹은 영향받지 않습니다.', globalVfx: 'vfx-global-void', isKillType: false,
+              target: { mode: 'piece', prompt: '동귀어진을 걸 아군 기물을 선택하세요', valid: (m) => findPieces(m).filter(sq => { const p = game.get(sq); return p && p.type !== 'k' && p.type !== 'wall' && !pactPieces[p.uid]; }) },
+              condition: (m) => findPieces(m).some(sq => { const p = game.get(sq); return p && p.type !== 'k' && p.type !== 'wall' && !pactPieces[p.uid]; }),
+              apply: (m, e, target) => {
+                  const cands = findPieces(m).filter(sq => { const p = game.get(sq); return p && p.type !== 'k' && p.type !== 'wall' && !pactPieces[p.uid]; });
+                  const sq = (target && cands.includes(target)) ? target : shuffle(cands)[0];
+                  if (!sq) return { t: [], vfx: '', msg: '동귀어진을 걸 기물이 없습니다.' };
+                  pactPieces[game.get(sq).uid] = true; spawnFloatingText(sq, '⛓️');
+                  return { t: [sq], vfx: 'vfx-void', msg: '⛓️ 동귀어진이 걸렸습니다!' }; } },
             { name: '수퍼 워너비', icon: '🎖️', desc: '아군 폰 {하나}를 지정하여 [유망주]로 만듭니다. 해당 폰은 {9수} 뒤 [퀸]으로 프로모션합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
               target: { mode: 'piece', prompt: '유망주로 만들 아군 폰을 선택하세요', valid: (m) => findPieces(m, 'p').filter(sq => !(prospects[game.get(sq).uid] > 0)) },
               condition: (m) => findPieces(m, 'p').some(sq => !(prospects[game.get(sq).uid] > 0)),
@@ -4198,7 +4300,7 @@
         ];
 
         // 고유 연출이 끝난 뒤 다음 단계로 넘어가도록 증강별 대기 시간(ms)을 늘린다 (이미 지정된 delay는 유지)
-        const AUG_DELAY = { '네크로맨서': 1900, '신의 심판': 1500, '벼락': 1300, '독구름': 1500, '암살': 1300, '연계 분쇄': 1500, '흑사': 1400, '복수': 1400, '징집': 1300, '축복': 1400, '숲의 망령': 1400, '기사 서임': 1300, '프로모션': 1400, '캐슬링+': 1300, '나이트 클럽': 1500, '그림자 교체': 1300, '저주': 1600, '혼란': 1500, '광기': 1400, '강제 이주': 1400, '마인드 컨트롤': 1800, '차원 장벽': 1300, '잭팟': 1700, '아기는 어떻게 태어나?': 1600, '암전': 1600, '자아 분열': 1500, '빛의 수호': 1400, '여신의 가호': 1600, '수퍼 워너비': 1500 };
+        const AUG_DELAY = { '네크로맨서': 1900, '신의 심판': 1500, '벼락': 1300, '독구름': 1500, '암살': 1300, '연계 분쇄': 1500, '흑사': 1400, '복수': 1400, '징집': 1300, '축복': 1400, '숲의 망령': 1400, '기사 서임': 1300, '프로모션': 1400, '캐슬링+': 1300, '나이트 클럽': 1500, '그림자 교체': 1300, '저주': 1600, '혼란': 1500, '광기': 1400, '강제 이주': 1400, '마인드 컨트롤': 1800, '차원 장벽': 1300, '잭팟': 1700, '아기는 어떻게 태어나?': 1600, '암전': 1600, '자아 분열': 1500, '빛의 수호': 1400, '여신의 가호': 1600, '수퍼 워너비': 1500, '동귀어진': 1300 };
         AUGMENT_POOL.forEach(ag => { if (!ag.delay && AUG_DELAY[ag.name]) ag.delay = AUG_DELAY[ag.name]; });
 
         // 가장자리 28칸을 시계방향(a8→h8→h1→a1→a8) 순서로 반환
