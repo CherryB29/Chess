@@ -613,6 +613,10 @@
         @keyframes pieceMorph { 0% { transform: scale(1); filter: brightness(1); } 28% { transform: scale(0.62) rotate(-8deg); filter: brightness(2.4); } 60% { transform: scale(1.2) rotate(4deg); filter: brightness(1.6); } 100% { transform: scale(1) rotate(0); filter: none; } }
         .piece-spawn { animation: pieceSpawn 0.45s cubic-bezier(.2, .9, .3, 1.2); }
         .piece-morph { animation: pieceMorph 0.55s ease-out; }
+        @keyframes minePop { 0% { transform: scale(0.3); opacity: 0; } 60% { transform: scale(1.25); opacity: 0.8; } 100% { transform: scale(1); opacity: 0.55; } }
+        .mine-mark { animation: minePop 0.45s ease-out; }
+        .fx-ghost { pointer-events: none; z-index: 60; }
+        .piece-kicked { visibility: hidden !important; }
     </style>
 </head>
 <body>
@@ -1780,6 +1784,8 @@
             });
             // 전송/이모티콘 버튼을 눌러도 입력창 포커스(=키보드)가 풀리지 않게 한다
             ['btn-send-chat', 'btn-emote'].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener('pointerdown', e => { if (focused) e.preventDefault(); }); });
+            document.querySelectorAll('.emote-btn').forEach(b => b.addEventListener('pointerdown', e => { if (focused) e.preventDefault(); }));
+            window.__chatKbOpen = () => lastKb > 0;   // 키보드가 실제로 떠 있는지
             if (vv) { vv.addEventListener('resize', place); vv.addEventListener('scroll', place); }
             window.addEventListener('scroll', place, { passive: true });
 
@@ -1804,7 +1810,7 @@
                 showChatBubble('mine', msg, false);
                 pushGameAction({ type: 'chat', msg: msg });
                 chatInput.value = '';
-                if (document.activeElement !== chatInput && document.body.classList.contains('chat-typing')) chatInput.focus({ preventScroll: true });   // 연속 채팅: 키보드 유지
+                if (document.activeElement !== chatInput && window.__chatKbOpen && window.__chatKbOpen()) chatInput.focus({ preventScroll: true });   // 연속 채팅: 키보드가 떠 있을 때만 유지 (내려가 있으면 다시 띄우지 않는다)
                 
                 if(!isBotMode && currentRoomId) {
                     clearTimeout(typingDebounce);
@@ -1941,7 +1947,7 @@
             isSquareAttacked(r, c, attackerColor, boardState = this._board) {
                 for (let ir=0; ir<8; ir++) for (let ic=0; ic<8; ic++) {
                     const p = boardState[ir][ic];
-                    if (p && p.color === attackerColor && this.getPseudoLegalMoves(ir, ic, p, boardState, true).some(m => m.r === r && m.c === c)) return true;
+                    if (p && p.color === attackerColor && !(rootedPieces[p.uid] > 0) && this.getPseudoLegalMoves(ir, ic, p, boardState, true).some(m => m.r === r && m.c === c)) return true;   // 속박된 기물은 공격(체크·메이트)하지 못한다
                 } return false;
             }
             in_check(color = this._turn) {
@@ -2009,7 +2015,8 @@
                         let tempBoard = this._board.map(row => row.map(cell => cell ? { ...cell } : null));
                         tempBoard[m.r][m.c] = piece; tempBoard[r][c] = null; let epCapture = false;
                         if (piece.type === 'p' && m.c !== c && !this._board[m.r][m.c]) { tempBoard[r][m.c] = null; epCapture = true; }
-                        if (!this.isSquareAttackedCheck(color, tempBoard)) {
+                        const tgtPc = this._board[m.r][m.c];
+                        if ((tgtPc && tgtPc.type === 'k' && tgtPc.color !== color) || !this.isSquareAttackedCheck(color, tempBoard)) {   // 상대 킹을 잡을 수 있으면 내 킹이 체크 상태여도 잡을 수 있다
                             const promoRank = piece.color === 'w' ? 0 : 7;
                             const isPromo = piece.type === 'p' && m.r === promoRank;
                             legalMoves.push({ from: this.rcToSq(r, c), to: this.rcToSq(m.r, m.c), piece: piece.type, color: color, captured: this._board[m.r][m.c] ? this._board[m.r][m.c].type : (epCapture ? 'p' : null), promotion: isPromo, flags: isPromo ? 'p' : (m.flags || 'n') });
@@ -2081,7 +2088,7 @@
 
         const squareEls = new Map(); const squareList = []; const pieceEls = new Map();
         const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        let muteShatter = false; // 새 게임 초기화 때는 산산조각 효과를 끔
+        let kickAnimating = false, kickPlanned = false; let muteShatter = false; // 새 게임 초기화 때는 산산조각 효과를 끔
         let floatLog = null; // 증강 적용 중 발생한 떠오르는 텍스트를 기록(상대 화면에도 재생하기 위함)
 
         function getCoords(sq) { const { r, c } = game.sqToRC(sq); return { x: c * 12.5, y: r * 12.5 }; }
@@ -2179,6 +2186,7 @@
                 if (box.dataset.sig !== sig) { box.dataset.sig = sig; box.innerHTML = chips.map(ch => `<span class="fx-chip ${ch.cls}"><i>${ch.icon}</i>${ch.n == null ? '' : ch.n}</span>`).join(''); }
 
                 // 칸 하나 = 기물 크기의 100%. translate는 자기 크기 기준 %라서 (열*100%, 행*100%)
+                if (!kickAnimating) el.classList.remove('piece-kicked');
                 el.dataset.square = sq; el.style.translate = `${c * 100}% ${r * 100}%`;
                 if (isNew) { void el.offsetWidth; el.style.transition = ''; }
             }
@@ -2793,7 +2801,14 @@
                 if (w > p.size * 0.5) { ctx.fillStyle = 'rgba(255,245,170,0.8)'; ctx.beginPath(); ctx.ellipse(-w * 0.25, -p.size * 0.25, w * 0.28, p.size * 0.28, 0, 0, TAU); ctx.fill(); }
                 ctx.restore();
             }
-            const DRAWK = { smoke: drawSmoke, shard: drawShard, petal: drawPetal, feather: drawFeather, heart: drawHeart, star: drawStar, coin: drawCoin };
+            function drawMineBody(p) {
+                const t = p.t, fall = Math.max(0, 1 - t / 0.34), sink = Math.min(1, Math.max(0, (t - 0.52) / 0.4));
+                const y = p.y + UP() * cell * 0.9 * fall * fall, sz = p.size * (1 - 0.85 * sink), a = Math.min(1, t / 0.08) * (1 - sink * 0.6); if (a <= 0 || sz <= 0.4) return;
+                ctx.save(); ctx.globalAlpha = a; ctx.translate(p.x, y); ctx.fillStyle = 'rgb(58,60,66)'; ctx.strokeStyle = 'rgb(130,134,144)'; ctx.lineWidth = Math.max(1, sz * 0.18);
+                ctx.beginPath(); ctx.ellipse(0, 0, sz, sz * 0.72, 0, 0, TAU); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = (Math.floor(t * 8) % 2) ? 'rgb(255,70,60)' : 'rgb(120,30,30)'; ctx.beginPath(); ctx.arc(0, -sz * 0.1, sz * 0.22, 0, TAU); ctx.fill(); ctx.restore();
+            }
+            const DRAWK = { smoke: drawSmoke, shard: drawShard, petal: drawPetal, feather: drawFeather, heart: drawHeart, star: drawStar, coin: drawCoin, minebody: drawMineBody };
 
             // ---------- 입자 생성 도우미 ----------
             function petals(x, y, n, spread, colors, h = 1.4) {
@@ -2892,6 +2907,18 @@
                 setTimeout(() => { ring(p.x, p.y, cell * 0.1, cell * 1.6, C.white, 0.6, 2); kick(); }, 120);
                 stars(p.x, p.y, 10, cell * 0.45, [C.gold, C.white, C.yellow]);
                 shake(2.5, 200); kick();
+            }
+
+            // ---------- 킹을 걷어차는 순간의 충격 ----------
+            function kickImpact(sq, fromSq) {
+                resize(); if (!W) return;
+                const { x, y } = ctr(sq), f = ctr(fromSq); let dx = x - f.x, dy = y - f.y; const L = Math.hypot(dx, dy) || 1; dx /= L; dy /= L;
+                flash(x, y, cell * 1.0, C.white, 0.14, 1); flash(x, y, cell * 2.4, C.red, 0.5, 0.7);
+                ring(x, y, cell * 0.1, cell * 1.8, C.red, 0.45, 6); ring(x, y, cell * 0.1, cell * 1.1, C.white, 0.3, 3);
+                slash(x - dx * cell * 0.9, y - dy * cell * 0.9, x + dx * cell * 1.8, y + dy * cell * 1.8, C.white, 0.22, 7);
+                const base = Math.atan2(dy, dx);
+                for (let i = 0; i < 24; i++) { const a = base + rnd(-0.7, 0.7), sp = rnd(160, 460); P({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 200, drag: 1.4, size: rnd(2, 4.5), dur: rnd(0.4, 0.8), kind: pick(['spark', 'glow']), color: pick([C.red, C.orange, C.white]) }); }
+                puffs(x, y, 3, [60, 50, 54], 0.6); shake(7, 340); kick();
             }
 
             // ---------- 동귀어진 발동: 안으로 빨려들었다가 터지며 사슬이 끊어진다 ----------
@@ -3052,9 +3079,20 @@
                 '암전'() {
                     dims.push({ a: 0.5, dur: 0.22, t: 0 }); at(260, () => dims.push({ a: 0.55, dur: 0.22, t: 0 })); at(520, () => dims.push({ a: 0.62, dur: 1.0, t: 0 }));
                 },
-                '지뢰 찾기'() {   // 위치가 드러나지 않도록 무작위 위치에 먼지만 날린다
-                    shake(1.6, 150);
-                    for (let i = 0; i < 3; i++) { const p = ctr('abcdefgh'[(Math.random() * 8) | 0] + (1 + ((Math.random() * 8) | 0))); at(i * 120, () => puffs(p.x, p.y, 2, [150, 125, 95], 0.35)); }
+                '지뢰 찾기'(t, a) {
+                    if (a.mineSq) {   // 설치한 사람에게만: 땅을 파고 지뢰를 묻는 과정을 보여 준다
+                        const p = ctr(a.mineSq);
+                        scorches.push({ x: p.x, y: p.y, dur: 1.4, t: 0 });
+                        [0, 140, 280].forEach(d => at(d, () => {   // 흙을 파헤침
+                            puffs(p.x, p.y, 2, [150, 125, 95], 0.45);
+                            for (let j = 0; j < 6; j++) { const ang = rnd(0, TAU), sp = rnd(50, 150); P({ x: p.x + rnd(-6, 6), y: p.y + rnd(-4, 4), vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp * 0.5 + UP() * rnd(90, 200), g: DOWN() * 520, drag: 0.9, size: rnd(2.5, 5), rot: rnd(0, TAU), vr: rnd(-10, 10), dur: rnd(0.5, 0.8), kind: 'shard', color: pick([[96, 74, 52], [120, 94, 66], [70, 54, 40]]), edge: 'rgb(40,30,22)' }); }
+                            shake(1.2, 90); }));
+                        at(260, () => P({ x: p.x, y: p.y, vx: 0, vy: 0, drag: 0, g: 0, size: cell * 0.2, dur: 1.0, kind: 'minebody', color: [58, 60, 66] }));   // 지뢰가 떨어져 흙 속으로 가라앉는다
+                        at(820, () => { puffs(p.x, p.y, 3, [140, 115, 88], 0.5); ring(p.x, p.y, cell * 0.1, cell * 0.55, [150, 125, 95], 0.4, 2.5, 0.6); });   // 흙으로 덮는다
+                    } else {   // 상대 화면: 위치가 드러나지 않도록 무작위 칸에 먼지만
+                        shake(1.6, 150);
+                        for (let i = 0; i < 3; i++) { const p = ctr('abcdefgh'[(Math.random() * 8) | 0] + (1 + ((Math.random() * 8) | 0))); at(i * 120, () => puffs(p.x, p.y, 2, [150, 125, 95], 0.35)); }
+                    }
                 },
                 '앙파상+'(t, a) {
                     (a.fxMoves || []).forEach((m, i) => { const A = ctr(m.from), B = ctr(m.to);
@@ -3101,7 +3139,7 @@
                 }
                 if (alive) requestAnimationFrame(frame); else { running = false; ctx.clearRect(0, 0, W, H); }
             }
-            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx, sig, hasSig: n => !!SIG[n], mineBlast, pactBlast, crown, speed: k => { fxSpeed = k; } };
+            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx, sig, hasSig: n => !!SIG[n], mineBlast, pactBlast, crown, kickImpact, speed: k => { fxSpeed = k; } };
         })();
 
         function spawnFloatingText(sq, text) {
@@ -3226,7 +3264,11 @@
                 if (isVine) FX.vines(t);
                 const useSig = !slides && !isVine && FX.sig(a.name, a);   // 증강 고유 연출이 있으면 일반 연출(전역/칸 이펙트)을 대신한다
                 const reveal = useSig ? (AUG_REVEAL[a.name] || 0) : 0;   // 효과가 닿는 순간에 맞춰 기물 변화를 보여 준다
-                if (reveal) setTimeout(() => { drawPieces(true); updateCheckStatus(); }, reveal); else { drawPieces(true); updateCheckStatus(); }
+                squareList.forEach(sq => sq.classList.remove('in-check'));   // 이전 체크 표시는 바로 지운다
+                if (reveal) setTimeout(() => drawPieces(true), reveal); else drawPieces(true);
+                const checkDelay = isWave ? 2300 : isWheel ? 1350 : isMarch ? 900 : isHop ? 750 : reveal ? reveal + 450 : 0;   // 새 체크는 기물이 완전히 자리 잡은 뒤에 표시
+                if (checkDelay) setTimeout(() => updateCheckStatus(), checkDelay); else updateCheckStatus();
+                if (a.name === '지뢰 찾기') setTimeout(() => updateBoardVisuals(), a.mineSq ? 900 : 0);   // 설치한 사람에게는 같은 턴에 지뢰 표시
                 if (a.blasts && a.blasts.length) setTimeout(() => playBlasts(a.blasts), 350);   // 증강으로 지뢰를 밟은 경우도 양쪽에서 폭발 연출
                 (a.floats || []).forEach(f => { if (isWave) setTimeout(() => spawnFloatingText(f.sq, f.text), rowSec(f.sq) * 1000); else spawnFloatingText(f.sq, f.text); });
                 if (a.globalVfx && !useSig) playGlobalVFX(a.globalVfx, a.fxArg, origin);
@@ -3254,12 +3296,10 @@
                     }
                 });
             });
-            squareList.forEach(sqEl => { const mk = sqEl.querySelector('.mine-mark'); if (mk) mk.remove(); });
-            mines.forEach(mi => {   // 지뢰는 설치한 사람에게만 보인다 (리플레이에서는 모두 공개)
-                if (!(mi.owner === myColor || (replayActive && replayMode !== 'live'))) return;
-                const el = squareEls.get(mi.sq); if (!el) return;
-                const mk = document.createElement('span'); mk.className = 'mine-mark'; mk.textContent = '💣'; el.appendChild(mk);
-            });
+            const wantMine = new Set();   // 지뢰는 설치한 사람에게만 보인다 (리플레이에서는 모두 공개)
+            mines.forEach(mi => { if (mi.owner === myColor || (replayActive && replayMode !== 'live')) wantMine.add(mi.sq); });
+            squareEls.forEach((el, sq) => { const mk = el.querySelector('.mine-mark'); if (mk && !wantMine.has(sq)) mk.remove(); });
+            wantMine.forEach(sq => { const el = squareEls.get(sq); if (!el || el.querySelector('.mine-mark')) return; const mk = document.createElement('span'); mk.className = 'mine-mark'; mk.textContent = '💣'; el.appendChild(mk); });
         }
 
         function playBlasts(hit) {   // 폭발 연출 (양쪽 화면 모두에서 재생)
@@ -3367,7 +3407,7 @@
             if (animate) scaleAnimsSoon(kSpd);
             updatePreviousMoveHighlights(); replayMarkChecks();
             if (animate && i === replayFrames.length - 1 && replayMode !== 'live') {   // 마지막 장면: 체크메이트 연출
-                try { if (game.in_checkmate()) { const k = findPieces(game.turn(), 'k')[0]; FX.checkmate(k, findCheckers(game.turn())); replayStepMs = 2600; } } catch (e) {}
+                try { if (game.in_checkmate()) { const k = findPieces(game.turn(), 'k')[0]; const ck = findCheckers(game.turn()); setTimeout(() => startMateKick(k, ck), 200); replayStepMs = 2600; } } catch (e) {}
             }
         }
         const RP_ICON = {
@@ -3637,7 +3677,7 @@
             };
 
             if(delay > 0) {
-                if(opts.fx === 'checkmate') { FX.checkmate(opts.fxSq, opts.fxCheckers || []); } else if(opts.fx === 'stalemate') FX.stalemate(opts.fxSq);
+                if(opts.fx === 'checkmate') { setTimeout(() => startMateKick(opts.fxSq, opts.fxCheckers || []), 200); }   // 체크메이트가 된 0.2초 뒤에 재생 else if(opts.fx === 'stalemate') FX.stalemate(opts.fxSq);
                 clearTimeout(endRevealTimer); endRevealTimer = setTimeout(reveal, delay);
             } else reveal();
         }
@@ -3655,14 +3695,63 @@
             return { lines, checkers };
         }
 
+        function playKickFinish(o) {   // o: { kingSq, kingColor, atkType, atkColor, atkFrom, atkHome, els, kingEl }
+            if (reduceMotion || !piecesLayer || !o.atkType) return false;
+            const upS = document.body.classList.contains('black-pov') ? 1 : -1;   // 화면 위쪽에 해당하는 보드 좌표 방향
+            const rc = sq => ({ c: sq.charCodeAt(0) - 97, r: 8 - parseInt(sq[1], 10) });
+            const K = rc(o.kingSq), A0 = rc(o.atkFrom), A1 = rc(o.atkHome);
+            const kp = game.get(o.kingSq), kingColor = o.kingColor || (kp ? kp.color : (o.atkColor === 'w' ? 'b' : 'w'));
+            const mk = (type, color, p) => {
+                const g = document.createElement('div'); g.className = 'piece-wrapper fx-ghost'; g.style.transition = 'none';
+                g.innerHTML = svgPieces[type.toUpperCase()].replace(/{fill}/g, color === 'w' ? '#ffffff' : '#222222').replace(/{stroke}/g, color === 'w' ? '#000000' : '#eeeeee');
+                g.style.translate = `${p.c * 100}% ${p.r * 100}%`; piecesLayer.appendChild(g); return g;
+            };
+            (o.els || []).concat(o.kingEl ? [o.kingEl] : []).forEach(el => { el.style.visibility = 'hidden'; });
+            const aG = mk(o.atkType, o.atkColor, A0), kG = mk('k', kingColor, K);
+            kickAnimating = true; kickPlanned = false;
+            const dx = K.c - A0.c, dy = K.r - A0.r, L = Math.hypot(dx, dy), dir = L > 0.01 ? { c: dx / L, r: dy / L } : { c: 0, r: upS }, side = dir.c >= 0 ? 1 : -1;
+            const W1 = 160, J = 520, H = 90, B = 440, T_IMP = W1 + J, FLY = 1000, backOn = (A1.c !== K.c || A1.r !== K.r);
+            const total = Math.max(W1 + J + H + (backOn ? B : 400), T_IMP + FLY), hJ = Math.min(2.4, 1.1 + L * 0.25), ease = t => t * t * (3 - 2 * t);
+            const pos = (c, r) => `${(c * 100).toFixed(1)}% ${(r * 100).toFixed(1)}%`;
+            const ak = [];
+            for (let ms = 0; ms <= total + 29; ms += 30) {
+                const t = Math.min(ms, total); let c = A1.c, r = A1.r, sx = 1, sy = 1, rot = 0;
+                if (t < W1) { const k = t / W1; c = A0.c; r = A0.r; sx = 1 + 0.14 * k; sy = 1 - 0.3 * k; }   // 웅크림
+                else if (t < T_IMP) { const k = (t - W1) / J, e = ease(k); c = A0.c + dx * e; r = A0.r + dy * e + upS * hJ * 4 * k * (1 - k); sx = sy = 1 + 0.55 * Math.sin(Math.PI * k); rot = side * 360 * k; }   // 포물선 도약
+                else if (t < T_IMP + H || !backOn) { c = K.c; r = K.r; sx = sy = 1.12; }   // 발차기
+                else if (t < T_IMP + H + B) { const k = (t - T_IMP - H) / B, e = ease(k); c = K.c + (A1.c - K.c) * e; r = K.r + (A1.r - K.r) * e + upS * 0.9 * 4 * k * (1 - k); sx = sy = 1 + 0.3 * Math.sin(Math.PI * k); }   // 제자리로 복귀
+                ak.push({ translate: pos(c, r), transform: `scale(${sx.toFixed(3)}, ${sy.toFixed(3)}) rotate(${rot.toFixed(1)}deg)`, offset: Math.min(1, t / total) });
+                if (t >= total) break;
+            }
+            const kk = [];
+            for (let i = 0; i <= 30; i++) {   // 킹: 발차기를 맞고 회전하며 포물선으로 날아가 사라짐
+                const k = i / 30, d = 9 * ease(Math.min(1, k * 1.05)), h = 3.2 * 4 * k * (1 - k), s = k < 0.25 ? 1 + 0.5 * (k / 0.25) : 1.5 - 1.1 * ((k - 0.25) / 0.75);
+                kk.push({ translate: pos(K.c + dir.c * d, K.r + dir.r * d + upS * h), transform: `scale(${s.toFixed(3)}) rotate(${(side * 1080 * k).toFixed(1)}deg)`, opacity: k < 0.75 ? 1 : 1 - (k - 0.75) / 0.25, offset: k });
+            }
+            aG.animate(ak, { duration: total, fill: 'forwards', easing: 'linear' });
+            kG.animate(kk, { duration: FLY, delay: T_IMP, fill: 'both', easing: 'linear' });
+            setTimeout(() => { try { FX.kickImpact(o.kingSq, o.atkFrom); } catch (e) {} }, T_IMP);
+            setTimeout(() => {
+                aG.remove(); kG.remove(); kickAnimating = false;
+                (o.els || []).forEach(el => { el.style.visibility = ''; });
+                if (o.kingEl) { o.kingEl.style.visibility = ''; o.kingEl.classList.add('piece-kicked'); }   // 날아간 킹은 사라진 채로 둔다
+            }, total + 60);
+            return true;
+        }
+        function startMateKick(kSq, checkers) {   // 체크메이트: 마지막으로 움직인 공격 기물(없으면 첫 번째 공격 기물)이 킹을 걷어찬다
+            if (!game.is_game_over) return;
+            const kp = game.get(kSq), pick = (previousMove && checkers.includes(previousMove.to)) ? previousMove.to : checkers[0], ap = pick && game.get(pick);
+            const ok = kp && ap && playKickFinish({ kingSq: kSq, kingColor: kp.color, atkType: ap.type, atkColor: ap.color, atkFrom: pick, atkHome: pick, els: [pieceEls.get(ap.uid)].filter(Boolean), kingEl: pieceEls.get(kp.uid) });
+            if (!ok) FX.checkmate(kSq, checkers);
+        }
         function updateCheckStatus() {
             squareList.forEach(s => s.classList.remove('in-check'));
             let wKing = false, bKing = false;
             for(let r=0; r<8; r++) for(let c=0; c<8; c++) { const p = game.board()[r][c]; if(p && p.type === 'k') { if(p.color === 'w') wKing = true; if(p.color === 'b') bKing = true; } }
             
             if(!wKing && !bKing) { showEndScreen("무승부", "양팀 킹 동시 파괴", { delay: 1500 }); return; }
-            if(!wKing) { showEndScreen(myColor === 'b' ? '승리' : '패배', "백 킹이 파괴되었습니다.", { delay: 1500 }); return; }
-            if(!bKing) { showEndScreen(myColor === 'w' ? '승리' : '패배', "흑 킹이 파괴되었습니다.", { delay: 1500 }); return; }
+            if(!wKing) { showEndScreen(myColor === 'b' ? '승리' : '패배', "백 킹이 파괴되었습니다.", { delay: kickPlanned ? 2400 : 1500 }); return; }
+            if(!bKing) { showEndScreen(myColor === 'w' ? '승리' : '패배', "흑 킹이 파괴되었습니다.", { delay: kickPlanned ? 2400 : 1500 }); return; }
 
             if (game.in_checkmate()) {
                 const kSq = findPieces(game.turn(), 'k')[0];
@@ -3758,7 +3847,16 @@
 
             previousMove = { from, to };
             recordFrame('move', { from, to, by: moveResult.color, captured: moveResult.captured || null, pact: pactDeath });
-            drawPieces(); updateTurnIndicator(); updateCheckStatus();
+            let kingKick = null;   // 킹을 잡는 수: 잡은 기물이 포물선으로 뛰어올라 킹을 걷어찬다
+            if (moveResult.captured === 'k' && !reduceMotion) {
+                const atk = game.get(to), ae = atk && pieceEls.get(atk.uid), ke = Array.from(pieceEls.values()).find(el => el.dataset.square === to && el.dataset.type === 'k');
+                if (atk && atk.type !== 'wall' && ae) {
+                    kingKick = { kingSq: to, kingColor: ke ? ke.dataset.color : (atk.color === 'w' ? 'b' : 'w'), atkType: atk.type, atkColor: atk.color, atkFrom: from, atkHome: to, els: [ae], kingEl: ke };
+                    ae.style.visibility = 'hidden'; if (ke) ke.style.visibility = 'hidden'; kickPlanned = true;
+                }
+            }
+            muteShatter = !!kingKick; drawPieces(); muteShatter = false; updateTurnIndicator(); updateCheckStatus();
+            if (kingKick) setTimeout(() => { if (!playKickFinish(kingKick)) { kickPlanned = false; kingKick.els.forEach(el => { el.style.visibility = ''; }); } }, 200);
             updatePreviousMoveHighlights();
             
 
@@ -4283,7 +4381,7 @@
                   const ok = sq => sq && !game.get(sq) && !mines.some(x => x.sq === sq && x.owner === m);
                   const sq = ok(target) ? target : shuffle(getEmptySquares().filter(ok))[0];
                   if (sq) mines.push({ sq, owner: m });
-                  return { t: [], vfx: '', msg: '💣 지뢰가 매설되었습니다!' }; } },
+                  return { t: [], vfx: '', mineSq: sq || null, msg: '💣 지뢰가 매설되었습니다!' }; } },   // mineSq는 설치한 사람의 화면에만 쓰고 상대에게는 보내지 않는다
             { name: '앙파상+', icon: '🎼', desc: '앞이 가로막힌 모든 아군 폰이 장애물을 {뛰어넘어} {두 칸 앞}으로 [도약]합니다. 도착할 칸이 막혀 있거나 보드 밖이라면 이동하지 않습니다.', globalVfx: null, isKillType: false, condition: (m) => canHop(m),
               apply: (m, e) => { const wasInCheck = game.in_check(m), moved = [], fxMoves = [];
                   const pawns = findPieces(m, 'p').sort((a, b) => (parseInt(b[1]) - parseInt(a[1])) * (m === 'w' ? 1 : -1));
@@ -4533,7 +4631,7 @@
                     t: res.t || [], vfx: res.vfx || '', msg: res.msg || '', delay: selectedAug.delay || 1200, floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null, blasts: res.blasts || null
                 });
 
-                const lead = playAugmentVisuals({ name: selectedAug.name, globalVfx: selectedAug.globalVfx, t: res.t, vfx: res.vfx, floats: floats, fxArg: res.fxArg, origin: res.origin, fxMoves: res.fxMoves, blasts: res.blasts });
+                const lead = playAugmentVisuals({ name: selectedAug.name, globalVfx: selectedAug.globalVfx, t: res.t, vfx: res.vfx, floats: floats, fxArg: res.fxArg, origin: res.origin, fxMoves: res.fxMoves, blasts: res.blasts, mineSq: pColor === myColor ? res.mineSq : null });
                 showToast(res.msg, "var(--primary)", 4000);
                 persistRoomGameState().catch(() => {});
 
