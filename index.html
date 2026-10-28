@@ -471,7 +471,10 @@
         body.chat-typing .chat-bubble.mine { position: fixed; z-index: 130; left: auto; top: auto; right: max(14px, calc((100vw - 420px) / 2 + 14px)); bottom: var(--bubble-bottom, 80px); }
         #chat-spacer { display: none; width: 100%; flex-shrink: 0; }
         body.chat-typing #chat-spacer { display: block; }
-        #blackout-badge { display: none; margin-top: 6px; font-size: 0.78rem; font-weight: 700; color: #ffe27a; background: rgba(20,20,40,0.75); border: 1px solid rgba(255,226,122,0.45); border-radius: 999px; padding: 3px 12px; text-align: center; }
+        .turn-wrapper { position: relative; width: 100%; align-self: stretch; }
+        #blackout-badge { display: none; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); justify-content: space-between; align-items: center; pointer-events: none; }   /* 자리를 차지하지 않고 턴 표시 좌우에 겹쳐 띄운다 */
+        #blackout-badge span { font-size: 0.72rem; font-weight: 700; line-height: 1; white-space: nowrap; color: #ffe27a; background: rgba(20,20,40,0.78); border: 1px solid rgba(255,226,122,0.45); border-radius: 999px; padding: 4px 9px; }
+        #blackout-badge .bo-foe { margin-left: auto; }
         #mate-banner { display: none; position: fixed; top: 14%; left: 50%; translate: -50% 0; z-index: 150; max-width: 90vw; padding: 10px 16px; border-radius: 12px; background: rgba(15,10,12,0.88); border: 1px solid rgba(255,80,70,0.7); color: #fff; text-align: center; font-size: 0.9rem; line-height: 1.5; pointer-events: none; box-shadow: 0 0 18px rgba(255,60,50,0.35); }
         #mate-banner b { color: #ff6b5e; font-size: 1.05rem; }
         /* 증강 선택 중: 이모티콘 버튼(왼쪽 끝)+채팅 입력줄을 오버레이 위 하단에 고정, 말풍선도 오버레이 위로 */
@@ -735,6 +738,40 @@
         .promo-tip .pt-n { padding: 0 4px 0 2px; font-size: .7rem; color: #999; font-variant-numeric: tabular-nums; }
         .piece-wrapper.promo-focus { filter: drop-shadow(0 0 7px var(--primary)); }
         @keyframes promoTipIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+        /* ---------- v3.15: 결과 점수 릴 / 랭킹 단상(흰 기물) / 암전 이동 추적 ---------- */
+        #result-score { display: none; margin: 4px 0 18px; text-align: center; }
+        .rs-label { font-size: .85rem; font-weight: 800; letter-spacing: 3px; color: #8d8d9b; margin-bottom: 2px; }
+        .rs-reel { display: flex; justify-content: center; font-size: 4.6rem; font-weight: 900; line-height: 1.15; height: 1.15em; font-variant-numeric: tabular-nums; color: var(--text-color); text-shadow: 0 4px 18px rgba(0,0,0,0.35); transition: color .4s, transform .4s; }
+        .rs-col { display: inline-block; width: .62em; height: 1.15em; overflow: hidden; transition: width .4s, opacity .4s; -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 22%, #000 78%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0, #000 22%, #000 78%, transparent 100%); }
+        .rs-col.rs-gone { width: 0; opacity: 0; }
+        .rs-strip { display: flex; flex-direction: column; will-change: transform; }
+        .rs-strip > span { display: block; height: 1.15em; line-height: 1.15; text-align: center; }
+        #result-score.done .rs-reel { -webkit-mask-image: none; }
+        #result-score.done .rs-col { -webkit-mask-image: none; mask-image: none; }
+        #result-score.up .rs-reel { color: #2ecc71; transform: scale(1.06); }
+        #result-score.down .rs-reel { color: #ff4757; transform: scale(.96); }
+        .rs-delta { font-size: 1.15rem; font-weight: 800; color: #9a9aa8; opacity: 0; transition: opacity .4s; min-height: 1.4em; }
+        #result-score.up .rs-delta { color: #2ecc71; }
+        #result-score.down .rs-delta { color: #ff4757; }
+        .pd-piece { width: 72px; height: 72px; margin-bottom: -10px; filter: drop-shadow(0 0 12px rgba(255,255,255,0.28)) drop-shadow(0 8px 7px rgba(0,0,0,0.85)); }
+        .pd-1 .pd-piece { width: 96px; height: 96px; filter: drop-shadow(0 0 18px rgba(255,255,255,0.42)) drop-shadow(0 10px 8px rgba(0,0,0,0.9)); }
+        .pd-2 .pd-piece { width: 80px; height: 80px; }
+        .pd-3 .pd-piece { width: 68px; height: 68px; }
+        .pd-who { height: 50px; }
+        .pd-block, .pd-1 .pd-block, .pd-2 .pd-block, .pd-3 .pd-block { border-color: rgba(255,255,255,0.22); background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.22); }
+        .pd-1 .pd-block { height: 104px; border-color: rgba(255,255,255,0.4); background: linear-gradient(180deg, rgba(255,255,255,0.26), rgba(255,255,255,0.03)); }
+        .pd-2 .pd-block { height: 78px; }
+        .pd-3 .pd-block { height: 60px; }
+        .pd-col.me .pd-block { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+        #move-trail { z-index: 50; overflow: visible; }
+        #move-trail .mt-from { fill: rgba(255,179,64,0.12); stroke: #ffb340; stroke-width: .7; stroke-dasharray: 2.2 1.6; animation: mtIn .35s ease-out both; }
+        #move-trail .mt-to { fill: rgba(255,179,64,0.3); stroke: #ffb340; stroke-width: 1.1; animation: mtIn .35s .45s ease-out both, mtPulse 1.6s 1s ease-in-out infinite; }
+        #move-trail .mt-line { stroke: #ffb340; stroke-width: 1.6; stroke-linecap: round; fill: none; stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: mtDraw .45s .1s ease-out forwards; filter: drop-shadow(0 0 1.5px rgba(255,179,64,0.9)); }
+        #move-trail .mt-head { fill: #ffb340; opacity: 0; animation: mtIn .2s .5s ease-out forwards; filter: drop-shadow(0 0 1.5px rgba(255,179,64,0.9)); }
+        @keyframes mtIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes mtDraw { to { stroke-dashoffset: 0; } }
+        @keyframes mtPulse { 0%, 100% { fill-opacity: 1; } 50% { fill-opacity: .5; } }
     </style>
 </head>
 <body>
@@ -752,7 +789,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.14';
+      var VERSION = 'v3.17';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -1002,22 +1039,17 @@
         <button id="btn-replay-exit" class="lobby-btn secondary hdr-btn" aria-label="닫기"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <button id="btn-settings-game" class="lobby-btn secondary hdr-btn" aria-label="설정"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
         <div class="header-logo">
-            <div class="logo-icon" aria-hidden="true">
-                <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M18 14h28v10H18zM20 26h24v4H20zM22 32h20v4H22zM23 38h18v4H23zM24 44h16v4H24zM14 52h36v6H14zM10 14h6v44H10zM48 14h6v44h-6z" />
-                </svg>
-            </div>
             <h1>증강 : 체스</h1>
         </div>
-        <div id="player-info" style="font-size: 0.8rem; margin-bottom: 5px; color: #888;">연결 중...</div>
+        <div id="player-info" style="display: none;">연결 중...</div>
         <div class="turn-wrapper">
             <div id="turn-display" class="turn-indicator white-turn">백</div>
+            <div id="blackout-badge"><span class="bo-me"></span><span class="bo-foe"></span></div>
         </div>
         <div class="progress-container">
             <div class="progress-bar" id="augment-progress"></div>
             <div class="progress-text" id="augment-text">증강: 7수</div>
         </div>
-        <div id="blackout-badge"></div>
     </div>
 
     <div id="mate-banner"></div>
@@ -1224,10 +1256,6 @@
                 </section>
                 <section class="spane" data-pane="game">
                     <div class="s-row">
-                        <div class="s-txt"><b>이전 이동 표시</b><small>직전에 둔 수의 출발·도착 칸을 판 위에 표시합니다.</small></div>
-                        <label class="switch"><input type="checkbox" id="previous-move-toggle" checked><span class="slider round"></span></label>
-                    </div>
-                    <div class="s-row">
                         <div class="s-txt"><b>봇 대전 리플레이 저장</b><small>컴퓨터 대전도 최근 대전 기록에 저장합니다.</small></div>
                         <label class="switch"><input type="checkbox" id="bot-replay-toggle" checked><span class="slider round"></span></label>
                     </div>
@@ -1291,6 +1319,7 @@
     <div id="result-overlay" class="overlay" style="z-index: 350;">
         <div class="lobby-box">
             <h2 id="result-title" style="font-size: 2.2rem; margin-bottom: 10px;">종료</h2>
+            <div id="result-score"><div class="rs-label">랭크 점수</div><div class="rs-reel" id="rs-reel"></div><div class="rs-delta" id="rs-delta"></div></div>
             <p id="result-desc" style="font-size: 1.2rem; margin-bottom: 25px; color: #888; line-height: 1.5;"></p>
             <div id="result-rank"></div>
             <button id="btn-replay" class="lobby-btn secondary" style="margin-bottom: 10px;">▶ 경기 리플레이</button>
@@ -1346,7 +1375,7 @@
         let isMatchmaking = false; 
         let roomListenerUnsubscribe = null;
         let saveBotReplay = true;
-        let previousMove = null; let showPreviousMove = true;
+        let previousMove = null; const showPreviousMove = true;   // 이전 이동 표시는 항상 켜짐
         let replayFogLock = false, replayMode = 'result', replaySavedPrev = null, historySaved = false, lastOppName = '', replayFrames = [], replayActive = false, replayIdx = 0, replayTimer = null, replayPlaying = false, replaySpeed = 1, replayFinalState = null, replayBannerTimer = null;
 
         // UI 오버레이 요소들
@@ -1355,7 +1384,6 @@
         const modeSelectOverlay = document.getElementById('mode-select-overlay');
         const botDiffOverlay = document.getElementById('bot-diff-overlay');
         const settingsOverlay = document.getElementById('settings-overlay');
-        const previousMoveToggle = document.getElementById('previous-move-toggle');
         const vsOverlay = document.getElementById('vs-overlay');
         const lobbyMsg = document.getElementById('lobby-msg');
         const playerInfo = document.getElementById('player-info');
@@ -1373,7 +1401,7 @@
         let lastActionKey = '', resumeCursor = null, networkUnsub = null, matchKind = '', queueOD = null;
         const appliedActionKeys = new Set();
         const roomInfoText = () => `${matchKind === 'quick' ? '빠른 대전' : matchKind === 'friend' ? '친구 대전' : '온라인 대전'} · 당신은 ${myColor === 'w' ? '백' : '흑'}입니다`;
-        const DEFAULT_SETTINGS = { showPreviousMove: true, darkMode: true, saveBotReplay: true };
+        const DEFAULT_SETTINGS = { darkMode: true, saveBotReplay: true };
         let isAugmentPeeked = false;
 
         function saveRoomSession(extra = {}) {
@@ -1490,18 +1518,15 @@
         }
         function applySettingsToUI() {
             const settings = Object.assign({}, DEFAULT_SETTINGS, userProfile.settings || {});
-            showPreviousMove = settings.showPreviousMove;
             saveBotReplay = settings.saveBotReplay !== false;
             document.getElementById('bot-replay-toggle').checked = saveBotReplay;
             const darkMode = settings.darkMode;
-            previousMoveToggle.checked = showPreviousMove;
             document.getElementById('theme-toggle').checked = darkMode;
             if (darkMode) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode');
             updatePreviousMoveHighlights();
         }
         function saveUserSettings() {
             if (!userProfile.settings) userProfile.settings = {};
-            userProfile.settings.showPreviousMove = showPreviousMove;
             userProfile.settings.saveBotReplay = saveBotReplay;
             userProfile.settings.darkMode = document.getElementById('theme-toggle').checked;
             saveLocalSettings();
@@ -1769,7 +1794,6 @@
         settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) settingsOverlay.style.display = 'none'; });
         document.getElementById('theme-toggle').addEventListener('change', (e) => { if(e.target.checked) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode'); saveUserSettings(); });
         document.getElementById('bot-replay-toggle').addEventListener('change', (e) => { saveBotReplay = e.target.checked; saveUserSettings(); });
-        previousMoveToggle.addEventListener('change', (e) => { showPreviousMove = e.target.checked; updatePreviousMoveHighlights(); saveUserSettings(); });
 
         // -------------------- 로그인 제어 --------------------
         // ---- 로그인 제어: 진행 표시 / 시간 제한 / 오류 안내 ----
@@ -2085,10 +2109,7 @@
             });
 
             const enemyTypingRef = ref(db, `rooms/${currentRoomId}/players/${enemyColor}_typing`);
-            onValue(enemyTypingRef, snap => {
-                if(snap.val() === true) showChatBubble('opponent', '💬 입력 중...', true); 
-                else hideChatBubble('opponent', true);
-            });
+            onValue(enemyTypingRef, snap => handleOpponentTyping(snap.val() === true));
         }
 
         function createRoom(roomId, color) {
@@ -2248,7 +2269,17 @@
         const emoteAnimations = { '👍': 'anim-bounce', '👎': 'anim-shake', '😲': 'anim-expand', '🤬': 'anim-vibrate', '🤔': 'anim-tilt', '😭': 'anim-drop', '❓': 'anim-question', '☠️': 'anim-skull', '💩': 'anim-poop', '⏳ 빨리 좀 해라': 'anim-pulse' };
 
         let chatTimers = { mine: null, opponent: null };
-        let isOpponentTyping = false; let typingDebounce = null;
+        let isOpponentTyping = false; let typingDebounce = null; let typingShowTimer = null; const chatSeq = { mine: 0, opponent: 0 };
+        // 상대 입력 중 표시: 말풍선에 보낸 내용이 떠 있으면 0.6초 동안은 입력 중으로 바꾸지 않는다. 새 메시지(내용 변경)는 늘 즉시 반영한다.
+        function handleOpponentTyping(on) {
+            clearTimeout(typingShowTimer);
+            if (!on) { hideChatBubble('opponent', true); return; }
+            const b = document.getElementById('chat-bubble-opponent');
+            if (b.style.display === 'block' && !isOpponentTyping) {
+                const seq = chatSeq.opponent;
+                typingShowTimer = setTimeout(() => { if (chatSeq.opponent === seq) showChatBubble('opponent', '💬 입력 중...', true); }, 600);
+            } else showChatBubble('opponent', '💬 입력 중...', true);
+        }
 
         // 이모티콘 조작으로는 어떤 경우에도 키보드가 올라오지 않는다: 누르는 순간 입력창을 읽기 전용으로 바꾸고 포커스를 해제한다
         window.__noKbUntil = 0;
@@ -2371,6 +2402,7 @@
             if (!isTyping && emoteAnimations[msg]) { bubble.classList.add(emoteAnimations[msg]); }
             else if (!isTyping) { bubble.style.animation = 'pop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)'; }
             if (side === 'opponent') isOpponentTyping = isTyping;
+            if (!isTyping) chatSeq[side] = (chatSeq[side] || 0) + 1;
             if (chatTimers[side]) clearTimeout(chatTimers[side]);
             if (!isTyping) chatTimers[side] = setTimeout(() => { bubble.style.display = 'none'; }, 3500);
         }
@@ -2486,11 +2518,16 @@
                 return [];
             }
 
-            isSquareAttacked(r, c, attackerColor, boardState = this._board) {
-                for (let ir=0; ir<8; ir++) for (let ic=0; ic<8; ic++) {
-                    const p = boardState[ir][ic];
-                    if (p && p.color === attackerColor && !(rootedPieces[p.uid] > 0) && this.getPseudoLegalMoves(ir, ic, p, boardState, true).some(m => m.r === r && m.c === c)) return true;   // 속박된 기물은 공격(체크·메이트)하지 못한다
-                } return false;
+            // future=true: 내가 이 수를 둔 직후의 상태로 본다. 덩굴(속박)·자아 분열이 1수만 남은 상대는 내 수 직후 풀려서 바로 공격할 수 있다.
+            isSquareAttacked(r, c, attackerColor, boardState = this._board, future = false) {
+                const prevF = futureAttack; futureAttack = future;
+                try {
+                    const keep = future ? 1 : 0;
+                    for (let ir=0; ir<8; ir++) for (let ic=0; ic<8; ic++) {
+                        const p = boardState[ir][ic];
+                        if (p && p.color === attackerColor && !(rootedPieces[p.uid] > keep) && this.getPseudoLegalMoves(ir, ic, p, boardState, true).some(m => m.r === r && m.c === c)) return true;   // 속박된 기물은 공격(체크·메이트)하지 못한다
+                    } return false;
+                } finally { futureAttack = prevF; }
             }
             in_check(color = this._turn) {
                 let kr = -1, kc = -1;
@@ -2514,7 +2551,7 @@
 
                 switch (piece.type) {
                     case 'p':
-                        const isReversed = reversedPawns[color] > 0 && !!(reversedUids[color] && reversedUids[color][piece.uid]);
+                        const isReversed = reversedPawns[color] > (futureAttack ? 1 : 0) && !!(reversedUids[color] && reversedUids[color][piece.uid]);
                         const dir = color === 'w' ? (isReversed ? 1 : -1) : (isReversed ? -1 : 1);
                         const startRank = color === 'w' ? 6 : 1;
 
@@ -2570,7 +2607,7 @@
             isSquareAttackedCheck(color, boardState) {
                 let kr = -1, kc = -1;
                 for (let r=0; r<8; r++) for (let c=0; c<8; c++) if (boardState[r][c] && boardState[r][c].type === 'k' && boardState[r][c].color === color) { kr = r; kc = c; break; }
-                if (kr === -1) return false; return this.isSquareAttacked(kr, kc, color === 'w' ? 'b' : 'w', boardState);
+                if (kr === -1) return false; return this.isSquareAttacked(kr, kc, color === 'w' ? 'b' : 'w', boardState, true);   // 내 수를 둔 뒤의 상태로 합법 여부를 판단한다
             }
 
             move(moveParam) {
@@ -2625,7 +2662,7 @@
         let selectedSquare = null; let legalMoves = []; let moveCount = 0;
         const AUGMENT_INTERVAL = 7; let isSystemLocked = false; let pendingAugments = [];
         let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {}; let mines = []; let prospects = {}; let pactPieces = {};
-        let activeWalls = []; let reversedPawns = { w: 0, b: 0 }; let reversedUids = { w: {}, b: {} };   // 자아 분열 발동 당시 존재하던 폰의 uid만 효과를 받는다
+        let futureAttack = false; let activeWalls = []; let reversedPawns = { w: 0, b: 0 }; let reversedUids = { w: {}, b: {} };   // 자아 분열 발동 당시 존재하던 폰의 uid만 효과를 받는다
         let jackpotBonus = { w: 0, b: 0 }; let lastKiller = { w: null, b: null }; let babyEffect = { w: null, b: null }; let blackout = { w: 0, b: 0 }; let targeting = null; let lastCheckKey = '';
 
         const squareEls = new Map(); const squareList = []; const pieceEls = new Map();
@@ -3916,6 +3953,27 @@
                 const cell = squareEls.get(sq);
                 if (cell) cell.classList.add('previous-move');
             });
+            updateMoveTrail();
+        }
+
+        // 암전 중에는 상대 기물이 보이지 않아도 "어디서 어디로" 움직였는지 화살표로 드러낸다 (기물 종류는 가려진 채)
+        function updateMoveTrail() {
+            let svg = document.getElementById('move-trail'), on = false;
+            try { on = !!(isFogOn() && previousMove && previousMove.color !== myColor); } catch (e) { on = false; }
+            if (!on) { if (svg) svg.remove(); return; }
+            const key = previousMove.from + '>' + previousMove.to + '#' + moveCount;
+            if (svg && svg.dataset.key === key) return;
+            if (svg) svg.remove();
+            const NS = 'http://www.w3.org/2000/svg', mk = (tag, attrs) => { const e = document.createElementNS(NS, tag); Object.keys(attrs).forEach(k => e.setAttribute(k, attrs[k])); return e; };
+            const A = getCoords(previousMove.from), B = getCoords(previousMove.to), ax = A.x + 6.25, ay = A.y + 6.25, bx = B.x + 6.25, by = B.y + 6.25;
+            const dx = bx - ax, dy = by - ay, L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, hl = 5, hw = 2.6;
+            const baseX = bx - ux * hl, baseY = by - uy * hl, lineLen = Math.max(1, L - hl);
+            svg = mk('svg', { id: 'move-trail', class: 'layer', viewBox: '0 0 100 100', preserveAspectRatio: 'none' }); svg.dataset.key = key;
+            svg.appendChild(mk('rect', { class: 'mt-from', x: A.x + 0.5, y: A.y + 0.5, width: 11.5, height: 11.5, rx: 1.4 }));
+            svg.appendChild(mk('rect', { class: 'mt-to', x: B.x + 0.5, y: B.y + 0.5, width: 11.5, height: 11.5, rx: 1.4 }));
+            const line = mk('line', { class: 'mt-line', x1: ax, y1: ay, x2: baseX, y2: baseY }); line.style.setProperty('--len', lineLen); svg.appendChild(line);
+            svg.appendChild(mk('polygon', { class: 'mt-head', points: `${bx},${by} ${baseX - uy * hw},${baseY + ux * hw} ${baseX + uy * hw},${baseY - ux * hw}` }));
+            boardEl.appendChild(svg);
         }
 
         let endRevealTimer = null;
@@ -4107,9 +4165,9 @@
         }
         let rankToken = 0;
         const PODIUM = [
-            { piece: 'K', fill: '#ffd54a', stroke: '#5b4300' },   // 1위 킹
-            { piece: 'Q', fill: '#e3e9ee', stroke: '#2c3e50' },   // 2위 퀸
-            { piece: 'B', fill: '#e0905a', stroke: '#4a2a0c' }    // 3위 비숍
+            { piece: 'K', fill: '#ffffff', stroke: '#08080c' },   // 1위 킹
+            { piece: 'Q', fill: '#ffffff', stroke: '#08080c' },   // 2위 퀸
+            { piece: 'B', fill: '#ffffff', stroke: '#08080c' }    // 3위 비숍
         ];
         async function renderRanking() {
             const podium = document.getElementById('rank-podium'), list = document.getElementById('rank-list'), token = ++rankToken;
@@ -4318,6 +4376,37 @@
         document.getElementById('replay-seek').oninput = (e) => { replaySetPlaying(false); replayShow(parseInt(e.target.value), false); setSeek(seekPos(parseInt(e.target.value)), 0); };
 
         // opts.delay > 0 이면 결과 창을 늦추고(마지막 수/이펙트를 볼 수 있게), opts.fx 로 체크메이트/스테일메이트 연출을 재생
+        // ---- 결과 화면: 랭크 점수 릴 (슬롯머신처럼 자릿수가 위/아래로 굴러가 멈춘다) ----
+        function playScoreReel(from, to) {
+            const box = document.getElementById('result-score'), reel = document.getElementById('rs-reel'), dEl = document.getElementById('rs-delta');
+            from = Math.max(0, from | 0); to = Math.max(0, to | 0);
+            const len = Math.max(String(from).length, String(to).length), a = String(from).padStart(len, '0'), b = String(to).padStart(len, '0'), keep = String(to).length;
+            box.style.display = 'block'; box.classList.remove('up', 'down', 'done'); reel.innerHTML = ''; dEl.textContent = ''; dEl.style.opacity = '0';
+            const up = to > from, spin = to !== from && !reduceMotion, cols = [];
+            for (let i = 0; i < len; i++) {
+                const col = document.createElement('span'), strip = document.createElement('span');
+                col.className = 'rs-col'; strip.className = 'rs-strip';
+                for (let k = 0; k < 40; k++) { const d = document.createElement('span'); d.textContent = k % 10; strip.appendChild(d); }
+                const da = +a[i], db = +b[i], s0 = da + 10, s1 = spin ? (up ? db + 30 : db) : s0 + (db - da);
+                strip.style.transform = `translateY(${-s0 * 1.15}em)`;
+                col.appendChild(strip); reel.appendChild(col); cols.push({ col, strip, s1, i });
+            }
+            if (!spin) { cols.forEach(c => { c.strip.style.transform = `translateY(${-c.s1 * 1.15}em)`; }); }
+            void reel.offsetWidth;
+            const base = 0.35; let end = 0;
+            if (spin) cols.forEach(c => {   // 왼쪽 자리부터 차례로 멈춘다
+                const delay = base + c.i * 0.2, dur = 1.5 + c.i * 0.25; end = Math.max(end, delay + dur);
+                c.strip.style.transition = `transform ${dur}s cubic-bezier(.1,.75,.12,1) ${delay}s`;
+                c.strip.style.transform = `translateY(${-c.s1 * 1.15}em)`;
+            });
+            const fin = () => {
+                cols.forEach(c => { if (c.i < len - keep) c.col.classList.add('rs-gone'); });   // 자릿수가 줄었을 때 앞의 0은 접는다
+                box.classList.add('done'); if (to > from) box.classList.add('up'); else if (to < from) box.classList.add('down');
+                dEl.textContent = to > from ? `+${to - from}` : to < from ? `${to - from}` : '변동 없음'; dEl.style.opacity = '1';
+            };
+            if (spin) setTimeout(fin, end * 1000 + 150); else fin();
+        }
+
         function showEndScreen(resultType, reasonStr, opts = {}) {
             if(game.is_game_over) return;
             game.set_game_over();
@@ -4340,18 +4429,17 @@
                 previousMove = null;
                 updatePreviousMoveHighlights();
                 const title = document.getElementById('result-title');
-                if(resultType === '승리') { title.innerText = "🎉 승리!"; title.style.color = "#2ecc71"; }
-                else if(resultType === '패배') { title.innerText = "☠️ 패배"; title.style.color = "#ff4757"; }
-                else { title.innerText = "🤝 무승부"; title.style.color = "#f1c40f"; }
+                if(resultType === '승리') { title.innerText = "승리!"; title.style.color = "#2ecc71"; }
+                else if(resultType === '패배') { title.innerText = "패배"; title.style.color = "#ff4757"; }
+                else { title.innerText = "무승부"; title.style.color = "#f1c40f"; }
                 document.getElementById('result-desc').innerText = reasonStr;
                 const rkEl = document.getElementById('result-rank');
                 if (lastRank && lastRank.skipped) { rkEl.style.display = 'block'; rkEl.style.color = '#9a9aa8'; rkEl.textContent = '게스트와의 대전은 랭크에 반영되지 않아요'; }
-                else if (lastRank) {
-                    rkEl.style.display = 'block';
-                    rkEl.style.color = lastRank.delta > 0 ? '#2ecc71' : lastRank.delta < 0 ? '#ff4757' : '#9a9aa8';
-                    rkEl.textContent = lastRank.delta > 0 ? `랭킹 +${lastRank.delta}점 → ${lastRank.score}점` : lastRank.delta < 0 ? `랭킹 ${lastRank.delta}점 → ${lastRank.score}점` : `랭킹 변동 없음 · ${lastRank.score}점`;
-                } else rkEl.style.display = 'none';
+                else if (lastRank) { rkEl.style.display = 'none'; }
+                else rkEl.style.display = 'none';
+                const rsBox = document.getElementById('result-score'); rsBox.style.display = 'none';
                 document.getElementById('result-overlay').style.display = 'flex';
+                if (lastRank && !lastRank.skipped) playScoreReel(lastRank.score - lastRank.delta, lastRank.score);   // 랭크전: 내 점수를 크게 띄우고 릴처럼 굴린다
             };
 
             if(delay > 0) {
@@ -4528,7 +4616,7 @@
             }
             resolveMines();
 
-            previousMove = { from, to };
+            previousMove = { from, to, color: moveResult.color };
             recordFrame('move', { from, to, by: moveResult.color, captured: moveResult.captured || null, pact: pactDeath });
             let kingKick = null;   // 킹을 잡는 수: 잡은 기물이 포물선으로 뛰어올라 킹을 걷어찬다
             if (moveResult.captured === 'k' && !reduceMotion) {
@@ -4585,7 +4673,7 @@
 
             if (moveCount > 0 && moveCount % AUGMENT_INTERVAL === 0 && !game.game_over()) {
                 pendingAugments = game.turn() === 'w' ? ['w', 'b'] : ['b', 'w']; 
-                processNextAugmentPhase();
+                setTimeout(() => { if (!game.game_over()) processNextAugmentPhase(); }, 800);   // 마지막 수를 잠깐 보여 준 뒤 증강이 등장한다
             } else { 
                 isSystemLocked = false;
                 if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 1500);
@@ -4706,7 +4794,7 @@
             const p = game.get(sq); if (!p || p.type !== 'p' || p.color !== m || rootedPieces[p.uid] > 0) return null;
             const rev = reversedPawns[m] > 0 && reversedUids[m] && reversedUids[m][p.uid], dir = (m === 'w' ? 1 : -1) * (rev ? -1 : 1), r = parseInt(sq[1]), r2 = r + 2 * dir, f = sq[0];
             if (r2 < 1 || r2 > 8) return null;
-            if (!game.get(f + (r + dir)) || game.get(f + r2) || !pawnSafeAt(p, f + r2)) return null;
+            if (!game.get(f + (r + dir)) || game.get(f + r2)) return null;   // 끝줄이 비어 있으면 뛰어넘어 닿을 수 있다 (승급은 따로 고른다)
             return f + r2;
         }
         function canHop(m) { return findPieces(m, 'p').some(sq => !!hopTarget(sq, m)); }
@@ -4739,16 +4827,18 @@
         const isFogOn = () => !!(isGameStarted && (replayActive ? (replayMode === 'live' && replayFogLock) : blackout[myColor] > 0));   // 이전 수 보기 중에도 현재 암전 상태면 그대로 어둡게 (되감아서 정보를 훔쳐보지 못하게)
         function updateBlackoutBadge() {
             const el = document.getElementById('blackout-badge'); if (!el) return;
-            const e = myColor === 'w' ? 'b' : 'w', turns = n => n, parts = [];
-            if (isGameStarted && blackout[myColor] > 0) parts.push(`💡 암전 중 · ${turns(blackout[myColor])}수 남음`);
-            if (isGameStarted && blackout[e] > 0) parts.push(`💡 적 암전 · ${turns(blackout[e])}수 남음`);
-            el.innerText = parts.join('  |  '); el.style.display = parts.length ? 'block' : 'none';
+            const e = myColor === 'w' ? 'b' : 'w', me = el.querySelector('.bo-me'), foe = el.querySelector('.bo-foe');
+            const myOn = !!(isGameStarted && blackout[myColor] > 0), foeOn = !!(isGameStarted && blackout[e] > 0);
+            me.textContent = myOn ? `💡 암전 ${blackout[myColor]}수 남음` : ''; me.style.display = myOn ? '' : 'none';
+            foe.textContent = foeOn ? `💡 적 암전 ${blackout[e]}수 남음` : ''; foe.style.display = foeOn ? '' : 'none';
+            el.style.display = (myOn || foeOn) ? 'flex' : 'none';
         }
         function updateFog() {
             updateBlackoutBadge();
             const on = isFogOn(), lit = new Set(on ? findPieces(myColor) : []);
             squareList.forEach(el => el.classList.toggle('fog', on && !lit.has(el.dataset.square)));
             pieceEls.forEach(el => el.classList.toggle('piece-hidden', on && el.dataset.color !== myColor));
+            updateMoveTrail();
         }
 
         // 가중치(소수 가능)에 비례해 중복 없이 count개를 뽑는다
@@ -5038,7 +5128,7 @@
               condition: () => getEmptySquares().length > 0,
               apply: (m, e, target) => { const sq = (target && !game.get(target)) ? target : shuffle(getEmptySquares())[0];
                   if (mines.some(x => x.sq === sq)) { mines = mines.filter(x => x.sq !== sq); return { t: [sq], vfx: 'vfx-heal', blasts: [sq], msg: '💥 장벽이 지뢰와 함께 폭발했습니다!' }; }   // 지뢰 위에 세우면 벽과 지뢰가 모두 사라진다
-                  game.put({ type: 'wall', color: 'none' }, sq); activeWalls.push({ sq: sq, duration: 10 }); spawnFloatingText(sq, '🧱'); return { t: [sq], vfx: 'vfx-heal', msg: '🧱 차원 장벽이 생성되었습니다!' }; } },
+                  game.put({ type: 'wall', color: 'none' }, sq); activeWalls.push({ sq: sq, duration: 10 }); return { t: [sq], vfx: 'vfx-heal', msg: '차원 장벽이 생성되었습니다!' }; } },
             { name: '자아 분열', icon: '😵‍💫', desc: '다음 {6수} 동안 적 폰들이 방향을 잃어 [반대 방향]으로 이동합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(e, 'p').length > 0,
               apply: (m, e) => { reversedPawns[e] = 6; reversedUids[e] = {}; findPieces(e, 'p').forEach(sq => { reversedUids[e][game.get(sq).uid] = true; }); return { t: findPieces(e, 'p'), vfx: 'vfx-void', msg: '😵‍💫 적 폰들이 방향 감각을 잃었습니다!' }; } },
             { name: '잭팟', icon: '🎰', desc: '이제부터 자신에게 등장하는 모든 증강 선택지가 {1개} [증가]합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => jackpotBonus[m] < 1,
@@ -5071,14 +5161,14 @@
                   const sq = ok(target) ? target : shuffle(getEmptySquares().filter(ok))[0];
                   if (sq) mines.push({ sq, owner: m });
                   return { t: [], vfx: '', mineSq: sq || null, msg: '💣 지뢰가 매설되었습니다!' }; } },   // mineSq는 설치한 사람의 화면에만 쓰고 상대에게는 보내지 않는다
-            { name: '앙파상+', icon: '🎼', desc: '앞이 가로막힌 모든 아군 폰이 장애물을 {뛰어넘어} {두 칸 앞}으로 [도약]합니다. 도착할 칸이 막혀 있거나 보드 밖이라면 이동하지 않습니다.', globalVfx: null, isKillType: false, condition: (m) => canHop(m),
-              apply: (m, e) => { const wasInCheck = game.in_check(m), moved = [], fxMoves = [];
+            { name: '앙파상+', icon: '🎼', desc: '앞이 가로막힌 모든 아군 폰이 장애물을 {뛰어넘어} {두 칸 앞}으로 [도약]합니다. 도착할 칸이 막혀 있거나 보드 밖이라면 이동하지 않고, 끝줄에 닿은 폰은 [원하는 기물로 승급]합니다.', globalVfx: null, isKillType: false, condition: (m) => canHop(m),
+              apply: (m, e) => { const wasInCheck = game.in_check(m), moved = [], fxMoves = [], promos = [], promoRank = m === 'w' ? 8 : 1;
                   const pawns = findPieces(m, 'p').sort((a, b) => (parseInt(b[1]) - parseInt(a[1])) * (m === 'w' ? 1 : -1));
                   pawns.forEach(sq => { const to = hopTarget(sq, m); if (!to) return;
                       const p = game.get(sq); game.remove(sq); game.put(p, to);
                       if (!wasInCheck && game.in_check(m)) { game.remove(to); game.put(p, sq); return; }
-                      moved.push(to); fxMoves.push({ from: sq, to }); });
-                  return { t: moved, vfx: '', fxMoves, msg: '🎼 폰들이 장애물을 뛰어넘었습니다!' }; } },
+                      moved.push(to); fxMoves.push({ from: sq, to }); if (parseInt(to[1]) === promoRank) promos.push(to); });
+                  return { t: moved, vfx: '', fxMoves, promos, msg: '🎼 폰들이 장애물을 뛰어넘었습니다!' }; } },
             { name: '동귀어진', icon: '🪦', desc: '아군 기물 {하나}를 지정하여 [동귀어진]을 겁니다. 해당 기물이 잡히면 {잡은 기물도 함께} 사라집니다. {영구} 지속, 킹은 영향받지 않습니다.', globalVfx: 'vfx-global-void', isKillType: false,
               target: { mode: 'piece', prompt: '동귀어진을 걸 아군 기물을 선택하세요', valid: (m) => findPieces(m).filter(sq => { const p = game.get(sq); return p && p.type !== 'k' && p.type !== 'wall' && !pactPieces[p.uid]; }) },
               condition: (m) => findPieces(m).some(sq => { const p = game.get(sq); return p && p.type !== 'k' && p.type !== 'wall' && !pactPieces[p.uid]; }),
