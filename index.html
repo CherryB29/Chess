@@ -780,6 +780,58 @@
         .pd-1 .pd-block { height: 118px; }
         .pd-2 .pd-block { height: 94px; }
         .pd-3 .pd-block { height: 78px; }
+
+        /* ---------- v3.20: 가로로 긴 화면(태블릿/PC): 왼쪽에 큰 판, 오른쪽에 증강 턴·채팅 기록·증강 선택 ---------- */
+        #chat-log { display: none; }
+        body.wide-mode { padding-top: 0; height: var(--wide-h, 100dvh); min-height: 0; overflow: hidden; --wide-panel: clamp(340px, 30vw, 460px); --wide-board: min(calc(var(--wide-h, 100dvh) - 24px), calc(100vw - var(--wide-panel) - 42px)); }
+        body.wide-mode #game-frame { width: calc(var(--wide-board) + var(--wide-panel) + 18px); max-width: none; height: var(--wide-board); margin: 12px auto; padding: 0; background: none; border: none; border-radius: 0; display: grid; grid-template-columns: var(--wide-board) var(--wide-panel); grid-template-rows: auto auto minmax(0, 1fr) auto auto; column-gap: 18px; row-gap: 10px; align-items: stretch; justify-items: stretch; }
+        body.wide-mode #game-frame::before { content: ''; grid-column: 2; grid-row: 1 / -1; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; z-index: 0; }
+        body.wide-mode #game-frame > * { z-index: 1; min-width: 0; }
+        body.wide-mode #board-container { grid-column: 1; grid-row: 1 / -1; width: var(--wide-board); align-self: center; }
+        body.wide-mode #game-frame > .header { grid-column: 2; grid-row: 1; margin: 16px 16px 0; width: auto; }
+        body.wide-mode #game-frame > #history-strip { grid-column: 2; grid-row: 2; margin: 0 16px; width: auto; }
+        body.wide-mode #chat-log { display: flex; flex-direction: column; gap: 6px; grid-column: 2; grid-row: 3; margin: 0 16px; overflow-y: auto; min-height: 0; padding: 4px 2px; scrollbar-width: thin; }
+        body.wide-mode #chat-log:empty::before { content: '채팅 기록이 여기에 표시됩니다'; color: #888; font-size: 0.85rem; margin: auto; }
+        body.wide-mode #game-frame > #game-controls { grid-column: 2; grid-row: 4; margin: 0 16px 16px; width: auto; position: relative; left: auto; bottom: auto; translate: none; }
+        body.wide-mode #game-frame > #replay-bar { grid-column: 2; grid-row: 5; margin: 0 16px 16px; width: auto; }
+        body.wide-mode #chat-spacer { display: none !important; }
+        body.wide-mode.augment-picking #game-controls { position: relative; left: auto; bottom: auto; translate: none; width: auto; max-width: none; background: var(--input-bg); border: none; box-shadow: none; pointer-events: auto; z-index: 1; transform: translateY(calc(-1 * var(--kb-lift, 0px))); }
+        body.wide-mode.chat-typing #game-frame > #game-controls { z-index: 120; background: var(--panel-bg); box-shadow: 0 0 0 1px var(--panel-border), 0 8px 28px rgba(0,0,0,0.5); transform: translateY(calc(-1 * var(--kb-lift, 0px))); }   /* 키보드가 뜨면 입력줄만 떠올라 분리된다 */
+        body.wide-mode #game-frame .progress-container { max-width: none; }
+        .cl-item { display: flex; align-items: flex-start; gap: 8px; max-width: 92%; }
+        .cl-item.mine { align-self: flex-end; flex-direction: row-reverse; }
+        .cl-item.opp { align-self: flex-start; }
+        .cl-item:not(.first) { margin-top: -3px; }
+        .cl-av { width: 30px; height: 30px; flex: 0 0 30px; border-radius: 50%; background: var(--input-bg); display: flex; align-items: center; justify-content: center; font-size: 1.05rem; line-height: 1; border: 1px solid var(--panel-border); }
+        .cl-item:not(.first) .cl-av { visibility: hidden; }
+        .cl-col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .cl-item.mine .cl-col { align-items: flex-end; }
+        .cl-who { font-size: 0.7rem; color: #8d8d9b; }
+        .cl-msg { padding: 7px 11px; border-radius: 14px; font-size: 0.92rem; line-height: 1.35; word-break: break-word; background: var(--input-bg); }
+        .cl-item.mine .cl-msg { background: var(--primary); color: #fff; border-top-right-radius: 4px; }
+        .cl-item.opp .cl-msg { border-top-left-radius: 4px; }
+        .cl-item:not(.first).mine .cl-msg { border-top-right-radius: 14px; }
+        .cl-item:not(.first).opp .cl-msg { border-top-left-radius: 14px; }
+        .cl-aug { align-self: center; display: inline-flex; align-items: center; gap: 7px; max-width: 100%; margin: 6px 0; padding: 6px 12px; border-radius: 999px; background: rgba(243,156,18,0.12); border: 1px solid rgba(243,156,18,0.45); font-size: 0.82rem; }
+        .cl-aug .cl-aug-ic { font-size: 1.05rem; line-height: 1; }
+        .cl-aug b { font-weight: 800; }
+        .cl-aug .cl-aug-by { color: #9a9aa8; font-size: 0.74rem; }
+        body.wide-mode #cast-text { left: var(--bcx, 50%); top: var(--bcy, 50%); width: var(--bcw, 100%); }   /* 가로 모드: '증강 발동!' 문구도 판 정중앙에 */
+        /* 증강 선택: 판 위에 띄운다 (판 영역만 덮고, 오른쪽 패널은 그대로 보인다) */
+        body.wide-mode #augment-overlay { inset: auto; left: var(--wl, 0px); top: var(--wt, 0px); width: var(--ww, 400px); height: var(--wh, 400px); border-radius: 8px; z-index: 110; }
+        body.wide-mode #augment-overlay .cards-container { max-width: min(680px, 100%); }
+        body.wide-mode #game-frame .progress-container { box-sizing: border-box; width: 100%; padding: 4px; }
+        body.wide-mode .progress-bar { height: 20px; }
+        body.wide-mode .progress-text { font-size: 0.95rem; }
+        .cl-typing .cl-msg { color: #9a9aa8; font-style: italic; }
+        body.wide-mode.augment-picking .chat-bubble { position: absolute; z-index: 20; }
+        /* 상대(봇)가 고른 카드: 한 번 누르면 올라오고, 확정하면 빛난다 */
+        .augment-card.dimmed.picked { filter: none; opacity: 1; transform: translateY(-4px) scale(1.02); border-color: var(--primary); box-shadow: 0 8px 22px rgba(243,156,18,0.35) !important; transition: transform .25s, filter .25s, box-shadow .25s; }
+        .augment-card.dimmed.picked .augment-title, .augment-card.dimmed.picked .augment-desc, .augment-card.dimmed.picked .augment-subtitle { color: var(--text-color); }
+        .augment-card.dimmed.confirmed { animation: augConfirm .45s ease-out both; box-shadow: 0 0 0 3px var(--primary), 0 10px 28px rgba(243,156,18,0.55) !important; }
+        .augment-card.dimmed.confirmed::after { content: '✔ 확정'; position: absolute; top: 6px; right: 8px; font-size: 0.72rem; font-weight: 800; color: var(--primary); }
+        .augment-card.dimmed { position: relative; }
+        @keyframes augConfirm { 0% { transform: translateY(-4px) scale(1.02); } 45% { transform: translateY(-6px) scale(1.07); } 100% { transform: translateY(-4px) scale(1.03); } }
     </style>
 </head>
 <body>
@@ -797,7 +849,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.19';
+      var VERSION = 'v3.22';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -1082,6 +1134,7 @@
         <div id="lr-label"></div>
         <button id="lr-next" type="button" aria-label="다음 수" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></button>
     </div>
+    <div id="chat-log" aria-label="채팅 기록"></div>
     <div id="chat-spacer"></div>
     <div id="game-controls">
         <div id="emote-popup">
@@ -1990,7 +2043,7 @@
         const startBotMode = () => {
             isBotMode = true; myColor = 'w'; isGameStarted = true; statsRecorded = false; rankCtx = null;
             
-            const botProfile = { name: `컴퓨터 (${botDifficulty})`, icon: "🤖", stats: {w:999, l:0, d:0} }; lastOppName = botProfile.name;
+            const botProfile = { name: `컴퓨터 (${botDifficulty})`, icon: "🤖", stats: {w:999, l:0, d:0} }; lastOppName = botProfile.name; chatOpp = { name: botProfile.name, icon: botProfile.icon };
             showVsScreen(userProfile, botProfile, () => {
                 playerInfo.innerText = `🤖 봇 대전 [${botDifficulty}] (당신은 백입니다)`;
                 document.body.classList.remove('black-pov');
@@ -2202,7 +2255,7 @@
             };
 
             if (!opts.resume) {
-                lastOppName = oppProfile.name || '상대'; showVsScreen(userProfile, oppProfile, startGameUI);
+                lastOppName = oppProfile.name || '상대'; chatOpp = { name: oppProfile.name || '상대', icon: oppProfile.icon || '👤' }; showVsScreen(userProfile, oppProfile, startGameUI);
             } else {
                 startGameUI();
             }
@@ -2248,9 +2301,14 @@
                 if (augmentOverlay.style.display === 'flex') {
                     renderOpponentPreviewCards(opponentAugmentPreview, opponentAugmentPreviewColor, augmentOverlay);
                 }
+            } else if (action.type === 'augment_select') {
+                opponentAugmentSelection = { idx: action.idx, confirmed: !!action.confirmed };
+                applyOpponentSelection();
             } else if (action.type === 'augment_sync') {
+                opponentAugmentSelection = null;
                 document.getElementById('augment-overlay').style.display = 'none';
                 deserializeGameState(action.state); 
+                { const ag0 = AUGMENT_POOL.find(x => x.name === action.name); if (ag0) addAugmentLog(action.by === myColor ? 'mine' : 'opp', ag0); }
                 { const ag = AUGMENT_POOL.find(x => x.name === action.name); recordFrame('augment', { name: action.name, icon: ag ? ag.icon : '✨', t: action.t || [], by: action.by || null, fx: { globalVfx: action.globalVfx || null, t: action.t || [], vfx: action.vfx || '', floats: action.floats || null, fxArg: action.fxArg || null, origin: action.origin || null, fxMoves: action.fxMoves || null, blasts: action.blasts || null, promos: action.promos || null, msg: action.msg || '', delay: action.delay || 1200 } }); }
                 persistRoomGameState().catch(() => {});   // 내 커서 기준으로 저장
                 showCastText(action.name || "증강", () => {
@@ -2330,7 +2388,7 @@
             const picking = () => document.body.classList.contains('augment-picking');
             function apply(kb) {   // kb: 키보드가 가리는 높이(px). 0이면 원위치
                 const r = controls.getBoundingClientRect(), natTop = r.top + lift, natBottom = r.bottom + lift;
-                if (kb <= 0) lift = 0; else if (picking()) lift = 0; else lift = Math.max(0, Math.round(natBottom - (window.innerHeight - kb) + 8));
+                if (kb <= 0) lift = 0; else if (picking() && !document.body.classList.contains('wide-mode')) lift = 0; else lift = Math.max(0, Math.round(natBottom - (window.innerHeight - kb) + 8));
                 root.style.setProperty('--kb-lift', lift + 'px');
                 root.style.setProperty('--kb-bottom', (kb > 0 ? kb : 0) + 'px');   // 증강 선택 중(고정 입력줄)에 쓰임
                 root.style.setProperty('--bubble-bottom', Math.max(60, Math.round(window.innerHeight - (natTop - lift) + 8)) + 'px');
@@ -2400,7 +2458,53 @@
             }
         };
 
+        // 채팅 기록(가로 화면 오른쪽 패널에 표시): 말풍선과 별개로 모든 메시지를 쌓아 둔다
+        let chatOpp = { name: '상대', icon: '👤' }, chatLogLast = null;   // chatLogLast: 직전 기록의 보낸 쪽 (연속 메시지는 이름·아이콘을 맨 위 한 번만 보여 준다)
+        function chatWho(side) { return side === 'mine' ? { name: (userProfile && userProfile.name) || '나', icon: (userProfile && userProfile.icon) || '👤' } : { name: chatOpp.name || '상대', icon: chatOpp.icon || '👤' }; }
+        function buildChatItem(side, msg, typing) {
+            const who = chatWho(side), first = chatLogLast !== side;
+            const item = document.createElement('div'); item.className = 'cl-item ' + (side === 'mine' ? 'mine' : 'opp') + (first ? ' first' : '') + (typing ? ' cl-typing' : '');
+            const av = document.createElement('div'); av.className = 'cl-av'; av.textContent = who.icon;
+            const col = document.createElement('div'); col.className = 'cl-col';
+            if (first) { const nm = document.createElement('span'); nm.className = 'cl-who'; nm.textContent = who.name; col.appendChild(nm); }
+            const text = document.createElement('span'); text.className = 'cl-msg'; text.textContent = msg; col.appendChild(text);
+            item.appendChild(av); item.appendChild(col); return item;
+        }
+        function setLogTyping(on) {
+            const log = document.getElementById('chat-log'); if (!log) return;
+            const cur = log.querySelector('.cl-typing');
+            if (!on) { if (cur) cur.remove(); return; }
+            if (cur) return;
+            log.appendChild(buildChatItem('opp', '입력 중…', true)); log.scrollTop = log.scrollHeight;
+        }
+        function addChatLog(side, msg) {
+            const log = document.getElementById('chat-log'); if (!log) return;
+            setLogTyping(false);
+            log.appendChild(buildChatItem(side, msg, false)); chatLogLast = side;
+            while (log.children.length > 120) log.removeChild(log.firstChild);
+            log.scrollTop = log.scrollHeight;
+        }
+        // 어떤 증강을 골랐는지 기록에 남긴다
+        function addAugmentLog(side, aug) {
+            const log = document.getElementById('chat-log'); if (!log || !aug) return;
+            setLogTyping(false);
+            const pill = document.createElement('div'); pill.className = 'cl-aug';
+            const ic = document.createElement('span'); ic.className = 'cl-aug-ic'; ic.textContent = aug.icon || '✨';
+            const nm = document.createElement('b'); nm.textContent = aug.name;
+            const by = document.createElement('span'); by.className = 'cl-aug-by'; by.textContent = (side === 'mine' ? '나' : chatWho('opp').name) + '의 선택';
+            pill.appendChild(ic); pill.appendChild(nm); pill.appendChild(by); log.appendChild(pill); chatLogLast = null;
+            while (log.children.length > 120) log.removeChild(log.firstChild);
+            log.scrollTop = log.scrollHeight;
+        }
+        const EMOTE_SET = new Set(Object.keys(emoteAnimations));
         function showChatBubble(side, msg, isTyping = false) {
+            const wide = document.body.classList.contains('wide-mode'), isEmote = !isTyping && EMOTE_SET.has(msg);
+            if (wide && !isEmote) {   // 가로 모드: 글자는 오른쪽 채팅 기록에만 남기고 판 위 말풍선은 만들지 않는다
+                if (side === 'opponent') isOpponentTyping = isTyping;
+                if (isTyping) { if (side === 'opponent') setLogTyping(true); return; }
+                chatSeq[side] = (chatSeq[side] || 0) + 1; addChatLog(side, msg); return;
+            }
+            if (!isTyping && !isEmote) addChatLog(side, msg); else if (isTyping && side === 'opponent') setLogTyping(true);
             const bubble = document.getElementById(`chat-bubble-${side}`);
             // 이전 애니메이션(인라인 pop 포함)을 완전히 끊고 리플로우로 초기화한 뒤 새로 재생
             bubble.style.animation = 'none'; bubble.className = `chat-bubble ${side}`;
@@ -2417,6 +2521,7 @@
 
         function hideChatBubble(side, onlyIfTyping = false) {
             if (side === 'opponent' && onlyIfTyping && !isOpponentTyping) return; 
+            if (side === 'opponent') setLogTyping(false);
             document.getElementById(`chat-bubble-${side}`).style.display = 'none';
         }
 
@@ -2724,6 +2829,7 @@
 
         function resetGameUI() {
             try { botHistory = []; BOT.seen = new Map(); } catch (e) {}
+            { const cl = document.getElementById('chat-log'); if (cl) cl.innerHTML = ''; chatLogLast = null; }
             if (networkUnsub) { try { networkUnsub(); } catch (e) {} networkUnsub = null; }
             game.reset(); game.keepUids = {}; moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; mines = []; mineReveal = false; prospects = {}; pactPieces = {}; pendingAugments = [];
             activeWalls = []; reversedPawns = { w: 0, b: 0 }; reversedUids = { w: {}, b: {} }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = { w: null, b: null }; blackout = { w: 0, b: 0 }; lastCheckKey = '';
@@ -4356,10 +4462,30 @@
         document.getElementById('lr-next').onclick = () => stripStep(1);
         document.getElementById('btn-open-history').onclick = () => { renderHistory(); document.getElementById('history-overlay').style.display = 'flex'; };
         document.getElementById('btn-close-history').onclick = () => { document.getElementById('history-overlay').style.display = 'none'; };
+        // ---- 가로로 긴 화면 모드: 판을 왼쪽에 크게, 오른쪽에 증강 턴 수 / 채팅 기록 / 증강 선택 ----
+        function placeAugmentPanel() {
+            const ov = document.getElementById('augment-overlay'), bd = document.getElementById('board'); if (!ov || !bd) return;
+            if (!document.body.classList.contains('wide-mode')) return;
+            const r = bd.getBoundingClientRect();
+            ov.style.setProperty('--wl', r.left + 'px'); ov.style.setProperty('--wt', r.top + 'px'); ov.style.setProperty('--ww', r.width + 'px'); ov.style.setProperty('--wh', r.height + 'px');
+            const root = document.documentElement.style; root.setProperty('--bcx', (r.left + r.width / 2) + 'px'); root.setProperty('--bcy', (r.top + r.height / 2) + 'px'); root.setProperty('--bcw', r.width + 'px');   // '증강 발동!' 문구 위치
+        }
+        function applyWideMode() {
+            if (document.body.classList.contains('chat-typing')) return;   // 입력 중(키보드)에는 레이아웃을 그대로 둔다
+            const w = window.innerWidth, h = window.innerHeight, on = w >= 900 && h >= 480 && w / h >= 1.2;
+            if (document.body.classList.contains('wide-mode') !== on) document.body.classList.toggle('wide-mode', on);
+            document.documentElement.style.setProperty('--wide-h', h + 'px');   // 키보드가 떠도 판 크기가 변하지 않게 입력 전 높이를 고정
+            requestAnimationFrame(placeAugmentPanel);
+        }
+        window.addEventListener('resize', applyWideMode); window.addEventListener('orientationchange', () => setTimeout(applyWideMode, 200));
+        applyWideMode();
+        { const ov = document.getElementById('augment-overlay'); if (ov) new MutationObserver(placeAugmentPanel).observe(ov, { attributes: true, attributeFilter: ['style'] });
+          const bd = document.getElementById('board-container'); if (bd && window.ResizeObserver) new ResizeObserver(placeAugmentPanel).observe(bd); }
         // 화면 높이에 맞춰 판 크기를 자동 조절: 헤더/채팅/이전 수 줄/리플레이 바까지 한 화면에 들어오게
         let fitRaf = 0;
         function fitBoard() {
             const frame = document.getElementById('game-frame'), cont = document.getElementById('board-container'); if (!frame || !cont) return;
+            if (document.body.classList.contains('wide-mode')) return;   // 가로 모드는 CSS로 판 크기를 정한다
             const cl = document.body.classList; if (cl.contains('chat-typing') || cl.contains('augment-picking')) return;   // 키보드·오버레이 중에는 크기 고정
             let others = 0;
             Array.from(document.body.children).forEach(el => {
@@ -4714,7 +4840,7 @@
 
             if (moveCount > 0 && moveCount % AUGMENT_INTERVAL === 0 && !game.game_over()) {
                 pendingAugments = game.turn() === 'w' ? ['w', 'b'] : ['b', 'w']; 
-                setTimeout(() => { if (!game.game_over()) processNextAugmentPhase(); }, 800);   // 마지막 수를 잠깐 보여 준 뒤 증강이 등장한다
+                setTimeout(() => { if (!game.game_over()) processNextAugmentPhase(); }, 300);   // 마지막 수를 잠깐 보여 준 뒤 증강이 등장한다 (연속감을 위해 짧게)
             } else { 
                 isSystemLocked = false;
                 if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 600);
@@ -4968,12 +5094,13 @@
 
         // 평가: 현재 둘 차례인 쪽 기준 점수 (센티폰)
         function botEvaluate(S) {
-            const B = S._board; let mat = 0, npm = 0, wk = null, bk = null, wBish = 0, bBish = 0;
+            const B = S._board; let mat = 0, npm = 0, wk = null, bk = null, wBish = 0, bBish = 0; const bq = { w: null, b: null };
             const pf = { w: [0,0,0,0,0,0,0,0], b: [0,0,0,0,0,0,0,0] }, pawns = [], rooks = [], minorsHome = { w: 0, b: 0 };
             let pstMg = 0, pstEg = 0;   // 킹 외 기물의 위치 점수는 pstMg에 합산 (백 기준)
             for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
                 const p = B[r][c]; if (!p || p.type === 'wall') continue;
                 const w = p.color === 'w', sg = w ? 1 : -1, idx = (w ? r : 7 - r) * 8 + c, t = p.type;
+                if (t === 'q' && babyEffect[p.color] && p.uid === babyEffect[p.color].qUid) bq[p.color] = { r, c };
                 if (t === 'k') { if (w) wk = { r, c }; else bk = { r, c }; continue; }
                 mat += sg * BOT_VAL[t]; pstMg += sg * BOT_PST[t][idx];
                 if (t === 'p') { pf[p.color][c]++; pawns.push({ r, c, w }); }
@@ -5015,6 +5142,9 @@
                 const cd = Math.abs(lk.r - 3.5) + Math.abs(lk.c - 3.5), bonus = Math.round((cd * 12 + (14 - (Math.abs(lk.r - wkk.r) + Math.abs(lk.c - wkk.c))) * 5) * eg);
                 score += win === 'w' ? bonus : -bonus;
             }
+            // 아기는 어떻게 태어나?: 축복받은 킹과 퀸이 붙어 있으면 2수마다 폰이 생기므로, 남은 수가 있는 동안 붙여 둔다
+            for (const c of ['w', 'b']) { const be = babyEffect[c], k = c === 'w' ? wk : bk, q = bq[c]; if (!be || !(be.remaining > 0) || !k || !q) continue;
+                const d = Math.max(Math.abs(k.r - q.r), Math.abs(k.c - q.c)), v = (d <= 1 ? 120 : d === 2 ? 45 : d === 3 ? 15 : 0) * Math.min(1, be.remaining / 4); score += c === 'w' ? v : -v; }
             if (BOT.noise) score += (Math.random() - 0.5) * 2 * BOT.noise;   // 중급: 평가에 약간의 오차를 섞어 가끔 차선을 고른다
             return S._turn === 'w' ? score : -score;
         }
@@ -5033,7 +5163,7 @@
         // 두었다가 되돌리기 (castling/ep/승급/동귀어진 포함)
         function botMake(S, m) {
             const B = S._board, fc = m.from.charCodeAt(0) - 97, fr = 56 - m.from.charCodeAt(1), tc = m.to.charCodeAt(0) - 97, tr = 56 - m.to.charCodeAt(1);
-            const piece = B[fr][fc], cap = B[tr][tc], cs = S.castling, u = { fr, fc, tr, tc, piece, cap, epPc: null, rook: 0, cw: [cs.w.k, cs.w.q, cs.b.k, cs.b.q], ep: S.ep_square, pact: null };
+            const piece = B[fr][fc], cap = B[tr][tc], cs = S.castling, u = { fr, fc, tr, tc, piece, cap, epPc: null, rook: 0, cw: [cs.w.k, cs.w.q, cs.b.k, cs.b.q], ep: S.ep_square, pact: null, mine: null, mined: null };
             if (piece.type === 'p' && fc !== tc && !cap) { u.epPc = B[fr][tc]; B[fr][tc] = null; }
             if (m.flags === 'k') { B[fr][5] = B[fr][7]; B[fr][7] = null; u.rook = 1; } else if (m.flags === 'q') { B[fr][3] = B[fr][0]; B[fr][0] = null; u.rook = 2; }
             B[tr][tc] = m.promotion ? { type: 'q', color: piece.color, uid: piece.uid } : piece; B[fr][fc] = null;
@@ -5044,10 +5174,12 @@
             S._turn = turn === 'w' ? 'b' : 'w';
             const vic = cap || u.epPc;   // 동귀어진: 잡은 기물도 함께 사라진다 (킹은 제외)
             if (vic && pactPieces[vic.uid] && piece.type !== 'k') { u.pact = B[tr][tc]; B[tr][tc] = null; }
+            if (BOT.mineSet.size) { const key = String.fromCharCode(97 + tc) + (8 - tr); if (BOT.mineSet.has(key) && B[tr][tc]) { BOT.mineSet.delete(key); u.mine = key; if (B[tr][tc].type !== 'k') { u.mined = B[tr][tc]; B[tr][tc] = null; } } }   // 지뢰: 밟은 기물 파괴(킹은 폭발만), 지뢰도 사라진다
             return u;
         }
         function botUnmake(S, u) {
             const B = S._board, cs = S.castling;
+            if (u.mine) BOT.mineSet.add(u.mine);
             if (u.pact) B[u.tr][u.tc] = u.pact;
             B[u.fr][u.fc] = u.piece; B[u.tr][u.tc] = u.cap;
             if (u.epPc) B[u.fr][u.tc] = u.epPc;
@@ -5055,7 +5187,7 @@
             cs.w.k = u.cw[0]; cs.w.q = u.cw[1]; cs.b.k = u.cw[2]; cs.b.q = u.cw[3]; S.ep_square = u.ep; S._turn = S._turn === 'w' ? 'b' : 'w';
         }
 
-        const BOT = { noise: 0, tt: new Map(), nodes: 0, abort: false, deadline: 0, killers: [], hist: {}, path: new Set(), seen: new Map() };
+        const BOT = { mineSet: new Set(), noise: 0, tt: new Map(), nodes: 0, abort: false, deadline: 0, killers: [], hist: {}, path: new Set(), seen: new Map() };
         function botOrder(moves, ttMove, ply) {
             const k1 = BOT.killers[ply] && BOT.killers[ply][0], k2 = BOT.killers[ply] && BOT.killers[ply][1];
             for (const m of moves) {
@@ -5127,12 +5259,13 @@
         }
 
         // 지금 둘 차례의 최선 수를 찾는다. opts: { timeMs, maxDepth, spread(센티폰: 최선과 이 차이 안의 수 중 무작위), fixedDepth }
+        function botSyncMines() { const bc = myColor === 'w' ? 'b' : 'w'; BOT.mineSet = new Set(mines.filter(x => x.owner === bc).map(x => x.sq)); }   // 봇은 자기가 묻은 지뢰만 안다 (상대 지뢰는 보지 못한다)
         function botFindMove(opts) {
             const S = cloneGameState(game), root = S.moves(); if (root.length === 0) return null;
             if (root.length === 1) return root[0];
             for (const m of root) if (m.captured === 'k') return m;
             if (BOT.tt.size > 400000) BOT.tt.clear();
-            BOT.noise = opts.noise || 0; BOT.tt.clear(); BOT.killers = []; BOT.hist = {}; BOT.path = new Set(); BOT.nodes = 0; BOT.abort = false; const t0 = Date.now(); BOT.deadline = t0 + opts.timeMs;
+            BOT.noise = opts.noise || 0; botSyncMines(); BOT.tt.clear(); BOT.killers = []; BOT.hist = {}; BOT.path = new Set(); BOT.nodes = 0; BOT.abort = false; const t0 = Date.now(); BOT.deadline = t0 + opts.timeMs;
             botOrder(root, null, 0);
             let bestMove = root[0], bestScore = -BOT_MATE, scores = null, doneDepth = 0;
             for (let depth = 1; depth <= opts.maxDepth; depth++) {
@@ -5437,6 +5570,11 @@
             });
         }
 
+        let opponentAugmentSelection = null;   // { idx, confirmed }: 상대(또는 봇)가 고른 카드
+        function applyOpponentSelection() {
+            const cards = document.querySelectorAll('#augment-overlay .augment-card.dimmed'), sel = opponentAugmentSelection;
+            cards.forEach((c, i) => { c.classList.toggle('picked', !!sel && i === sel.idx); c.classList.toggle('confirmed', !!sel && !!sel.confirmed && i === sel.idx); });
+        }
         function renderOpponentPreviewCards(previewOptions, playerColor, overlay) {
             let html = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방 선택 중...</div><h2>적 선택 중</h2><p style="color:#ccc; margin-bottom:12px; font-size:0.95rem;">상대가 볼 수 있는 선택지입니다.</p><div class="cards-container cards-n${previewOptions.length}">`;
             previewOptions.forEach((aug) => {
@@ -5445,9 +5583,11 @@
             html += `</div>`;
             overlay.innerHTML = html;
             overlay.style.display = 'flex';
+            applyOpponentSelection();
         }
 
         function processNextAugmentPhase() {
+            opponentAugmentSelection = null;
             opponentAugmentPreview = null;
             opponentAugmentPreviewColor = null;
             if (pendingAugments.length === 0) { 
@@ -5461,11 +5601,12 @@
         }
 
         function showCastText(text, callback) {
+            if (document.body.classList.contains('wide-mode')) placeAugmentPanel();   // 판 위치를 최신으로
             const el = document.getElementById('cast-text');
             el.innerHTML = ''; el.style.fontSize = '';
             const span = document.createElement('span'); span.style.cssText = 'display:inline-block;white-space:nowrap;'; span.innerText = `${text} 발동!`; el.appendChild(span);
             el.style.display = 'block';
-            const basePx = parseFloat(getComputedStyle(el).fontSize), maxW = window.innerWidth * 0.8;   // 애니메이션 최대 확대(1.1배)까지 화면 안에 들어오도록
+            const wideBd = document.body.classList.contains('wide-mode') ? document.getElementById('board') : null, basePx = parseFloat(getComputedStyle(el).fontSize), maxW = (wideBd ? wideBd.getBoundingClientRect().width : window.innerWidth) * 0.8;   // 애니메이션 최대 확대(1.1배)까지 화면 안에 들어오도록
             if (span.offsetWidth > maxW) el.style.fontSize = Math.max(13, basePx * maxW / span.offsetWidth) + 'px';
             el.classList.remove('cast-anim'); void el.offsetWidth; el.classList.add('cast-anim'); setTimeout(() => { el.style.display = 'none'; callback(); }, 1200);
         }
@@ -5484,6 +5625,22 @@
             jackpotBonus = n.jack; lastKiller = n.lk; babyEffect = n.baby; blackout = n.blackout; activePoison = n.poison;
         }
         // 증강을 가상으로 적용해 보고 (실제 판은 곧바로 되돌린다) 그 국면을 봇 기준 점수로 돌려준다
+        // 지뢰: 상대가 밟을 만한 칸일수록 가치가 크다 (상대는 보지 못한다). 내 기물이 밟을 칸은 감점.
+        function botMoveReach(S, who, sq) {
+            const keep = S._turn; S._turn = who; let n = 0;
+            try { for (const m of S.moves()) if (m.to === sq && m.piece !== 'k') n += BOT_VAL[m.piece] / 100; } finally { S._turn = keep; }
+            return n;
+        }
+        function botMineValue(S, sq, color, enemy) {
+            const c = sq.charCodeAt(0) - 97, r = 8 - parseInt(sq[1]), center = 4 - (Math.abs(c - 3.5) + Math.abs(r - 3.5)) / 2;
+            return Math.round(botMoveReach(S, enemy, sq) * 16 - botMoveReach(S, color, sq) * 24 + center * 3);
+        }
+        // 장벽: 내 기동력은 살리고 상대 기동력을 죽일수록 가치가 크다
+        function botWallValue(S, color, enemy) {
+            const keep = S._turn; let mine = 0, theirs = 0;
+            try { S._turn = color; mine = S.moves().length; S._turn = enemy; theirs = S.moves().length; } finally { S._turn = keep; }
+            return (mine - theirs) * 2;
+        }
         function botSimAugment(aug, color, enemy, target, depth) {
             const snap = botSnapshot(), ubv = updateBoardVisuals; updateBoardVisuals = () => {};
             try {
@@ -5493,13 +5650,20 @@
                 (res.promos || []).forEach(sq => { const p = game.get(sq); if (p && p.type === 'p') { game.remove(sq); game.put({ ...p, type: 'q' }, sq); } });
                 const S = cloneGameState(game), turn = S._turn;
                 if (S.moves().length === 0) return S.in_check(turn) ? (turn === color ? -BOT_MATE : BOT_MATE) : 0;
-                BOT.noise = 0; BOT.tt.clear(); BOT.killers = []; BOT.hist = {}; BOT.path = new Set(); BOT.nodes = 0; BOT.abort = false; BOT.deadline = Date.now() + 1500;
+                BOT.noise = 0; botSyncMines(); BOT.tt.clear(); BOT.killers = []; BOT.hist = {}; BOT.path = new Set(); BOT.nodes = 0; BOT.abort = false; BOT.deadline = Date.now() + 1500;
                 const v = botSearch(S, depth, -BOT_MATE - 1, BOT_MATE + 1, 0), sc = BOT.abort ? botEvaluate(S) : v;
-                return turn === color ? sc : -sc;
+                let extra = 0;
+                if (aug.name === '지뢰 찾기' && res.mineSq) extra = botMineValue(S, res.mineSq, color, enemy);
+                else if (aug.name === '차원 장벽' && target) extra = botWallValue(S, color, enemy);
+                return (turn === color ? sc : -sc) + extra;
             } catch (e) { return null; }
             finally { floatLog = null; updateBoardVisuals = ubv; botRestore(snap); }
         }
         function botPlanAugment(options, color, enemy) {
+            const hiddenMines = mines; mines = mines.filter(x => x.owner === color);   // 사람이 묻은 지뢰는 봇이 볼 수 없다
+            try { return botPlanAugmentInner(options, color, enemy); } finally { mines = hiddenMines; }
+        }
+        function botPlanAugmentInner(options, color, enemy) {
             const t0 = Date.now(), over = () => Date.now() - t0 > 1600, results = [];
             for (const aug of options) {
                 let best = { score: -1e9, target: null };
@@ -5542,8 +5706,14 @@
                         let plan = null;
                         if (smart) { try { plan = botPlanAugment(botOptions, playerColor, enemyColor); } catch (e) { plan = null; } }
                         if (!plan) plan = { aug: botOptions[Math.floor(Math.random() * botOptions.length)], target: null };
-                        const think = (smart ? 2000 : 1300) + Math.random() * 900, wait = Math.max(600, think - (Date.now() - t0));
-                        setTimeout(() => { overlay.style.display = 'none'; doApplyAugment(plan.aug, playerColor, enemyColor, plan.target); }, wait);
+                        const think = (smart ? 1700 : 1100) + Math.random() * 800, wait = Math.max(500, think - (Date.now() - t0)), idx = Math.max(0, botOptions.indexOf(plan.aug));
+                        setTimeout(() => {
+                            opponentAugmentSelection = { idx, confirmed: false }; applyOpponentSelection();   // 한 번 누름: 카드가 올라온다
+                            setTimeout(() => {
+                                opponentAugmentSelection = { idx, confirmed: true }; applyOpponentSelection();   // 확정
+                                setTimeout(() => { overlay.style.display = 'none'; opponentAugmentSelection = null; doApplyAugment(plan.aug, playerColor, enemyColor, plan.target); }, 480);
+                            }, 750);
+                        }, wait);
                     }, 80);
                     return;
                 }
@@ -5604,10 +5774,12 @@
             document.querySelectorAll('.augment-card').forEach((card, idx) => {
                 card.onclick = () => {
                     if (selectedAugmentIdx === idx) {
+                        if (currentRoomId && !isBotMode) pushGameAction({ type: 'augment_select', idx: idx, confirmed: true });   // 상대 화면에 '확정'을 보여 준다
                         overlay.style.display = 'none';
                         applySelectedAugment(resolveAugmentOptions(options)[idx], playerColor, enemyColor, () => showAugmentCards(playerColor, options));
                     } else {
                         selectedAugmentIdx = idx;
+                        if (currentRoomId && !isBotMode) pushGameAction({ type: 'augment_select', idx: idx, confirmed: false });   // 상대 화면에 '선택'을 보여 준다
                         document.querySelectorAll('.augment-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected');
                         showToast("한 번 더 눌러 발동하세요.", "var(--primary)", 1500);
                     }
@@ -5667,6 +5839,7 @@
         }
 
         function doApplyAugment(selectedAug, pColor, eColor, target) {
+            addAugmentLog(pColor === myColor ? 'mine' : 'opp', selectedAug);
             activeAugmentOptions = null;
             activeAugmentPlayerColor = null;
             selectedAugmentIdx = -1;
