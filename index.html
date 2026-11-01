@@ -943,6 +943,37 @@
         body.demo-cards #augment-overlay .augment-card .augment-desc { font-size: 0.56rem !important; line-height: 1.3 !important; }
         body.demo-cards #augment-overlay .augment-card .augment-icon { width: 26px !important; height: 26px !important; font-size: 1rem !important; margin-bottom: 3px !important; }
         body.demo-cards #augment-overlay .augment-card .augment-title { font-size: 0.7rem !important; }
+
+        /* v3.38: 수 예약 — 내 기물의 붉은 잔상 */
+        #premove-layer { z-index: 2; }
+        .pm-from, .pm-to { position: absolute; width: 12.5%; height: 12.5%; box-sizing: border-box; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+        .pm-from { background: rgba(255,82,82,0.10); box-shadow: inset 0 0 0 2px rgba(255,82,82,0.35); }
+        .pm-to { background: rgba(255,82,82,0.18); box-shadow: inset 0 0 0 2px rgba(255,82,82,0.45); }
+        .pm-to svg { width: 90%; height: 90%; opacity: 0.5; filter: none; }
+        .black-pov .pm-to svg { rotate: 180deg; }
+
+        /* v3.39: PLAY 탭(매치메이킹 / 실시간 전투) + 관전 */
+        #ms-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+        #ms-tabs button { flex: 1; padding: 9px; border: 1px solid var(--panel-border); border-radius: 10px; background: transparent; color: var(--text-color); font-weight: 700; font-size: 0.9rem; cursor: pointer; }
+        #ms-tabs button.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .ms-pane { max-height: min(56vh, 440px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 0 4px 2px 0; box-sizing: border-box; }
+        #live-head { display: flex; align-items: center; justify-content: space-between; margin: 2px 2px 10px; font-size: 0.85rem; color: #999; }
+        #live-head b { color: var(--primary); font-weight: 800; }
+        .live-item { padding: 11px 12px; margin-bottom: 8px; border: 1px solid var(--panel-border); border-radius: 12px; background: var(--input-bg); cursor: pointer; text-align: left; -webkit-tap-highlight-color: transparent; transition: border-color .15s, transform .1s; }
+        .live-item:active { transform: scale(0.98); border-color: var(--primary); }
+        .live-row { display: flex; align-items: center; gap: 8px; }
+        .live-p { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 5px; font-weight: 700; font-size: 0.88rem; }
+        .live-p .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .live-p .lp-ic { flex: none; }
+        .lp-side { flex: none; width: 9px; height: 9px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.45); }
+        .lp-side.w { background: #fff; } .lp-side.b { background: #1b1b22; }
+        .live-vs { flex: none; color: #777; font-size: 0.72rem; font-weight: 800; }
+        .live-meta { margin-top: 6px; font-size: 0.74rem; color: #999; display: flex; align-items: center; gap: 6px; }
+        .live-meta::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #e74c3c; animation: livePulse 1.4s ease-in-out infinite; }
+        @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .live-empty { padding: 30px 8px; color: #888; font-size: 0.9rem; line-height: 1.6; text-align: center; }
+        body.spectating #btn-resign, body.spectating #btn-settings-game, body.spectating #game-controls, body.spectating .chat-bubble, body.spectating #chat-spacer, body.spectating #btn-replay, body.spectating #result-score { display: none !important; }
+        body.spectating #btn-replay-exit { display: block !important; }
     </style>
 </head>
 <body>
@@ -960,7 +991,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.37';
+      var VERSION = 'v3.39';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -1232,6 +1263,7 @@
             <div id="board">
                 <div id="squares-layer" class="layer"></div>
                 <div id="dots-layer" class="layer"></div>
+                <div id="premove-layer" class="layer"></div>
                 <div id="pieces-layer" class="layer" style="pointer-events: none;"></div>
                 <canvas id="fx-canvas" class="layer"></canvas>
                 <div id="vfx-global-layer"></div>
@@ -1338,31 +1370,38 @@
     </div>
 
     <div id="mode-select-overlay" class="overlay" style="display: none; z-index: 150;">
-        <div class="lobby-box">
-            <h2>게임 모드 선택</h2>
-            <div id="online-count" style="color: var(--primary); font-size: 1rem; font-weight: bold; margin-bottom: 6px; min-height: 1.2rem;">접속자: 0명</div>
-            <div id="queue-status" style="font-size: 0.85rem; color: #999; margin-bottom: 14px; min-height: 1.1rem;"></div>
-            <button id="btn-random" class="lobby-btn">🎲 빠른 대전</button>
-            <div style="margin: 20px 0; border-top: 1px solid var(--panel-border); padding-top: 20px;">
-                <div style="font-size: 0.85rem; color: #999; margin-bottom: 10px;">친구와 대전하기</div>
-                <input type="text" id="room-input" class="lobby-input" placeholder="친구에게 받은 초대 코드 4자리" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
-                <div style="display: flex; gap: 10px;">
-                    <button id="btn-join-room" class="lobby-btn secondary" style="flex: 1; margin: 0;">코드로 입장</button>
-                    <button id="btn-create-room" class="lobby-btn secondary" style="flex: 1; margin: 0;">친구 초대하기</button>
-                </div>
-                <div id="invite-panel" style="display: none; margin-top: 14px; padding: 14px; border: 1px dashed var(--primary); border-radius: 12px;">
-                    <div style="font-size: 0.9rem; color: #aaa; margin-bottom: 6px;">친구에게 이 초대 코드를 알려주세요</div>
-                    <div id="invite-code" style="font-size: 2.2rem; font-weight: 900; letter-spacing: 8px; color: var(--primary); margin-bottom: 10px; padding-left: 8px;"></div>
-                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                        <button id="btn-copy-code" class="lobby-btn secondary" style="flex: 1; margin: 0; font-size: 0.9rem;">📋 코드 복사</button>
-                        <button id="btn-share-link" class="lobby-btn secondary" style="flex: 1; margin: 0; font-size: 0.9rem;">🔗 링크 공유</button>
+        <div class="lobby-box ms-box">
+            <h2>PLAY</h2>
+            <div id="ms-tabs"><button id="ms-tab-match" type="button" class="active">매치메이킹</button><button id="ms-tab-live" type="button">실시간 전투</button></div>
+            <div id="ms-pane-match" class="ms-pane">
+                <div id="online-count" style="color: var(--primary); font-size: 1rem; font-weight: bold; margin-bottom: 6px; min-height: 1.2rem;">접속자: 0명</div>
+                <div id="queue-status" style="font-size: 0.85rem; color: #999; margin-bottom: 14px; min-height: 1.1rem;"></div>
+                <button id="btn-random" class="lobby-btn">🎲 빠른 대전</button>
+                <div style="margin: 20px 0; border-top: 1px solid var(--panel-border); padding-top: 20px;">
+                    <div style="font-size: 0.85rem; color: #999; margin-bottom: 10px;">친구와 대전하기</div>
+                    <input type="text" id="room-input" class="lobby-input" placeholder="친구에게 받은 초대 코드 4자리" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+                    <div style="display: flex; gap: 10px;">
+                        <button id="btn-join-room" class="lobby-btn secondary" style="flex: 1; margin: 0;">코드로 입장</button>
+                        <button id="btn-create-room" class="lobby-btn secondary" style="flex: 1; margin: 0;">친구 초대하기</button>
                     </div>
-                    <div style="font-size: 0.85rem; color: #999;">친구가 입장하면 바로 시작돼요 · 기다리는 중…</div>
-                    <button id="btn-close-room" style="margin-top: 8px; background: none; border: none; color: #888; text-decoration: underline; cursor: pointer; font-size: 0.9rem;">방 닫기</button>
+                    <div id="invite-panel" style="display: none; margin-top: 14px; padding: 14px; border: 1px dashed var(--primary); border-radius: 12px;">
+                        <div style="font-size: 0.9rem; color: #aaa; margin-bottom: 6px;">친구에게 이 초대 코드를 알려주세요</div>
+                        <div id="invite-code" style="font-size: 2.2rem; font-weight: 900; letter-spacing: 8px; color: var(--primary); margin-bottom: 10px; padding-left: 8px;"></div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <button id="btn-copy-code" class="lobby-btn secondary" style="flex: 1; margin: 0; font-size: 0.9rem;">📋 코드 복사</button>
+                            <button id="btn-share-link" class="lobby-btn secondary" style="flex: 1; margin: 0; font-size: 0.9rem;">🔗 링크 공유</button>
+                        </div>
+                        <div style="font-size: 0.85rem; color: #999;">친구가 입장하면 바로 시작돼요 · 기다리는 중…</div>
+                        <button id="btn-close-room" style="margin-top: 8px; background: none; border: none; color: #888; text-decoration: underline; cursor: pointer; font-size: 0.9rem;">방 닫기</button>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; border-top: 1px solid var(--panel-border); padding-top: 20px;">
+                    <button id="btn-show-bot-diff" class="lobby-btn secondary">🤖 컴퓨터와 연습</button>
                 </div>
             </div>
-            <div style="margin-top: 20px; border-top: 1px solid var(--panel-border); padding-top: 20px;">
-                <button id="btn-show-bot-diff" class="lobby-btn secondary">🤖 컴퓨터와 연습</button>
+            <div id="ms-pane-live" class="ms-pane" style="display: none;">
+                <div id="live-head"><span>진행 중인 전투</span><b id="live-count"></b></div>
+                <div id="live-list"></div>
             </div>
             <p id="lobby-msg" style="color: var(--primary); font-weight: bold; margin-top: 15px; min-height: 1.2rem; font-size: 0.95rem;"></p>
             <button id="btn-back-main" style="margin-top: 15px; background: none; border: none; color: #888; text-decoration: underline; cursor: pointer; font-size: 1rem;">← 뒤로가기</button>
@@ -1684,6 +1723,10 @@
         const LOCAL_ROOM_KEY = 'augmentedChessRoom';
         // 재접속 안정화: 처리한 마지막 행동(키)을 상태와 함께 저장해, 이어하기 때 이미 반영된 행동이 다시 적용되지 않게 한다
         let lastActionKey = '', resumeCursor = null, networkUnsub = null, matchKind = '', queueOD = null;
+        // 관전(v3.39)
+        let isSpectating = false, specQueue = [], specPlayers = null, specNames = { w: '백', b: '흑' }, specCasting = false, specAugOpen = false, specPumpTimer = null, specPreview = null, specSelect = null, specPickColor = null, specSession = 0;
+        let liveRoom = null, liveTimer = null, liveMeta = null, liveStart = 0, liveUnsub = null, liveTick = null, liveData = {}, liveCleaned = {};
+        const LIVE_FRESH_MS = 150000;
         const appliedActionKeys = new Set();
         const roomInfoText = () => `${matchKind === 'quick' ? '빠른 대전' : matchKind === 'friend' ? '친구 대전' : '온라인 대전'} · 당신은 ${myColor === 'w' ? '백' : '흑'}입니다`;
         const DEFAULT_SETTINGS = { darkMode: true, saveBotReplay: true };
@@ -1720,7 +1763,7 @@
         }
 
         async function persistRoomGameState(stateStr = null) {
-            if (!currentRoomId || isBotMode || !myColor) return;
+            if (!currentRoomId || isBotMode || !myColor || isSpectating) return;
             try {
                 const serialized = stateStr || serializeGameState();
                 await set(ref(db, `rooms/${currentRoomId}/states/${myColor}`), serialized);   // 각자 자기 노드에만 기록 (상대 저장본을 덮어쓰지 않음)
@@ -2062,8 +2105,88 @@
             clearRoomSession();
         }
 
-        document.getElementById('btn-play-main').addEventListener('click', () => { mainLobbyOverlay.style.display = 'none'; modeSelectOverlay.style.display = 'flex'; });
-        document.getElementById('btn-back-main').addEventListener('click', async () => { await cancelMatchmaking(); modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'flex'; setLobbyMsg(""); });
+        document.getElementById('btn-play-main').addEventListener('click', () => { mainLobbyOverlay.style.display = 'none'; modeSelectOverlay.style.display = 'flex'; selectMsTab('match'); });
+        document.getElementById('btn-back-main').addEventListener('click', async () => { selectMsTab('match'); await cancelMatchmaking(); modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'flex'; setLobbyMsg(""); });
+
+        // ---- PLAY 탭: 매치메이킹 / 실시간 전투 ----
+        function selectMsTab(name) {
+            document.getElementById('ms-tab-match').classList.toggle('active', name === 'match');
+            document.getElementById('ms-tab-live').classList.toggle('active', name === 'live');
+            document.getElementById('ms-pane-match').style.display = name === 'match' ? '' : 'none';
+            document.getElementById('ms-pane-live').style.display = name === 'live' ? '' : 'none';
+            if (name === 'live') startLiveList(); else stopLiveList();
+        }
+        document.getElementById('ms-tab-match').addEventListener('click', () => selectMsTab('match'));
+        document.getElementById('ms-tab-live').addEventListener('click', () => selectMsTab('live'));
+        function stopLiveList() {
+            if (liveUnsub) { try { liveUnsub(); } catch (e) {} liveUnsub = null; }
+            clearInterval(liveTick); liveTick = null;
+        }
+        function startLiveList() {
+            stopLiveList(); liveData = {};
+            const list = document.getElementById('live-list'); list.innerHTML = '<div class="live-empty">불러오는 중…</div>';
+            document.getElementById('live-count').textContent = '';
+            try {
+                liveUnsub = onValue(ref(db, 'live'), snap => { liveData = snap.exists() ? (snap.val() || {}) : {}; renderLiveList(); },
+                    () => { list.innerHTML = '<div class="live-empty">전투 목록을 불러오지 못했어요.<br>잠시 뒤 다시 열어 주세요.</div>'; });
+                liveTick = setInterval(renderLiveList, 15000);   // 오래 멈춘 전투는 목록에서 빠지게 주기적으로 다시 그린다
+            } catch (e) { list.innerHTML = '<div class="live-empty">전투 목록을 불러오지 못했어요.</div>'; }
+        }
+        function renderLiveList() {
+            const list = document.getElementById('live-list'); if (!list) return;
+            const now = Date.now(), rows = [];
+            Object.keys(liveData || {}).forEach(id => {
+                const v = liveData[id]; if (!v || !v.w || !v.b) return;
+                const age = now - (Number(v.ts) || 0);
+                if (age > 600000 && !liveCleaned[id]) { liveCleaned[id] = true; remove(ref(db, 'live/' + id)).catch(() => {}); }   // 아무도 갱신하지 않는 낡은 항목 정리
+                if (age > LIVE_FRESH_MS) return;
+                if (v.w === myUid || v.b === myUid) return;   // 내가 하는 전투는 제외
+                rows.push(Object.assign({ id }, v));
+            });
+            rows.sort((a, b) => (Number(b.st) || 0) - (Number(a.st) || 0));
+            document.getElementById('live-count').textContent = rows.length ? rows.length + '건' : '';
+            list.innerHTML = '';
+            if (!rows.length) { list.innerHTML = '<div class="live-empty">지금 진행 중인 전투가 없어요.<br>매치메이킹에서 대전이 시작되면 여기에 나타나요.</div>'; return; }
+            rows.forEach(v => {
+                const el = document.createElement('div'); el.className = 'live-item'; el.setAttribute('role', 'button');
+                const mk = (icon, name, side) => {
+                    const p = document.createElement('div'); p.className = 'live-p';
+                    const dot = document.createElement('i'); dot.className = 'lp-side ' + side;
+                    const ic = document.createElement('span'); ic.className = 'lp-ic'; ic.textContent = icon || '👤';
+                    const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = name || '?';
+                    p.append(dot, ic, nm); return p;
+                };
+                const row = document.createElement('div'); row.className = 'live-row';
+                const vs = document.createElement('span'); vs.className = 'live-vs'; vs.textContent = 'VS';
+                row.append(mk(v.wi, v.wn, 'w'), vs, mk(v.bi, v.bn, 'b'));
+                const meta = document.createElement('div'); meta.className = 'live-meta'; meta.textContent = (Number(v.mc) || 0) + '수 진행 중 · 눌러서 관전';
+                el.append(row, meta); el.onclick = () => startSpectate(v.id);
+                list.appendChild(el);
+            });
+        }
+
+        // ---- 내 대전을 '실시간 전투' 목록에 올린다 (live/{방} : 이름·아이콘·수·갱신 시각) ----
+        function publishLive(playersData, myP, oppP) {
+            if (isBotMode || !currentRoomId || isSpectating || __AUG_DEMO) return;
+            try {
+                stopLive(false); liveRoom = currentRoomId; liveStart = Date.now();
+                const clean = (p, dn) => ({ name: String((p && p.name) || dn).slice(0, 32), icon: String((p && p.icon) || '👤').slice(0, 12) });
+                const me = clean(myP, '플레이어'), op = clean(oppP, '플레이어'), w = myColor === 'w' ? me : op, b = myColor === 'w' ? op : me;
+                liveMeta = { w: playersData.w, b: playersData.b, wn: w.name, wi: w.icon, bn: b.name, bi: b.icon, st: liveStart };
+                update(ref(db, 'live/' + liveRoom), Object.assign({ mc: moveCount, ts: Date.now() }, liveMeta)).catch(() => {});
+                liveTimer = setInterval(() => {
+                    if (!isGameStarted || isBotMode || !currentRoomId || game.game_over()) { stopLive(true); return; }
+                    update(ref(db, 'live/' + liveRoom), { mc: moveCount, ts: Date.now() }).catch(() => {});
+                }, 40000);
+            } catch (e) {}
+        }
+        function liveTouch() { if (liveRoom) { try { update(ref(db, 'live/' + liveRoom), { mc: moveCount, ts: Date.now() }).catch(() => {}); } catch (e) {} } }
+        function stopLive(removeNode) {
+            clearInterval(liveTimer); liveTimer = null;
+            if (removeNode && liveRoom) { try { remove(ref(db, 'live/' + liveRoom)).catch(() => {}); } catch (e) {} }
+            if (removeNode) liveRoom = null;
+        }
+
         let settingsTab = 'profile';
         function selectSettingsTab(name) {
             settingsTab = name;
@@ -2305,13 +2428,13 @@
             if (snap.exists()) {
                 const data = snap.val();
                 if (data.uid !== myUid && queueFresh(data)) {
-                    let alive = false;   // 상대가 만든 방이 아직 살아 있는지 확인
-                    try { const rs = await get(ref(db, `rooms/${data.roomId}/players`)); alive = rs.exists() && !!rs.val().w && !rs.val().b; } catch (e) {}
+                    let alive = false, jc = 'b';   // 상대가 만든 방이 아직 살아 있는지 확인 (jc: 내가 앉을 빈 자리 색)
+                    try { const rs = await get(ref(db, `rooms/${data.roomId}/players`)), v = rs.exists() ? rs.val() : null; alive = !!v && (!!v.w !== !!v.b); if (alive) jc = v.w ? 'b' : 'w'; } catch (e) {}
                     if (alive) {
                         isMatchmaking = false;
                         document.getElementById('btn-random').innerText = "🎲 빠른 대전";
                         await remove(queueRef);
-                        joinRoom(data.roomId, 'b');
+                        joinRoom(data.roomId, jc);
                         return;
                     }
                 }
@@ -2319,13 +2442,13 @@
             const newRoomId = push(ref(db, 'rooms')).key;
             await set(queueRef, { uid: myUid, roomId: newRoomId, ts: Date.now() });
             queueOD = onDisconnect(queueRef); queueOD.remove().catch(() => {});   // 기다리다 나가면 대기열에서 자동 제거
-            createRoom(newRoomId, 'w');
+            createRoom(newRoomId, Math.random() < 0.5 ? 'w' : 'b');   // 방을 만든 쪽의 색은 무작위
         };
 
         document.getElementById('btn-create-room').onclick = async () => {
             await cancelMatchmaking(); matchKind = 'friend';
             const code = Math.floor(1000 + Math.random() * 9000).toString();
-            createRoom(code, 'w'); setLobbyMsg(""); showInvite(code);
+            createRoom(code, Math.random() < 0.5 ? 'w' : 'b'); setLobbyMsg(""); showInvite(code);   // 방을 만든 쪽의 색은 무작위
         };
         document.getElementById('btn-close-room').onclick = async () => { await cancelMatchmaking(); setLobbyMsg("방을 닫았어요."); };
         document.getElementById('btn-copy-code').onclick = async () => {
@@ -2347,11 +2470,11 @@
             const code = document.getElementById('room-input').value.trim();
             if (!/^\d{4}$/.test(code)) return setLobbyMsg("초대 코드 4자리를 입력해 주세요.");
             if (await cleanupStaleRoom(code)) return setLobbyMsg("찾을 수 없는 코드예요. 코드를 다시 확인해 주세요.");
-            const snap = await get(ref(db, `rooms/${code}/players`));
-            if (!snap.exists() || !snap.val().w) return setLobbyMsg("찾을 수 없는 코드예요. 코드를 다시 확인해 주세요.");
-            if (snap.val().b && snap.val().b !== myUid) return setLobbyMsg("이미 두 명이 입장한 방이에요.");
-            if (snap.val().w === myUid) return setLobbyMsg("내가 만든 방이에요. 친구에게 코드를 알려주세요.");
-            matchKind = 'friend'; joinRoom(code, 'b');
+            const snap = await get(ref(db, `rooms/${code}/players`)), pv = snap.exists() ? snap.val() : null;
+            if (!pv || (!pv.w && !pv.b)) return setLobbyMsg("찾을 수 없는 코드예요. 코드를 다시 확인해 주세요.");
+            if (pv.w && pv.b && pv.w !== myUid && pv.b !== myUid) return setLobbyMsg("이미 두 명이 입장한 방이에요.");
+            if ((pv.w === myUid && !pv.b) || (pv.b === myUid && !pv.w)) return setLobbyMsg("내가 만든 방이에요. 친구에게 코드를 알려주세요.");
+            matchKind = 'friend'; joinRoom(code, pv.w === myUid ? 'w' : (pv.b === myUid ? 'b' : (pv.w ? 'b' : 'w')));   // 방장이 앉은 색의 반대편 자리로 들어간다
         };
 
         function vsRankText(p, guest) { return guest ? '랭크 없음 (게스트)' : `랭크 ${Math.max(0, Number(p.score) || 0)}점`; }
@@ -2448,6 +2571,7 @@
                 else document.body.classList.remove('black-pov');
                 
                 setupPresence();
+                publishLive(playersData, userProfile, oppProfile);
 
                 if (opts.resume) {
                     if (opts.restoredState) {
@@ -2490,7 +2614,7 @@
         }
 
         function pushGameAction(payload) {
-            if (isBotMode || !currentRoomId) return;
+            if (isBotMode || !currentRoomId || isSpectating) return;
             const pr = push(ref(db, `rooms/${currentRoomId}/actions`), { ...payload, uid: myUid, ts: Date.now() });
             if (pr && pr.key && pr.key > lastActionKey) lastActionKey = pr.key;
         }
@@ -2508,6 +2632,7 @@
                 if (appliedActionKeys.has(key)) return; appliedActionKeys.add(key);
                 action._key = key;
                 if (resumeCursor !== null && key <= resumeCursor) return;   // 저장된 상태에 이미 반영된 행동
+                if (isSpectating) { if (key > lastActionKey) lastActionKey = key; specEnqueue(action); return; }   // 관전: 두 사람의 행동을 순서대로 처리한다
                 if (action.uid === myUid) {
                     // 내 행동은 보통 이미 적용되어 있으므로 건너뛰되, 이어하기 직후 '서버에는 있지만 저장본엔 없는' 내 수/증강만 다시 적용
                     if (backlogEnd !== null && key <= backlogEnd && (action.type === 'move' || action.type === 'augment_sync')) { if (key > lastActionKey) lastActionKey = key; handleRemoteAction(action); }
@@ -2516,6 +2641,121 @@
                 if (key > lastActionKey) lastActionKey = key;
                 handleRemoteAction(action);
             });
+        }
+
+
+        // ==========================================
+        // 관전 (실시간 전투)
+        // ==========================================
+        async function startSpectate(roomId) {
+            if (isGameStarted || isSpectating || !myUid || !roomId) return;
+            setLobbyMsg('전투를 불러오는 중…');
+            let players = null;
+            try { const ps = await get(ref(db, `rooms/${roomId}/players`)); players = ps.exists() ? ps.val() : null; } catch (e) {}
+            if (!players || !players.w || !players.b) { setLobbyMsg('이미 끝났거나 찾을 수 없는 전투예요.'); return; }
+            if (players.w === myUid || players.b === myUid) { setLobbyMsg('내가 참여 중인 전투예요.'); return; }
+            let wp = null, bp = null;
+            try { [wp, bp] = await Promise.all([getUserCore(players.w), getUserCore(players.b)]); } catch (e) {}
+            const cands = [];
+            try { const ss = await get(ref(db, `rooms/${roomId}/states`)); if (ss.exists()) Object.values(ss.val()).forEach(v => cands.push(v)); } catch (e) {}
+            const state = pickBestState(cands);
+            if (isGameStarted || isSpectating) return;   // 기다리는 사이 다른 화면으로 넘어갔다면 중단
+            stopLiveList(); setLobbyMsg('');
+            specSession++; isSpectating = true; specPlayers = players;
+            specNames = { w: (wp && wp.name) || '백', b: (bp && bp.name) || '흑' };
+            specQueue = []; specCasting = false; specAugOpen = false; specPreview = null; specSelect = null; specPickColor = null; clearTimeout(specPumpTimer);
+            document.body.classList.add('spectating'); document.body.classList.remove('black-pov');
+            isBotMode = false; myColor = 'w'; currentRoomId = roomId; isGameStarted = true; statsRecorded = true; rankCtx = null;
+            modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'none';
+            resetGameUI(); showBoardContainer();
+            opponentAugmentSelection = null; opponentAugmentPreview = null; opponentAugmentPreviewColor = null;
+            playerInfo.style.display = 'block'; playerInfo.innerText = `👁 관전 중 · ${specNames.w} (백) vs ${specNames.b} (흑)`;
+            if (state) {
+                deserializeGameState(state);
+                if (!Array.isArray(pendingAugments)) pendingAugments = [];
+                drawPieces(); updateBoardVisuals(); updateTurnIndicator(); updateProgressBar(); updateCheckStatus();
+                try { resumeCursor = JSON.parse(state).actionCursor || ''; } catch (e) { resumeCursor = ''; }
+                lastActionKey = resumeCursor; replayFrames = []; recordFrame('resume');
+                if (activeAugmentOptions && activeAugmentPlayerColor) {   // 증강을 고르는 도중에 들어온 경우
+                    specAugOpen = true; isSystemLocked = true; specPickColor = activeAugmentPlayerColor;
+                    specPreview = { color: activeAugmentPlayerColor, preview: activeAugmentOptions }; specShowPick();
+                }
+            } else { resumeCursor = null; lastActionKey = ''; }
+            setupNetworkListeners();
+        }
+        function leaveSpectate() {
+            if (!isSpectating) return;
+            specSession++; clearTimeout(specPumpTimer); specQueue = [];
+            if (networkUnsub) { try { networkUnsub(); } catch (e) {} networkUnsub = null; }
+            isSpectating = false; specPlayers = null; specCasting = false; specAugOpen = false; specPreview = null; specSelect = null; specPickColor = null;
+            document.body.classList.remove('spectating', 'black-pov');
+            document.getElementById('result-overlay').style.display = 'none'; document.getElementById('augment-overlay').style.display = 'none';
+            playerInfo.style.display = 'none'; playerInfo.innerText = '';
+            isGameStarted = false; currentRoomId = null; myColor = null; resumeCursor = null; lastActionKey = '';
+            opponentAugmentSelection = null; opponentAugmentPreview = null; opponentAugmentPreviewColor = null; activeAugmentOptions = null; activeAugmentPlayerColor = null;
+            resetGameUI();
+            modeSelectOverlay.style.display = 'flex'; selectMsTab('live');
+        }
+        function specEnqueue(a) { specQueue.push(a); specPump(); }
+        function specCanRun(a) {
+            switch (a.type) {
+                case 'move': return !isSystemLocked && !specCasting && !replayActive;
+                case 'augment_sync': return !specCasting && !replayActive && (!isSystemLocked || specAugOpen);
+                case 'resign': return !specCasting && !replayActive;
+                default: return true;
+            }
+        }
+        function specPump() {
+            clearTimeout(specPumpTimer);
+            while (isSpectating && specQueue.length) {
+                const a = specQueue[0];
+                if (!specCanRun(a)) { specPumpTimer = setTimeout(specPump, 120); return; }
+                specQueue.shift();
+                try { specRun(a); } catch (e) { console.warn('관전 처리 오류', e); }
+            }
+        }
+        function specRun(a) {
+            if (a.type === 'move') executeMoveLocal(a.from, a.to, a.promotion);
+            else if (a.type === 'augment_sync') { specCasting = true; specPreview = null; specSelect = null; handleRemoteAction(a); }
+            else if (a.type === 'augment_preview') {
+                specPreview = { color: a.playerColor, preview: a.preview }; specSelect = null;
+                if (!specCasting) {
+                    if (!specAugOpen) { specAugOpen = true; isSystemLocked = true; }   // 중간에 들어왔거나 처리가 조금 늦은 경우에도 선택지를 보여 준다
+                    specPickColor = a.playerColor; specShowPick();
+                }
+            } else if (a.type === 'augment_select') {
+                specSelect = { idx: a.idx, confirmed: !!a.confirmed }; opponentAugmentSelection = specSelect;
+                if (specAugOpen && !specCasting) applyOpponentSelection();
+            } else if (a.type === 'resign') {
+                const loser = a.uid === (specPlayers && specPlayers.w) ? 'w' : 'b', winner = loser === 'w' ? 'b' : 'w';
+                showEndScreen(winner === 'w' ? '승리' : '패배', `${specNames[loser]}님이 기권했습니다.`);
+            }
+        }
+        function specShowPick() {
+            const ov = document.getElementById('augment-overlay'), c = specPickColor; if (!c) return;
+            const pv = (specPreview && specPreview.color === c) ? specPreview.preview : null;
+            if (pv) {
+                renderOpponentPreviewCards(pv, c, ov);
+                if (specSelect) { opponentAugmentSelection = specSelect; applyOpponentSelection(); }
+            } else {
+                ov.innerHTML = `<div class="turn-badge ${c === 'w' ? 'white' : 'black'}">선택 중...</div><h2>증강 선택</h2><p style="color:#ccc; margin-bottom:12px; font-size:0.95rem;">선택지를 불러오는 중입니다...</p>`;
+                ov.style.display = 'flex';
+            }
+            const b = ov.querySelector('.turn-badge'); if (b) b.textContent = `${specNames[c]} 선택 중...`;
+            const h = ov.querySelector('h2'); if (h) h.textContent = '증강 선택';
+            const p = ov.querySelector('p'); if (p && pv) p.textContent = '고르고 있는 선택지입니다.';
+        }
+        function specNextPhase() {   // 증강 연출이 끝났거나 증강 단계가 열릴 때 (processNextAugmentPhase의 관전자판)
+            specCasting = false;
+            if (!Array.isArray(pendingAugments) || pendingAugments.length === 0) {
+                specAugOpen = false; specPickColor = null; opponentAugmentSelection = null;
+                document.getElementById('augment-overlay').style.display = 'none';
+                isSystemLocked = false; updateCheckStatus(); updateProgressBar(); updateTurnIndicator();
+                specPump(); return;
+            }
+            specAugOpen = true; isSystemLocked = true; specPickColor = pendingAugments.shift();
+            if (!(specPreview && specPreview.color === specPickColor)) specSelect = null;
+            specShowPick(); specPump();
         }
 
         let replayQueue = [];
@@ -2533,6 +2773,7 @@
                 opponentAugmentSelection = { idx: action.idx, confirmed: !!action.confirmed };
                 applyOpponentSelection();
             } else if (action.type === 'augment_sync') {
+                const __tok = specSession;
                 opponentAugmentSelection = null;
                 document.getElementById('augment-overlay').style.display = 'none';
                 deserializeGameState(action.state); 
@@ -2540,6 +2781,7 @@
                 { const ag = AUGMENT_POOL.find(x => x.name === action.name); recordFrame('augment', { name: action.name, icon: ag ? ag.icon : '✨', t: action.t || [], by: action.by || null, fx: { globalVfx: action.globalVfx || null, t: action.t || [], vfx: action.vfx || '', floats: action.floats || null, fxArg: action.fxArg || null, origin: action.origin || null, fxMoves: action.fxMoves || null, blasts: action.blasts || null, promos: action.promos || null, msg: action.msg || '', delay: action.delay || 1200 } }); }
                 persistRoomGameState().catch(() => {});   // 내 커서 기준으로 저장
                 showCastText(action.name || "증강", () => {
+                    if (__tok !== specSession) return;   // 그 사이 관전을 나갔다면 이어서 처리하지 않는다
                     const lead = playAugmentVisuals({ name: action.name, globalVfx: action.globalVfx, t: action.t, vfx: action.vfx, floats: action.floats, fxArg: action.fxArg, origin: action.origin, fxMoves: action.fxMoves, blasts: action.blasts, promos: action.promos });
                     showToast(action.msg, "var(--primary)", 4000);
                     setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, (action.delay || 1200) + lead);
@@ -2869,6 +3111,8 @@
         };
 
         document.getElementById('btn-return-lobby').onclick = async () => {
+            if (isSpectating) { leaveSpectate(); return; }
+            try { stopLive(true); } catch (e) {}
             document.getElementById('result-overlay').style.display = 'none';
             document.getElementById('game-controls').style.display = 'none';
             document.getElementById('btn-resign').style.display = 'none';
@@ -2999,7 +3243,7 @@
                     while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
                         const p = B[nr][nc];
                         if (p) {
-                            if (p.type !== 'wall' && p.color === attackerColor && (p.type === 'q' || p.type === (diag ? 'b' : 'r')) && !(rootedPieces[p.uid] > keep)) return true;
+                            if (p.type !== 'wall' && p.color === attackerColor && (p.type === 'q' || (future && p.type === 'p' && prospects[p.uid] === 1) || p.type === (diag ? 'b' : 'r')) && !(rootedPieces[p.uid] > keep)) return true;   // 유망주 폰은 내 수 직후 퀸이 되므로 퀸처럼 공격한다
                             break;
                         }
                         nr += dr; nc += dc;
@@ -3065,8 +3309,8 @@
                     if (piece.type === 'k' && !this.in_check(color)) {
                         const rights = this.castling[color]; const backRank = color === 'w' ? 7 : 0;
                         if (r === backRank && c === 4) {
-                            if (rights.k && this.castleOk(color, 'k') && (!this._board[r][5] || this._board[r][5].type !== 'wall') && (!this._board[r][6] || this._board[r][6].type !== 'wall') && !this._board[r][5] && !this._board[r][6] && !this.isSquareAttacked(r, 5, color==='w'?'b':'w') && !this.isSquareAttacked(r, 6, color==='w'?'b':'w')) pseudoMoves.push({ r: r, c: 6, flags: 'k' });
-                            if (rights.q && this.castleOk(color, 'q') && (!this._board[r][3] || this._board[r][3].type !== 'wall') && (!this._board[r][2] || this._board[r][2].type !== 'wall') && !this._board[r][3] && !this._board[r][2] && !this._board[r][1] && !this.isSquareAttacked(r, 3, color==='w'?'b':'w') && !this.isSquareAttacked(r, 2, color==='w'?'b':'w')) pseudoMoves.push({ r: r, c: 2, flags: 'q' });
+                            if (rights.k && this.castleOk(color, 'k') && (!this._board[r][5] || this._board[r][5].type !== 'wall') && (!this._board[r][6] || this._board[r][6].type !== 'wall') && !this._board[r][5] && !this._board[r][6] && !this.isSquareAttacked(r, 5, color==='w'?'b':'w', undefined, true) && !this.isSquareAttacked(r, 6, color==='w'?'b':'w', undefined, true)) pseudoMoves.push({ r: r, c: 6, flags: 'k' });
+                            if (rights.q && this.castleOk(color, 'q') && (!this._board[r][3] || this._board[r][3].type !== 'wall') && (!this._board[r][2] || this._board[r][2].type !== 'wall') && !this._board[r][3] && !this._board[r][2] && !this._board[r][1] && !this.isSquareAttacked(r, 3, color==='w'?'b':'w', undefined, true) && !this.isSquareAttacked(r, 2, color==='w'?'b':'w', undefined, true)) pseudoMoves.push({ r: r, c: 2, flags: 'q' });
                         }
                     }
                     for (let pi = 0; pi < pseudoMoves.length; pi++) {
@@ -3146,6 +3390,7 @@
         const boardEl = document.getElementById('board'); const turnDisplayEl = document.getElementById('turn-display');
         
         let selectedSquare = null; let legalMoves = []; let moveCount = 0;
+        let premove = null, premoveTimer = null, premoveReady = 0;   // 수 예약: { from, to, uid }
         const AUGMENT_INTERVAL = 7; let isSystemLocked = false; let pendingAugments = [];
         let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {}; let mines = []; let prospects = {}; let pactPieces = {};
         let futureAttack = false; let activeWalls = []; let reversedPawns = { w: 0, b: 0 }; let reversedUids = { w: {}, b: {} };   // 자아 분열 발동 당시 존재하던 폰의 uid만 효과를 받는다
@@ -3174,7 +3419,7 @@
             activeWalls = []; reversedPawns = { w: 0, b: 0 }; reversedUids = { w: {}, b: {} }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = { w: null, b: null }; blackout = { w: 0, b: 0 }; lastCheckKey = '';
             if (targeting) { clearTargetVisuals(); targeting = null; }
             clearTimeout(endRevealTimer);
-            isSystemLocked = false; selectedSquare = null; legalMoves = []; selectedAugmentIdx = -1; previousMove = null; drawDots();
+            isSystemLocked = false; selectedSquare = null; legalMoves = []; selectedAugmentIdx = -1; previousMove = null; clearPremove(); drawDots();
             muteShatter = true; drawPieces(false); muteShatter = false; updateProgressBar(); updateTurnIndicator(); updateBoardVisuals(); updateCheckStatus(); updatePreviousMoveHighlights();
             document.querySelectorAll('.floating-text').forEach(e => e.remove());
             stopReplayUI(); replayFrames = []; historySaved = false; recordFrame('start');
@@ -3264,11 +3509,11 @@
                 el.style.transform = 'scale(0) rotate(45deg)'; el.style.opacity = '0';
                 setTimeout(() => el.remove(), 300);
             });
-            updateFog();
+            updateFog(); renderPremove();
         }
 
         function drawDots() {
-            dotsLayer.innerHTML = '';
+            dotsLayer.innerHTML = ''; dotsLayer.style.zIndex = isFogOn() ? '2' : '';   // 암전 안개(z-index 1) 위로 점을 올린다
             legalMoves.forEach(move => {
                 const coords = getCoords(move.to); const el = document.createElement('div');
                 if (!isFogOn() && (game.get(move.to) || move.captured)) el.className = 'capture-ring'; else el.className = 'dot';
@@ -3276,7 +3521,7 @@
             });
             squareList.forEach(s => s.classList.remove('selected'));
             if(selectedSquare) squareEls.get(selectedSquare).classList.add('selected');
-            updatePreviousMoveHighlights();
+            updatePreviousMoveHighlights(); renderPremove();
         }
 
         function updateProgressBar() {
@@ -4394,7 +4639,7 @@
                 });
             });
             const wantMine = new Set();   // 지뢰는 설치한 사람에게만 보인다 (리플레이에서는 모두 공개)
-            mines.forEach(mi => { if (mi.owner === myColor || mineReveal || (replayActive && replayMode !== 'live')) wantMine.add(mi.sq); });
+            mines.forEach(mi => { if (mi.owner === myColor || isSpectating || mineReveal || (replayActive && replayMode !== 'live')) wantMine.add(mi.sq); });
             squareEls.forEach((el, sq) => { const mk = el.querySelector('.mine-mark'); if (mk && !wantMine.has(sq)) mk.remove(); });
             wantMine.forEach(sq => { const el = squareEls.get(sq); if (!el || el.querySelector('.mine-mark')) return; const mk = document.createElement('span'); mk.className = 'mine-mark'; mk.textContent = '💣'; el.appendChild(mk); });
         }
@@ -4883,7 +5128,8 @@
         new MutationObserver(() => { document.getElementById('history-strip').style.display = document.getElementById('btn-settings-game').style.display === 'block' ? 'flex' : 'none'; })
             .observe(document.getElementById('btn-settings-game'), { attributes: true, attributeFilter: ['style'] });
         document.getElementById('btn-replay').onclick = startReplay;
-        document.getElementById('rp-exit').onclick = exitReplay; document.getElementById('btn-replay-exit').onclick = exitReplay;
+        document.getElementById('rp-exit').onclick = exitReplay;
+        document.getElementById('btn-replay-exit').onclick = async () => { if (replayActive) exitReplay(); else if (isSpectating) { if (await askConfirm('관전을 그만할까요?', { ok: '나가기' })) leaveSpectate(); } else exitReplay(); };
         document.getElementById('rp-first').onclick = () => { replaySetPlaying(false); replayShow(0, false); };
         document.getElementById('rp-last').onclick = () => { replaySetPlaying(false); replayShow(replayFrames.length - 1, false); };
         document.getElementById('rp-prev').onclick = () => { replaySetPlaying(false); replayShow(replayIdx - 1, false); };
@@ -4933,7 +5179,7 @@
             try { botReactEnd(resultType); } catch (e) {}
             lastRank = null; mineReveal = true; updateBoardVisuals();   // 게임이 끝나면 모든 지뢰 위치를 바로 공개
             const delay = opts.delay || 0;
-            saveGameToHistory(resultType, reasonStr);
+            if (!isSpectating) { saveGameToHistory(resultType, reasonStr); stopLive(true); }
 
             if(!isBotMode && myUid && !statsRecorded) {
                 statsRecorded = true;
@@ -4953,7 +5199,8 @@
                 if(resultType === '승리') { title.innerText = "승리!"; title.style.color = "#2ecc71"; }
                 else if(resultType === '패배') { title.innerText = "패배"; title.style.color = "#ff4757"; }
                 else { title.innerText = "무승부"; title.style.color = "#f1c40f"; }
-                document.getElementById('result-desc').innerText = reasonStr;
+                if (isSpectating) { if (resultType === '무승부') title.innerText = '무승부'; else { title.innerText = (resultType === '승리' ? '백' : '흑') + ' 승리!'; title.style.color = '#f1c40f'; } }
+                document.getElementById('result-desc').innerText = (isSpectating && resultType !== '무승부') ? `${resultType === '승리' ? specNames.w : specNames.b}님 승리 · ${reasonStr}` : reasonStr;
                 const rkEl = document.getElementById('result-rank');
                 if (lastRank && lastRank.skipped) { rkEl.style.display = 'block'; rkEl.style.color = '#9a9aa8'; rkEl.textContent = '게스트와의 대전은 랭크에 반영되지 않아요'; }
                 else if (lastRank) { rkEl.style.display = 'none'; }
@@ -5067,10 +5314,11 @@
         // 플레이어 액션 및 AI
         // ==========================================
         function onSquareClick(sq) {
+            if (isSpectating) return;   // 관전 중에는 조작할 수 없다
             if (replayActive) { if (replayMode !== 'live') document.getElementById('rp-play').click(); return; }
             if (targeting) { handleTargetClick(sq); return; }
             if (game.game_over() || isSystemLocked || !isGameStarted) return;
-            if (game.turn() !== myColor) { showToast("내 턴이 아닙니다!", "var(--danger)", 1500); return; }
+            if (game.turn() !== myColor) { onPremoveClick(sq); return; }   // 상대 차례에는 수를 예약한다
 
             if (!selectedSquare) {
                 const piece = game.get(sq);
@@ -5090,6 +5338,66 @@
                     else { selectedSquare = null; legalMoves = []; drawDots(); }
                 }
             }
+        }
+
+
+        // ---- 수 예약: 상대 차례에 미리 둘 수를 정해 두면, 내 차례가 될 때 둘 수 있을 때만 자동으로 둔다 ----
+        function premoveMoves(sq) {   // 상대 차례 중에 내 기물의 이동 후보를 얻는다 (차례·앙파상 상태를 잠시 바꿔서 계산)
+            const t = game._turn, ep = game.ep_square; let ms = [];
+            try { game._turn = myColor; game.ep_square = null; ms = game.moves({ square: sq }); } catch (e) { ms = []; }
+            game._turn = t; game.ep_square = ep; return ms;
+        }
+        function clearPremove() {
+            premove = null; premoveReady = 0; clearInterval(premoveTimer); premoveTimer = null;
+            const layer = document.getElementById('premove-layer'); if (layer) layer.innerHTML = '';
+        }
+        function renderPremove() {
+            const layer = document.getElementById('premove-layer'); if (!layer) return;
+            if (premove) {
+                const pc = game.get(premove.from);
+                if (!pc || pc.uid !== premove.uid || pc.color !== myColor || game.game_over()) { clearPremove(); return; }
+            }
+            layer.innerHTML = ''; if (!premove) return;
+            const pc = game.get(premove.from), type = (pc.type === 'p' && premove.to[1] === (myColor === 'w' ? '8' : '1')) ? 'q' : pc.type;
+            const f = getCoords(premove.from), t = getCoords(premove.to);
+            const a = document.createElement('div'); a.className = 'pm-from'; a.style.left = f.x + '%'; a.style.top = f.y + '%';
+            const b = document.createElement('div'); b.className = 'pm-to'; b.style.left = t.x + '%'; b.style.top = t.y + '%';
+            b.innerHTML = svgPieces[type.toUpperCase()].replace(/{fill}/g, '#ff7b7b').replace(/{stroke}/g, '#b3261e');
+            layer.appendChild(a); layer.appendChild(b);
+        }
+        function setPremove(from, to) {
+            const pc = game.get(from); if (!pc) return;
+            premove = { from, to, uid: pc.uid }; premoveReady = 0;
+            if (!premoveTimer) premoveTimer = setInterval(premoveTick, 250);
+            renderPremove();
+        }
+        function onPremoveClick(sq) {
+            const piece = game.get(sq);
+            const pick = () => { selectedSquare = sq; legalMoves = premoveMoves(sq); drawDots(); notifyRooted(piece); };
+            if (selectedSquare) {
+                if (selectedSquare === sq) { selectedSquare = null; legalMoves = []; drawDots(); return; }
+                if (legalMoves.find(m => m.to === sq)) {
+                    if (premove && premove.from === selectedSquare && premove.to === sq) clearPremove(); else setPremove(selectedSquare, sq);   // 같은 수를 다시 누르면 취소
+                    selectedSquare = null; legalMoves = []; drawDots(); return;
+                }
+                if (piece && piece.color === myColor) pick(); else { selectedSquare = null; legalMoves = []; drawDots(); }
+                return;
+            }
+            if (premove && sq === premove.to) { clearPremove(); drawDots(); return; }   // 잔상이 있는 칸을 누르면 취소
+            if (piece && piece.color === myColor) pick();
+        }
+        function premoveTick() {
+            if (!premove) { clearPremove(); return; }
+            if (game.game_over() || !isGameStarted) { clearPremove(); return; }
+            const ao = document.getElementById('augment-overlay');
+            if (game.turn() !== myColor || isSystemLocked || replayActive || targeting || (ao && ao.style.display === 'flex')) { premoveReady = 0; return; }
+            if (++premoveReady < 2) return;   // 상대의 수를 잠깐 보여 준 뒤 둔다
+            const pm = premove; clearPremove();
+            const pc = game.get(pm.from); if (!pc || pc.uid !== pm.uid || pc.color !== myColor) return;
+            const mv = game.moves({ square: pm.from }).find(m => m.to === pm.to); if (!mv) return;   // 둘 수 없게 되었으면 두지 않는다
+            const promo = mv.promotion ? 'q' : null;
+            pushGameAction({ type: 'move', from: pm.from, to: pm.to, promotion: promo });
+            executeMoveLocal(pm.from, pm.to, promo);
         }
 
         function showPromotionUI(from, to) {
@@ -5155,7 +5463,7 @@
             updatePreviousMoveHighlights();
             
 
-            setTimeout(() => handlePostMove(), 300);
+            { const __t = specSession; setTimeout(() => { if (__t === specSession) handlePostMove(); }, 300); }
         }
 
         function releaseVine(uid) {   // 속박이 풀리는 칸에 낙엽 연출
@@ -5202,7 +5510,7 @@
                 isSystemLocked = false;
                 if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 600);
             }
-            persistRoomGameState().catch(() => {});
+            persistRoomGameState().catch(() => {}); liveTouch();
         }
 
         function makeBotMove() {
@@ -5347,13 +5655,13 @@
             }
             return born;
         }
-        const isFogOn = () => !!(isGameStarted && (replayActive ? (replayMode === 'live' && replayFogLock) : blackout[myColor] > 0));   // 이전 수 보기 중에도 현재 암전 상태면 그대로 어둡게 (되감아서 정보를 훔쳐보지 못하게)
+        const isFogOn = () => !!(isGameStarted && !isSpectating && (replayActive ? (replayMode === 'live' && replayFogLock) : blackout[myColor] > 0));   // 이전 수 보기 중에도 현재 암전 상태면 그대로 어둡게 (되감아서 정보를 훔쳐보지 못하게)
         function updateBlackoutBadge() {
             const el = document.getElementById('blackout-badge'); if (!el) return;
             const e = myColor === 'w' ? 'b' : 'w', me = el.querySelector('.bo-me'), foe = el.querySelector('.bo-foe');
             const myOn = !!(isGameStarted && blackout[myColor] > 0), foeOn = !!(isGameStarted && blackout[e] > 0);
-            me.textContent = myOn ? `💡 암전 ${blackout[myColor]}수 남음` : ''; me.style.display = myOn ? '' : 'none';
-            foe.textContent = foeOn ? `💡 적 암전 ${blackout[e]}수 남음` : ''; foe.style.display = foeOn ? '' : 'none';
+            me.textContent = myOn ? (isSpectating ? `💡 백 암전 ${blackout[myColor]}수 남음` : `💡 암전 ${blackout[myColor]}수 남음`) : ''; me.style.display = myOn ? '' : 'none';
+            foe.textContent = foeOn ? (isSpectating ? `💡 흑 암전 ${blackout[e]}수 남음` : `💡 적 암전 ${blackout[e]}수 남음`) : ''; foe.style.display = foeOn ? '' : 'none';
             el.style.display = (myOn || foeOn) ? 'flex' : 'none';
         }
         function updateFog() {
@@ -5361,6 +5669,7 @@
             const on = isFogOn(), lit = new Set(on ? findPieces(myColor) : []);
             squareList.forEach(el => el.classList.toggle('fog', on && !lit.has(el.dataset.square)));
             pieceEls.forEach(el => el.classList.toggle('piece-hidden', on && el.dataset.color !== myColor));
+            dotsLayer.style.zIndex = (on && legalMoves.length) ? '2' : '';
             updateMoveTrail();
         }
 
@@ -6164,6 +6473,7 @@
         }
 
         function processNextAugmentPhase() {
+            if (isSpectating) { specNextPhase(); return; }
             opponentAugmentSelection = null;
             opponentAugmentPreview = null;
             opponentAugmentPreviewColor = null;
