@@ -921,6 +921,28 @@
         .augment-card.dimmed.confirmed { animation: augConfirm .45s ease-out both; box-shadow: 0 0 0 3px var(--primary), 0 10px 28px rgba(243,156,18,0.55) !important; }
         .augment-card.dimmed { position: relative; }
         @keyframes augConfirm { 0% { transform: translateY(-4px) scale(1.02); } 45% { transform: translateY(-6px) scale(1.07); } 100% { transform: translateY(-4px) scale(1.03); } }
+
+        /* v3.37: 증강 카드 i 버튼 + 정보 팝업 */
+        .aug-info { position: absolute; top: 5px; right: 5px; z-index: 3; width: 19px; height: 19px; padding: 0; border-radius: 50%; border: 1px solid rgba(var(--acc), 0.6); background: rgba(0,0,0,0.38); color: rgb(var(--acc-soft)); font: italic 800 0.72rem/1 Georgia, 'Times New Roman', serif; display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .aug-info::after { content: ''; position: absolute; inset: -7px; }
+        .aug-info:active { background: rgba(var(--acc), 0.3); }
+        #aug-info-overlay .help-box { width: 100%; max-width: 440px; padding: 0 !important; overflow: hidden; display: flex; flex-direction: column; max-height: min(92vh, 720px); text-align: left; --acc: 150,150,170; --acc-soft: 200,200,215; }
+        .aug-info-box.augment-type-damage { --acc: 255,107,94; --acc-soft: 255,196,188; }
+        .aug-info-box.augment-type-summon { --acc: 61,220,151; --acc-soft: 176,244,212; }
+        .aug-info-box.augment-type-utility { --acc: 90,169,255; --acc-soft: 190,220,255; }
+        .aug-info-box.augment-type-other { --acc: 176,124,255; --acc-soft: 222,200,255; }
+        .aug-info-box.augment-type-move { --acc: 255,170,80; --acc-soft: 255,215,170; }
+        .ai-body { padding: 2px 20px 14px; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1 1 auto; min-height: 0; }
+        .ai-meta { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 8px; }
+        .ai-desc { margin: 0 0 12px; font-size: 0.9rem; line-height: 1.65; color: var(--text-color); word-break: keep-all; }
+        .aug-info-box .hd-actions { padding-bottom: 4px; }
+        /* 잭팟 미리보기: 증강 선택 화면을 판 위에 그대로 보여 준다 */
+        body.demo-mode.demo-cards #augment-overlay { display: flex !important; position: fixed; inset: 0; z-index: 60; padding: 0; }
+        body.demo-cards #augment-overlay .turn-badge, body.demo-cards #augment-overlay h2, body.demo-cards #augment-overlay .augment-hint, body.demo-cards #augment-overlay .aug-info { display: none !important; }
+        body.demo-cards #augment-overlay .cards-container { width: 94%; max-width: none; gap: 6px; margin: 0 auto; }
+        body.demo-cards #augment-overlay .augment-card .augment-desc { font-size: 0.56rem !important; line-height: 1.3 !important; }
+        body.demo-cards #augment-overlay .augment-card .augment-icon { width: 26px !important; height: 26px !important; font-size: 1rem !important; margin-bottom: 3px !important; }
+        body.demo-cards #augment-overlay .augment-card .augment-title { font-size: 0.7rem !important; }
     </style>
 </head>
 <body>
@@ -938,7 +960,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.36';
+      var VERSION = 'v3.37';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -1511,6 +1533,18 @@
         </div>
     </div>
 
+    <div id="aug-info-overlay" class="overlay" style="display: none; z-index: 330;">
+        <div class="lobby-box help-box aug-info-box" role="dialog" aria-label="증강 정보">
+            <div class="help-head"><h2 id="ai-title"></h2><button id="ai-close" class="settings-x" aria-label="닫기"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+            <div class="ai-body">
+                <div id="ai-meta" class="ai-meta"></div>
+                <div id="ai-desc" class="ai-desc"></div>
+                <div class="hd-stage"><div class="hd-loading">불러오는 중…</div></div>
+                <div class="hd-cap"></div>
+                <div class="hd-actions"><button type="button" class="s-btn hd-replay">↻ 다시 보기</button></div>
+            </div>
+        </div>
+    </div>
     <div id="augment-overlay" class="overlay" style="z-index: 250;"></div>
     <div id="promo-overlay" class="overlay" style="z-index: 250;">
         <h2>승급 선택</h2>
@@ -4415,7 +4449,7 @@
             let svg = document.getElementById('move-trail'), on = false;
             try { on = !!(isFogOn() && previousMove && previousMove.color !== myColor); } catch (e) { on = false; }
             if (!on) { if (svg) svg.remove(); return; }
-            const key = previousMove.from + '>' + previousMove.to + '#' + moveCount;
+            const key = previousMove.from + '>' + previousMove.to + '#' + previousMove.color;   // moveCount는 넣지 않는다: 수 직후 handlePostMove가 올리면 같은 화살표가 다시 그려져 끊겨 보였다
             if (svg && svg.dataset.key === key) return;
             if (svg) svg.remove();
             const NS = 'http://www.w3.org/2000/svg', mk = (tag, attrs) => { const e = document.createElementNS(NS, tag); Object.keys(attrs).forEach(k => e.setAttribute(k, attrs[k])); return e; };
@@ -5880,7 +5914,17 @@
             '앙파상+': { w: 'Ke1 Qd1 Ra1 Rh1 Bc1 Bf1 Nb1 Ng1 Pa2 Pb2 Pc2 Pg2 Ph2 Pd4 Pe4 Pf4', b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Ng8 Rh8 Pa7 Pb7 Pc7 Pg7 Ph7 Pd5 Pe5 Pf5' },
             '차원 장벽': { target: 'd4', cap: '장벽은 10수 동안 모든 이동을 막습니다' },
             '빛의 수호': { cap: '무적이 된 폰은 2수 동안 잡히지 않습니다' },
-            '잭팟': { cap: '이후 증강 단계에서 선택지가 한 장 더 나옵니다' },
+            '잭팟': { cap: '이후 증강 단계에서 선택지가 한 장 더 나옵니다',
+                after: async h => {
+                    h.cap('다음 증강 단계부터 선택지가 4장 나옵니다'); await h.wait(900);
+                    const avail = AUGMENT_POOL.filter(a => a.name !== '잭팟' && a.condition('w', 'b')), opts = weightedSample(avail, augmentOptionCount('w'));
+                    document.body.classList.add('demo-cards'); selectedAugmentIdx = -1; showAugmentCards('w', opts);
+                    await h.wait(1700); h.cap('카드를 한 번 눌러 고르고…');
+                    const cs = document.querySelectorAll('#augment-overlay .augment-card'), k = Math.floor(Math.random() * cs.length);
+                    if (cs[k]) cs[k].classList.add('selected');
+                    await h.wait(1700); h.cap('한 번 더 누르면 발동합니다'); await h.wait(1500);
+                    document.getElementById('augment-overlay').style.display = 'none'; document.body.classList.remove('demo-cards');
+                } },
             '지뢰 찾기': { b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Ng8 Rh8 Pa7 Pb7 Pc7 Pd7 Pf7 Pg7 Ph7 Pe5', target: 'e4', turn: 'b',
                 after: async h => { h.cap('상대는 지뢰를 볼 수 없습니다. 그 칸에 들어가면…'); await h.wait(700); await h.move('e5', 'e4'); } },
             '동귀어진': { w: 'Ke1 Qd1 Ra1 Rh1 Bc1 Bf1 Nb1 Pa2 Pb2 Pc2 Pd2 Pf2 Pg2 Ph2 Ne4', b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Ng8 Rh8 Pa7 Pb7 Pc7 Pe7 Pf7 Pg7 Ph7 Pd5', target: 'e4', turn: 'b',
@@ -5968,6 +6012,7 @@
             const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
             let built = false, openItem = null, curFrame = null, loadTimer = null;
             const demoSrc = name => __APP_SRC.replace(/<head[^>]*>/i, m => m + '<script>window.__AUG_DEMO__=' + JSON.stringify({ name }).replace(/</g, '\\u003c') + ';<\/script>');
+            window.__augDemoSrc = demoSrc;   // 증강 정보 팝업도 같은 미리보기를 쓴다
             window.addEventListener('message', e => {
                 const d = e.data; if (!d || d.aug !== 'demo' || !openItem || !curFrame || e.source !== curFrame.contentWindow) return;
                 const cap = openItem.querySelector('.hd-cap'), load = openItem.querySelector('.hd-loading');
@@ -6024,6 +6069,52 @@
             ov.addEventListener('click', e => { if (e.target === ov) closeAll(); });
         })();
 
+
+        // ---- 증강 카드 i 버튼: 정보 팝업 (설명 + 실제 발동 미리보기) ----
+        function bindAugInfo(root) {
+            if (!root) return;
+            root.querySelectorAll('.aug-info').forEach(b => {
+                b.onpointerdown = e => e.stopPropagation();
+                b.onclick = e => { e.stopPropagation(); e.preventDefault(); if (window.__openAugInfo) window.__openAugInfo(b.dataset.aug); };
+            });
+        }
+        (function setupAugInfo() {
+            const ov = document.getElementById('aug-info-overlay'); if (!ov) return;
+            const box = ov.querySelector('.aug-info-box'), stage = ov.querySelector('.hd-stage'), load = ov.querySelector('.hd-loading'), cap = ov.querySelector('.hd-cap'), replay = ov.querySelector('.hd-replay');
+            const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+            let curFrame = null, loadTimer = null, curName = null;
+            function play() {
+                const aug = AUGMENT_POOL.find(a => a.name === curName); if (!aug) return;
+                cap.textContent = ''; replay.classList.remove('ready'); load.style.display = ''; load.textContent = '불러오는 중…';
+                stage.querySelectorAll('iframe').forEach(f => f.remove());
+                const f = document.createElement('iframe'); f.className = 'hd-frame'; f.setAttribute('scrolling', 'no'); f.setAttribute('title', aug.name + ' 미리보기');
+                curFrame = f; stage.insertBefore(f, load);
+                try { f.srcdoc = window.__augDemoSrc(aug.name); } catch (e) { load.textContent = '미리보기를 불러오지 못했어요.'; return; }
+                clearTimeout(loadTimer); loadTimer = setTimeout(() => { if (load.style.display !== 'none') load.textContent = '미리보기를 불러오지 못했어요. 다시 보기를 눌러 주세요.'; }, 12000);
+            }
+            function close() {
+                clearTimeout(loadTimer); stage.querySelectorAll('iframe').forEach(f => f.remove()); curFrame = null; curName = null; ov.style.display = 'none';
+            }
+            window.__openAugInfo = function (name) {
+                const aug = AUGMENT_POOL.find(a => a.name === name); if (!aug) return;
+                curName = name; const risk = getAugmentRiskLabel(aug);
+                box.className = 'lobby-box help-box aug-info-box ' + getAugmentCategoryClass(aug);
+                document.getElementById('ai-title').textContent = aug.icon + ' ' + aug.name;
+                document.getElementById('ai-meta').innerHTML = `<span class="help-aug-tag">${esc(getAugmentCategoryLabel(aug))}</span>` + (risk ? `<span class="help-aug-tag risk">${esc(risk)}</span>` : '');
+                document.getElementById('ai-desc').innerHTML = renderAugDesc(aug.desc);
+                ov.style.display = 'flex'; play();
+            };
+            window.addEventListener('message', e => {
+                const d = e.data; if (!d || d.aug !== 'demo' || !curFrame || e.source !== curFrame.contentWindow || ov.style.display === 'none') return;
+                if (d.type === 'ready') { clearTimeout(loadTimer); load.style.display = 'none'; }
+                else if (d.type === 'cap' || d.type === 'msg') { cap.textContent = d.text; cap.classList.remove('pop'); void cap.offsetWidth; cap.classList.add('pop'); }
+                else if (d.type === 'done') replay.classList.add('ready');
+            });
+            replay.addEventListener('click', play);
+            document.getElementById('ai-close').addEventListener('click', close);
+            ov.addEventListener('click', e => { if (e.target === ov) close(); });
+        })();
+
         // 설명 마크업: {범위/수량} → 유형 색(진하게), [효과/동작] → 유형 색(연하게)
         function renderAugDesc(desc) {
             return String(desc).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -6063,11 +6154,12 @@
         function renderOpponentPreviewCards(previewOptions, playerColor, overlay) {
             let html = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방 선택 중...</div><h2>적 선택 중</h2><p style="color:#ccc; margin-bottom:12px; font-size:0.95rem;">상대가 볼 수 있는 선택지입니다.</p><div class="cards-container cards-n${previewOptions.length}">`;
             previewOptions.forEach((aug) => {
-                html += `<div class="augment-card ${aug.typeClass} dimmed"><div class="augment-icon">${aug.icon}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${aug.category}</span>${aug.risk ? `<span class="aug-risk">${aug.risk}</span>` : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
+                html += `<div class="augment-card ${aug.typeClass} dimmed"><button type="button" class="aug-info" data-aug="${aug.name}" aria-label="${aug.name} 정보">i</button><div class="augment-icon">${aug.icon}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${aug.category}</span>${aug.risk ? `<span class="aug-risk">${aug.risk}</span>` : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
             });
             html += `</div>`;
             overlay.innerHTML = html;
             overlay.style.display = 'flex';
+            bindAugInfo(overlay);
             applyOpponentSelection();
         }
 
@@ -6355,10 +6447,10 @@
                 const typeLabel = getAugmentCategoryLabel(aug);
                 const riskLabel = getAugmentRiskLabel(aug);
                 const typeClass = getAugmentCategoryClass(aug);
-                html += `<div class="augment-card ${typeClass}" data-idx="${idx}"><div class="augment-icon">${aug.icon}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${typeLabel}</span>${riskLabel ? `<span class="aug-risk">${riskLabel}</span>` : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
+                html += `<div class="augment-card ${typeClass}" data-idx="${idx}"><button type="button" class="aug-info" data-aug="${aug.name}" aria-label="${aug.name} 정보">i</button><div class="augment-icon">${aug.icon}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${typeLabel}</span>${riskLabel ? `<span class="aug-risk">${riskLabel}</span>` : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
             });
             html += `</div><div class="augment-hint">카드 바깥쪽을 눌러 필드를 확인하세요.</div>`;
-            overlay.innerHTML = html; overlay.style.display = 'flex';
+            overlay.innerHTML = html; overlay.style.display = 'flex'; bindAugInfo(overlay);
 
             document.querySelectorAll('.augment-card').forEach((card, idx) => {
                 card.onclick = () => {
