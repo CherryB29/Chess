@@ -952,6 +952,7 @@
         .pm-to svg { width: 90%; height: 90%; opacity: 0.5; filter: none; }
         .black-pov .pm-to svg { rotate: 180deg; }
 
+        #away-banner { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 10px); left: 50%; transform: translateX(-50%); z-index: 440; padding: 7px 14px; border-radius: 999px; background: rgba(120,20,20,0.92); border: 1px solid rgba(255,120,120,0.6); color: #fff; font-size: 0.82rem; font-weight: 700; white-space: nowrap; box-shadow: 0 4px 14px rgba(0,0,0,0.4); pointer-events: none; }
         /* v3.39: PLAY 탭(매치메이킹 / 실시간 전투) + 관전 */
         #ms-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
         #ms-tabs button { flex: 1; padding: 9px; border: 1px solid var(--panel-border); border-radius: 10px; background: transparent; color: var(--text-color); font-weight: 700; font-size: 0.9rem; cursor: pointer; }
@@ -972,7 +973,7 @@
         .live-meta::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #e74c3c; animation: livePulse 1.4s ease-in-out infinite; }
         @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .live-empty { padding: 30px 8px; color: #888; font-size: 0.9rem; line-height: 1.6; text-align: center; }
-        body.spectating #btn-resign, body.spectating #btn-settings-game, body.spectating #game-controls, body.spectating .chat-bubble, body.spectating #chat-spacer, body.spectating #btn-replay, body.spectating #result-score { display: none !important; }
+        body.spectating #btn-resign, body.spectating #btn-settings-game, body.spectating #game-controls, body.spectating #chat-spacer, body.spectating #btn-replay, body.spectating #result-score { display: none !important; }
         body.spectating #btn-replay-exit { display: block !important; }
     </style>
 </head>
@@ -991,7 +992,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.39';
+      var VERSION = 'v3.40';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -1584,6 +1585,7 @@
             </div>
         </div>
     </div>
+    <div id="away-banner" style="display: none;"></div>
     <div id="augment-overlay" class="overlay" style="z-index: 250;"></div>
     <div id="promo-overlay" class="overlay" style="z-index: 250;">
         <h2>승급 선택</h2>
@@ -1725,6 +1727,11 @@
         let lastActionKey = '', resumeCursor = null, networkUnsub = null, matchKind = '', queueOD = null;
         // 관전(v3.39)
         let isSpectating = false, specQueue = [], specPlayers = null, specNames = { w: '백', b: '흑' }, specCasting = false, specAugOpen = false, specPumpTimer = null, specPreview = null, specSelect = null, specPickColor = null, specSession = 0;
+        // 재접속 안정화(v3.40): 행동 처리 대기열 / 증강 연출 진행 표시 / 상대 이탈 감시
+        let netQueue = [], netPumpTimer = null, netBlockedSince = 0, netCaughtUp = true, postMovePending = 0, augBusy = false, augBusyAt = 0, resumePv = null;
+        let presenceUnsubs = [], dbConnected = true, presenceEnemyOffline = false, awayTimer = null, awayTick = null, awayStart = 0, specIcons = { w: '👤', b: '👤' };
+        const AWAY_LIMIT_MS = 30000;
+        const augIsBusy = () => augBusy && (Date.now() - augBusyAt < 20000);
         let liveRoom = null, liveTimer = null, liveMeta = null, liveStart = 0, liveUnsub = null, liveTick = null, liveData = {}, liveCleaned = {};
         const LIVE_FRESH_MS = 150000;
         const appliedActionKeys = new Set();
@@ -1792,18 +1799,17 @@
             document.getElementById('btn-settings-game').style.display = 'block';
             showBoardContainer();
             showToast('게임을 이어서 진행합니다.', 'var(--primary)', 3000);
-            const augUiOpen = augmentOverlay.style.display === 'flex';   // 이어하기를 누르기 전에 이미 증강 단계가 시작된 경우 중복 진행 방지
-            isSystemLocked = augUiOpen;
-            if (!augUiOpen && (activeAugmentPlayerColor || (pendingAugments && pendingAugments.length > 0))) {
-                if (activeAugmentPlayerColor && selectedAugmentIdx !== -1) {
-                    // 증강 선택이 진행 중인 경우 UI 다시 표시
-                    showAugmentCards(activeAugmentPlayerColor, activeAugmentOptions);
-                } else if (activeAugmentPlayerColor) {
-                    showAugmentCards(activeAugmentPlayerColor);
-                } else {
-                    processNextAugmentPhase();
-                }
-            }
+            let tries = 0;
+            const go = () => {
+                if (!isGameStarted || game.game_over()) return;
+                const quiet = netCaughtUp && netQueue.length === 0 && postMovePending === 0 && !augIsBusy();
+                if (!quiet && tries++ < 50) { setTimeout(go, 150); return; }   // 접속 직후 쌓여 있던 행동이 모두 반영될 때까지 잠깐 기다린다 (최대 약 7초)
+                if (augmentOverlay.style.display === 'flex') { isSystemLocked = true; return; }   // 이미 증강 단계가 진행 중
+                if (activeAugmentPlayerColor) { isSystemLocked = true; showAugmentCards(activeAugmentPlayerColor); }
+                else if (Array.isArray(pendingAugments) && pendingAugments.length > 0) processNextAugmentPhase(true);
+                else if (quiet) isSystemLocked = false;
+            };
+            go();
         };
 
         btnResignGame.onclick = async () => {
@@ -2491,37 +2497,70 @@
             setTimeout(() => { vsOverlay.style.display = 'none'; callback(); }, 3000);
         }
 
+        function presenceCleanup() {
+            presenceUnsubs.forEach(u => { try { u(); } catch (e) {} }); presenceUnsubs = [];
+            stopAwayWatch(); presenceEnemyOffline = false;
+        }
+        function stopAwayWatch() {
+            clearTimeout(awayTimer); clearInterval(awayTick); awayTimer = null; awayTick = null;
+            const bn = document.getElementById('away-banner'); if (bn) bn.style.display = 'none';
+        }
+        function startAwayWatch() {
+            if (awayTimer) return;
+            awayStart = Date.now();
+            const bn = document.getElementById('away-banner');
+            const upd = () => { const left = Math.max(0, Math.ceil((AWAY_LIMIT_MS - (Date.now() - awayStart)) / 1000)); if (bn) { bn.textContent = `상대 연결 끊김 · ${left}초 안에 돌아오지 않으면 승리`; bn.style.display = 'block'; } };
+            upd(); awayTick = setInterval(upd, 500);
+            awayTimer = setTimeout(claimForfeit, AWAY_LIMIT_MS);
+        }
+        async function claimForfeit() {
+            stopAwayWatch();
+            if (!isGameStarted || isSpectating || isBotMode || !currentRoomId || game.game_over() || !dbConnected) return;
+            const enemy = myColor === 'w' ? 'b' : 'w', room = currentRoomId;
+            try {
+                const st = await get(ref(db, `rooms/${room}/players/${enemy}_status`));
+                if (st.val() !== 'offline') return;   // 그 사이 돌아왔다
+                const pr = push(ref(db, `rooms/${room}/actions`), { type: 'forfeit', loser: enemy, uid: myUid, ts: Date.now() });
+                await pr; if (pr.key && pr.key > lastActionKey) lastActionKey = pr.key;
+            } catch (e) { setTimeout(() => { if (presenceEnemyOffline && currentRoomId === room && !game.game_over()) startAwayWatch(); }, 4000); return; }
+            if (currentRoomId !== room || game.game_over()) return;
+            showEndScreen('승리', '상대가 30초 안에 돌아오지 않아 승리했습니다.');
+        }
         function setupPresence() {
-            if(isBotMode) return;
-            const myStatusRef = ref(db, `rooms/${currentRoomId}/players/${myColor}_status`);
-            const myLastOfflineRef = ref(db, `rooms/${currentRoomId}/players/${myColor}_lastOffline`);
-            set(myStatusRef, 'online');
-            set(myLastOfflineRef, null);
-            onDisconnect(myStatusRef).set('offline'); 
-            onDisconnect(myLastOfflineRef).set(serverTimestamp());
-            
-            const enemyColor = myColor === 'w' ? 'b' : 'w';
-            const enemyStatusRef = ref(db, `rooms/${currentRoomId}/players/${enemyColor}_status`);
-            
+            if (isBotMode) return;
+            presenceCleanup();
+            const room = currentRoomId, enemyColor = myColor === 'w' ? 'b' : 'w';
+            const myStatusRef = ref(db, `rooms/${room}/players/${myColor}_status`);
+            const myLastOfflineRef = ref(db, `rooms/${room}/players/${myColor}_lastOffline`);
+            const enemyStatusRef = ref(db, `rooms/${room}/players/${enemyColor}_status`);
+            const assertOnline = () => { set(myStatusRef, 'online'); set(myLastOfflineRef, null); onDisconnect(myStatusRef).set('offline'); onDisconnect(myLastOfflineRef).set(serverTimestamp()); };
+            assertOnline();
+            const evalAway = () => {
+                if (isGameStarted && !isSpectating && !game.game_over() && currentRoomId === room && dbConnected && presenceEnemyOffline) startAwayWatch(); else stopAwayWatch();
+            };
+            // 연결이 잠깐 끊겼다 돌아와도 '온라인' 표시를 다시 올린다 (안 그러면 계속 오프라인으로 보여 30초 뒤 패배 처리될 수 있다)
+            presenceUnsubs.push(onValue(ref(db, '.info/connected'), snap => {
+                dbConnected = snap.val() === true;
+                if (dbConnected && currentRoomId === room) assertOnline();
+                evalAway();
+            }));
             let wasOffline = false;
-            onValue(enemyStatusRef, snap => {
-                if(isGameStarted && !game.game_over()) {
-                    if(snap.val() === 'offline') {
+            presenceUnsubs.push(onValue(enemyStatusRef, snap => {
+                presenceEnemyOffline = snap.val() === 'offline';
+                if (isGameStarted && !game.game_over()) {
+                    if (presenceEnemyOffline) {
                         wasOffline = true;
-                        playerInfo.innerText = `[방:${currentRoomId}] ⚠️ 상대 오프라인 (대기 중...)`;
+                        playerInfo.innerText = `[방:${room}] ⚠️ 상대 오프라인 (대기 중...)`;
                         showToast("상대방의 연결이 끊겼습니다.", "var(--danger)");
                     } else {
-                        if(wasOffline) {
-                            showToast("상대방이 재접속했습니다!", "var(--primary)");
-                            wasOffline = false;
-                        }
+                        if (wasOffline) { showToast("상대방이 재접속했습니다!", "var(--primary)"); wasOffline = false; }
                         playerInfo.innerText = roomInfoText();
                     }
                 }
-            });
-
-            const enemyTypingRef = ref(db, `rooms/${currentRoomId}/players/${enemyColor}_typing`);
-            onValue(enemyTypingRef, snap => handleOpponentTyping(snap.val() === true));
+                evalAway();
+            }));
+            const enemyTypingRef = ref(db, `rooms/${room}/players/${enemyColor}_typing`);
+            presenceUnsubs.push(onValue(enemyTypingRef, snap => handleOpponentTyping(snap.val() === true)));
         }
 
         function createRoom(roomId, color) {
@@ -2576,10 +2615,7 @@
                 if (opts.resume) {
                     if (opts.restoredState) {
                         deserializeGameState(opts.restoredState);
-                        if (!activeAugmentOptions && opts.localAugmentState) {
-                            activeAugmentOptions = opts.localAugmentState.options;
-                            activeAugmentPlayerColor = opts.localAugmentState.playerColor;
-                        }
+                        // (v3.40) 예전에 저장해 둔 증강 선택지를 되살리지 않는다: 이미 고른 증강을 다시 고르게 되던 원인
                         drawPieces();
                         replayFrames = []; recordFrame('resume');
                         try { resumeCursor = JSON.parse(opts.restoredState).actionCursor || ''; } catch (e) { resumeCursor = ''; }
@@ -2624,22 +2660,30 @@
             appliedActionKeys.clear();
             const actionsRef = ref(db, `rooms/${currentRoomId}/actions`);
             let backlogEnd = null;
+            netQueue = []; resumePv = null; netCaughtUp = (resumeCursor === null);
             if (resumeCursor !== null) {   // 이어하기: 접속 시점에 이미 쌓여 있던 행동의 끝을 기억
                 try { const sn = await get(actionsRef); if (sn.exists()) { const ks = Object.keys(sn.val()).sort(); backlogEnd = ks[ks.length - 1]; } } catch (e) {}
+                if (backlogEnd === null) netCaughtUp = true;
             }
             networkUnsub = onChildAdded(actionsRef, (data) => {
                 const key = data.key, action = data.val(); if (!action) return;
                 if (appliedActionKeys.has(key)) return; appliedActionKeys.add(key);
                 action._key = key;
-                if (resumeCursor !== null && key <= resumeCursor) return;   // 저장된 상태에 이미 반영된 행동
+                if (backlogEnd !== null && key >= backlogEnd) netCaughtUp = true;   // 쌓여 있던 행동을 모두 받았다
+                if (resumeCursor !== null && key <= resumeCursor) {   // 저장된 상태에 이미 반영된 행동: 단, 지금 진행 중인 상대의 증강 선택지는 기억해 둔다
+                    if (action.type === 'augment_preview') resumePv = { color: action.playerColor, preview: action.preview, select: null };
+                    else if (action.type === 'augment_select' && resumePv) resumePv.select = { idx: action.idx, confirmed: !!action.confirmed };
+                    else if (action.type === 'augment_sync') resumePv = null;
+                    return;
+                }
                 if (isSpectating) { if (key > lastActionKey) lastActionKey = key; specEnqueue(action); return; }   // 관전: 두 사람의 행동을 순서대로 처리한다
                 if (action.uid === myUid) {
                     // 내 행동은 보통 이미 적용되어 있으므로 건너뛰되, 이어하기 직후 '서버에는 있지만 저장본엔 없는' 내 수/증강만 다시 적용
-                    if (backlogEnd !== null && key <= backlogEnd && (action.type === 'move' || action.type === 'augment_sync')) { if (key > lastActionKey) lastActionKey = key; handleRemoteAction(action); }
+                    if (backlogEnd !== null && key <= backlogEnd && (action.type === 'move' || action.type === 'augment_sync' || action.type === 'forfeit' || action.type === 'resign')) { if (key > lastActionKey) lastActionKey = key; netEnqueue(action); }
                     return;
                 }
                 if (key > lastActionKey) lastActionKey = key;
-                handleRemoteAction(action);
+                netEnqueue(action);
             });
         }
 
@@ -2662,7 +2706,7 @@
             if (isGameStarted || isSpectating) return;   // 기다리는 사이 다른 화면으로 넘어갔다면 중단
             stopLiveList(); setLobbyMsg('');
             specSession++; isSpectating = true; specPlayers = players;
-            specNames = { w: (wp && wp.name) || '백', b: (bp && bp.name) || '흑' };
+            specNames = { w: (wp && wp.name) || '백', b: (bp && bp.name) || '흑' }; specIcons = { w: (wp && wp.icon) || '👤', b: (bp && bp.icon) || '👤' };
             specQueue = []; specCasting = false; specAugOpen = false; specPreview = null; specSelect = null; specPickColor = null; clearTimeout(specPumpTimer);
             document.body.classList.add('spectating'); document.body.classList.remove('black-pov');
             isBotMode = false; myColor = 'w'; currentRoomId = roomId; isGameStarted = true; statsRecorded = true; rankCtx = null;
@@ -2701,7 +2745,7 @@
             switch (a.type) {
                 case 'move': return !isSystemLocked && !specCasting && !replayActive;
                 case 'augment_sync': return !specCasting && !replayActive && (!isSystemLocked || specAugOpen);
-                case 'resign': return !specCasting && !replayActive;
+                case 'resign': case 'forfeit': return !specCasting && !replayActive;
                 default: return true;
             }
         }
@@ -2729,6 +2773,12 @@
             } else if (a.type === 'resign') {
                 const loser = a.uid === (specPlayers && specPlayers.w) ? 'w' : 'b', winner = loser === 'w' ? 'b' : 'w';
                 showEndScreen(winner === 'w' ? '승리' : '패배', `${specNames[loser]}님이 기권했습니다.`);
+            } else if (a.type === 'forfeit') {
+                const loser = a.loser === 'w' ? 'w' : 'b';
+                showEndScreen(loser === 'w' ? '패배' : '승리', `${specNames[loser]}님이 30초 안에 돌아오지 않았습니다.`);
+            } else if (a.type === 'chat') {   // 채팅·이모티콘: 백은 아래쪽, 흑은 위쪽 말풍선
+                if (!a.ts || Date.now() - a.ts > 8000) return;
+                showChatBubble(a.uid === (specPlayers && specPlayers.w) ? 'mine' : 'opponent', a.msg, false);
             }
         }
         function specShowPick() {
@@ -2758,6 +2808,28 @@
             specShowPick(); specPump();
         }
 
+
+        // ---- 행동 처리 대기열: 쌓인 행동(재접속 직후)이나 빠르게 온 행동도 한 번에 하나씩, 앞 연출이 끝난 뒤 처리한다 ----
+        function netEnqueue(a) { netQueue.push(a); netPump(); }
+        function netCanRun(a) {
+            if (a.type === 'move') return !isSystemLocked && !augIsBusy() && postMovePending === 0;
+            if (a.type === 'augment_sync') return !augIsBusy() && postMovePending === 0;
+            return true;   // 선택지 미리보기·채팅·기권·시간 초과는 기다리지 않는다
+        }
+        function netPump() {
+            clearTimeout(netPumpTimer);
+            while (netQueue.length && !isSpectating) {
+                const a = netQueue[0];
+                if (!netCanRun(a)) {
+                    if (!netBlockedSince) netBlockedSince = Date.now();
+                    if (Date.now() - netBlockedSince < 8000) { netPumpTimer = setTimeout(netPump, 100); return; }
+                    augBusy = false; postMovePending = 0;   // 안전장치: 8초 넘게 막혀 있으면 멈추지 않도록 그냥 처리한다
+                }
+                netBlockedSince = 0; netQueue.shift();
+                try { handleRemoteAction(a); } catch (e) { console.warn('행동 처리 오류', e); }
+            }
+        }
+
         let replayQueue = [];
         function handleRemoteAction(action) {
             if (replayActive && replayMode === 'live' && (action.type === 'move' || action.type === 'augment_sync' || action.type === 'resign')) { replayQueue.push(action); return; }   // 기록 보는 동안 상태가 바뀌지 않도록 보관
@@ -2774,6 +2846,7 @@
                 applyOpponentSelection();
             } else if (action.type === 'augment_sync') {
                 const __tok = specSession;
+                augBusy = true; augBusyAt = Date.now();
                 opponentAugmentSelection = null;
                 document.getElementById('augment-overlay').style.display = 'none';
                 deserializeGameState(action.state); 
@@ -2787,7 +2860,10 @@
                     setTimeout(() => { if(!game.game_over()) processNextAugmentPhase(); }, (action.delay || 1200) + lead);
                 });
             } else if (action.type === 'resign') {
-                showEndScreen("승리", "상대방이 기권했습니다.");
+                if (action.uid === myUid) showEndScreen("패배", "기권하셨습니다."); else showEndScreen("승리", "상대방이 기권했습니다.");
+            } else if (action.type === 'forfeit') {   // 한쪽이 30초 넘게 돌아오지 않아 시간 초과로 끝난 경기
+                if (action.loser === myColor) showEndScreen("패배", "30초 넘게 돌아오지 않아 패배 처리되었습니다.");
+                else showEndScreen("승리", "상대가 30초 안에 돌아오지 않아 승리했습니다.");
             } else if (action.type === 'chat') {
                 if (!action.ts || Date.now() - action.ts > 8000) return;   // 이어하기 때 지난 채팅이 한꺼번에 뜨지 않게
                 showChatBubble('opponent', action.msg, false);
@@ -2958,7 +3034,7 @@
 
         // 채팅 기록(가로 화면 오른쪽 패널에 표시): 말풍선과 별개로 모든 메시지를 쌓아 둔다
         let chatOpp = { name: '상대', icon: '👤' }, chatLogLast = null, augPickCount = 0;   // chatLogLast: 직전 기록의 보낸 쪽 (연속 메시지는 이름·아이콘을 맨 위 한 번만 보여 준다)
-        function chatWho(side) { return side === 'mine' ? { name: (userProfile && userProfile.name) || '나', icon: (userProfile && userProfile.icon) || '👤' } : { name: chatOpp.name || '상대', icon: chatOpp.icon || '👤' }; }
+        function chatWho(side) { if (isSpectating) { const c = side === 'mine' ? 'w' : 'b'; return { name: specNames[c], icon: specIcons[c] }; } return side === 'mine' ? { name: (userProfile && userProfile.name) || '나', icon: (userProfile && userProfile.icon) || '👤' } : { name: chatOpp.name || '상대', icon: chatOpp.icon || '👤' }; }
         function buildChatItem(side, msg, typing) {
             const who = chatWho(side), first = chatLogLast !== side;
             const item = document.createElement('div'); item.className = 'cl-item ' + (side === 'mine' ? 'mine' : 'opp') + (first ? ' first' : '') + (typing ? ' cl-typing' : '');
@@ -2993,7 +3069,7 @@
             const pill = document.createElement('div'); pill.className = 'cl-aug';
             const ic = document.createElement('span'); ic.className = 'cl-aug-ic'; ic.textContent = aug.icon || '✨';
             const nm = document.createElement('b'); nm.textContent = aug.name;
-            const by = document.createElement('span'); by.className = 'cl-aug-by'; by.textContent = (side === 'mine' ? '나' : chatWho('opp').name) + '의 선택';
+            const by = document.createElement('span'); by.className = 'cl-aug-by'; by.textContent = (isSpectating ? chatWho(side === 'mine' ? 'mine' : 'opp').name : (side === 'mine' ? '나' : chatWho('opp').name)) + '의 선택';
             pill.appendChild(ic); pill.appendChild(nm); pill.appendChild(by); log.appendChild(pill);
             chatLogLast = null; if (++augPickCount >= 2) addLogDivider();   // 나·상대 증강 두 개가 모이면 구간을 나눈다
             while (log.children.length > 120) log.removeChild(log.firstChild);
@@ -3113,6 +3189,7 @@
         document.getElementById('btn-return-lobby').onclick = async () => {
             if (isSpectating) { leaveSpectate(); return; }
             try { stopLive(true); } catch (e) {}
+            try { presenceCleanup(); } catch (e) {}
             document.getElementById('result-overlay').style.display = 'none';
             document.getElementById('game-controls').style.display = 'none';
             document.getElementById('btn-resign').style.display = 'none';
@@ -3419,7 +3496,7 @@
             activeWalls = []; reversedPawns = { w: 0, b: 0 }; reversedUids = { w: {}, b: {} }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = { w: null, b: null }; blackout = { w: 0, b: 0 }; lastCheckKey = '';
             if (targeting) { clearTargetVisuals(); targeting = null; }
             clearTimeout(endRevealTimer);
-            isSystemLocked = false; selectedSquare = null; legalMoves = []; selectedAugmentIdx = -1; previousMove = null; clearPremove(); drawDots();
+            isSystemLocked = false; selectedSquare = null; legalMoves = []; selectedAugmentIdx = -1; previousMove = null; clearPremove(); drawDots(); netQueue = []; postMovePending = 0; augBusy = false; resumePv = null; stopAwayWatch();
             muteShatter = true; drawPieces(false); muteShatter = false; updateProgressBar(); updateTurnIndicator(); updateBoardVisuals(); updateCheckStatus(); updatePreviousMoveHighlights();
             document.querySelectorAll('.floating-text').forEach(e => e.remove());
             stopReplayUI(); replayFrames = []; historySaved = false; recordFrame('start');
@@ -4854,7 +4931,7 @@
                 document.getElementById('result-overlay').style.display = 'flex';
             } else {   // 경기 중: 원래 장면으로 복귀하고, 그동안 도착한 상대 행동을 순서대로 처리
                 previousMove = replaySavedPrev; updatePreviousMoveHighlights(); updateCheckStatus();
-                const q = replayQueue; replayQueue = []; q.forEach(a => handleRemoteAction(a));
+                const q = replayQueue; replayQueue = []; q.forEach(a => netEnqueue(a));
             }
         }
 
@@ -5179,7 +5256,7 @@
             try { botReactEnd(resultType); } catch (e) {}
             lastRank = null; mineReveal = true; updateBoardVisuals();   // 게임이 끝나면 모든 지뢰 위치를 바로 공개
             const delay = opts.delay || 0;
-            if (!isSpectating) { saveGameToHistory(resultType, reasonStr); stopLive(true); }
+            if (!isSpectating) { saveGameToHistory(resultType, reasonStr); stopLive(true); stopAwayWatch(); clearRoomSession(); }   // 끝난 경기는 다시 불러오지 않는다
 
             if(!isBotMode && myUid && !statsRecorded) {
                 statsRecorded = true;
@@ -5463,7 +5540,7 @@
             updatePreviousMoveHighlights();
             
 
-            { const __t = specSession; setTimeout(() => { if (__t === specSession) handlePostMove(); }, 300); }
+            { const __t = specSession; postMovePending++; setTimeout(() => { postMovePending = Math.max(0, postMovePending - 1); if (__t === specSession) handlePostMove(); }, 300); }
         }
 
         function releaseVine(uid) {   // 속박이 풀리는 칸에 낙엽 연출
@@ -5505,7 +5582,7 @@
 
             if (moveCount > 0 && moveCount % AUGMENT_INTERVAL === 0 && !game.game_over() && !__AUG_DEMO) {
                 pendingAugments = game.turn() === 'w' ? ['w', 'b'] : ['b', 'w']; 
-                setTimeout(() => { if (!game.game_over()) processNextAugmentPhase(); }, 300);   // 마지막 수를 잠깐 보여 준 뒤 증강이 등장한다 (연속감을 위해 짧게)
+                setTimeout(() => { if (!game.game_over()) processNextAugmentPhase(true); }, 300);   // 마지막 수를 잠깐 보여 준 뒤 증강이 등장한다 (연속감을 위해 짧게)
             } else { 
                 isSystemLocked = false;
                 if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 600);
@@ -6472,7 +6549,9 @@
             applyOpponentSelection();
         }
 
-        function processNextAugmentPhase() {
+        function processNextAugmentPhase(ext) {
+            if (ext === true && !isSpectating && (augIsBusy() || augmentOverlay.style.display === 'flex')) return;   // 이미 증강 단계가 진행 중이면 중복으로 시작하지 않는다
+            augBusy = false;
             if (isSpectating) { specNextPhase(); return; }
             opponentAugmentSelection = null;
             opponentAugmentPreview = null;
@@ -6709,6 +6788,9 @@
                     return;
                 }
                 if (currentRoomId) { activeAugmentPlayerColor = playerColor; selectedAugmentIdx = -1; persistRoomGameState().catch(() => {}); }
+                if (!opponentAugmentPreview && resumePv && resumePv.color === playerColor) {   // 접속 전에 이미 올라온 상대 선택지를 그대로 보여 준다
+                    opponentAugmentPreview = resumePv.preview; opponentAugmentPreviewColor = playerColor; if (resumePv.select) opponentAugmentSelection = resumePv.select;
+                }
                 if (opponentAugmentPreview && opponentAugmentPreviewColor === playerColor) {
                     renderOpponentPreviewCards(opponentAugmentPreview, playerColor, overlay);
                     return;
@@ -6830,6 +6912,7 @@
         }
 
         function doApplyAugment(selectedAug, pColor, eColor, target) {
+            augBusy = true; augBusyAt = Date.now();
             addAugmentLog(pColor === myColor ? 'mine' : 'opp', selectedAug);
             let botSnapBefore = null; try { if (isBotMode) botSnapBefore = botSnap(); } catch (e) {}   // 봇 반응용: 증강 적용 전 상태
             activeAugmentOptions = null;
