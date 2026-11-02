@@ -975,6 +975,18 @@
         .live-empty { padding: 30px 8px; color: #888; font-size: 0.9rem; line-height: 1.6; text-align: center; }
         body.spectating #btn-resign, body.spectating #btn-settings-game, body.spectating #game-controls, body.spectating #chat-spacer, body.spectating #btn-replay, body.spectating #result-score { display: none !important; }
         body.spectating #btn-replay-exit { display: block !important; }
+
+        /* v3.41: 최근 경기(공개 리플레이) + 관전 인원 */
+        .ms-sep { height: 1px; background: var(--panel-border); margin: 14px 2px 12px; }
+        #recent-head { display: flex; align-items: baseline; justify-content: space-between; margin: 0 2px 10px; font-size: 0.85rem; color: #999; }
+        #recent-head small { font-size: 0.7rem; color: #777; }
+        .recent-item .live-meta { justify-content: space-between; }
+        .recent-item .live-meta::before { display: none; }
+        .recent-item .rc-views { color: #aaa; font-weight: 700; }
+        .live-p.win .nm::after { content: ' 👑'; }
+        #history-strip { position: relative; }
+        #viewer-badge { position: absolute; right: 54px; top: 50%; transform: translateY(-50%); padding: 2px 8px; border-radius: 999px; background: var(--input-bg); color: #bbb; font-size: 0.72rem; font-weight: 700; pointer-events: none; }
+        #history-strip.has-viewers #lr-label { padding-right: 44px; }
     </style>
 </head>
 <body>
@@ -992,7 +1004,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.40';
+      var VERSION = 'v3.41';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -1277,6 +1289,7 @@
     <div id="history-strip">
         <button id="lr-prev" type="button" aria-label="이전 수"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></button>
         <div id="lr-label"></div>
+        <span id="viewer-badge" style="display: none;"></span>
         <button id="lr-next" type="button" aria-label="다음 수" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></button>
     </div>
     <div id="chat-log" aria-label="채팅 기록"></div>
@@ -1403,6 +1416,9 @@
             <div id="ms-pane-live" class="ms-pane" style="display: none;">
                 <div id="live-head"><span>진행 중인 전투</span><b id="live-count"></b></div>
                 <div id="live-list"></div>
+                <div class="ms-sep"></div>
+                <div id="recent-head"><span>최근 경기</span><small>누구나 리플레이를 볼 수 있어요</small></div>
+                <div id="recent-list"></div>
             </div>
             <p id="lobby-msg" style="color: var(--primary); font-weight: bold; margin-top: 15px; min-height: 1.2rem; font-size: 0.95rem;"></p>
             <button id="btn-back-main" style="margin-top: 15px; background: none; border: none; color: #888; text-decoration: underline; cursor: pointer; font-size: 1rem;">← 뒤로가기</button>
@@ -1731,6 +1747,8 @@
         let netQueue = [], netPumpTimer = null, netBlockedSince = 0, netCaughtUp = true, postMovePending = 0, augBusy = false, augBusyAt = 0, resumePv = null;
         let presenceUnsubs = [], dbConnected = true, presenceEnemyOffline = false, awayTimer = null, awayTick = null, awayStart = 0, specIcons = { w: '👤', b: '👤' };
         const AWAY_LIMIT_MS = 30000;
+        let viewerUnsub = null, specViewerRef = null, replayReturnTo = 'history', recentToken = 0;
+        const RECENT_MAX = 5;
         const augIsBusy = () => augBusy && (Date.now() - augBusyAt < 20000);
         let liveRoom = null, liveTimer = null, liveMeta = null, liveStart = 0, liveUnsub = null, liveTick = null, liveData = {}, liveCleaned = {};
         const LIVE_FRESH_MS = 150000;
@@ -2131,7 +2149,7 @@
         function startLiveList() {
             stopLiveList(); liveData = {};
             const list = document.getElementById('live-list'); list.innerHTML = '<div class="live-empty">불러오는 중…</div>';
-            document.getElementById('live-count').textContent = '';
+            document.getElementById('live-count').textContent = ''; loadRecentList();
             try {
                 liveUnsub = onValue(ref(db, 'live'), snap => { liveData = snap.exists() ? (snap.val() || {}) : {}; renderLiveList(); },
                     () => { list.innerHTML = '<div class="live-empty">전투 목록을 불러오지 못했어요.<br>잠시 뒤 다시 열어 주세요.</div>'; });
@@ -2171,6 +2189,100 @@
             });
         }
 
+        // ---- 관전 인원 표시 (live/{방}/viewers) ----
+        function setViewerBadge(n) {
+            const b = document.getElementById('viewer-badge'), st = document.getElementById('history-strip'); if (!b) return;
+            b.textContent = n > 0 ? `👁 ${n}` : ''; b.style.display = n > 0 ? '' : 'none'; b.title = '관전 중인 사람 수';
+            if (st) st.classList.toggle('has-viewers', n > 0);
+        }
+        function unwatchViewers() { if (viewerUnsub) { try { viewerUnsub(); } catch (e) {} viewerUnsub = null; } setViewerBadge(0); }
+        function watchViewers(room) {
+            unwatchViewers();
+            try { viewerUnsub = onValue(ref(db, `live/${room}/viewers`), snap => setViewerBadge(snap.exists() ? Object.keys(snap.val() || {}).length : 0)); } catch (e) {}
+        }
+
+        // ---- 최근 경기: 끝난 대전의 리플레이를 최근 5개까지 누구나 볼 수 있게 올린다 (recent_meta: 요약·조회수 / recent_data: 압축한 기록) ----
+        function publicReason(r) {
+            r = String(r || '');
+            if (r.includes('체크메이트')) return '체크메이트'; if (r.includes('스테일메이트')) return '스테일메이트'; if (r.includes('기권')) return '기권';
+            if (r.includes('30초')) return '시간 초과'; if (r.includes('동시')) return '킹 동시 파괴'; if (r.includes('킹')) return '킹 파괴'; return '';
+        }
+        async function publishRecent(ctx, packed, result, reason) {
+            try {
+                const m = ctx.meta, win = result === '무승부' ? 'd' : (result === '승리' ? ctx.myColor : (ctx.myColor === 'w' ? 'b' : 'w'));
+                const meta = { w: m.w, b: m.b, wn: m.wn, wi: m.wi, bn: m.bn, bi: m.bi, win, reason: publicReason(reason), plies: ctx.plies, ts: Date.now(), views: 0 };
+                await set(ref(db, `recent_meta/${ctx.room}`), meta);   // 이미 상대가 올렸다면 여기서 거절되어 조용히 끝난다
+                await set(ref(db, `recent_data/${ctx.room}`), packed);
+                pruneRecent();
+            } catch (e) {}
+        }
+        async function pruneRecent() {   // 최근 5개만 남기고 오래된 것(5분 이상 지난 것)을 지운다
+            try {
+                const sn = await get(query(ref(db, 'recent_meta'), orderByChild('ts'), limitToLast(30))); if (!sn.exists()) return;
+                const v = sn.val(), ids = Object.keys(v).sort((a, b) => (Number(v[b].ts) || 0) - (Number(v[a].ts) || 0));
+                for (const id of ids.slice(RECENT_MAX)) {
+                    if (Date.now() - (Number(v[id].ts) || 0) < 300000) continue;
+                    try { await remove(ref(db, `recent_data/${id}`)); await remove(ref(db, `recent_meta/${id}`)); } catch (e) {}
+                }
+            } catch (e) {}
+        }
+        function timeAgo(ts) {
+            const d = Date.now() - (Number(ts) || 0), m = Math.floor(d / 60000);
+            if (m < 1) return '방금'; if (m < 60) return m + '분 전'; const h = Math.floor(m / 60); if (h < 24) return h + '시간 전';
+            const dt = new Date(ts); return `${dt.getMonth() + 1}/${dt.getDate()}`;
+        }
+        async function loadRecentList() {
+            const list = document.getElementById('recent-list'); if (!list) return;
+            const token = ++recentToken; list.innerHTML = '<div class="live-empty" style="padding:14px 8px;">불러오는 중…</div>';
+            let rows = [];
+            try { const sn = await get(query(ref(db, 'recent_meta'), orderByChild('ts'), limitToLast(RECENT_MAX))); if (sn.exists()) { const v = sn.val(); rows = Object.keys(v).map(id => Object.assign({ id }, v[id])); } }
+            catch (e) { if (token === recentToken) list.innerHTML = '<div class="live-empty" style="padding:14px 8px;">최근 경기를 불러오지 못했어요.</div>'; return; }
+            if (token !== recentToken) return;
+            rows.sort((a, b) => (Number(b.ts) || 0) - (Number(a.ts) || 0)); list.innerHTML = '';
+            if (!rows.length) { list.innerHTML = '<div class="live-empty" style="padding:14px 8px;">아직 저장된 경기가 없어요.<br>경기가 끝나면 이곳에 남아요.</div>'; return; }
+            rows.slice(0, RECENT_MAX).forEach(v => {
+                const el = document.createElement('div'); el.className = 'live-item recent-item'; el.setAttribute('role', 'button');
+                const chip = (icon, name, side) => {
+                    const p = document.createElement('div'); p.className = 'live-p' + (v.win === side ? ' win' : '');
+                    const dot = document.createElement('i'); dot.className = 'lp-side ' + side;
+                    const ic = document.createElement('span'); ic.className = 'lp-ic'; ic.textContent = icon || '👤';
+                    const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = name || '?';
+                    p.append(dot, ic, nm); return p;
+                };
+                const row = document.createElement('div'); row.className = 'live-row';
+                const vs = document.createElement('span'); vs.className = 'live-vs'; vs.textContent = 'VS';
+                row.append(chip(v.wi, v.wn, 'w'), vs, chip(v.bi, v.bn, 'b'));
+                const meta = document.createElement('div'); meta.className = 'live-meta';
+                const left = document.createElement('span'), right = document.createElement('span'); right.className = 'rc-views';
+                left.textContent = [v.win === 'd' ? '무승부' : (v.win === 'w' ? '백 승리' : '흑 승리'), v.reason, (Number(v.plies) || 0) + '수', timeAgo(v.ts)].filter(Boolean).join(' · ');
+                right.textContent = '👁 ' + (Number(v.views) || 0);
+                meta.append(left, right); el.append(row, meta); el.onclick = () => openRecentReplay(v.id, v);
+                list.appendChild(el);
+            });
+        }
+        function countRecentView(id) {   // 조회수: 같은 기기에서는 경기당 한 번만 센다
+            try {
+                const KEY = 'aug_recent_viewed'; let seen = []; try { seen = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) {}
+                if (seen.includes(id)) return; seen.push(id); localStorage.setItem(KEY, JSON.stringify(seen.slice(-200)));
+                const r = ref(db, `recent_meta/${id}/views`);
+                get(r).then(sn => set(r, (Number(sn.val()) || 0) + 1)).catch(() => {});
+            } catch (e) {}
+        }
+        async function openRecentReplay(id, meta) {
+            if (isGameStarted || isSpectating) return;
+            setLobbyMsg('기록을 불러오는 중…');
+            let packed = null; try { const sn = await get(ref(db, `recent_data/${id}`)); packed = sn.exists() ? sn.val() : null; } catch (e) {}
+            let frames = null; if (packed) { try { frames = JSON.parse(await unpackText(packed)); } catch (e) {} }
+            if (!frames || frames.length < 2) { setLobbyMsg('기록을 불러올 수 없어요.'); return; }
+            setLobbyMsg(''); countRecentView(id); stopLiveList();
+            modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'none';
+            replayReturnTo = 'live'; replayMode = 'archive'; setReplayExitLabel(); replayFrames = frames; renderReplayMarks(); replayFinalState = null; replayQueue = [];
+            myColor = 'w'; document.body.classList.remove('black-pov');
+            playerInfo.innerText = `📜 ${meta.wn || '백'} vs ${meta.bn || '흑'}`;
+            showBoardContainer(); replayActive = true; document.body.classList.add('replay-mode', 'replay-archive');
+            replayShow(0, false); replaySetPlaying(true);
+        }
+
         // ---- 내 대전을 '실시간 전투' 목록에 올린다 (live/{방} : 이름·아이콘·수·갱신 시각) ----
         function publishLive(playersData, myP, oppP) {
             if (isBotMode || !currentRoomId || isSpectating || __AUG_DEMO) return;
@@ -2180,6 +2292,7 @@
                 const me = clean(myP, '플레이어'), op = clean(oppP, '플레이어'), w = myColor === 'w' ? me : op, b = myColor === 'w' ? op : me;
                 liveMeta = { w: playersData.w, b: playersData.b, wn: w.name, wi: w.icon, bn: b.name, bi: b.icon, st: liveStart };
                 update(ref(db, 'live/' + liveRoom), Object.assign({ mc: moveCount, ts: Date.now() }, liveMeta)).catch(() => {});
+                watchViewers(liveRoom);
                 liveTimer = setInterval(() => {
                     if (!isGameStarted || isBotMode || !currentRoomId || game.game_over()) { stopLive(true); return; }
                     update(ref(db, 'live/' + liveRoom), { mc: moveCount, ts: Date.now() }).catch(() => {});
@@ -2190,7 +2303,7 @@
         function stopLive(removeNode) {
             clearInterval(liveTimer); liveTimer = null;
             if (removeNode && liveRoom) { try { remove(ref(db, 'live/' + liveRoom)).catch(() => {}); } catch (e) {} }
-            if (removeNode) liveRoom = null;
+            if (removeNode) { liveRoom = null; unwatchViewers(); }
         }
 
         let settingsTab = 'profile';
@@ -2709,6 +2822,7 @@
             specNames = { w: (wp && wp.name) || '백', b: (bp && bp.name) || '흑' }; specIcons = { w: (wp && wp.icon) || '👤', b: (bp && bp.icon) || '👤' };
             specQueue = []; specCasting = false; specAugOpen = false; specPreview = null; specSelect = null; specPickColor = null; clearTimeout(specPumpTimer);
             document.body.classList.add('spectating'); document.body.classList.remove('black-pov');
+            try { specViewerRef = ref(db, `live/${roomId}/viewers/${myUid}`); set(specViewerRef, true).catch(() => {}); onDisconnect(specViewerRef).remove(); watchViewers(roomId); } catch (e) {}   // 관전 중인 사람 수 표시용
             isBotMode = false; myColor = 'w'; currentRoomId = roomId; isGameStarted = true; statsRecorded = true; rankCtx = null;
             modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'none';
             resetGameUI(); showBoardContainer();
@@ -2733,6 +2847,7 @@
             if (networkUnsub) { try { networkUnsub(); } catch (e) {} networkUnsub = null; }
             isSpectating = false; specPlayers = null; specCasting = false; specAugOpen = false; specPreview = null; specSelect = null; specPickColor = null;
             document.body.classList.remove('spectating', 'black-pov');
+            try { unwatchViewers(); if (specViewerRef) { remove(specViewerRef).catch(() => {}); specViewerRef = null; } } catch (e) {}
             document.getElementById('result-overlay').style.display = 'none'; document.getElementById('augment-overlay').style.display = 'none';
             playerInfo.style.display = 'none'; playerInfo.innerText = '';
             isGameStarted = false; currentRoomId = null; myColor = null; resumeCursor = null; lastActionKey = '';
@@ -4922,6 +5037,7 @@
             const mode = replayMode; stopReplayUI();
             if (mode === 'archive') {
                 document.body.classList.remove('black-pov'); myColor = null; resetGameUI(); playerInfo.innerText = '';
+                if (replayReturnTo === 'live') { replayReturnTo = 'history'; modeSelectOverlay.style.display = 'flex'; selectMsTab('live'); return; }
                 mainLobbyOverlay.style.display = 'flex'; renderHistory(); document.getElementById('history-overlay').style.display = 'flex';
                 return;
             }
@@ -5068,9 +5184,11 @@
         }
         async function saveGameToHistory(result, reason) {
             if (historySaved || replayFrames.length < 3) return; historySaved = true;
+            const pubCtx = (!isBotMode && !isSpectating && currentRoomId && liveMeta && replayFrames[0] && replayFrames[0].kind === 'start') ? { room: currentRoomId, meta: liveMeta, myColor, plies: replayFrames.length - 1 } : null;   // 처음부터 기록된 경기만 공개
             if (isBotMode && !saveBotReplay) return;   // 설정에서 봇 대전 리플레이 저장을 끈 경우
             try {
                 const packed = await packText(JSON.stringify(replayFrames));
+                if (pubCtx && pubCtx.plies >= 8) publishRecent(pubCtx, packed, result, reason);
                 const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
                 const entry = { id, ts: Date.now(), result, reason: reason || '', opp: lastOppName || (isBotMode ? '컴퓨터' : '상대'), color: myColor, bot: !!isBotMode, plies: replayFrames.length - 1 };
                 let ok = false;
@@ -5103,6 +5221,7 @@
             });
         }
         async function openArchiveReplay(entry) {
+            replayReturnTo = 'history';
             let packed = null;
             try {
                 if (entry.local) packed = localStorage.getItem(gameKey(entry.id));
@@ -5369,12 +5488,12 @@
             if(!wKing) { showEndScreen(myColor === 'b' ? '승리' : '패배', "백 킹이 파괴되었습니다.", { delay: kickPlanned ? 2400 : 1500 }); return; }
             if(!bKing) { showEndScreen(myColor === 'w' ? '승리' : '패배', "흑 킹이 파괴되었습니다.", { delay: kickPlanned ? 2400 : 1500 }); return; }
 
-            if (game.in_checkmate()) {
+            if (!(postMovePending > 0) && game.in_checkmate()) {
                 const kSq = findPieces(game.turn(), 'k')[0];
                 if (kSq) squareEls.get(kSq).classList.add('in-check');
                 showEndScreen(game.turn() === myColor ? '패배' : '승리', "체크메이트!", { delay: 3700, fx: 'checkmate', fxSq: kSq, fxCheckers: findCheckers(game.turn()) });
             }
-            else if (game.in_draw()) { showEndScreen("무승부", "스테일메이트.", { delay: 2500, fx: 'stalemate', fxSq: findPieces(game.turn(), 'k')[0] }); }
+            else if (!(postMovePending > 0) && game.in_draw()) { showEndScreen("무승부", "스테일메이트.", { delay: 2500, fx: 'stalemate', fxSq: findPieces(game.turn(), 'k')[0] }); }
             else {
                 // 이동뿐 아니라 증강·벽 소멸 등으로 생긴 체크도 표시하기 위해 양쪽 킹을 모두 검사한다
                 const checked = ['w', 'b'].filter(c => game.in_check(c));
@@ -5501,6 +5620,7 @@
             if (!moveResult) return;
             try { botHistory.push(from + to); const hk = botHash(game); BOT.seen.set(hk, (BOT.seen.get(hk) || 0) + 1); } catch (e) {}   // 봇: 오프닝북/반복 국면 기록
             isSystemLocked = true; selectedSquare = null; legalMoves = []; drawDots(); pendingMove = null;
+            postMovePending++;   // 수 직후 처리(덩굴 해제·탄생·승급 등)가 끝나기 전에는 체크메이트·스테일메이트를 판정하지 않는다
             FX.land(to, moveResult.color);
             if (moveResult.captured) { FX.capture(to, moveResult.captured); const mover = game.get(to); if (mover) lastKiller[moveResult.color === 'w' ? 'b' : 'w'] = mover.uid; }
             if (moveResult.flags === 'k' || moveResult.flags === 'q') showToast("🏰 캐슬링!", "#f1c40f", 2000);
@@ -5540,7 +5660,7 @@
             updatePreviousMoveHighlights();
             
 
-            { const __t = specSession; postMovePending++; setTimeout(() => { postMovePending = Math.max(0, postMovePending - 1); if (__t === specSession) handlePostMove(); }, 300); }
+            { const __t = specSession; setTimeout(() => { postMovePending = Math.max(0, postMovePending - 1); if (__t === specSession) handlePostMove(); }, 300); }
         }
 
         function releaseVine(uid) {   // 속박이 풀리는 칸에 낙엽 연출
@@ -5553,7 +5673,7 @@
         }
 
         function handlePostMove() {
-            if(game.game_over()) return;
+            if (game.is_game_over) return;   // (수 직후 효과가 반영되기 전의 가짜 메이트·스테일메이트로 건너뛰지 않도록 종료 표시만 본다)
             moveCount++; 
             for (let uid in rootedPieces) { rootedPieces[uid]--; if (rootedPieces[uid] <= 0) { delete rootedPieces[uid]; releaseVine(uid); } }
             for (let uid in invinciblePieces) { invinciblePieces[uid]--; if (invinciblePieces[uid] <= 0) delete invinciblePieces[uid]; }
