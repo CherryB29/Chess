@@ -874,6 +874,8 @@
         .pd-1 .pd-block { height: 118px; }
         .pd-2 .pd-block { height: 94px; }
         .pd-3 .pd-block { height: 78px; }
+        .pd-1 .pd-block { height: 134px; } .pd-2 .pd-block { height: 110px; } .pd-3 .pd-block { height: 94px; }   /* 칭호 줄이 들어갈 자리 */
+        .pd-block .pd-tt { margin-top: 2px; }
 
         /* ---------- v3.20: 가로로 긴 화면(태블릿/PC): 왼쪽에 큰 판, 오른쪽에 증강 턴·채팅 기록·증강 선택 ---------- */
         #chat-log { display: none; }
@@ -3358,9 +3360,11 @@
             Object.defineProperty(chatInput, 'value', { get() { return d.get.call(this); }, set(v) { d.set.call(this, v); syncChatField(); }, configurable: true });
         })();
         ['input', 'compositionupdate', 'compositionend', 'keyup'].forEach(ev => chatInput.addEventListener(ev, syncChatField));
+        const dbg = t => { try { if (window.__dbg) window.__dbg(t); } catch (e) {} };
         const focusChat = () => {
             if (isSpectating) return; if (Date.now() < (window.__noKbUntil || 0)) return;
-            if (document.activeElement !== chatInput) { chatInput.focus({ preventScroll: true }); return; }
+            if (document.activeElement !== chatInput) { dbg('focusChat → focus()'); chatInput.focus({ preventScroll: true }); return; }
+            dbg('focusChat: 이미 포커스');
             // 이미 포커스인데 키보드만 내려가 있는 경우(뒤로 가기, iPad 키보드 숨김 버튼 등): 그냥 focus()는 아무 일도 하지 않으므로 다시 올린다
             if (window.__chatKbNow && window.__chatKbNow()) return;                     // 키보드가 보이면 그대로
             if (Date.now() - (window.__chatFocusAt || 0) < 350) return;                 // 방금 눌러서 올라오는 중
@@ -3372,11 +3376,12 @@
         // iPad의 '키보드 숨기기' 버튼·뒤로 가기는 blur 없이 키보드만 내린다. 이때 포커스가 남은 입력칸에 focus()를 줘도 키보드가 안 올라오므로,
         // 터치가 시작될 때 먼저 확실히 blur하고(포커스 해제) 터치가 끝날 때 새로 focus해서 처음 열 때와 같은 경로를 타게 한다.
         chatField.addEventListener('touchstart', () => {
+            dbg('touchstart ae=' + (document.activeElement === chatInput) + ' kbNow=' + !!(window.__chatKbNow && window.__chatKbNow()));
             if (isSpectating || Date.now() < (window.__noKbUntil || 0)) return;
             if (document.activeElement !== chatInput) return;
             if (window.__chatKbNow && window.__chatKbNow()) return;            // 키보드가 보이면 그대로
             if (Date.now() - (window.__chatFocusAt || 0) < 350) return;        // 방금 눌러서 올라오는 중
-            chatInput.blur();
+            dbg('touchstart → blur'); chatInput.blur();
         }, { passive: true });
 
         const emoteAnimations = { '👍': 'anim-bounce', '👎': 'anim-shake', '😲': 'anim-expand', '🤬': 'anim-vibrate', '🤔': 'anim-tilt', '😭': 'anim-drop', '❓': 'anim-question', '☠️': 'anim-skull', '💩': 'anim-poop', '⏳ 빨리 좀 해라': 'anim-pulse' };
@@ -3455,7 +3460,7 @@
                     clearTimeout(closedT); lastKb = kt; try { if (kt < window.innerHeight * 0.7) localStorage.setItem(KB_KEY, String(kt)); } catch (e) {}
                     apply(kt, visBottom(), kbFixed());
                     if (window.scrollY || window.scrollX) window.scrollTo(0, 0);
-                } else if (lastKb > 0) { lastKb = 0; apply(0); clearTimeout(closedT); closedT = setTimeout(() => { if (focused && document.activeElement === chatInput && kbTotal() < 80) chatInput.blur(); }, 350); }   // 키보드만 내려가고 포커스는 남은 경우(뒤로 가기 등): 입력 상태도 같이 정리
+                } else if (lastKb > 0) { lastKb = 0; apply(0); clearTimeout(closedT); dbg('키보드 내려감 감지'); closedT = setTimeout(() => { if (focused && document.activeElement === chatInput && kbTotal() < 80) { dbg('자동 blur'); chatInput.blur(); } }, 150); }   // 키보드만 내려가고 포커스는 남은 경우(뒤로 가기 등): 입력 상태도 같이 정리
             }
             chatInput.addEventListener('focus', () => {
                 if (Date.now() < (window.__noKbUntil || 0)) { chatInput.blur(); return; }   // 이모티콘 조작 중에는 포커스를 받지 않는다
@@ -3492,6 +3497,21 @@
                 b.addEventListener('touchend', e => { if (!armed) return; armed = false; if (e.cancelable) e.preventDefault(); b.click(); }, { passive: false });
                 b.addEventListener('touchcancel', () => { armed = false; }); })();
             window.__chatKbOpen = () => lastKb > 0;   // 키보드가 실제로 떠 있는지
+            window.__kbState = () => 'ae=' + (document.activeElement === chatInput ? 'input' : (document.activeElement && (document.activeElement.id || document.activeElement.tagName))) + ' foc=' + focused + ' leave=' + leaving + ' lastKb=' + lastKb + ' fixed=' + kbFixed() + ' total=' + kbTotal() + ' baseH=' + baseH + ' ih=' + window.innerHeight + ' vvH=' + (vv ? Math.round(vv.height) : '-') + ' vvT=' + (vv ? Math.round(vv.offsetTop) : '-') + ' ios=' + ios + ' touch=' + coarse;
+            (function () {   // 진단용: 입력줄을 1초 이상 꾹 누르면 왼쪽 위에 키보드 상태 로그가 뜬다(다시 꾹 누르면 꺼짐)
+                let box = null, logs = [], timer = null;
+                const draw = () => { if (box) box.textContent = logs.join('\n') + '\n--\n' + window.__kbState(); };
+                const add = t => { logs.push((performance.now() / 1000).toFixed(1) + ' ' + t); if (logs.length > 12) logs.shift(); draw(); };
+                const toggle = () => {
+                    if (box) { box.remove(); box = null; window.__dbg = null; return; }
+                    box = document.createElement('pre'); box.style.cssText = 'position:fixed;left:4px;top:calc(env(safe-area-inset-top,0px) + 4px);z-index:99999;margin:0;padding:6px 8px;max-width:92vw;background:rgba(0,0,0,.78);color:#9f9;font:10px/1.35 ui-monospace,Menlo,monospace;white-space:pre-wrap;pointer-events:none;border-radius:6px';
+                    document.body.appendChild(box); window.__dbg = add; add('디버그 켬'); setInterval(() => { if (box) draw(); }, 400);
+                };
+                chatField.addEventListener('touchstart', () => { clearTimeout(timer); timer = setTimeout(toggle, 1000); }, { passive: true });
+                ['touchend', 'touchmove', 'touchcancel'].forEach(ev => chatField.addEventListener(ev, () => clearTimeout(timer), { passive: true }));
+                chatInput.addEventListener('focus', () => add('input focus')); chatInput.addEventListener('blur', () => add('input blur'));
+                if (vv) vv.addEventListener('resize', () => add('vv resize h=' + Math.round(vv.height)));
+            })();
             window.__chatKbNow = () => focused && (ios ? kbFixed() >= 80 : kbTotal() >= 80);   // 지금 이 순간 키보드가 보이는지(측정값)
             // 이미 포커스인데 키보드만 내려가 있을 때: 같은 터치 안에서 다른 입력칸으로 포커스를 옮겼다가 돌아오면 iOS·안드로이드 모두 키보드가 다시 올라온다
             let kickEl = null;
