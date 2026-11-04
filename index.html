@@ -876,6 +876,10 @@
         .pd-3 .pd-block { height: 78px; }
         .pd-1 .pd-block { height: 134px; } .pd-2 .pd-block { height: 110px; } .pd-3 .pd-block { height: 94px; }   /* 칭호 줄이 들어갈 자리 */
         .pd-block .pd-tt { margin-top: 2px; }
+        /* 키보드를 내린 뒤 포커스만 남은 상태: 진짜 입력칸을 채팅 줄 위에 투명하게 올려 두면, 손가락이 입력칸을 직접 눌러 키보드가 다시 올라온다 */
+        body.wide-mode #game-frame > #board-container { z-index: 5; }   /* 말풍선이 들어 있는 보드 칸을 채팅 기록(z-index 1)보다 위로 */
+        .chat-bubble { background: var(--panel-bg) !important; }
+        body.chat-retap #chat-input { left: var(--rt-left, 0px) !important; top: var(--rt-top, 0px) !important; width: var(--rt-w, 80px) !important; height: var(--rt-h, 40px) !important; opacity: 0.02 !important; pointer-events: auto !important; z-index: 260 !important; }
 
         /* ---------- v3.20: 가로로 긴 화면(태블릿/PC): 왼쪽에 큰 판, 오른쪽에 증강 턴·채팅 기록·증강 선택 ---------- */
         #chat-log { display: none; }
@@ -3405,6 +3409,7 @@
             if (window.__chatKbOpen && window.__chatKbOpen()) { if (e && e.cancelable && e.type !== 'touchstart') e.preventDefault(); return; }   // 키보드가 이미 떠 있으면 그대로 둔다(내려가며 입력줄·팝업이 출렁이지 않게)
             window.__noKbUntil = Date.now() + 450; chatInput.readOnly = true;
             if (document.activeElement === chatInput) chatInput.blur();
+            if (window.__leaveRetap) window.__leaveRetap();
             clearTimeout(suppressKeyboard.t); suppressKeyboard.t = setTimeout(() => { chatInput.readOnly = false; }, 450);
         }
         [btnEmote, emotePopup].forEach(el => { ['pointerdown', 'mousedown'].forEach(ev => el.addEventListener(ev, suppressKeyboard)); el.addEventListener('touchstart', suppressKeyboard, { passive: true }); });
@@ -3453,18 +3458,37 @@
                 root.style.setProperty('--bubble-right', Math.max(8, Math.round(window.innerWidth - r.right)) + 'px');   // 가로 모드: 입력줄 오른쪽 끝에 맞춰 말풍선을 띄운다
                 root.style.setProperty('--bubble-bottom', Math.max(60, Math.round(window.innerHeight - (natTop - lift) + 8)) + 'px');
             }
+            const chatFieldEl = document.getElementById('chat-field');
+            function enterRetap() {   // 키보드는 내려갔는데 입력칸 포커스만 남은 상태 → 진짜 입력칸을 채팅 줄 위로
+                if (!coarse || isSpectating || !chatFieldEl) return;
+                const r = chatFieldEl.getBoundingClientRect(); if (r.width < 10 || r.height < 10) return;
+                root.style.setProperty('--rt-left', Math.round(r.left) + 'px'); root.style.setProperty('--rt-top', Math.round(r.top) + 'px');
+                root.style.setProperty('--rt-w', Math.round(r.width) + 'px'); root.style.setProperty('--rt-h', Math.round(r.height) + 'px');
+                if (!document.body.classList.contains('chat-retap')) { document.body.classList.add('chat-retap'); dbg('retap 오버레이 켬'); }
+            }
+            let retapRaf = 0;
+            function retapFollow() {   // 입력줄이 위로 올라가는 동안 투명 입력칸이 그 자리를 따라가고, 키보드가 보이거나 1.4초가 지나면 치운다(탭이 끝나기 전에 입력칸을 치우면 iOS가 키보드를 안 띄운다)
+                const t0 = performance.now(); cancelAnimationFrame(retapRaf);
+                const step = () => { if (!document.body.classList.contains('chat-retap')) return; enterRetap(); if (performance.now() - t0 < 1400) retapFollowLoop = retapRaf = requestAnimationFrame(step); else leaveRetap(); };
+                retapRaf = requestAnimationFrame(step);
+            }
+            let retapFollowLoop = 0;
+            function leaveRetap() { if (document.body.classList.contains('chat-retap')) { document.body.classList.remove('chat-retap'); dbg('retap 오버레이 끔'); } }
+            window.addEventListener('resize', () => { if (document.body.classList.contains('chat-retap')) enterRetap(); });
+            window.__leaveRetap = leaveRetap;
             function place() {
+                if (document.body.classList.contains('chat-retap') && kbFixed() >= 80) { leaving = false; focused = true; leaveRetap(); dbg('키보드 올라옴(오버레이 탭)'); }   // focus 이벤트 없이 키보드만 올라온 경우도 정상 상태로 되돌린다
                 if (!focused || leaving || !coarse) return;   // 포커스를 잃는 중에는 다시 올리지 않는다 / 터치 기기가 아니면(데스크톱 창 크기 조절) 키보드로 오인하지 않는다
                 const kt = kbTotal();
                 if (kt >= 80) {
                     clearTimeout(closedT); lastKb = kt; try { if (kt < window.innerHeight * 0.7) localStorage.setItem(KB_KEY, String(kt)); } catch (e) {}
                     apply(kt, visBottom(), kbFixed());
                     if (window.scrollY || window.scrollX) window.scrollTo(0, 0);
-                } else if (lastKb > 0) { lastKb = 0; apply(0); clearTimeout(closedT); dbg('키보드 내려감 감지'); closedT = setTimeout(() => { if (focused && document.activeElement === chatInput && kbTotal() < 80) { dbg('자동 blur'); chatInput.blur(); } }, 150); }   // 키보드만 내려가고 포커스는 남은 경우(뒤로 가기 등): 입력 상태도 같이 정리
+                } else if (lastKb > 0) { lastKb = 0; apply(0); clearTimeout(closedT); dbg('키보드 내려감 감지'); if (document.activeElement === chatInput) enterRetap(); }   // 키보드만 내려가고 포커스는 남은 경우(뒤로 가기 등): 입력 상태도 같이 정리
             }
             chatInput.addEventListener('focus', () => {
                 if (Date.now() < (window.__noKbUntil || 0)) { chatInput.blur(); return; }   // 이모티콘 조작 중에는 포커스를 받지 않는다
-                clearTimeout(blurT); focused = true; leaving = false; window.__chatFocusAt = Date.now();
+                clearTimeout(blurT); focused = true; leaving = false; window.__chatFocusAt = Date.now(); if (document.body.classList.contains('chat-retap')) retapFollow();   // 진짜 입력칸을 눌러 포커스가 돌아와도 키보드가 뜰 때까지 오버레이를 유지
                 document.body.classList.add('chat-typing'); root.style.overflow = 'hidden';   // 입력 중에는 문서가 스크롤되지 않게 잠근다
                 root.style.setProperty('--typing-min-h', baseH + 'px');                       // 화면이 줄어드는 브라우저에서도 나머지 레이아웃은 그대로
                 if (coarse && lastKb === 0) { const g = storedKb(); if (g) apply(g, baseH - g, g); }   // 키보드가 뜨는 동안 입력줄이 가려지지 않게 미리 올려 둔다(곧 실제 높이로 보정)
@@ -3480,9 +3504,9 @@
                 clearTimeout(blurT);
                 leaving = true; lastKb = 0; apply(0);   // 키보드가 내려가는 즉시 입력줄도 같이 내려간다(120ms 뒤에 정리하던 지연 제거)
                 blurT = setTimeout(() => {
-                    if (document.activeElement === chatInput) return;
+                    if (document.activeElement === chatInput) { dbg('blur 이벤트인데 포커스 유지'); enterRetap(); return; }   // 페이지가 포커스를 잃은 경우(iPad 키보드 숨기기 등)
                     gen++; clearInterval(syncIv); clearTimeout(noKbT);
-                    focused = false; lastKb = 0; lastBlurAt = Date.now(); clearTimeout(closedT); clearTimeout(baseT); baseT = setTimeout(() => { if (!focused) baseH = window.innerHeight; }, 900); apply(0);
+                    leaveRetap(); focused = false; lastKb = 0; lastBlurAt = Date.now(); clearTimeout(closedT); clearTimeout(baseT); baseT = setTimeout(() => { if (!focused) baseH = window.innerHeight; }, 900); apply(0);
                     document.body.classList.remove('chat-typing'); root.style.overflow = '';
                     root.style.removeProperty('--bubble-bottom'); root.style.removeProperty('--bubble-right'); root.style.removeProperty('--typing-min-h');
                     if (ios) window.scrollTo(0, 0);
@@ -3684,7 +3708,7 @@
             const bubble = document.getElementById(`chat-bubble-${side}`);
             // 이전 애니메이션(인라인 pop 포함)을 완전히 끊고 리플로우로 초기화한 뒤 새로 재생
             bubble.style.animation = 'none'; bubble.className = `chat-bubble ${side}`;
-            bubble.innerHTML = msg; bubble.style.display = 'block'; bubble.style.opacity = isTyping ? '0.7' : '1';
+            bubble.innerHTML = msg; bubble.style.display = 'block'; bubble.style.opacity = '1';   // 배경은 항상 불투명(관전자 이모티콘만 반투명 연출)
             void bubble.offsetWidth;
             bubble.style.animation = '';
             if (!isTyping && emoteAnimations[msg]) { bubble.classList.add(emoteAnimations[msg]); }
