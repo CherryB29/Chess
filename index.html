@@ -1113,6 +1113,38 @@
         .ach-push .ap-d { display: block; color: #b9b9c8; font-size: 0.78rem; }
         @keyframes achIn { from { opacity: 0; transform: translateY(-30px) scale(0.96); } to { opacity: 1; transform: none; } }
         @keyframes achOut { to { opacity: 0; transform: translateY(-24px); } }
+    
+        /* v3.54: 칭호 카드 · 선택창 */
+        .title-card { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px 12px; margin: 0 0 12px; border-radius: 12px; border: 1px solid var(--panel-border); background: var(--input-bg); color: var(--text-color); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .12s, border-color .15s; }
+        .title-card:active { transform: scale(.985); border-color: rgba(232,185,35,0.55); }
+        .title-card .tc-label { font-size: 0.78rem; font-weight: 700; color: #8a8a96; flex-shrink: 0; }
+        .title-card .tl-chip { font-weight: 800; font-size: 0.82rem; color: #e8b923; background: rgba(232,185,35,0.12); border: 1px solid rgba(232,185,35,0.38); padding: 2px 11px; border-radius: 999px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .title-card .tl-chip.none { color: #8a8a96; background: transparent; border: 1px dashed var(--panel-border); font-weight: 600; }
+        .title-card .tc-go { margin-left: auto; display: flex; align-items: center; gap: 2px; font-size: 0.76rem; font-weight: 700; color: #8a8a96; flex-shrink: 0; }
+        .title-card .tc-go .ico { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .title-sync { margin: -6px 2px 12px; font-size: 0.72rem; line-height: 1.45; color: #e0905a; }
+        .title-box { max-width: 360px; }
+        .tp-tabs { display: flex; gap: 6px; padding: 6px 16px 10px; }
+        .tp-tab { flex: 1; padding: 8px 0; border-radius: 999px; border: 1px solid var(--panel-border); background: transparent; color: #8a8a96; font-weight: 800; font-size: 0.84rem; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .tp-tab i { font-style: normal; font-weight: 700; margin-left: 3px; opacity: 0.85; }
+        .tp-tab.active { background: rgba(232,185,35,0.14); border-color: rgba(232,185,35,0.55); color: #e8b923; }
+        .tp-list { padding: 0 12px 14px; overflow-y: auto; height: 380px; max-height: calc(88vh - 150px); box-sizing: border-box; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 6px; }
+        .tp-sec { margin: 8px 4px 2px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; color: #8a8a96; flex-shrink: 0; }
+        .tp-row { all: unset; box-sizing: border-box; flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 12px; border: 1px solid transparent; background: rgba(128,128,128,0.08); color: var(--text-color); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .12s, border-color .12s, transform .1s; }
+        .tp-row:active { transform: scale(.985); }
+        .tp-row.sel { background: rgba(232,185,35,0.1); border-color: rgba(232,185,35,0.65); }
+        .tp-row.locked { opacity: 0.5; cursor: default; }
+        .tp-row.shake { animation: tpShake .35s; }
+        @keyframes tpShake { 20% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 80% { transform: translateX(-3px); } }
+        .tp-ic { width: 1.7em; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; flex-shrink: 0; }
+        .tp-ic svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .tp-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+        .tp-tx b { font-size: 0.92rem; }
+        .tp-tx small { color: #8a8a96; font-size: 0.74rem; line-height: 1.35; }
+        .tp-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #6b6b78; box-sizing: border-box; position: relative; flex-shrink: 0; display: block; }
+        .tp-row.sel .tp-radio { border-color: #e8b923; }
+        .tp-row.sel .tp-radio::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: #e8b923; }
+        .tp-empty { text-align: center; color: #8a8a96; font-size: 0.84rem; line-height: 1.6; padding: 40px 12px; }
     </style>
 </head>
 <body>
@@ -1130,7 +1162,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.53';
+      var VERSION = 'v3.54';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -1716,8 +1748,8 @@
                         <div id="selected-icon-display">👤</div>
                         <input type="text" id="profile-name-input" class="lobby-input" maxlength="10" placeholder="닉네임">
                     </div>
-                    <div id="title-line"><span class="tl-label">칭호</span><span id="title-chip" class="tl-chip none">칭호 없음</span></div>
-                    <details id="ach-box"><summary><span id="ach-sum">업적 0/5</span><small>눌러서 칭호 바꾸기</small></summary><div id="ach-list"></div></details>
+                    <button type="button" id="title-card" class="title-card" aria-label="칭호 변경"><span class="tc-label">칭호</span><span id="title-chip" class="tl-chip none">칭호 없음</span><span class="tc-go"><span id="ach-sum">0/0</span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span></button>
+                    <div id="title-sync" class="title-sync" style="display:none"></div>
                     <div class="emoji-grid" id="emoji-picker-container"></div>
                     <button id="btn-save-profile" class="lobby-btn" style="padding: 10px; margin: 0;">프로필 저장</button>
                 </section>
@@ -1748,6 +1780,20 @@
                     <div class="acct-ver"><span id="acct-ver"></span> · <button type="button" class="acct-link" id="btn-refresh-app">앱 새로고침</button></div>
                 </section>
             </div>
+        </div>
+    </div>
+
+    <div id="title-overlay" class="overlay" style="display: none; z-index: 320;">
+        <div class="lobby-box settings-box title-box">
+            <div class="settings-head">
+                <h2>칭호 선택</h2>
+                <button id="btn-close-title" class="settings-x" aria-label="닫기"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            </div>
+            <div class="tp-tabs" role="tablist">
+                <button type="button" class="tp-tab active" data-f="own" role="tab">보유 <i id="tp-n-own">0</i></button>
+                <button type="button" class="tp-tab" data-f="all" role="tab">전체 <i id="tp-n-all">0</i></button>
+            </div>
+            <div id="tp-list" class="tp-list"></div>
         </div>
     </div>
 
@@ -2167,6 +2213,11 @@
             ACHIEVEMENTS.push({ id, icon, title, desc: `${name}${ro} 체크메이트 또는 킹 처치로 승리한다`, test: e => e.kind === 'aug' && e.name === name });
         });
         const LOCAL_ACH_KEY = 'augchess_ach_';
+        // 증강으로 마무리(먼저 쓰는 쪽): 증강으로 '킹을 잡을 수 있는 수'가 새로 생겼고 상대가 막지 못해 그 수로 킹을 잡으면 그 증강의 업적이다.
+        let augKillClaim = null;   // { name, color }
+        function canCaptureKing(color) {   // color 차례일 때, 상대 킹을 잡는 수가 있는가 (덩굴·무적 등 규칙이 그대로 반영된 합법 수 기준)
+            try { if (game.turn() !== color) return false; return game.moves().some(m => m.captured === 'k'); } catch (e) { return false; }
+        }
         function ensureAch() { const a = userProfile.ach = userProfile.ach || {}; a.unlocked = a.unlocked || {}; a.prog = a.prog || {}; if (typeof a.title !== 'string') a.title = ''; return a; }
         function mergeAch(remote, uid) {   // 서버 기록과 이 기기 기록을 합친다(달성은 합집합, 진행도는 큰 쪽). 서버와 달라졌으면 true
             userProfile.ach = null; const a = ensureAch(); let local = null;
@@ -2178,9 +2229,24 @@
             return JSON.stringify({ u: a.unlocked, p: a.prog, t: a.title }) !== JSON.stringify({ u: (remote && remote.unlocked) || {}, p: (remote && remote.prog) || {}, t: (remote && remote.title) || '' });
         }
         function achPayload() { const a = ensureAch(); return { unlocked: a.unlocked, prog: a.prog, title: a.title }; }
+        let achRetryTimer = null;
+        function setTitleSyncUI(fail) {
+            const el = document.getElementById('title-sync'); if (!el) return;
+            el.style.display = fail ? '' : 'none'; el.textContent = fail ? '서버에 저장하지 못해 다른 사람에게는 칭호가 보이지 않아요. 잠시 뒤 다시 시도할게요.' : '';
+        }
+        function syncAchRemote(uidArg, tries) {   // 칭호는 업적·진행도와 따로 쓴다: 그쪽 검증이 실패해도 칭호는 다른 사람에게 보이게
+            const uid = uidArg || myUid; if (!uid || !(profileSynced || uidArg)) return;
+            const a = ensureAch();
+            set(ref(db, `users/${uid}/ach/title`), a.title || null).then(() => { setTitleSyncUI(false); titleCache.delete(uid); })
+                .catch(e => {
+                    console.warn('[ach] 칭호 서버 저장 실패', e && (e.code || e.message)); setTitleSyncUI(true);
+                    clearTimeout(achRetryTimer); if ((tries || 0) < 2) achRetryTimer = setTimeout(() => syncAchRemote(uid, (tries || 0) + 1), 8000);
+                });
+            update(ref(db, `users/${uid}/ach`), { unlocked: a.unlocked, prog: a.prog }).catch(e => { console.warn('[ach] 업적 서버 저장 실패', e && (e.code || e.message)); });
+        }
         function saveAch() {
             try { localStorage.setItem(LOCAL_ACH_KEY + (myUid || 'local'), JSON.stringify(achPayload())); } catch (e) {}
-            if (myUid && profileSynced) update(ref(db, `users/${myUid}/ach`), achPayload()).catch(() => {});
+            syncAchRemote();
         }
         function showAchPush(d) {   // 화면 맨 위에서 내려오는 업적 알림
             let wrap = document.getElementById('ach-push-wrap');
@@ -2195,19 +2261,59 @@
             const chip = document.getElementById('title-chip'); if (!chip) return;
             const a = ensureAch(), cur = ACHIEVEMENTS.find(d => d.id === a.title);
             chip.textContent = cur ? `${cur.icon} ${cur.title}` : '칭호 없음'; chip.classList.toggle('none', !cur);
-            document.getElementById('ach-sum').textContent = `업적 ${ACHIEVEMENTS.filter(d => a.unlocked[d.id]).length}/${ACHIEVEMENTS.length}`;
-            const list = document.getElementById('ach-list'); list.innerHTML = '';
-            ACHIEVEMENTS.forEach(d => {
-                const on = !!a.unlocked[d.id], eq = a.title === d.id, row = document.createElement('button'); row.type = 'button';
-                row.className = 'ach-row' + (on ? ' on' : '') + (eq ? ' eq' : '');
-                const prog = d.goal && !on ? ` (${Math.min(d.goal, a.prog[d.counter] || 0)}/${d.goal})` : '';
-                row.innerHTML = '<span class="ar-ic"></span><span class="ar-tx"><b></b><small></small></span><span class="ar-st"></span>';
-                row.querySelector('.ar-ic').textContent = on ? d.icon : '🔒'; row.querySelector('b').textContent = d.title;
-                row.querySelector('small').textContent = d.desc + prog; row.querySelector('.ar-st').textContent = eq ? '착용 중' : (on ? '착용' : '');
-                row.onclick = () => { if (!on) return; a.title = eq ? '' : d.id; saveAch(); renderTitleUI(); };   // 달성한 칭호를 눌러 착용/해제
-                list.appendChild(row);
-            });
+            const sum = document.getElementById('ach-sum'); if (sum) sum.textContent = `${ACHIEVEMENTS.filter(d => a.unlocked[d.id]).length}/${ACHIEVEMENTS.length}`;
+            const ov = document.getElementById('title-overlay'); if (ov && ov.style.display === 'flex') renderTitlePicker();
         }
+        // 칭호 선택창: 목록에서 하나를 누르면 바로 착용되고 닫힌다 (보유 / 전체 탭, 칭호 없음 항목 포함)
+        const TP_SVG = {
+            lock: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+            none: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M6.5 6.5l11 11"/></svg>'
+        };
+        let titleFilter = 'own', titlePickTimer = null;
+        function renderTitlePicker() {
+            const list = document.getElementById('tp-list'); if (!list) return;
+            const a = ensureAch(), eq = a.title || '', owned = d => !!a.unlocked[d.id];
+            const nOwn = ACHIEVEMENTS.filter(owned).length;
+            document.getElementById('tp-n-own').textContent = nOwn; document.getElementById('tp-n-all').textContent = ACHIEVEMENTS.length;
+            document.querySelectorAll('#title-overlay .tp-tab').forEach(b => b.classList.toggle('active', b.dataset.f === titleFilter));
+            const top = list.scrollTop; list.innerHTML = '';
+            const addRow = d => {
+                const on = d ? owned(d) : true, sel = d ? eq === d.id : !eq;
+                const b = document.createElement('button'); b.type = 'button'; b.className = 'tp-row' + (on ? '' : ' locked') + (sel ? ' sel' : '');
+                const ic = document.createElement('span'); ic.className = 'tp-ic';
+                if (!d) ic.innerHTML = TP_SVG.none; else if (on) ic.textContent = d.icon; else ic.innerHTML = TP_SVG.lock;
+                const tx = document.createElement('span'); tx.className = 'tp-tx'; const nm = document.createElement('b'), ds = document.createElement('small');
+                nm.textContent = d ? d.title : '칭호 없음';
+                ds.textContent = d ? (on ? d.desc : `조건: ${d.desc}${d.goal ? ` (${Math.min(d.goal, a.prog[d.counter] || 0)}/${d.goal})` : ''}`) : '이름 아래에 칭호를 표시하지 않아요';
+                tx.append(nm, ds); b.append(ic, tx);
+                if (on) { const r = document.createElement('i'); r.className = 'tp-radio'; b.appendChild(r); }
+                b.onclick = () => { if (!on) { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); return; } setEquippedTitle(d ? d.id : ''); };
+                list.appendChild(b);
+            };
+            const sec = t => { const e = document.createElement('div'); e.className = 'tp-sec'; e.textContent = t; list.appendChild(e); };
+            if (titleFilter === 'own' && !nOwn) { const e = document.createElement('div'); e.className = 'tp-empty'; e.innerHTML = '아직 얻은 칭호가 없어요.<br>대전에서 이기면 칭호를 얻을 수 있어요.'; list.appendChild(e); return; }
+            const pool = titleFilter === 'own' ? ACHIEVEMENTS.filter(owned) : ACHIEVEMENTS;
+            const basic = pool.filter(d => !d.id.startsWith('aug_')), augs = pool.filter(d => d.id.startsWith('aug_'));
+            if (titleFilter === 'own') addRow(null);
+            if (basic.length) { sec('기본 업적'); basic.forEach(addRow); }
+            if (augs.length) { sec('증강 마무리'); augs.forEach(addRow); }
+            list.scrollTop = top;
+        }
+        function setEquippedTitle(id) {
+            const a = ensureAch(); clearTimeout(titlePickTimer);
+            if ((a.title || '') !== id) { a.title = id; saveAch(); renderTitleUI(); }
+            renderTitlePicker(); titlePickTimer = setTimeout(closeTitlePicker, 260);   // 선택된 표시를 잠깐 보여 준 뒤 닫는다
+        }
+        function openTitlePicker() {
+            const a = ensureAch(); titleFilter = ACHIEVEMENTS.some(d => a.unlocked[d.id]) ? 'own' : 'all';
+            const ov = document.getElementById('title-overlay'); ov.style.display = 'flex'; renderTitlePicker();
+            const l = document.getElementById('tp-list'); if (l) l.scrollTop = 0;
+        }
+        function closeTitlePicker() { clearTimeout(titlePickTimer); const ov = document.getElementById('title-overlay'); if (ov) ov.style.display = 'none'; }
+        { const card = document.getElementById('title-card'), ov = document.getElementById('title-overlay');
+          if (card) card.onclick = openTitlePicker;
+          if (ov) { ov.addEventListener('click', e => { if (e.target === ov) closeTitlePicker(); }); document.getElementById('btn-close-title').onclick = closeTitlePicker;
+            ov.querySelectorAll('.tp-tab').forEach(b => b.addEventListener('click', () => { titleFilter = b.dataset.f; renderTitlePicker(); const l = document.getElementById('tp-list'); if (l) l.scrollTop = 0; })); } }
         function reportWinAch(ev, delay) {   // ev: { kind: 'bot', level: '하'|'중'|'상' } | { kind: 'human' }
             const a = ensureAch(), got = [];
             if (ev.kind === 'bot' && ev.level === '상') a.prog.botHard = (a.prog.botHard || 0) + 1;
@@ -2224,7 +2330,7 @@
         async function fetchTitleLabel(uid) {
             if (!uid) return '';
             if (uid === myUid) return titleLabelOf(ensureAch().title);
-            const c = titleCache.get(uid); if (c && Date.now() - c.at < 60000) return c.t;
+            const c = titleCache.get(uid); if (c && Date.now() - c.at < (c.t ? 60000 : 10000)) return c.t;
             let t = '';
             try { const sn = await get(ref(db, `users/${uid}/ach/title`)); t = sn.exists() ? titleLabelOf(String(sn.val())) : ''; } catch (e) { return c ? c.t : ''; }
             titleCache.set(uid, { t, at: Date.now() }); return t;
@@ -2260,7 +2366,7 @@
                 await set(userRef, userProfile);
             }
             
-            { const remote = achSnap && achSnap.exists() ? achSnap.val() : null; if (mergeAch(remote, uid)) update(ref(db, `users/${uid}/ach`), achPayload()).catch(() => {}); try { localStorage.setItem(LOCAL_ACH_KEY + uid, JSON.stringify(achPayload())); } catch (e) {} renderTitleUI(); }
+            { const remote = achSnap && achSnap.exists() ? achSnap.val() : null; const achChanged = mergeAch(remote, uid); if (achChanged || ((remote && remote.title) || '') !== (ensureAch().title || '')) syncAchRemote(uid); try { localStorage.setItem(LOCAL_ACH_KEY + uid, JSON.stringify(achPayload())); } catch (e) {} renderTitleUI(); }
             try { renderAccount(auth.currentUser); } catch (e) {}
             document.getElementById('profile-name-input').value = userProfile.name;
             document.getElementById('selected-icon-display').innerText = userProfile.icon;
@@ -4050,7 +4156,7 @@
             try { botHistory = []; BOT.seen = new Map(); } catch (e) {}
             { const cl = document.getElementById('chat-log'); if (cl) cl.innerHTML = ''; chatLogLast = null; augPickCount = 0; }
             if (networkUnsub) { try { networkUnsub(); } catch (e) {} networkUnsub = null; }
-            game.reset(); game.keepUids = {}; moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; mines = []; mineReveal = false; prospects = {}; pactPieces = {}; pendingAugments = [];
+            augKillClaim = null; game.reset(); game.keepUids = {}; moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; mines = []; mineReveal = false; prospects = {}; pactPieces = {}; pendingAugments = [];
             activeWalls = []; reversedPawns = { w: 0, b: 0 }; reversedUids = { w: {}, b: {} }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = { w: null, b: null }; blackout = { w: 0, b: 0 }; lastCheckKey = '';
             if (targeting) { clearTargetVisuals(); targeting = null; }
             clearTimeout(endRevealTimer);
@@ -6206,6 +6312,10 @@
                     ae.style.visibility = 'hidden'; if (ke) ke.style.visibility = 'hidden'; kickPlanned = true;
                 }
             }
+            try {   // 증강으로 만든 킹 잡을 각을 상대가 막지 못해 이 수로 킹을 잡았다면 그 증강의 업적
+                const cl = augKillClaim; augKillClaim = null;
+                if (cl && moveResult.captured === 'k' && moveResult.color === cl.color && cl.color === myColor && !isSpectating) reportWinAch({ kind: 'aug', name: cl.name }, kickPlanned ? 2400 : 1500);
+            } catch (e) {}
             muteShatter = !!kingKick; drawPieces(); muteShatter = false; updateTurnIndicator(); updateCheckStatus();
             if (kingKick) setTimeout(() => { if (!playKickFinish(kingKick)) { kickPlanned = false; kingKick.els.forEach(el => { el.style.visibility = ''; }); } }, 200);
             updatePreviousMoveHighlights();
@@ -7250,6 +7360,7 @@
             opponentAugmentPreview = null;
             opponentAugmentPreviewColor = null;
             if (pendingAugments.length === 0) { 
+                try { if (augKillClaim && !canCaptureKing(augKillClaim.color)) augKillClaim = null; } catch (e) {}   // 상대의 증강으로 킹을 잡을 각이 막혔다면 기록을 지운다
                 isSystemLocked = false; updateCheckStatus(); updateProgressBar(); 
                 if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 800);
                 return; 
@@ -7654,7 +7765,8 @@
             selectedAugmentIdx = -1;
             showCastText(selectedAug.name, () => {
                 floatLog = [];
-                let res;
+                let res, capBefore = false;
+                try { if (pColor === myColor && !isSpectating) capBefore = canCaptureKing(pColor); } catch (e) {}   // 증강 전부터 킹을 잡을 수 있었다면 증강 덕이 아니다
                 try { res = selectedAug.apply(pColor, eColor, target); const poisoned = enforcePoison(); game.sanitizeSpecialStates(); if (poisoned.length) res.t = [...new Set([...(res.t || []), ...poisoned])]; const blasts = resolveMines(false); res.blasts = [...new Set([...(res.blasts || []), ...blasts])]; if (res.blasts.length) res.t = [...new Set([...(res.t || []), ...res.blasts])]; }
                 finally { var floats = floatLog; floatLog = null; }
                 const augWinCheck = () => {   // 내가 쓴 증강으로 상대가 체크메이트 되거나 킹이 사라졌으면 업적 (관전·상대·봇의 증강은 제외)
@@ -7662,6 +7774,7 @@
                         if (pColor !== myColor || isSpectating || augWinReported) return;
                         const eKing = findPieces(eColor, 'k').length, mKing = findPieces(pColor, 'k').length;
                         if ((mKing > 0 && eKing === 0) || (eKing > 0 && game.in_checkmate() && game.turn() === eColor)) { augWinReported = true; reportWinAch({ kind: 'aug', name: selectedAug.name }, 2500); }
+                        else if (!capBefore && mKing > 0 && eKing > 0 && game.turn() === pColor && canCaptureKing(pColor)) augKillClaim = { name: selectedAug.name, color: pColor };   // 먼저 쓰는 쪽: 킹을 잡을 각을 만들었다. 상대가 막지 못하고 그 수로 킹을 잡으면 업적
                     } catch (e) {}
                 };
                 let augWinReported = false; augWinCheck();
