@@ -1203,6 +1203,18 @@
         .rv-clash .rv-ground { position: absolute; left: 10%; right: 10%; bottom: 10px; height: 1px; background: var(--panel-border); }
         .rv-cp { position: absolute; left: 0; bottom: 10px; width: 38px; height: 38px; will-change: transform; }
         .rv-cpi { display: block; width: 100%; height: 100%; }
+        .rv-bob { display: block; width: 100%; height: 100%; transform-origin: 50% 100%; }
+        .rv-bob.run { animation: rv-clop .26s ease-in-out infinite; }
+        .rv-sh { position: absolute; left: 10%; right: 10%; bottom: -3px; height: 5px; border-radius: 50%; background: rgba(0,0,0,0.35); filter: blur(1.5px); }
+        .rv-bob.idle { animation: rv-idle 1.8s ease-in-out infinite; }
+        .rv-bob.paw { animation: rv-paw .46s ease-in-out infinite; }
+        .rv-dust { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: currentColor; pointer-events: none; }
+        @keyframes rv-idle { 0%, 100% { transform: translateY(0) scale(1,1); } 50% { transform: translateY(-1px) scale(1.02,.97); } }
+        @keyframes rv-paw { 0%, 100% { transform: translateY(0) rotate(0deg); } 30% { transform: translateY(-4px) rotate(-4deg); } 60% { transform: translateY(0) rotate(0deg); } }
+        .rv-cp:not(.is-run) .rv-sh { display: none; }
+        .rv-cp.is-run .rv-sh { animation: rv-shadow .26s ease-in-out infinite; }
+        @keyframes rv-clop { 0%, 100% { transform: translateY(0) rotate(-6deg) scale(1.05,.93); } 45% { transform: translateY(-8px) rotate(6deg) scale(.97,1.05); } 72% { transform: translateY(-2px) rotate(0deg) scale(1,1); } }
+        @keyframes rv-shadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 45% { transform: scaleX(.7); opacity: .6; } }
         .rv-cpi svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4)); }
         .rv-ring { position: absolute; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--primary); pointer-events: none; }
         .rv-spark { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--primary); pointer-events: none; }
@@ -1225,7 +1237,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.64';
+      var VERSION = 'v3.67';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -5695,51 +5707,90 @@
         function rvClearBadges() { document.querySelectorAll('.mv-badge').forEach(e => e.remove()); rvSugClear(); }
         // ---- 로딩창의 작은 충돌 연출: 첫 화면 로딩과 같은 기물 그림으로, 무작위 두 기물이 달려와 부딪히고 한쪽이 날아간다 ----
         const rvClash = (() => {
-            let token = 0, stage = null;
+            let token = 0, stage = null, surv = null;   // surv: 이긴 기물은 남아 있고, 반대편에서 새 기물이 달려와 다시 부딪힌다 (첫 화면 로딩과 같은 방식)
             const SZ = 38, GROUND = 10, KEYS = ['K', 'Q', 'R', 'B', 'N', 'P'];
             const T = (x, y) => `translate3d(${x}px,${y || 0}px,0)`;
             const pick = n => { let k; do { k = KEYS[Math.floor(Math.random() * KEYS.length)]; } while (k === n); return k; };
             const svgOf = (t, w) => ((window.__LD_SVG || {})[t] || '').replace(/{fill}/g, w ? '#ffffff' : '#222222').replace(/{stroke}/g, w ? '#000000' : '#eeeeee');
             const sleep = ms => new Promise(r => setTimeout(r, ms));
-            const anim = (n, kf, o) => new Promise(res => { try { const a = n.animate(kf, Object.assign({ fill: 'forwards' }, o)); a.onfinish = res; a.oncancel = res; } catch (e) { res(); } });
-            const clear = () => { if (stage) stage.querySelectorAll('.rv-cp,.rv-ring,.rv-spark').forEach(e => e.remove()); };
-            function mk(t, white, x) {
-                const d = document.createElement('div'); d.className = 'rv-cp'; d.style.transform = T(x);
-                const i = document.createElement('span'); i.className = 'rv-cpi'; i.innerHTML = svgOf(t, white); if (white) i.style.transform = 'scaleX(-1)';
-                d.appendChild(i); stage.appendChild(d); return d;
+            // 끝나면 마지막 값을 요소에 확정하고 애니메이션은 걷어 낸다 (남겨 두면 이후 style 변경이 먹히지 않는다)
+            const anim = (n, kf, o) => new Promise(res => { try { const a = n.animate(kf, Object.assign({ fill: 'forwards' }, o)); let d = false; a.onfinish = () => { if (!d) { d = true; const last = kf[kf.length - 1]; try { if (last.transform !== undefined) n.style.transform = last.transform; if (last.opacity !== undefined) n.style.opacity = last.opacity; a.cancel(); } catch (e) {} } res(); }; a.oncancel = res; } catch (e) { res(); } });
+            const clear = () => { if (stage) stage.querySelectorAll('.rv-cp,.rv-ring,.rv-spark,.rv-dust').forEach(e => e.remove()); };
+            function face(p, dir) { p.dir = dir; p.i.style.transform = dir === 1 ? 'scaleX(-1)' : ''; }
+            function mode(p, cls) { p.b.className = 'rv-bob' + (cls ? ' ' + cls : ''); p.b.style.transform = ''; p.n.classList.toggle('is-run', cls === 'run'); }
+            function mk(t, white, x, origin) {
+                const n = document.createElement('div'); n.className = 'rv-cp'; n.style.transform = T(x);
+                const sh = document.createElement('span'); sh.className = 'rv-sh';
+                const b = document.createElement('span'); b.className = 'rv-bob';
+                const i = document.createElement('span'); i.className = 'rv-cpi'; i.innerHTML = svgOf(t, white);
+                b.appendChild(i); n.appendChild(sh); n.appendChild(b); stage.appendChild(n);
+                const p = { n, b, i, x, origin, white, type: t, dir: 1 }; face(p, white ? 1 : -1); return p;
+            }
+            const runTo = (p, x1, dur, ease) => { const x0 = p.x; p.x = x1; return anim(p.n, [{ transform: T(x0) }, { transform: T(x1) }], { duration: dur, easing: ease }); };
+            const anchorX = (p, W) => (p.origin === -1 ? W * 0.30 : W * 0.70) - SZ / 2;
+            const feetX = p => p.n.getBoundingClientRect().left - stage.getBoundingClientRect().left + SZ / 2;
+            function fx(cls, x, bottom) { const d = document.createElement('div'); d.className = cls; d.style.left = x + 'px'; d.style.bottom = bottom + 'px'; stage.appendChild(d); return d; }
+            function puff(p, dir) {
+                const d = fx('rv-dust', feetX(p) - dir * 10, GROUND - 2);
+                anim(d, [{ opacity: .22, transform: 'translate(-50%,0) scale(.6)' }, { opacity: 0, transform: `translate(-50%,0) translate(${-dir * 10}px,-8px) scale(2)` }], { duration: 480, easing: 'ease-out' }).then(() => d.remove());
             }
             function burst(x, yb) {
-                const rg = document.createElement('div'); rg.className = 'rv-ring'; rg.style.left = x + 'px'; rg.style.bottom = yb + 'px'; stage.appendChild(rg);
+                const rg = fx('rv-ring', x, yb);
                 anim(rg, [{ opacity: .9, transform: 'translate(-50%,50%) scale(.5)' }, { opacity: 0, transform: 'translate(-50%,50%) scale(3.6)' }], { duration: 420, easing: 'ease-out' }).then(() => rg.remove());
-                for (let i = 0; i < 7; i++) {
-                    const sp = document.createElement('div'); sp.className = 'rv-spark'; sp.style.left = x + 'px'; sp.style.bottom = yb + 'px'; stage.appendChild(sp);
-                    const ang = Math.random() * Math.PI * 2, d = 18 + Math.random() * 24;
+                for (let k = 0; k < 7; k++) {
+                    const sp = fx('rv-spark', x, yb), ang = Math.random() * Math.PI * 2, d = 18 + Math.random() * 24;
                     anim(sp, [{ opacity: 1, transform: 'translate(-50%,50%) scale(1)' }, { opacity: 0, transform: `translate(-50%,50%) translate(${Math.cos(ang) * d}px,${Math.sin(ang) * d}px) scale(.3)` }], { duration: 320 + Math.random() * 140, easing: 'cubic-bezier(.1,.7,.3,1)' }).then(() => sp.remove());
                 }
             }
-            async function round(tk) {
-                const W = stage.clientWidth || 260, a = pick(), b = pick(a), lx = W / 2 - SZ + 4, rx = W / 2 - 4, ease = 'cubic-bezier(.45,.05,.9,.55)';
-                const L = mk(a, true, -SZ - 6), R = mk(b, false, W + 6);
-                await Promise.all([anim(L, [{ transform: T(-SZ - 6) }, { transform: T(lx) }], { duration: 850, easing: ease }), anim(R, [{ transform: T(W + 6) }, { transform: T(rx) }], { duration: 850, easing: ease })]);
-                if (tk !== token) return;
-                burst(W / 2, GROUND + SZ / 2); await sleep(60); if (tk !== token) return;
-                const leftLoses = Math.random() < 0.5, lose = leftLoses ? L : R, win = leftLoses ? R : L, dir = leftLoses ? -1 : 1, x0 = leftLoses ? lx : rx, flip = leftLoses ? '' : 'scaleX(-1)';
+            // 진 쪽은 회전하며 날아가 사라지고
+            async function knock(p, dir) {
+                mode(p, ''); const x = p.x;
+                await anim(p.n, [{ transform: T(x, 0) + ' rotate(0deg)', opacity: 1 }, { transform: T(x + dir * 70, -46) + ' rotate(' + dir * 200 + 'deg)', opacity: 1, offset: .4 }, { transform: T(x + dir * 140, 18) + ' rotate(' + dir * 420 + 'deg)', opacity: 0 }], { duration: 720, easing: 'cubic-bezier(.22,.7,.45,1)' });
+                p.n.remove();
+            }
+            // 이긴 쪽은 찌그러졌다 버티고, 밀려난 만큼 제자리로 돌아와 다음 도전자를 기다린다
+            async function survive(p, push, W) {
+                mode(p, ''); const x = p.x, flip = p.dir === 1 ? 'scaleX(-1) ' : '';
                 await Promise.all([
-                    anim(lose, [{ transform: T(x0, 0) + ' rotate(0deg)', opacity: 1 }, { transform: T(x0 + dir * 70, -46) + ' rotate(' + dir * 200 + 'deg)', opacity: 1, offset: .4 }, { transform: T(x0 + dir * 140, 18) + ' rotate(' + dir * 420 + 'deg)', opacity: 0 }], { duration: 720, easing: 'cubic-bezier(.22,.7,.45,1)' }),
-                    anim(win.firstChild, [{ transform: flip + ' scale(1.25,.78)' }, { transform: flip + ' scale(.94,1.08)' }, { transform: flip + ' scale(1,1)' }], { duration: 340 })
+                    anim(p.i, [{ transform: flip + 'scale(1.25,.78)' }, { transform: flip + 'scale(.94,1.08)' }, { transform: flip + 'scale(1,1)' }], { duration: 340 }),
+                    anim(p.b, [{ transform: 'rotate(0deg)' }, { transform: 'rotate(' + push * 14 + 'deg)' }, { transform: 'rotate(' + (-push * 5) + 'deg)' }, { transform: 'rotate(0deg)' }], { duration: 480, easing: 'ease-out' }),
+                    anim(p.n, [{ transform: T(x, 0) }, { transform: T(x + push * 18, -6) }, { transform: T(x + push * 16, 0) }], { duration: 360, easing: 'ease-out' })
                 ]);
+                p.x = x + push * 16;
+                const ax = anchorX(p, W), dist = Math.abs(ax - p.x);
+                if (dist > 4) { face(p, ax > p.x ? 1 : -1); mode(p, 'run'); await runTo(p, ax, Math.max(260, dist * 4), 'ease-in-out'); }
+                mode(p, 'idle');
+            }
+            async function round(tk) {
+                const W = stage.clientWidth || 260, ease = 'cubic-bezier(.45,.05,.9,.55)', first = !surv;
+                let s, c, cs, sEnd, cEnd, dur;
+                if (first) {
+                    s = mk(pick(), true, -SZ - 20, -1); c = mk(pick(s.type), false, W + 20, 1); cs = 1;
+                    face(s, 1); face(c, -1); sEnd = W / 2 - SZ + 5; cEnd = W / 2 - 5; dur = 1100;
+                } else {
+                    s = surv; cs = -s.origin;
+                    c = mk(pick(s.type), !s.white, cs === 1 ? W + 20 : -SZ - 20, cs);
+                    face(c, -cs); face(s, cs); mode(s, 'paw'); cEnd = s.x + cs * (SZ - 8); dur = 1000;
+                }
+                const runners = first ? [s, c] : [c];
+                runners.forEach(p => mode(p, 'run'));
+                const dust = setInterval(() => runners.forEach(p => { try { puff(p, p === c ? -cs : cs); } catch (e) {} }), 110);
+                try { await Promise.all([runTo(c, cEnd, dur, ease), first ? runTo(s, sEnd, dur, ease) : Promise.resolve()]); } finally { clearInterval(dust); }
                 if (tk !== token) return;
-                await anim(win, [{ opacity: 1 }, { opacity: 0 }], { duration: 260, delay: 120 });
-                L.remove(); R.remove();
+                mode(s, ''); mode(c, '');
+                burst((s.x + c.x + SZ) / 2, GROUND + SZ / 2); await sleep(70); if (tk !== token) return;
+                const cLoses = Math.random() < 0.5, loser = cLoses ? c : s, winner = cLoses ? s : c, loserDir = cLoses ? cs : -cs;
+                surv = winner;
+                await Promise.all([knock(loser, loserDir), survive(winner, -loserDir, W)]);
             }
             return {
                 start() {
                     stage = document.getElementById('rv-clash'); if (!stage || typeof stage.animate !== 'function') return;
                     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-                    const tk = ++token; clear();
-                    (async () => { while (tk === token) { try { await round(tk); } catch (e) { break; } if (tk !== token) break; await sleep(140); } })();
+                    const tk = ++token; clear(); surv = null;
+                    (async () => { while (tk === token) { try { await round(tk); } catch (e) { break; } if (tk !== token) break; await sleep(160); } })();
                 },
-                stop() { token++; clear(); }
+                stop() { token++; clear(); surv = null; }
             };
         })();
         // 로딩창은 두 가지 모드: 준비 모드(기록을 불러오는 동안) / 분석 모드(진행 막대와 건너뛰기)
@@ -5950,13 +6001,24 @@
             if (rvSugIdx === i) { replayShow(i, false); return; }   // 다시 누르면 원래 장면으로
             if (replayPlaying) replaySetPlaying(false);
             const btn = document.getElementById('rp-sug-btn'), good = !!RV_GOOD_CLS[f.rv.c];
-            if (good ? f.why === undefined : (f.rm === undefined || f.why === undefined)) {   // 탐색이 필요하면 '분석 중'을 먼저 그린 뒤 계산한다(약 2~3초)
+            if (good ? f.why === undefined : (f.rm === undefined || f.why === undefined)) {   // 탐색이 필요하면 '분석 중'을 먼저 그린 뒤 계산한다(워커에서 약 2~3초, 화면은 멈추지 않음)
                 rvSugBusy = true; if (btn) { btn.textContent = '분석 중…'; btn.disabled = true; }
-                requestAnimationFrame(() => setTimeout(() => {
+                const done = () => { rvSugBusy = false; if (btn) btn.disabled = false; if (replayActive && replayIdx === i) rvSugShow(i); else if (btn) btn.textContent = btn.dataset.lbl || '추천 수'; };
+                const viaMain = () => requestAnimationFrame(() => setTimeout(() => {
                     try { if (!good) rvSugGet(replayFrames, i); rvWhyBuild(replayFrames, i); } catch (e) { replayFrames[i].why = replayFrames[i].why || { bad: [], good: [], pb: '', pg: '', goodMode: good, err: String(e && e.message || e) }; }
-                    finally { rvSugBusy = false; if (btn) btn.disabled = false; }
-                    if (replayActive && replayIdx === i) rvSugShow(i); else if (btn) btn.textContent = btn.dataset.lbl || '추천 수';
+                    done();
                 }, 0));
+                rvWhenReady(ok => {
+                    if (!ok || !rvW) { viaMain(); return; }
+                    const id = ++rvWJob;
+                    rvWHandlers.set(id, d => {
+                        rvWHandlers.delete(id);
+                        if (d.t === 'fail') { viaMain(); return; }
+                        const fr = replayFrames[i]; if (!fr) { done(); return; }
+                        if (!good) fr.rm = d.rm || null; fr.why = d.why; done();
+                    });
+                    try { rvW.postMessage({ t: 'why', id, i, prev: rvPlain(replayFrames[i - 1]), f: rvPlain(f) }); } catch (e) { rvWHandlers.delete(id); viaMain(); }
+                });
             } else rvSugShow(i);
         }
         { const b = document.getElementById('rp-sug-btn'); if (b) b.onclick = rvSugToggle; }
@@ -5971,7 +6033,7 @@
         }
         function rvSetBar(target, ms) {
             const fill = document.getElementById('rv-load-fill'); if (!fill) return;
-            fill.style.transitionDuration = ms + 'ms'; fill.style.transform = `scaleX(${Math.max(0, Math.min(1, target))})`;
+            fill.style.transitionTimingFunction = 'linear'; fill.style.transitionDuration = ms + 'ms'; fill.style.transform = `scaleX(${Math.max(0, Math.min(1, target))})`;
         }
         function rvPaintProgress() {
             const done = rvTotal > 0 && rvCount >= rvTotal;
@@ -6067,6 +6129,92 @@
             rvLoading = true; rvLoadMode(true); document.getElementById('rv-loading').style.display = 'flex'; rvClash.start(); rvPaintProgress();
             if (replayPlaying) { rvWantPlay = true; replaySetPlaying(false); }
         }
+        // ---- v3.65: 분석을 Web Worker에서 돌린다. 앱 코드를 워커에서 껍데기(Proxy) 환경으로 한 번 더 실행해 rvAnalyze·rvWhyBuild를 그대로 쓴다.
+        //      메인 스레드가 막히지 않아 로딩창 연출·막대가 끊기지 않는다. 워커를 못 만들면 기존 메인 스레드 방식으로 돌아간다. ----
+        function rvWorkerMain(CODE) {   // 워커 안에서 실행되는 부트스트랩 (이 함수는 문자열로 변환되어 워커 소스가 된다)
+            const BL = new Set(['postMessage', 'addEventListener', 'removeEventListener', 'dispatchEvent', 'onmessage', 'onmessageerror', 'onerror', 'self', 'location', 'navigator', 'fetch', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval', 'close', 'importScripts', 'name', 'caches', 'indexedDB', 'Worker', 'WebSocket', 'XMLHttpRequest', 'EventSource', 'BroadcastChannel', 'requestAnimationFrame', 'cancelAnimationFrame']);
+            const real = {}; for (const k of Object.getOwnPropertyNames(globalThis)) { if (BL.has(k)) continue; try { real[k] = globalThis[k]; } catch (e) {} }
+            const noop = () => 0; real.setTimeout = real.setInterval = real.requestAnimationFrame = noop; real.clearTimeout = real.clearInterval = real.cancelAnimationFrame = noop;
+            const nativeST = self.setTimeout.bind(self);
+            const mk = () => { const f = function () { return mk(); }; return new Proxy(f, { get: (t, k) => k === Symbol.toPrimitive ? () => '' : k === 'then' ? undefined : mk(), apply: () => mk(), construct: () => mk(), set: () => true, has: () => true }); };
+            const sc = new Proxy({}, { has: (t, k) => typeof k === 'string' && k !== 'globalThis' && k !== '__RV', get: (t, k) => k === Symbol.unscopables ? undefined : (k in t ? t[k] : (k in real ? real[k] : mk())), set: (t, k, v) => { t[k] = v; return true; } });
+            let api = null;
+            try { new Function('sc', 'with(sc){' + CODE + '\n;globalThis.__RV={rvAnalyze,rvSugGet,rvWhyBuild,RV_GOOD_CLS};}')(sc); api = globalThis.__RV; }
+            catch (e) { postMessage({ t: 'fail', err: String(e && e.stack || e) }); return; }
+            if (!api) { postMessage({ t: 'fail', err: 'no api' }); return; }
+            let job = null;
+            const pump = () => {
+                const j = job; if (!j) return;
+                if (!j.todo.length) { postMessage({ t: 'done', id: j.id }); job = null; return; }
+                const i = j.todo.shift(), f = j.frames[i];
+                try { api.rvAnalyze(j.frames, i); } catch (e) { f.rv = { c: 'none' }; }
+                postMessage({ t: 'r', id: j.id, i, rv: f.rv, rb: f.rb || null, rm: f.rm || null });
+                nativeST(pump, 0);   // 한 수마다 한 번 쉬어서 cancel/why 메시지를 받을 수 있게 한다
+            };
+            self.onmessage = e => {
+                const d = e.data;
+                if (d.t === 'analyze') { job = { id: d.id, frames: d.frames, todo: d.todo }; nativeST(pump, 0); }
+                else if (d.t === 'cancel') job = null;
+                else if (d.t === 'why') {
+                    const arr = []; arr[d.i - 1] = d.prev; arr[d.i] = d.f; const f = arr[d.i];
+                    try { if (!api.RV_GOOD_CLS[f.rv.c] && f.rm === undefined) api.rvSugGet(arr, d.i); api.rvWhyBuild(arr, d.i); }
+                    catch (err) { f.why = f.why || { bad: [], good: [], pb: '', pg: '', goodMode: false, err: String(err && err.message || err) }; }
+                    postMessage({ t: 'why', id: d.id, rm: f.rm === undefined ? null : f.rm, why: f.why });
+                }
+            };
+            postMessage({ t: 'ready' });
+        }
+        let rvW = null, rvWState = 'none', rvWJob = 0; const rvWWaiters = [], rvWHandlers = new Map();
+        function rvWFail() {
+            if (rvWState === 'fail') return; rvWState = 'fail';
+            try { if (rvW) rvW.terminate(); } catch (e) {} rvW = null;
+            rvWWaiters.splice(0).forEach(cb => { try { cb(false); } catch (e) {} });
+            const hs = [...rvWHandlers.values()]; rvWHandlers.clear(); hs.forEach(h => { try { h({ t: 'fail' }); } catch (e) {} });
+        }
+        function rvWorkerEnsure() {
+            if (rvWState !== 'none') return; rvWState = 'loading';
+            try {
+                if (!window.Worker || !window.Blob || !(window.URL && URL.createObjectURL)) throw new Error('no worker');
+                const el = [...document.querySelectorAll('script[type="module"]')].sort((a, b) => b.textContent.length - a.textContent.length)[0]; if (!el) throw new Error('no script');
+                const code = el.textContent.replace(/^\s*import[\s\S]*?from\s*['"][^'"]+['"];?/gm, '').replace(/^\s*import\s*['"][^'"]+['"];?/gm, '');
+                const src = 'const CODE=' + JSON.stringify(code) + ';\n(' + rvWorkerMain.toString() + ')(CODE);';
+                const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+                rvW = new Worker(url); setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 15000);
+                rvW.onmessage = ev => {
+                    const d = ev.data || {};
+                    if (d.t === 'ready') { rvWState = 'ready'; rvWWaiters.splice(0).forEach(cb => { try { cb(true); } catch (e) {} }); }
+                    else if (d.t === 'fail') { try { console.warn('rv worker', d.err); } catch (e) {} rvWFail(); }
+                    else { const h = rvWHandlers.get(d.id); if (h) h(d); }
+                };
+                rvW.onerror = () => rvWFail();
+                setTimeout(() => { if (rvWState === 'loading') rvWFail(); }, 12000);   // 12초 안에 준비되지 않으면 포기
+            } catch (e) { rvWFail(); }
+        }
+        function rvWhenReady(cb) { rvWorkerEnsure(); if (rvWState === 'ready') cb(true); else if (rvWState === 'fail') cb(false); else rvWWaiters.push(cb); }
+        function rvPlain(f) { const o = { kind: f.kind, from: f.from, to: f.to, by: f.by, s: f.s, captured: f.captured || null }; if (f.rv) o.rv = f.rv; if (f.rm !== undefined) o.rm = f.rm; return o; }
+        function rvRunViaWorker(frames, todo, runMain) {   // true: 워커가 맡았다(또는 준비되는 대로 맡는다) / false: 워커를 못 써서 호출한 쪽이 메인 스레드로 돌려야 함
+            rvWorkerEnsure(); if (rvWState === 'fail') return false;
+            const id = ++rvWJob; let last = performance.now();
+            const stop = () => { rvWHandlers.delete(id); try { if (rvW) rvW.postMessage({ t: 'cancel' }); } catch (e) {} };
+            const barNext = () => { if (rvLoading) rvSetBar((rvCount + 0.97) / rvTotal, Math.min(3000, Math.max(300, rvAvg * 1.15))); };
+            const start = () => {
+                if (rvRunning !== frames) return;
+                rvWHandlers.set(id, d => {
+                    if (d.t === 'fail') { if (rvRunning === frames) runMain(todo.filter(i => !frames[i].rv)); return; }
+                    if (rvRunning !== frames) { stop(); return; }   // 건너뛰기/나가기로 취소됨
+                    if (d.t === 'r') {
+                        const f = frames[d.i]; f.rv = d.rv; if (d.rb) f.rb = d.rb; if (d.rm) f.rm = d.rm;
+                        rvCount++; const now = performance.now(), dt = now - last; last = now; if (dt > 30) rvAvg = rvAvg * 0.6 + dt * 0.4;
+                        if (!rvAlive(frames)) { stop(); rvPersist(frames); rvRunning = null; rvFrames = null; rvHideLoading(); return; }
+                        barNext(); rvPaintProgress(); if (rvCount % 10 === 0) rvPersist(frames, true);
+                    } else if (d.t === 'done') { rvWHandlers.delete(id); rvRunning = null; rvPersist(frames); rvPaintProgress(); rvFinish(); }
+                });
+                last = performance.now(); barNext();
+                rvW.postMessage({ t: 'analyze', id, frames: frames.map(rvPlain), todo: todo.slice() });
+            };
+            if (rvWState === 'ready') start(); else rvWWaiters.push(ok => { if (ok) start(); else if (rvRunning === frames) runMain(todo.filter(i => !frames[i].rv)); });
+            return true;
+        }
         let rvAvg = 600;
         function replayReviewKick(force, bg) {   // 사람·AI 대전 모두: 결과 화면에서 미리(bg), 또는 리플레이에 들어올 때 분석한다
             if (!bg && replayMode === 'live') return;
@@ -6079,6 +6227,8 @@
             if (!todo.length) return;   // 이미 분석된 기록이면 로딩 없이 바로 재생
             rvRunning = frames; rvFrames = frames;
             if (!bg) rvShowLoading();
+            const runMain = (list) => {   // 폴백: 메인 스레드에서 한 수씩 분석(워커를 못 쓸 때)
+            const todo = list;
             const step = () => {
                 if (rvRunning !== frames) return;   // 건너뛰기/나가기로 취소됨
                 if (!rvAlive(frames)) { rvPersist(frames); rvRunning = null; rvFrames = null; rvHideLoading(); return; }
@@ -6093,6 +6243,8 @@
                 }, 0));
             };
             setTimeout(step, 80);
+            };
+            if (!rvRunViaWorker(frames, todo, runMain)) runMain(todo);
         }
         function rvBgStart() {   // 경기가 끝나 결과 화면이 떠 있는 동안 미리 분석해 둔다 (리플레이를 열 때 기다리지 않도록)
             if (isSpectating || replayActive || replayFrames.length < 4) return;
