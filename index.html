@@ -492,6 +492,7 @@
         body.augment-picking #emote-popup { z-index: 301; }
         body.augment-picking .chat-bubble { position: fixed; z-index: 300; }
         body.augment-picking .chat-bubble.mine { z-index: 300; left: auto; top: auto; right: max(72px, calc((100vw - 420px) / 2 + 72px)); bottom: calc(var(--kb-bottom, 0px) + var(--chat-bar-h, 60px) + 8px + env(safe-area-inset-bottom, 0px)); }
+        body.augment-picking.chat-typing:not(.wide-mode) .chat-bubble.mine { z-index: 300; }   /* v3.74: 입력 중 규칙(130)이 증강 오버레이 위 우선순위를 덮지 않게 */
         body.augment-picking .chat-bubble.opponent { z-index: 300; right: auto; bottom: auto; left: 14px; top: calc(14px + env(safe-area-inset-top, 0px)); }
 
 
@@ -1179,8 +1180,11 @@
         .rp-rv-btn.sug { border-color: #81b64c; color: #9ccc65; }
         .rp-rv-btn.sug.on { background: #81b64c; color: #14210a; }
         .rp-rv-btn.sug:disabled { opacity: .6; }
-        .rp-sug-why { padding: 2px 2px 6px; font-size: 0.74rem; line-height: 1.45; font-weight: 600; max-height: 9.6em; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .rp-sug-why { padding: 2px 2px 6px; font-size: 0.74rem; line-height: 1.45; font-weight: 600; max-height: 14em; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .rp-sug-why .blk { padding: 3px 0 5px; } .rp-sug-why .blk > b { display: block; font-size: 0.7rem; font-weight: 800; opacity: .7; letter-spacing: .02em; }
+        .rp-sug-why .deep { font-size: .69rem; font-weight: 600; opacity: .82; margin: 2px 0 0 4px; padding-left: 7px; border-left: 2px solid currentColor; line-height: 1.4; }
+        .rp-sug-why .tip { font-size: .68rem; font-weight: 700; margin-top: 3px; padding: 3px 7px; border-radius: 6px; background: rgba(255,255,255,.07); color: #d9d9e2; }
+        .rp-sug-why .tip::before { content: '배울 점  '; opacity: .65; }
         .rp-sug-why .err { font-size: .66rem; color: #8a8a96; padding-top: 2px; }
         .rp-sug-why .bad { color: #e8a07e; } .rp-sug-why .good { color: #a6d67a; }
         .rp-sug-why .pv-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 3px; }
@@ -1246,7 +1250,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.73';
+      var VERSION = 'v3.75';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -3770,9 +3774,14 @@
             window.addEventListener('scroll', place, { passive: true });
 
             // 증강 선택/대기 중에는 이모티콘 버튼을 오른쪽 아래로 옮기고 말풍선도 오버레이 위에 표시
-            const mo = new MutationObserver(() => {
+            const syncAugBubbles = () => {
                 const on = augmentOverlay.style.display === 'flex', was = document.body.classList.contains('augment-picking');
-                if (on === was) return;
+                const bc0 = document.getElementById('board-container'), bo0 = document.getElementById('chat-bubble-opponent'), bm0 = document.getElementById('chat-bubble-mine');
+                if (on === was) {   // v3.74: 상태가 같아도 말풍선이 제자리(오버레이 위/아래)에 있는지 매번 바로잡는다 — 감시를 놓쳐 어두운 층 아래에 깔리던 문제
+                    if (on) { if (bo0.parentNode !== document.body) document.body.appendChild(bo0); if (bm0.parentNode !== document.body) document.body.appendChild(bm0); }
+                    else { if (bo0.parentNode === document.body) bc0.insertBefore(bo0, bc0.firstChild); if (bm0.parentNode === document.body) bc0.appendChild(bm0); }
+                    return;
+                }
                 if (on) {   // 입력 줄이 고정되며 레이아웃이 밀리지 않도록 자리 확보
                     spacer.style.height = controls.offsetHeight + 'px'; document.documentElement.style.setProperty('--chat-bar-h', controls.offsetHeight + 'px');
                 } else { emotePopup.style.display = 'none'; spacer.style.height = ''; }
@@ -3780,7 +3789,9 @@
                 const bc = document.getElementById('board-container'), bo = document.getElementById('chat-bubble-opponent'), bm = document.getElementById('chat-bubble-mine');
                 if (on) { document.body.appendChild(bo); document.body.appendChild(bm); }   // 오버레이/조상 영향 없이 맨 위에 표시
                 else { bc.insertBefore(bo, bc.firstChild); bc.appendChild(bm); }
-            });
+            };
+            window.__syncAugBubbles = syncAugBubbles;
+            const mo = new MutationObserver(syncAugBubbles);
             mo.observe(augmentOverlay, { attributes: true, attributeFilter: ['style'] });
         })();
 
@@ -3923,6 +3934,7 @@
             arm(14000, ['⏳ 빨리 좀 해라'], { ms: 30000, list: ['❓', '🤔', '💩'] });
         }
         function showChatBubble(side, msg, isTyping = false) {
+            try { if (window.__syncAugBubbles) window.__syncAugBubbles(); } catch (e) {}
             const wide = document.body.classList.contains('wide-mode'), isEmote = !isTyping && EMOTE_SET.has(msg);
             if (!isTyping && !isEmote) addChatLog(side, msg); else if (isTyping && side === 'opponent') setLogTyping(true);
             const bubble = document.getElementById(`chat-bubble-${side}`);
@@ -4139,6 +4151,7 @@
             moves(options = {}) {
                 let legalMoves = []; const color = this._turn, enemy = color === 'w' ? 'b' : 'w', B = this._board; let squaresToCheck = [];
                 let kr = -1, kc = -1; for (let rr = 0; rr < 8 && kr < 0; rr++) for (let cc = 0; cc < 8; cc++) { const q = B[rr][cc]; if (q && q.type === 'k' && q.color === color) { kr = rr; kc = cc; break; } }
+                const kAtt = (options.fast && kr >= 0) ? this.isSquareAttacked(kr, kc, enemy, B, true) : true;   // v3.74: 분석 전용 빠른 합법 판정 — 킹이 공격받지 않고 킹과 일직선이 아닌 기물의 수는 검사를 건너뛴다
                 if (options.square) squaresToCheck.push(this.sqToRC(options.square));
                 else for (let r=0; r<8; r++) for(let c=0; c<8; c++) if(this._board[r][c] && this._board[r][c].color === color) squaresToCheck.push({r, c});
 
@@ -4158,7 +4171,9 @@
                         const m = pseudoMoves[pi], tgtPc = B[m.r][m.c];
                         let epCapture = false;
                         if (piece.type === 'p' && m.c !== c && !tgtPc) epCapture = true;
+                        if (options.captures && !tgtPc && !epCapture && !(piece.type === 'p' && m.r === (piece.color === 'w' ? 0 : 7))) continue;   // v3.74: 분석 탐색의 정지 탐색용 — 잡기·승급만 합법 판정
                         let ok = !!(tgtPc && tgtPc.type === 'k' && tgtPc.color !== color);   // 상대 킹을 잡을 수 있으면 내 킹이 체크 상태여도 잡을 수 있다
+                        if (!ok && !kAtt && !epCapture && piece.type !== 'k' && kr >= 0 && r !== kr && c !== kc && Math.abs(r - kr) !== Math.abs(c - kc)) ok = true;
                         if (!ok) {
                             const epPc = epCapture ? B[r][m.c] : null;
                             B[m.r][m.c] = piece; B[r][c] = null; if (epCapture) B[r][m.c] = null;   // 임시로 둔다
@@ -4310,7 +4325,7 @@
             setTimeout(() => el.classList.remove(cls), 650);
         }
         function drawPieces(isAnimate = false) {
-            const boardState = game.board(); const currentIds = new Set();
+            const boardState = game.board(); const currentIds = new Set(); let addedEls = 0;
             for (let r=0; r<8; r++) for (let c=0; c<8; c++) {
                 const piece = boardState[r][c];
                 if (!piece) continue;
@@ -4319,7 +4334,7 @@
                 if (!el) {
                     el = document.createElement('div'); el.id = 'piece-' + piece.uid;
                     el.className = 'piece-wrapper'; el.style.transition = 'none';   // 첫 배치는 전환 없이 (왼쪽 위에서 날아오는 현상 방지)
-                    piecesLayer.appendChild(el); pieceEls.set(piece.uid, el); isNew = true;
+                    piecesLayer.appendChild(el); pieceEls.set(piece.uid, el); isNew = true; addedEls++;
                 }
 
                 if (piece.type === 'wall') {
@@ -4360,9 +4375,14 @@
                 el.dataset.square = sq; el.style.translate = `${c * 100}% ${r * 100}%`;
                 if (isNew) { void el.offsetWidth; el.style.transition = ''; }
             }
-            pieceEls.forEach((el, uid) => {
-                if (currentIds.has(uid)) return;
+            // v3.74: 기물의 uid가 바뀌었을 뿐(상태 덮어쓰기·재접속·효과 동기화 등) 같은 자리에 같은 기물이 있으면 파괴가 아니므로 파편을 터뜨리지 않는다.
+            //        한꺼번에 여러 기물의 uid가 바뀌고 같은 수만큼 새 요소가 만들어진 경우(전체 재식별)도 마찬가지.
+            const gone = []; pieceEls.forEach((el, uid) => { if (!currentIds.has(uid)) gone.push([uid, el]); });
+            const reident = gone.length >= 3 && addedEls >= gone.length - 1;
+            gone.forEach(([uid, el]) => {
                 pieceEls.delete(uid);
+                let same = reident; if (!same) { try { const p = el.dataset.square ? game.get(el.dataset.square) : null; same = !!p && p.type === el.dataset.type && (p.color || 'none') === el.dataset.color; } catch (e) {} }
+                if (same) { el.remove(); return; }
                 if (!muteShatter) FX.shatter(el.dataset.square, el.dataset.color);
                 el.style.transform = 'scale(0) rotate(45deg)'; el.style.opacity = '0';
                 setTimeout(() => el.remove(), 300);
@@ -5837,7 +5857,7 @@
             const f = frames[i], prev = frames[i - 1]; if (f.rm !== undefined) return f.rm;
             if (!prev || !prev.s) return (f.rm = null);
             const snap = botSnapshot(), sv = { mc: moveCount, pa: pendingAugments, ao: activeAugmentOptions, ap: activeAugmentPlayerColor, si: selectedAugmentIdx };
-            try { deserializeGameState(prev.s, true); f.rm = rvPackMove(botFindMove({ timeMs: RV_TIME, maxDepth: RV_DEPTH })); }
+            try { deserializeGameState(prev.s, true); f.rm = rvPackMove(botFindMove({ timeMs: RV_TIME, maxDepth: RV_DEPTH, ana: true })); }
             catch (e) { f.rm = null; }
             finally { botRestore(snap); moveCount = sv.mc; pendingAugments = sv.pa; activeAugmentOptions = sv.ao; activeAugmentPlayerColor = sv.ap; selectedAugmentIdx = sv.si; }
             return f.rm;
@@ -5857,16 +5877,154 @@
             if (!play(first)) return { mv, net: 0, sc: null, mate: false };
             for (let k = 0; k < 6; k++) {
                 if (k >= 3 && !mv[mv.length - 1].cap) break;
-                const b = botFindMove({ timeMs: 220, maxDepth: 10 }); if (!b) break;
+                const b = botFindMove({ timeMs: 220, maxDepth: 10, ana: true }); if (!b) break;
                 if (k === 0) sc = b.__score;
                 if (!play(b)) break;
             }
             let net = 0; mv.forEach(x => { let v = 0; if (x.cap && x.cap !== 'k') v += RV_PT[x.cap] || 0; if (x.p) v += (RV_PT[x.p] || 0) - 1; net += x.by === mover ? v : -v; });
             let mate = false; try { mate = game.moves().length === 0 && game.in_check(game.turn()); } catch (e) {}
-            return { mv, net, sc, mate };
+            return { mv, net, sc, mate, end: cloneGameState(game) };
         }
-        const rvJosa = t => t.replace(/나이트(을|이|은|으로)/g, (x, j) => '나이트' + ({ '을': '를', '이': '가', '은': '는', '으로': '로' })[j]);   // '나이트'만 받침이 없다
+        const rvJosa = t => t.replace(/(폰|나이트|비숍|룩|퀸|킹)(을|를|이|가|은|는|으로|로)/g, (x, w, j) => { const nb = w === '나이트'; return w + ({ '을': nb ? '를' : '을', '를': nb ? '를' : '을', '이': nb ? '가' : '이', '가': nb ? '가' : '이', '은': nb ? '는' : '은', '는': nb ? '는' : '은', '으로': nb ? '로' : '으로', '로': nb ? '로' : '으로' })[j]; });   // 받침에 맞춰 조사를 고친다 ('나이트'만 받침이 없다)
         function rvMatN(sc) { return Math.max(1, Math.ceil((BOT_MATE - sc) / 2)); }
+        // ---- v3.74: 더 깊은 이유 — 전술 모티프(포크·핀·발견 공격·메이트 그물), 위협 비교, 평가 요소 분해, 승률 차이를 근거로 말한다 ----
+        const RV_RAYS = [[-1, 0, 'r'], [1, 0, 'r'], [0, -1, 'r'], [0, 1, 'r'], [-1, -1, 'b'], [-1, 1, 'b'], [1, -1, 'b'], [1, 1, 'b']];
+        const rvSqOf = (r, c) => 'abcdefgh'[c] + (8 - r);
+        function rvFindMv(S, rec) { const all = S.moves(); return all.find(y => y.from === rec.from && y.to === rec.to && (rec.p ? y.promotion : true)) || all.find(y => y.from === rec.from && y.to === rec.to) || null; }
+        function rvAfterMove(S0, rec) { if (!rec) return null; const S2 = cloneGameState(S0), mo = rvFindMv(S2, rec); if (!mo) return null; botMake(S2, mo); return S2; }
+        function rvNullTurn(S) { const T = cloneGameState(S); T._turn = S._turn === 'w' ? 'b' : 'w'; T.ep_square = null; return T; }
+        function rvCapsFor(S, minGain) {   // 지금 둘 차례 쪽의 '이득이 되는 잡기'(되잡히지 않거나 더 비싼 기물을 잡는 수)
+            const out = [];
+            for (const c of S.moves()) {
+                if (!c.captured || c.captured === 'k') continue;
+                const vic = BOT_VAL[c.captured] || 0, att = BOT_VAL[c.piece] || 0; let re = false, u = null;
+                try { u = botMake(S, c); re = S.moves().some(r => r.to === c.to && r.captured); } catch (e) {} finally { if (u) { try { botUnmake(S, u); } catch (e) {} } }
+                const gain = re ? vic - att : vic; if (gain >= (minGain || 100)) out.push({ from: c.from, to: c.to, pc: c.piece, cap: c.captured, gain });
+            }
+            return out.sort((a, b) => b.gain - a.gain);
+        }
+        function rvPinsOf(S, color) {   // color의 비숍·룩·퀸이 상대 기물을 킹(또는 더 비싼 기물) 앞에 묶고 있는 경우
+            const B = S._board, out = [];
+            for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+                const p = B[r][c]; if (!p || p.color !== color || (p.type !== 'b' && p.type !== 'r' && p.type !== 'q')) continue;
+                for (const [dr, dc, kind] of RV_RAYS) {
+                    if (p.type !== 'q' && p.type !== kind) continue;
+                    let rr = r + dr, cc = c + dc, first = null;
+                    while (rr >= 0 && rr < 8 && cc >= 0 && cc < 8) {
+                        const q = B[rr][cc];
+                        if (q) { if (q.type === 'wall') break; if (q.color === color) break;
+                            if (!first) first = { q, rr, cc }; else { if (q.type === 'k' || (BOT_VAL[q.type] || 0) >= (BOT_VAL[first.q.type] || 0) + 150) out.push({ slider: rvSqOf(r, c), sp: p.type, pinned: rvSqOf(first.rr, first.cc), pt: first.q.type, behind: q.type, king: q.type === 'k' }); break; } }
+                        rr += dr; cc += dc;
+                    }
+                }
+            }
+            return out;
+        }
+        function rvKingFlight(S) { try { return S.moves().filter(m => m.piece === 'k').length; } catch (e) { return 9; } }
+        function rvFacts(S0, S2, rec, mover) {   // S0 = 수를 두기 전(mover 차례), S2 = 둔 직후(상대 차례)
+            const F = { check: false, mate: false, replies: 0, forks: [], disc: [], pins: [], hang: [], newThreat: [], flight: 9, backRank: false };
+            try {
+                F.check = S2.in_check(S2._turn); const rep = S2.moves(); F.replies = rep.length; F.mate = F.check && rep.length === 0;
+                const T = rvNullTurn(S2), after = rvCapsFor(T, 100), before = rvCapsFor(S0, 100), had = new Set(before.map(c => c.from + c.to));
+                const tg = new Map(); after.filter(c => c.from === rec.to).forEach(c => tg.set(c.to, c)); if (tg.size >= 2) F.forks = [...tg.values()].slice(0, 3);
+                F.disc = after.filter(c => c.from !== rec.to && !had.has(c.from + c.to)).slice(0, 2);
+                F.newThreat = after.filter(c => !had.has(c.from + c.to)).slice(0, 2);
+                const p0 = new Set(rvPinsOf(S0, mover).map(x => x.slider + x.pinned)); F.pins = rvPinsOf(S2, mover).filter(x => !p0.has(x.slider + x.pinned) && (x.king || x.slider === rec.to)).slice(0, 2);
+                F.hang = rvCapsFor(S2, 100).filter(c => c.cap !== 'k').slice(0, 2);
+                if (F.check) { F.flight = rvKingFlight(S2); const opp = S2._turn, br = opp === 'w' ? 7 : 0, B = S2._board; let kr = -1, kc = -1; for (let c = 0; c < 8; c++) { const q = B[br][c]; if (q && q.type === 'k' && q.color === opp) { kr = br; kc = c; } }
+                    if (F.mate && kr >= 0) { const ahead = br === 7 ? 6 : 1; let blocked = 0, n = 0; for (let c = Math.max(0, kc - 1); c <= Math.min(7, kc + 1); c++) { n++; const q = B[ahead][c]; if (q && q.color === opp) blocked++; } F.backRank = blocked >= 2 && rec.pc !== 'p'; } }
+            } catch (e) {}
+            return F;
+        }
+        function rvFactTexts(F, rec, N, who) {   // who: '' (내 수) 또는 '상대의 ' — 사실을 짧은 문장 조각으로
+            const t = [];
+            if (F.mate) { t.push(F.backRank ? '킹이 자기 기물에 막혀 도망칠 곳이 없는 백랭크 체크메이트' : '체크메이트'); return t; }
+            if (F.check) t.push(F.flight <= 1 ? `체크로 킹의 도망칠 곳을 거의 막음(응수 ${F.replies}가지)` : '체크');
+            if (F.forks.length >= 2) t.push(`${F.forks.map(c => N(c.cap) + ' ' + c.to).join('과 ')}을(를) 동시에 노리는 포크`);
+            if (F.disc.length) t.push(`${N(F.disc[0].pc)}의 길이 열려 ${N(F.disc[0].cap)}(${F.disc[0].to})을 노리는 발견 공격`);
+            if (F.pins.length) { const p = F.pins[0]; t.push(`${N(p.pt)}(${p.pinned})을 ${p.king ? '킹' : N(p.behind)} 앞에 묶는 핀`); }
+            return t;
+        }
+        function rvTerms(S) {   // botEvaluate와 같은 항목을 이름별로 나눈 점수(백 기준, 센티폰). 합계는 botEvaluate와 같다
+            const B = S._board, T = { mat: 0, pst: 0, king: 0, pair: 0, rook: 0, pawn: 0, passed: 0, shield: 0, dev: 0, mop: 0, baby: 0 }; let npm = 0, wk = null, bk = null, wBish = 0, bBish = 0;
+            const bq = { w: null, b: null }, pf = { w: [0, 0, 0, 0, 0, 0, 0, 0], b: [0, 0, 0, 0, 0, 0, 0, 0] }, pawns = [], rooks = [], minorsHome = { w: 0, b: 0 };
+            for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+                const p = B[r][c]; if (!p || p.type === 'wall') continue; const w = p.color === 'w', sg = w ? 1 : -1, idx = (w ? r : 7 - r) * 8 + c, t = p.type;
+                if (t === 'q' && babyEffect[p.color] && p.uid === babyEffect[p.color].qUid) bq[p.color] = { r, c };
+                if (t === 'k') { if (w) wk = { r, c }; else bk = { r, c }; continue; }
+                T.mat += sg * BOT_VAL[t]; T.pst += sg * BOT_PST[t][idx];
+                if (t === 'p') { pf[p.color][c]++; pawns.push({ r, c, w }); } else { npm += BOT_VAL[t]; if (t === 'b') { if (w) wBish++; else bBish++; } if (t === 'r') rooks.push({ r, c, w }); if ((t === 'n' || t === 'b') && r === (w ? 7 : 0)) minorsHome[p.color]++; }
+            }
+            const phase = Math.min(1, npm / 6520), eg = 1 - phase;
+            if (wk) { const i = wk.r * 8 + wk.c; T.king += BOT_PST.kmg[i] * phase + BOT_PST.keg[i] * eg; } if (bk) { const i = (7 - bk.r) * 8 + bk.c; T.king -= BOT_PST.kmg[i] * phase + BOT_PST.keg[i] * eg; }
+            if (wBish >= 2) T.pair += 30; if (bBish >= 2) T.pair -= 30;
+            for (const rk of rooks) { const own = pf[rk.w ? 'w' : 'b'][rk.c], opp = pf[rk.w ? 'b' : 'w'][rk.c]; const v = own === 0 ? (opp === 0 ? 20 : 10) : 0; T.rook += rk.w ? v : -v; }
+            for (const side of ['w', 'b']) { const sg = side === 'w' ? 1 : -1, f = pf[side]; for (let c = 0; c < 8; c++) { if (f[c] > 1) T.pawn -= sg * 12 * (f[c] - 1); if (f[c] > 0 && (c === 0 || f[c - 1] === 0) && (c === 7 || f[c + 1] === 0)) T.pawn -= sg * 12 * f[c]; } }
+            const kd = (a, b) => (a && b) ? Math.max(Math.abs(a.r - b.r), Math.abs(a.c - b.c)) : 0;
+            for (const pw of pawns) {
+                const enemy = pw.w ? 'b' : 'w', dirAhead = pw.w ? -1 : 1; let passed = true;
+                for (let c = Math.max(0, pw.c - 1); c <= Math.min(7, pw.c + 1) && passed; c++) for (let r = pw.r + dirAhead; r >= 0 && r < 8; r += dirAhead) { const q = B[r][c]; if (q && q.type === 'p' && q.color === enemy) { passed = false; break; } }
+                if (!passed) continue; const adv = pw.w ? 7 - pw.r : pw.r, sg = pw.w ? 1 : -1;
+                T.passed += sg * Math.round(BOT_PASSED[adv] * (0.6 + 0.8 * eg));
+                if (eg > 0.3) { const ps = { r: pw.w ? 0 : 7, c: pw.c }, ek = pw.w ? bk : wk, ok = pw.w ? wk : bk; T.passed += sg * Math.round((kd(ek, ps) - kd(ok, ps)) * 3 * eg); }
+            }
+            if (phase > 0.4) {
+                if (wk && wk.r >= 6) { let sh = 0; for (let c = Math.max(0, wk.c - 1); c <= Math.min(7, wk.c + 1); c++) { const q = B[wk.r - 1] && B[wk.r - 1][c]; if (q && q.type === 'p' && q.color === 'w') sh++; } T.shield += 9 * sh * phase; }
+                if (bk && bk.r <= 1) { let sh = 0; for (let c = Math.max(0, bk.c - 1); c <= Math.min(7, bk.c + 1); c++) { const q = B[bk.r + 1] && B[bk.r + 1][c]; if (q && q.type === 'p' && q.color === 'b') sh++; } T.shield -= 9 * sh * phase; }
+            }
+            if (phase > 0.75) { T.dev -= 9 * minorsHome.w; T.dev += 9 * minorsHome.b; const wq = B[7][3], bq2 = B[0][3]; if (!(wq && wq.type === 'q') && minorsHome.w >= 2) T.dev -= 18; if (!(bq2 && bq2.type === 'q') && minorsHome.b >= 2) T.dev += 18; }
+            if (eg > 0.35 && wk && bk && Math.abs(T.mat) >= 250) { const win = T.mat > 0 ? 'w' : 'b', lk = win === 'w' ? bk : wk, wkk = win === 'w' ? wk : bk; const cd = Math.abs(lk.r - 3.5) + Math.abs(lk.c - 3.5), bonus = Math.round((cd * 12 + (14 - (Math.abs(lk.r - wkk.r) + Math.abs(lk.c - wkk.c))) * 5) * eg); T.mop += win === 'w' ? bonus : -bonus; }
+            for (const c of ['w', 'b']) { const be = babyEffect[c], k = c === 'w' ? wk : bk, q = bq[c]; if (!be || !(be.remaining > 0) || !k || !q) continue; const d = Math.max(Math.abs(k.r - q.r), Math.abs(k.c - q.c)), v = (d <= 1 ? 120 : d === 2 ? 45 : d === 3 ? 15 : 0) * Math.min(1, be.remaining / 4); T.baby += c === 'w' ? v : -v; }
+            return T;
+        }
+        const RV_TERM_NAME = { pst: '기물 배치(활동성)', king: '킹의 위치', pair: '비숍 쌍', rook: '룩의 열린 줄 활용', pawn: '폰 구조', passed: '통과폰', shield: '킹 앞 폰 방패', dev: '기물 개발', mop: '종반 킹 몰기' };
+        function rvTermDiff(Ta, Tb, mover, minCp) {   // Tb - Ta 를 mover 기준으로: 가장 큰 차이 항목(재료 제외) 최대 2개
+            const sg = mover === 'w' ? 1 : -1, out = [];
+            for (const k of Object.keys(RV_TERM_NAME)) { const d = sg * ((Tb[k] || 0) - (Ta[k] || 0)); if (Math.abs(d) >= (minCp || 25)) out.push({ k, d }); }
+            return out.sort((a, b) => Math.abs(b.d) - Math.abs(a.d)).slice(0, 2);
+        }
+        const rvCpTxt = cp => Math.abs(cp) >= BOT_MATE - 500 ? (cp > 0 ? '체크메이트 승' : '체크메이트 패') : ((cp > 0 ? '+' : '') + (cp / 100).toFixed(1));
+        function rvDeepFill(W, c) {   // W.badDeep / W.goodDeep / W.tip 를 채운다 (모두 선택적 보조 설명)
+            const { prev, f, m, pl, bl, mover, opp, goodMode, posPlayed, N } = c;
+            W.badDeep = []; W.goodDeep = []; W.tip = '';
+            deserializeGameState(prev.s, true); const S0 = cloneGameState(game);
+            const pr = { from: f.from, to: f.to }, Sp = rvAfterMove(S0, pr), Sb = (!goodMode && m) ? rvAfterMove(S0, m) : null; if (!Sp) return;
+            const Fp = rvFacts(S0, Sp, { to: f.to, pc: (S0.get(f.from) || {}).type }, mover), Fb = Sb ? rvFacts(S0, Sb, { to: m.to, pc: m.pc }, mover) : null;
+            const wp = x => Math.round(rvWp(x) * 100), tg = [];
+            const lineWin = (L) => L && typeof L.sc === 'number' ? -L.sc : null, vp = lineWin(pl), vb = lineWin(bl);
+            if (goodMode) {
+                const ft = rvFactTexts(Fp, pr, N); if (ft.length) W.goodDeep.push(`이 수는 ${ft.join(', ')}이에요.`);
+                if (Fp.newThreat.length && !Fp.mate && !Fp.disc.length && !Fp.forks.length) W.goodDeep.push(`다음 수에 ${Fp.newThreat.map(x => `${N(x.cap)}(${x.to})`).join(', ')}을 노려요.`);
+                if (typeof vp === 'number') W.goodDeep.push(`분석상 이 수 뒤 평가는 ${rvCpTxt(vp)} (승률 약 ${wp(vp)}%)예요.`);
+                if (pl.end) { const d = rvTermDiff(rvTerms(S0), rvTerms(pl.end), mover, 20).filter(x => x.d > 0); if (d.length) W.goodDeep.push(`예상 진행에서 ${d.map(x => RV_TERM_NAME[x.k]).join('과 ')}이(가) 좋아져요 (+${(d[0].d / 100).toFixed(1)}).`); }
+                return;
+            }
+            if (!posPlayed) {
+                if (typeof vp === 'number' && typeof vb === 'number') W.badDeep.push(`분석상 승률이 이 수 뒤에는 약 ${wp(vp)}%, 추천 수 뒤에는 약 ${wp(vb)}%예요 (평가 ${rvCpTxt(vp)} ↔ ${rvCpTxt(vb)}).`);
+                const reply = pl.mv[1];
+                if (reply && reply.by === opp) { const Sr = rvAfterMove(Sp, reply); if (Sr) { const Fr = rvFacts(Sp, Sr, { to: reply.to, pc: reply.pc }, opp), ft = rvFactTexts(Fr, reply, N);
+                    if (ft.length || reply.cap) W.badDeep.push(`상대의 최선 응수 ${rvMvTxt(reply)}${reply.cap ? '로 ' + N(reply.cap) + '을 잡고' : ''}${ft.length ? (reply.cap ? ' ' : '는 ') + ft.join(', ') : ''}${reply.cap && !ft.length ? ' 이득을 챙겨요' : '이에요'}.`.replace('잡고 이득을 챙겨요', '잡아 이득을 챙겨요')); } }
+                if (Fp.hang.length) { const sameInBest = Sb ? new Set(Fb.hang.map(x => x.to)) : null; const seenTo = new Set(), unique = Fp.hang.filter(x => (!sameInBest || !sameInBest.has(x.to)) && !seenTo.has(x.to) && seenTo.add(x.to) && !(reply && reply.cap && reply.to === x.to));
+                    if (unique.length) W.badDeep.push(`이 수 뒤 상대가 ${unique.map(x => `${x.to}의 ${N(x.cap)}`).join(', ')}을 이득 보며 잡을 수 있는데 ${Sb ? '추천 수는 이 위협이 없어요' : '막을 수가 부족해요'}.`); }
+                if (pl.end && bl && bl.end) { const d = rvTermDiff(rvTerms(pl.end), rvTerms(bl.end), mover, 25).filter(x => x.d > 0); if (d.length) W.badDeep.push(`예상 진행 끝에서 추천 수 쪽이 ${d.map(x => `${RV_TERM_NAME[x.k]} +${(x.d / 100).toFixed(1)}`).join(', ')} 앞서요.`); }
+                // 배울 점(원칙): 가장 큰 원인 하나
+                const rep1 = pl.mv[1], lostMate = (typeof vp === 'number' && vp <= -(BOT_MATE - 500));
+                if (lostMate) W.tip = '수를 두기 전에 상대의 체크·잡기를 먼저 확인하세요. 킹 주변이 막혀 있으면 한 번의 체크가 곧 메이트가 돼요.';
+                else if (Fp.hang.length) W.tip = '수를 두기 전에 "내 기물 중 지켜지지 않은 기물이 있나?"와 "이 수로 지키던 기물이 빠지지 않나?"를 확인하세요.';
+                else if (rep1 && rep1.by === opp && rep1.cap) W.tip = '상대의 응수 중 가장 큰 잡기를 먼저 살펴보세요. 내 수가 만든 빈틈이 바로 그 자리일 때가 많아요.';
+                else if (pl.mv[0] && pl.mv[0].pc === 'k') W.tip = '캐슬링하기 전에 킹을 움직이면 킹 안전과 룩 연결을 함께 잃어요.';
+                else W.tip = '눈에 띄는 손실이 없어도 기물 활동성·킹 안전이 한 단계씩 나빠지면 승률이 천천히 깎여요. 후보 수 2~3개를 비교해 보세요.';
+            } else {
+                const ft = rvFactTexts(Fp, pr, N); if (ft.length) W.badDeep.push(`이 수는 ${ft.join(', ')}이에요.`);
+                if (typeof vp === 'number' && typeof vb === 'number') W.badDeep.push(`승률은 약 ${wp(vp)}%로, 추천 수(약 ${wp(vb)}%)와 큰 차이는 없어요.`);
+            }
+            if (Fb) {
+                const ft = rvFactTexts(Fb, m, N); if (ft.length) W.goodDeep.push(`추천 수는 ${ft.join(', ')}이에요.`);
+                if (Fb.newThreat.length && !Fb.mate && !Fb.disc.length && !Fb.forks.length) W.goodDeep.push(`다음 수에 ${Fb.newThreat.map(x => `${N(x.cap)}(${x.to})`).join(', ')}을 노리는 위협이 생겨요.`);
+                if (bl && pl.end && bl.end && !posPlayed) { const d = rvTermDiff(rvTerms(S0), rvTerms(bl.end), mover, 25).filter(x => x.d > 0); if (d.length) W.goodDeep.push(`예상 진행에서 ${d.map(x => RV_TERM_NAME[x.k]).join('과 ')}이(가) 좋아져요.`); }
+            }
+            W.badDeep = W.badDeep.slice(0, 4); W.goodDeep = W.goodDeep.slice(0, 3);
+        }
         function rvWhyBuild(frames, i) {   // 결과를 f.why = { bad, good, pb, pg, goodMode, badPos, err } 로 저장 (탐색 포함, 약 2~3초)
             const f = frames[i], prev = frames[i - 1], cls = f.rv && f.rv.c, goodMode = !!RV_GOOD_CLS[cls], posPlayed = cls === 'great' || cls === 'good';
             const W = f.why = { bad: [], good: [], pb: '', pg: '', goodMode, badPos: false };
@@ -5911,6 +6069,7 @@
                         }
                         return out;
                     };
+                    try { rvDeepFill(W, { prev, f, m, pl, bl, mover, opp, goodMode, posPlayed, N }); } catch (e) { W.deepErr = String(e && e.message || e); }
                     if (goodMode) {
                         const mn = pl.sc !== null && pl.sc <= -(BOT_MATE - 500) ? Math.max(1, Math.ceil((BOT_MATE + pl.sc + 1) / 2)) : 0;
                         let g = prec ? goodWhy(prec, pf, pl, null, mn) : [];
@@ -6000,13 +6159,14 @@
             const why = document.getElementById('rp-sug-why');
             if (why) {
                 const W = same ? null : f.why; let h = '';
-                const blk = (cls, title, lines, pv, mv, key) => `<div class="blk ${cls}"><b>${title}</b>${lines.map(t => `<div>${rvJosa(t)}</div>`).join('')}${pv ? `<div class="pv-row">${mv && mv.length ? `<button type="button" class="pv-play" data-k="${key}" aria-label="예상 진행 재생">${PV_ICO.play}</button>` : ''}<div class="pv">${pv}</div></div>` : ''}</div>`;
+                const blk = (cls, title, lines, pv, mv, key, deep, tip) => `<div class="blk ${cls}"><b>${title}</b>${lines.map(t => `<div>${rvJosa(t)}</div>`).join('')}${deep && deep.length ? deep.map(t => `<div class="deep">${rvJosa(t)}</div>`).join('') : ''}${tip ? `<div class="tip">${rvJosa(tip)}</div>` : ''}${pv ? `<div class="pv-row">${mv && mv.length ? `<button type="button" class="pv-play" data-k="${key}" aria-label="예상 진행 재생">${PV_ICO.play}</button>` : ''}<div class="pv">${pv}</div></div>` : ''}</div>`;
                 if (W) {
-                    if (W.goodMode) h += blk('good', '이 수가 좋은 이유', W.good, W.pb, W.pbm, 'pb');
+                    if (W.goodMode) h += blk('good', '이 수가 좋은 이유', W.good, W.pb, W.pbm, 'pb', W.goodDeep);
                     else {
-                        if (W.bad.length) h += blk(W.badPos ? 'good' : 'bad', W.badPos ? '둔 수 (좋은 점)' : '둔 수', W.bad, W.pb, W.pbm, 'pb');
-                        if (W.good.length) h += blk('good', '추천 수', W.good, W.pg, W.pgm, 'pg');
+                        if (W.bad.length) h += blk(W.badPos ? 'good' : 'bad', W.badPos ? '둔 수 (좋은 점)' : '둔 수', W.bad, W.pb, W.pbm, 'pb', W.badDeep, W.tip);
+                        if (W.good.length) h += blk('good', '추천 수', W.good, W.pg, W.pgm, 'pg', W.goodDeep);
                     }
+                    if (W.deepErr) h += `<div class="err">추가 분석 오류: ${String(W.deepErr).replace(/</g, '&lt;')}</div>`;
                     if (W.err) h += `<div class="err">설명 생성 중 오류: ${String(W.err).replace(/</g, '&lt;')}</div>`;
                 }
                 why.innerHTML = h; why.scrollTop = 0; why.style.display = h ? '' : 'none';
@@ -6166,7 +6326,8 @@
         function rvMateAfterActual(f) {   // 실제로 기록된 '수 직후 판'(덩굴·벽 등 효과 반영 뒤)에서 상대의 한 수 체크메이트가 있는가
             try { deserializeGameState(f.s, true); return rvMateIn1(cloneGameState(game)); } catch (e) { return null; }
         }
-        function rvScoreMove(mv, d) {   // 이 수를 둔 뒤의 점수(둔 쪽 기준)
+        function rvScoreMove(mv, d) { const pa = BOT.ana; BOT.ana = true; try { return rvScoreMove0(mv, d); } finally { BOT.ana = pa; } }
+        function rvScoreMove0(mv, d) {   // 이 수를 둔 뒤의 점수(둔 쪽 기준)
             const S = cloneGameState(game); BOT.noise = 0; botSyncMines();
             for (let dd = d; dd >= 1; dd--) {
                 BOT.path = new Set([botHash(S)]); BOT.abort = false; BOT.deadline = Date.now() + 900;
@@ -6207,7 +6368,7 @@
                 if (!mvs.length) { f.rv = { c: 'none' }; return; }
                 const mv = mvs.find(m => m.promotion === 'q') || mvs[0];
                 if (root.length === 1 || mv.captured === 'k') { f.rv = { c: 'best', loss: 0 }; return; }
-                const best = botFindMove({ timeMs: RV_TIME, maxDepth: RV_DEPTH });
+                const best = botFindMove({ timeMs: RV_TIME, maxDepth: RV_DEPTH, ana: true });
                 f.rb = { s: best.__score };   // 이 판에서 둘 차례인 쪽 기준 최선 점수 (바로 앞 수의 평가에 재사용)
                 f.rm = rvPackMove(best);   // 이 판의 최선 수(추천 수 표시용)
                 let bestScore = best.__score, ps = null;
@@ -6290,9 +6451,10 @@
             const noop = () => 0; real.setTimeout = real.setInterval = real.requestAnimationFrame = noop; real.clearTimeout = real.clearInterval = real.cancelAnimationFrame = noop;
             const nativeST = self.setTimeout.bind(self);
             const mk = () => { const f = function () { return mk(); }; return new Proxy(f, { get: (t, k) => k === Symbol.toPrimitive ? () => '' : k === 'then' ? undefined : mk(), apply: () => mk(), construct: () => mk(), set: () => true, has: () => true }); };
-            const sc = new Proxy({}, { has: (t, k) => typeof k === 'string' && k !== 'globalThis' && k !== '__RV', get: (t, k) => k === Symbol.unscopables ? undefined : (k in t ? t[k] : (k in real ? real[k] : mk())), set: (t, k, v) => { t[k] = v; return true; } });
+            const sc = new Proxy({}, { has: (t, k) => typeof k === 'string' && k !== 'globalThis' && k !== '__RV' && k !== '__R', get: (t, k) => k === Symbol.unscopables ? undefined : (k in t ? t[k] : (k in real ? real[k] : mk())), set: (t, k, v) => { t[k] = v; return true; } });
             let api = null;
-            try { new Function('sc', 'with(sc){' + CODE + '\n;globalThis.__RV={rvAnalyze,rvSugGet,rvWhyBuild,RV_GOOD_CLS};}')(sc); api = globalThis.__RV; }
+            const PRE = 'const ' + ['Math', 'Date', 'Map', 'Set', 'Array', 'Object', 'JSON', 'Number', 'String', 'Boolean', 'parseInt', 'parseFloat', 'isNaN', 'isFinite', 'performance', 'console', 'Symbol', 'Error', 'Promise', 'WeakMap', 'Float64Array', 'Int32Array', 'Uint8Array', 'Uint32Array', 'Int8Array', 'Int16Array'].filter(n => n in real).map(n => n + '=__R.' + n).join(',') + ';';   // v3.74: 자주 쓰는 내장 객체를 미리 묶어 두어 Proxy를 거치지 않게 한다(탐색 속도 약 3배)
+            try { new Function('sc', '__R', 'with(sc){' + PRE + CODE + '\n;globalThis.__RV={rvAnalyze,rvSugGet,rvWhyBuild,RV_GOOD_CLS};}')(sc, real); api = globalThis.__RV; }
             catch (e) { postMessage({ t: 'fail', err: String(e && e.stack || e) }); return; }
             if (!api) { postMessage({ t: 'fail', err: 'no api' }); return; }
             let job = null;
@@ -6409,10 +6571,10 @@
         const RV_CODE = { brilliant: 'B', best: 'b', great: 'g', good: 'o', book: 'k', inaccuracy: 'i', mistake: 'm', blunder: 'x', miss: 's', none: 'n' };
         const RV_DECODE = Object.fromEntries(Object.entries(RV_CODE).map(([k, v]) => [v, k]));
         const RV_LS = 'augchess_rv_', RV_LS_KEYS = 'augchess_rv_keys', RV_LS_MAX = 60;
-        function rvEncode(frames) { return frames.map(f => f && f.kind === 'move' && f.rv ? (RV_CODE[f.rv.c] || 'n') : '.').join(''); }
+        function rvEncode(frames) { return 'A' + frames.map(f => f && f.kind === 'move' && f.rv ? (RV_CODE[f.rv.c] || 'n') : '.').join(''); }
         function rvApply(frames, str) {   // 저장된 결과를 프레임에 채운다 (이미 분석된 수는 그대로 둔다)
-            if (typeof str !== 'string' || str.length !== frames.length) return 0;
-            let n = 0; for (let i = 0; i < frames.length; i++) { const c = RV_DECODE[str[i]]; if (c && frames[i].kind === 'move' && !frames[i].rv) { frames[i].rv = { c, loss: 0 }; n++; } }
+            if (typeof str !== 'string' || str[0] !== 'A' || str.length !== frames.length + 1) return 0;   // v3.74: 'A' 표식이 없는 옛 분석(낮은 깊이)은 버리고 다시 분석한다
+            let n = 0; for (let i = 0; i < frames.length; i++) { const c = RV_DECODE[str[i + 1]]; if (c && frames[i].kind === 'move' && !frames[i].rv) { frames[i].rv = { c, loss: 0 }; n++; } }
             return n;
         }
         function rvLocalGet(id) { try { return localStorage.getItem(RV_LS + id); } catch (e) { return null; } }
@@ -6427,7 +6589,7 @@
         }
         function rvPersist(frames, localOnly) {
             const id = frames && frames.__rvId; if (!id) return;
-            const str = rvEncode(frames); if (!/[^.]/.test(str)) return;
+            const str = rvEncode(frames); if (!/[^.]/.test(str.slice(1))) return;
             rvLocalSet(id, str);
             if (!localOnly && frames.__rvSrv && myUid && str !== frames.__rvSent) {   // 내 서버 기록이 있는 경기만: 규칙 변경 없이 기존 replay_index 항목에 rv 필드로 붙는다
                 frames.__rvSent = str;
@@ -7617,7 +7779,8 @@
             cs.w.k = u.cw[0]; cs.w.q = u.cw[1]; cs.b.k = u.cw[2]; cs.b.q = u.cw[3]; S.ep_square = u.ep; S._turn = S._turn === 'w' ? 'b' : 'w';
         }
 
-        const BOT = { mineSet: new Set(), noise: 0, tt: new Map(), nodes: 0, abort: false, deadline: 0, killers: [], hist: {}, path: new Set(), seen: new Map() };
+        const BOT_FASTOPT = { fast: true }, BOT_CAPOPT = { fast: true, captures: true };
+        const BOT = { ana: false, mineSet: new Set(), noise: 0, tt: new Map(), nodes: 0, abort: false, deadline: 0, killers: [], hist: {}, path: new Set(), seen: new Map() };
         function botOrder(moves, ttMove, ply) {
             const k1 = BOT.killers[ply] && BOT.killers[ply][0], k2 = BOT.killers[ply] && BOT.killers[ply][1];
             for (const m of moves) {
@@ -7637,7 +7800,7 @@
             BOT.nodes++; if ((BOT.nodes & 2047) === 0 && Date.now() > BOT.deadline) BOT.abort = true; if (BOT.abort) return 0;
             const color = S._turn, inChk = S.in_check(color); let best = -BOT_MATE + ply;
             if (!inChk) { const stand = botEvaluate(S); if (stand >= beta) return stand; if (stand > alpha) alpha = stand; best = stand; if (qd <= 0) return stand; }
-            let moves = S.moves(); if (moves.length === 0) return inChk ? -BOT_MATE + ply : 0;
+            let moves = BOT.ana ? S.moves(inChk ? BOT_FASTOPT : BOT_CAPOPT) : S.moves(); if (moves.length === 0) return inChk ? -BOT_MATE + ply : (BOT.ana ? best : 0);
             for (const m of moves) if (m.captured === 'k') return BOT_MATE - ply;
             if (!inChk) moves = moves.filter(m => m.captured || m.promotion);
             botOrder(moves, null, ply);
@@ -7649,6 +7812,7 @@
             }
             return best;
         }
+        function botHasPieces(S, color) { const B = S._board; for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const p = B[r][c]; if (p && p.color === color && (p.type === 'n' || p.type === 'b' || p.type === 'r' || p.type === 'q')) return true; } return false; }
         function botSearch(S, depth, alpha, beta, ply, canNull) {
             BOT.nodes++; if ((BOT.nodes & 2047) === 0 && Date.now() > BOT.deadline) BOT.abort = true; if (BOT.abort) return 0;
             const key = botHash(S);
@@ -7657,16 +7821,35 @@
             if (tt) { ttMove = tt.move; if (tt.depth >= depth && ply > 0) { let v = tt.score; if (v > BOT_MATE - 1000) v -= ply; else if (v < -BOT_MATE + 1000) v += ply; if (tt.flag === 0) return v; if (tt.flag === 1 && v > alpha) alpha = v; else if (tt.flag === 2 && v < beta) beta = v; if (alpha >= beta) return v; } }
             const color = S._turn, inChk = S.in_check(color);
             if (depth <= 0 && !inChk) return botQuiesce(S, alpha, beta, ply, 6);
-            const moves = S.moves(); if (moves.length === 0) return inChk ? -BOT_MATE + ply : 0;
+            const moves = BOT.ana ? S.moves(BOT_FASTOPT) : S.moves(); if (moves.length === 0) return inChk ? -BOT_MATE + ply : 0;
             for (const m of moves) if (m.captured === 'k') return BOT_MATE - ply;
+            const ana = BOT.ana, pvNode = beta - alpha > 1; let se = null, fut = false;
+            if (ana && ply > 0 && !inChk && !pvNode && Math.abs(beta) < BOT_MATE - 1000 && Math.abs(alpha) < BOT_MATE - 1000) {   // v3.74: 분석 전용 가지치기(역 퓨틸리티·널 무브·퓨틸리티)
+                se = botEvaluate(S);
+                if (depth <= 3 && se - 125 * depth >= beta) return se - 125 * depth;
+                if (canNull !== false && depth >= 3 && se >= beta && botHasPieces(S, color)) {
+                    const saveEp = S.ep_square, R = depth >= 7 ? 3 : 2; S.ep_square = null; S._turn = color === 'w' ? 'b' : 'w';
+                    const nv = -botSearch(S, depth - 1 - R, -beta, -beta + 1, ply + 1, false);
+                    S._turn = color; S.ep_square = saveEp;
+                    if (BOT.abort) return 0;
+                    if (nv >= beta) return nv >= BOT_MATE - 1000 ? beta : nv;
+                }
+                fut = depth <= 2 && se + 140 * depth + 80 <= alpha;
+            }
             botOrder(moves, ttMove, ply);
             BOT.path.add(key);
             let best = -BOT_MATE - 1, bestMove = null, idx = 0;
             for (const m of moves) {
                 const u = botMake(S, m); const givesCheck = S.in_check(S._turn);
+                if (fut && idx > 0 && !m.captured && !m.promotion && !givesCheck) { botUnmake(S, u); idx++; continue; }
                 let ext = givesCheck && ply < 24 ? 1 : 0, v;
                 const quiet = !m.captured && !m.promotion && !inChk && !givesCheck;
-                if (idx >= 4 && depth >= 3 && quiet) {   // 늦은 수 줄이기
+                if (ana && idx >= 3 && depth >= 3 && quiet) {   // v3.74: 늦은 수 줄이기를 수 순서·깊이에 따라 더 크게
+                    let r = 1 + (idx >= 6 ? 1 : 0) + (idx >= 14 ? 1 : 0) + (depth >= 7 ? 1 : 0); if (m.sc >= 7.9e4) r--; if (pvNode) r--; r = Math.max(1, Math.min(r, depth - 2));
+                    v = -botSearch(S, depth - 1 - r, -alpha - 1, -alpha, ply + 1);
+                    if (v > alpha && !BOT.abort) v = -botSearch(S, depth - 1, -alpha - 1, -alpha, ply + 1);
+                    if (v > alpha && v < beta && !BOT.abort) v = -botSearch(S, depth - 1, -beta, -alpha, ply + 1);
+                } else if (!ana && idx >= 4 && depth >= 3 && quiet) {   // 늦은 수 줄이기
                     v = -botSearch(S, depth - 2, -alpha - 1, -alpha, ply + 1);
                     if (v > alpha && !BOT.abort) v = -botSearch(S, depth - 1, -beta, -alpha, ply + 1);
                 } else if (idx > 0) {
@@ -7690,8 +7873,13 @@
 
         // 지금 둘 차례의 최선 수를 찾는다. opts: { timeMs, maxDepth, spread(센티폰: 최선과 이 차이 안의 수 중 무작위), fixedDepth }
         function botSyncMines() { const bc = myColor === 'w' ? 'b' : 'w'; BOT.mineSet = new Set(mines.filter(x => x.owner === bc).map(x => x.sq)); }   // 봇은 자기가 묻은 지뢰만 안다 (상대 지뢰는 보지 못한다)
-        function botFindMove(opts) {
-            const S = cloneGameState(game), root = S.moves(); if (root.length === 0) return null;
+        function botFindMove(opts) {   // v3.74: opts.ana(분석 전용 탐색: 가지치기·빠른 합법 판정), opts.stopFrac(다음 깊이를 시작하는 시간 한도 비율)
+            if (opts.ana === undefined) return botFindMoveRaw(opts);
+            const prevAna = BOT.ana; BOT.ana = !!opts.ana;
+            try { return botFindMoveRaw(opts); } finally { BOT.ana = prevAna; }
+        }
+        function botFindMoveRaw(opts) {
+            const S = cloneGameState(game), root = S.moves(BOT.ana ? BOT_FASTOPT : undefined); if (root.length === 0) return null;
             if (root.length === 1) return root[0];
             for (const m of root) if (m.captured === 'k') return m;
             if (BOT.tt.size > 400000) BOT.tt.clear();
@@ -7714,7 +7902,7 @@
                 if (BOT.abort) { if (iterBest && doneDepth > 0 && iterScore > bestScore) { bestMove = iterBest; bestScore = iterScore; } break; }   // 시간 초과: 이미 끝낸 깊이의 결과를 쓰되, 중간에 더 나은 수를 찾았으면 채택
                 bestMove = iterBest; bestScore = iterScore; scores = iterScores; doneDepth = depth;
                 root.sort((a, b) => (iterScores.get(b) ?? -1e9) - (iterScores.get(a) ?? -1e9));   // 다음 반복의 수 순서
-                if (Math.abs(bestScore) > BOT_MATE - 200 || Date.now() - t0 > opts.timeMs * 0.42) break;   // 다음 깊이는 보통 몇 배 걸리므로 절반 가까이 썼으면 멈춘다
+                if (Math.abs(bestScore) > BOT_MATE - 200 || Date.now() - t0 > opts.timeMs * (opts.stopFrac || 0.42)) break;   // 다음 깊이는 보통 몇 배 걸리므로 절반 가까이 썼으면 멈춘다
             }
             if (opts.spread && scores) { const pool = [...scores.entries()].filter(([, v]) => v >= bestScore - opts.spread).map(([m]) => m); if (pool.length) bestMove = pool[Math.floor(Math.random() * pool.length)]; }
             bestMove.__depth = doneDepth; bestMove.__nodes = BOT.nodes; bestMove.__score = bestScore; bestMove.__scores = scores;
