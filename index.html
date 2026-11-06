@@ -1174,6 +1174,21 @@
         .rv-note { padding: 0 18px 16px; text-align: center; font-size: 0.72rem; color: #8a8a96; line-height: 1.5; }
         body.black-pov .mv-badge { transform: rotate(180deg); }
         @keyframes mvBadgeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* v3.63: 추천 수(대안) */
+        .rp-rv-btns { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .rp-rv-btn.sug { border-color: #81b64c; color: #9ccc65; }
+        .rp-rv-btn.sug.on { background: #81b64c; color: #14210a; }
+        .rp-rv-btn.sug:disabled { opacity: .6; }
+        .rp-sug-why { padding: 2px 2px 6px; font-size: 0.74rem; line-height: 1.45; font-weight: 600; max-height: 9.6em; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .rp-sug-why .blk { padding: 3px 0 5px; } .rp-sug-why .blk > b { display: block; font-size: 0.7rem; font-weight: 800; opacity: .7; letter-spacing: .02em; }
+        .rp-sug-why .err { font-size: .66rem; color: #8a8a96; padding-top: 2px; }
+        .rp-sug-why .bad { color: #e8a07e; } .rp-sug-why .good { color: #a6d67a; }
+        .rp-sug-why .pv::before { content: '예상 진행  '; font-family: inherit; opacity: .7; }
+        .rp-sug-why .pv { margin-top: 2px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.68rem; opacity: .8; word-break: keep-all; }
+        #sug-layer { z-index: 40; overflow: visible; }
+        #sug-layer .sug-arrow { animation: sugIn .22s ease-out; }
+        @keyframes sugIn { from { opacity: 0; } to { opacity: 1; } }
+        .rp-rv-cur .sug-txt { color: #9ccc65; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
         /* v3.57: 수 분석 로딩창 */
         .rv-load-box { width: min(86vw, 320px); box-sizing: border-box; padding: 22px 20px 18px; text-align: center; }
@@ -1193,24 +1208,6 @@
         .rv-spark { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--primary); pointer-events: none; }
         .rv-load-box.prep .rv-load-bar, .rv-load-box.prep #rv-load-txt, .rv-load-box.prep #rv-load-skip { display: none; }
         .rv-load-box.prep small { margin-bottom: 4px; }
-    
-        /* v3.61: 로딩창 충돌 연출(첫 화면 연출을 작게 이식) */
-        .rv-clash { height: 84px; }
-        .rv-p { position: absolute; left: 0; bottom: 10px; width: 38px; height: 38px; will-change: transform; }
-        .rv-rot, .rv-bob, .rv-in { width: 100%; height: 100%; }
-        .rv-bob { transform-origin: 50% 100%; }
-        .rv-bob.run { animation: rv-clop .26s ease-in-out infinite; }
-        .rv-bob.idle { animation: rv-idle 1.8s ease-in-out infinite; }
-        .rv-bob.paw { animation: rv-paw .46s ease-in-out infinite; }
-        .rv-in svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4)); }
-        .rv-sh { position: absolute; left: 10%; right: 10%; bottom: -3px; height: 5px; border-radius: 50%; background: rgba(0,0,0,0.35); filter: blur(1.5px); }
-        .rv-p.is-run .rv-sh { animation: rv-shadow .26s ease-in-out infinite; }
-        @keyframes rv-clop { 0%, 100% { transform: translateY(0) rotate(-6deg) scale(1.05,.93); } 45% { transform: translateY(-7px) rotate(6deg) scale(.97,1.05); } 72% { transform: translateY(-2px) rotate(0deg) scale(1,1); } }
-        @keyframes rv-idle { 0%, 100% { transform: translateY(0) scale(1,1); } 50% { transform: translateY(-1px) scale(1.02,.97); } }
-        @keyframes rv-paw { 0%, 100% { transform: translateY(0) rotate(0deg); } 30% { transform: translateY(-4px) rotate(-4deg); } 60% { transform: translateY(0) rotate(0deg); } }
-        @keyframes rv-shadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 45% { transform: scaleX(.7); opacity: .6; } }
-        .rv-dust { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: currentColor; pointer-events: none; }
-        .rv-ring { width: 16px; height: 16px; }
     </style>
 </head>
 <body>
@@ -1228,7 +1225,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.61';
+      var VERSION = 'v3.64';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -1552,6 +1549,7 @@
                 <div id="pieces-layer" class="layer" style="pointer-events: none;"></div>
                 <canvas id="fx-canvas" class="layer"></canvas>
                 <div id="vfx-global-layer"></div>
+                <svg id="sug-layer" class="layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
             </div>
         </div>
         
@@ -1591,7 +1589,8 @@
             <span id="replay-text"></span>
             <button id="rp-exit" type="button" class="rp-close">결과</button>
         </div>
-        <div class="rp-review" id="rp-review" style="display:none"><span id="rp-rv-cur" class="rp-rv-cur"></span><button type="button" id="rp-rv-btn" class="rp-rv-btn">수 평가</button></div>
+        <div class="rp-review" id="rp-review" style="display:none"><span id="rp-rv-cur" class="rp-rv-cur"></span><span class="rp-rv-btns"><button type="button" id="rp-sug-btn" class="rp-rv-btn sug" style="display:none">추천 수</button><button type="button" id="rp-rv-btn" class="rp-rv-btn">수 평가</button></span></div>
+        <div id="rp-sug-why" class="rp-sug-why" style="display:none"></div>
         <div class="rp-seek" id="rp-seek">
             <div class="rp-track"><div class="rp-fill"></div></div>
             <div id="rp-marks"></div>
@@ -4250,6 +4249,7 @@
             augKillClaim = null; game.reset(); game.keepUids = {}; moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; mines = []; mineReveal = false; prospects = {}; pactPieces = {}; pendingAugments = [];
             activeWalls = []; reversedPawns = { w: 0, b: 0 }; reversedUids = { w: {}, b: {} }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = { w: null, b: null }; blackout = { w: 0, b: 0 }; lastCheckKey = '';
             if (targeting) { clearTargetVisuals(); targeting = null; }
+            closeAugmentUI();   // 새 게임에 이전 판의 증강 선택창이 넘어오지 않게
             clearTimeout(endRevealTimer);
             gameStartTs = 0; gameEndTs = 0; stopAugTimer(); isSystemLocked = false; selectedSquare = null; legalMoves = []; selectedAugmentIdx = -1; previousMove = null; clearPremove(); drawDots(); netQueue = []; postMovePending = 0; augBusy = false; resumePv = null; stopAwayWatch();
             muteShatter = true; drawPieces(false); muteShatter = false; updateProgressBar(); updateTurnIndicator(); updateBoardVisuals(); updateCheckStatus(); updatePreviousMoveHighlights();
@@ -5485,10 +5485,17 @@
         }
 
         // 반환값: 락온 연출에 쓴 대기 시간(ms). 호출한 쪽은 다음 단계 대기 시간에 더해준다.
+        function augMarkSquares(name, t, fxMoves) {   // 효과 전에 먼저 비춰 줄 칸. 공성전은 모든 룩의 목표 칸(맞았든 빗나갔든)
+            return (name === '공성전' && (fxMoves || []).length) ? [...new Set(fxMoves.map(m => m.to))] : (t || []);
+        }
+        function augLeadMs(name, t, fxMoves) {   // 표적 표시가 먼저 나오는 시간(ms). 0이면 바로 발동
+            const sq = augMarkSquares(name, t, fxMoves), siege = name === '공성전' && sq.length > 0;
+            return ((!AUG_NO_LEAD.has(name) || siege) && sq.length && !reduceMotion) ? (siege ? 800 : 520) : 0;
+        }
         function playAugmentVisuals(a) {
             const t = a.t || [], kind = AUG_KIND[a.name] || 'damage', color = KIND_COLOR[kind];
             const isWave = a.globalVfx === 'vfx-global-wave', isMarch = a.name === '진군 명령', isWheel = a.name === '운명의 수레바퀴', isVine = a.name === '덩굴', isHop = a.name === '앙파상+', slides = isWave || isMarch || isWheel;
-            const lead = (!AUG_NO_LEAD.has(a.name) && t.length && !reduceMotion) ? 520 : 0;
+            const lead = augLeadMs(a.name, t, a.fxMoves), markSqs = augMarkSquares(a.name, t, a.fxMoves);
             const toRank = a.fxArg === 'b' ? 8 : 1;
             // 파도 앞면이 해당 행을 지나가는 시각(초)
             const crestSec = yPct => (toRank === 8 ? (100 - yPct) : yPct) / 100 * WAVE_TRAVEL_SEC;
@@ -5497,7 +5504,7 @@
             let origin = null;
             if (a.origin) { const c = getCoords(a.origin); origin = { x: c.x + 6.25, y: c.y + 6.25 }; }
             else if (t.length) { let sx = 0, sy = 0; t.forEach(sq => { const c = getCoords(sq); sx += c.x + 6.25; sy += c.y + 6.25; }); origin = { x: sx / t.length, y: sy / t.length }; }
-            if (lead) FX.mark(t, color, lead / 1000);
+            if (lead) FX.mark(markSqs, color, lead / 1000);   // 목표 칸을 먼저 비추고 조여 든 뒤 연출이 시작된다
             setTimeout(() => {
                 if (isWave) {
                     // 기물이 파도가 지나가는 순간 밀려나도록 행별 지연을 건다
@@ -5683,103 +5690,56 @@
             miss:       { label: '놓친 승리',    color: '#dbac16', svg: rvIc('#dbac16', '<rect x="6" y="10.5" width="12" height="3" rx="1.5" fill="#fff"/>') }
         };
         const RV_ORDER = ['brilliant', 'best', 'great', 'good', 'book', 'inaccuracy', 'mistake', 'blunder', 'miss'];
+        let rvSugIdx = -1, rvSugBusy = false;
         let rvFrames = null, rvRunning = null, rvSkipped = null, rvTotal = 0, rvCount = 0, rvLoading = false, rvWantPlay = false;
-        function rvClearBadges() { document.querySelectorAll('.mv-badge').forEach(e => e.remove()); }
-        // ---- 로딩창의 작은 충돌 연출: 첫 화면 로딩 연출을 작게 그대로 옮겼다 (달려와 부딪히고, 진 쪽은 날아가고, 이긴 쪽은 남아 다음 상대를 맞는다) ----
+        function rvClearBadges() { document.querySelectorAll('.mv-badge').forEach(e => e.remove()); rvSugClear(); }
+        // ---- 로딩창의 작은 충돌 연출: 첫 화면 로딩과 같은 기물 그림으로, 무작위 두 기물이 달려와 부딪히고 한쪽이 날아간다 ----
         const rvClash = (() => {
-            let token = 0, stage = null, survivor = null, live = false;
-            const K = 0.63, SZ = 38, GROUND = 10, KEYS = ['K', 'Q', 'R', 'B', 'N', 'P'];
+            let token = 0, stage = null;
+            const SZ = 38, GROUND = 10, KEYS = ['K', 'Q', 'R', 'B', 'N', 'P'];
             const T = (x, y) => `translate3d(${x}px,${y || 0}px,0)`;
             const pick = n => { let k; do { k = KEYS[Math.floor(Math.random() * KEYS.length)]; } while (k === n); return k; };
             const svgOf = (t, w) => ((window.__LD_SVG || {})[t] || '').replace(/{fill}/g, w ? '#ffffff' : '#222222').replace(/{stroke}/g, w ? '#000000' : '#eeeeee');
             const sleep = ms => new Promise(r => setTimeout(r, ms));
-            async function play(node, kf, opt) {
-                if (!live) return;
-                const a = node.animate(kf, opt); await new Promise(r => { a.onfinish = r; a.oncancel = r; });
-                const last = kf[kf.length - 1]; for (const k in last) if (k !== 'offset' && k !== 'easing') node.style[k] = last[k];
-                a.cancel();
-            }
-            const clear = () => { if (stage) stage.querySelectorAll('.rv-p,.rv-ring,.rv-spark,.rv-dust').forEach(e => e.remove()); };
-            function mk(type, white, origin) {
-                const w = document.createElement('div'); w.className = 'rv-p'; w.style.transform = T(-999);
-                const sh = document.createElement('div'); sh.className = 'rv-sh';
-                const rot = document.createElement('div'); rot.className = 'rv-rot';
-                const bob = document.createElement('div'); bob.className = 'rv-bob';
-                const inn = document.createElement('div'); inn.className = 'rv-in'; inn.innerHTML = svgOf(type, white);
-                bob.appendChild(inn); rot.appendChild(bob); w.appendChild(sh); w.appendChild(rot); stage.appendChild(w);
-                return { w, rot, bob, inn, x: -999, origin, type, white };
-            }
-            const face = (p, dir) => { p.inn.style.transform = dir === 1 ? 'scaleX(-1)' : 'none'; };
-            const setX = (p, x) => { p.x = x; p.w.style.transform = T(x); };
-            const mode = (p, cls) => { p.bob.className = 'rv-bob' + (cls ? ' ' + cls : ''); p.bob.style.transform = ''; p.w.classList.toggle('is-run', cls === 'run'); };
-            const runTo = (p, x1, dur, ease) => { const x0 = p.x; p.x = x1; return play(p.w, [{ transform: T(x0) }, { transform: T(x1) }], { duration: dur, easing: ease }); };
-            const anchorX = (p, W) => (p.origin === -1 ? W * 0.30 : W * 0.70) - SZ / 2;
-            function fx(cls, x, bottom) { const d = document.createElement('div'); d.className = cls; d.style.left = x + 'px'; d.style.bottom = bottom + 'px'; stage.appendChild(d); return d; }
-            const feetX = p => p.w.getBoundingClientRect().left - stage.getBoundingClientRect().left + SZ / 2;
-            function puff(p, dir) {
-                const d = fx('rv-dust', feetX(p) - dir * 11, GROUND - 3);
-                play(d, [{ opacity: .22, transform: 'translate(-50%,0) scale(.6)' }, { opacity: 0, transform: 'translate(-50%,0) translate(' + (-dir * 10) + 'px,-8px) scale(2.2)' }], { duration: 520, easing: 'ease-out' }).then(() => d.remove());
+            const anim = (n, kf, o) => new Promise(res => { try { const a = n.animate(kf, Object.assign({ fill: 'forwards' }, o)); a.onfinish = res; a.oncancel = res; } catch (e) { res(); } });
+            const clear = () => { if (stage) stage.querySelectorAll('.rv-cp,.rv-ring,.rv-spark').forEach(e => e.remove()); };
+            function mk(t, white, x) {
+                const d = document.createElement('div'); d.className = 'rv-cp'; d.style.transform = T(x);
+                const i = document.createElement('span'); i.className = 'rv-cpi'; i.innerHTML = svgOf(t, white); if (white) i.style.transform = 'scaleX(-1)';
+                d.appendChild(i); stage.appendChild(d); return d;
             }
             function burst(x, yb) {
-                const rg = fx('rv-ring', x, yb);
-                play(rg, [{ opacity: .9, transform: 'translate(-50%,50%) scale(.5)' }, { opacity: 0, transform: 'translate(-50%,50%) scale(4.5)' }], { duration: 480, easing: 'ease-out' }).then(() => rg.remove());
-                for (let i = 0; i < 9; i++) {
-                    const sp = fx('rv-spark', x, yb), ang = Math.random() * Math.PI * 2, dist = 18 + Math.random() * 22;
-                    play(sp, [{ opacity: 1, transform: 'translate(-50%,50%) scale(1)' }, { opacity: 0, transform: 'translate(-50%,50%) translate(' + Math.cos(ang) * dist + 'px,' + Math.sin(ang) * dist + 'px) scale(.3)' }], { duration: 380 + Math.random() * 180, easing: 'cubic-bezier(.1,.7,.3,1)' }).then(() => sp.remove());
+                const rg = document.createElement('div'); rg.className = 'rv-ring'; rg.style.left = x + 'px'; rg.style.bottom = yb + 'px'; stage.appendChild(rg);
+                anim(rg, [{ opacity: .9, transform: 'translate(-50%,50%) scale(.5)' }, { opacity: 0, transform: 'translate(-50%,50%) scale(3.6)' }], { duration: 420, easing: 'ease-out' }).then(() => rg.remove());
+                for (let i = 0; i < 7; i++) {
+                    const sp = document.createElement('div'); sp.className = 'rv-spark'; sp.style.left = x + 'px'; sp.style.bottom = yb + 'px'; stage.appendChild(sp);
+                    const ang = Math.random() * Math.PI * 2, d = 18 + Math.random() * 24;
+                    anim(sp, [{ opacity: 1, transform: 'translate(-50%,50%) scale(1)' }, { opacity: 0, transform: `translate(-50%,50%) translate(${Math.cos(ang) * d}px,${Math.sin(ang) * d}px) scale(.3)` }], { duration: 320 + Math.random() * 140, easing: 'cubic-bezier(.1,.7,.3,1)' }).then(() => sp.remove());
                 }
-                play(stage, [{ transform: 'translate(0,0)' }, { transform: 'translate(-3px,1px)' }, { transform: 'translate(3px,-1px)' }, { transform: 'translate(-1px,1px)' }, { transform: 'translate(0,0)' }], { duration: 300 });
             }
-            async function knock(p, dir) {   // 진 쪽: 회전하며 날아간다
-                mode(p, ''); const x = p.x;
-                const r = play(p.rot, [{ transform: 'rotate(0deg) scale(1)' }, { transform: 'rotate(' + (dir * 560) + 'deg) scale(.75)' }], { duration: 900, easing: 'cubic-bezier(.2,.6,.4,1)' });
-                await play(p.w, [{ transform: T(x, 0), opacity: 1 }, { transform: T(x + dir * 82, -50), opacity: 1, offset: .38 }, { transform: T(x + dir * 158, -25), opacity: .8, offset: .72 }, { transform: T(x + dir * 240, 38), opacity: 0 }], { duration: 900, easing: 'cubic-bezier(.22,.7,.45,1)' });
-                await r; p.w.remove();
-            }
-            async function survive(p, push, W) {   // 이긴 쪽: 눌렸다가 버티고 제자리로 돌아간다
-                mode(p, ''); const x = p.x;
-                await Promise.all([
-                    play(p.bob, [{ transform: 'scale(1.25,.78)' }, { transform: 'scale(.94,1.08)' }, { transform: 'scale(1,1)' }], { duration: 340 }),
-                    play(p.rot, [{ transform: 'rotate(0deg)' }, { transform: 'rotate(' + (push * 14) + 'deg)' }, { transform: 'rotate(' + (-push * 5) + 'deg)' }, { transform: 'rotate(0deg)' }], { duration: 480, easing: 'ease-out' }),
-                    play(p.w, [{ transform: T(x, 0) }, { transform: T(x + push * 19, -6) }, { transform: T(x + push * 16, 0) }], { duration: 360, easing: 'ease-out' })
-                ]);
-                p.x = x + push * 16;
-                const ax = anchorX(p, W), dist = Math.abs(ax - p.x);
-                if (dist > 4) { face(p, ax > p.x ? 1 : -1); mode(p, 'run'); await runTo(p, ax, Math.max(260, dist * 5), 'ease-in-out'); }
-                mode(p, 'idle');
-            }
-            async function round(first, tk) {
-                const W = stage.clientWidth || 260; let s, c, cs, sEnd, cEnd, dur;
-                if (first) {
-                    s = mk(pick(), true, -1); c = mk(pick(s.type), false, 1); cs = 1;
-                    setX(s, -SZ - 12); setX(c, W + 12); face(s, 1); face(c, -1);
-                    sEnd = W / 2 - SZ + 5; cEnd = W / 2 - 5; dur = 1250;
-                } else {
-                    s = survivor; cs = -s.origin; c = mk(pick(s.type), !s.white, cs);
-                    setX(c, cs === 1 ? W + 12 : -SZ - 12); face(c, -cs); face(s, cs); mode(s, 'paw');
-                    cEnd = s.x + cs * (SZ - 8); dur = 1100;
-                }
-                const runners = first ? [s, c] : [c];
-                runners.forEach(p => mode(p, 'run'));
-                const dust = setInterval(() => { if (live) runners.forEach(p => puff(p, p === c ? -cs : cs)); }, 90);
-                const ease = 'cubic-bezier(.45,.05,.9,.55)';
-                await Promise.all([runTo(c, cEnd, dur, ease), first ? runTo(s, sEnd, dur, ease) : Promise.resolve()]);
-                clearInterval(dust);
+            async function round(tk) {
+                const W = stage.clientWidth || 260, a = pick(), b = pick(a), lx = W / 2 - SZ + 4, rx = W / 2 - 4, ease = 'cubic-bezier(.45,.05,.9,.55)';
+                const L = mk(a, true, -SZ - 6), R = mk(b, false, W + 6);
+                await Promise.all([anim(L, [{ transform: T(-SZ - 6) }, { transform: T(lx) }], { duration: 850, easing: ease }), anim(R, [{ transform: T(W + 6) }, { transform: T(rx) }], { duration: 850, easing: ease })]);
                 if (tk !== token) return;
-                mode(s, ''); mode(c, '');
-                burst((s.x + c.x + SZ) / 2, GROUND + SZ / 2);
-                await sleep(70); if (tk !== token) return;
-                const cLoses = Math.random() < 0.5, loser = cLoses ? c : s, winner = cLoses ? s : c, loserDir = cLoses ? cs : -cs;
-                survivor = winner;
-                await Promise.all([knock(loser, loserDir), survive(winner, -loserDir, W)]);
+                burst(W / 2, GROUND + SZ / 2); await sleep(60); if (tk !== token) return;
+                const leftLoses = Math.random() < 0.5, lose = leftLoses ? L : R, win = leftLoses ? R : L, dir = leftLoses ? -1 : 1, x0 = leftLoses ? lx : rx, flip = leftLoses ? '' : 'scaleX(-1)';
+                await Promise.all([
+                    anim(lose, [{ transform: T(x0, 0) + ' rotate(0deg)', opacity: 1 }, { transform: T(x0 + dir * 70, -46) + ' rotate(' + dir * 200 + 'deg)', opacity: 1, offset: .4 }, { transform: T(x0 + dir * 140, 18) + ' rotate(' + dir * 420 + 'deg)', opacity: 0 }], { duration: 720, easing: 'cubic-bezier(.22,.7,.45,1)' }),
+                    anim(win.firstChild, [{ transform: flip + ' scale(1.25,.78)' }, { transform: flip + ' scale(.94,1.08)' }, { transform: flip + ' scale(1,1)' }], { duration: 340 })
+                ]);
+                if (tk !== token) return;
+                await anim(win, [{ opacity: 1 }, { opacity: 0 }], { duration: 260, delay: 120 });
+                L.remove(); R.remove();
             }
             return {
                 start() {
                     stage = document.getElementById('rv-clash'); if (!stage || typeof stage.animate !== 'function') return;
                     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-                    const tk = ++token; live = true; survivor = null; clear();
-                    (async () => { try { await round(true, tk); while (tk === token) await round(false, tk); } catch (e) {} })();
+                    const tk = ++token; clear();
+                    (async () => { while (tk === token) { try { await round(tk); } catch (e) { break; } if (tk !== token) break; await sleep(140); } })();
                 },
-                stop() { token++; live = false; survivor = null; clear(); }
+                stop() { token++; clear(); }
             };
         })();
         // 로딩창은 두 가지 모드: 준비 모드(기록을 불러오는 동안) / 분석 모드(진행 막대와 건너뛰기)
@@ -5793,10 +5753,218 @@
         function rvShowPrep() { if (rvLoading) return; rvPrep = true; rvLoadMode(false); document.getElementById('rv-loading').style.display = 'flex'; rvClash.start(); }
         function rvHidePrep() { rvPrep = false; if (!rvLoading) { const ov = document.getElementById('rv-loading'); if (ov) ov.style.display = 'none'; rvClash.stop(); } }
         function rvHideLoading() { rvLoading = false; if (rvPrep) return; const ov = document.getElementById('rv-loading'); if (ov) ov.style.display = 'none'; rvClash.stop(); }
+        // ---- v3.63: 추천 수(대안). 부정확·실수·블런더 등 최선이 아니었던 수에서, 그 수를 두기 직전 판의 최선 수를 화살표로 보여 준다 ----
+        const RV_PN = { p: '폰', n: '나이트', b: '비숍', r: '룩', q: '퀸', k: '킹' };
+        const RV_SUG_CLS = { good: 1, great: 1, inaccuracy: 1, mistake: 1, blunder: 1, miss: 1 };
+        function rvPackMove(m) { return m ? { from: m.from, to: m.to, p: m.promotion || null, pc: m.piece || null, cap: m.captured || null, sc: typeof m.__score === 'number' ? m.__score : null } : null; }
+        const RV_GOOD_CLS = { brilliant: 1, best: 1, book: 1 };   // 이 수 자체가 좋았던 경우: 대안 대신 '이 수가 좋은 이유'를 보여 준다
+        function rvSugClear() {
+            rvSugIdx = -1;
+            const L = document.getElementById('sug-layer'); if (L) L.innerHTML = '';
+            const w = document.getElementById('rp-sug-why'); if (w) { w.style.display = 'none'; w.innerHTML = ''; }
+            const b = document.getElementById('rp-sug-btn'); if (b) { b.classList.remove('on'); if (!rvSugBusy) b.textContent = b.dataset.lbl || '추천 수'; }
+        }
+        function rvSugUpdateBtn(f) {   // 평가가 있는 모든 수에 버튼을 보인다: 좋은 수는 '이유', 최선이 아니었던 수는 '추천 수'
+            const b = document.getElementById('rp-sug-btn'); if (!b) return;
+            const ok = !!(f && f.kind === 'move' && f.rv && RV[f.rv.c] && replayMode !== 'live');
+            b.style.display = ok ? '' : 'none';
+            if (ok) { b.dataset.lbl = RV_GOOD_CLS[f.rv.c] ? '이유' : '추천 수'; if (!rvSugBusy && rvSugIdx < 0) b.textContent = b.dataset.lbl; }
+        }
+        function rvSugGet(frames, i) {   // 그 수를 두기 직전 판의 최선 수. 분석 때 저장해 둔 게 없으면(저장된 기록을 연 경우) 그 자리에서 한 번 탐색한다
+            const f = frames[i], prev = frames[i - 1]; if (f.rm !== undefined) return f.rm;
+            if (!prev || !prev.s) return (f.rm = null);
+            const snap = botSnapshot(), sv = { mc: moveCount, pa: pendingAugments, ao: activeAugmentOptions, ap: activeAugmentPlayerColor, si: selectedAugmentIdx };
+            try { deserializeGameState(prev.s, true); f.rm = rvPackMove(botFindMove({ timeMs: RV_TIME, maxDepth: RV_DEPTH })); }
+            catch (e) { f.rm = null; }
+            finally { botRestore(snap); moveCount = sv.mc; pendingAugments = sv.pa; activeAugmentOptions = sv.ao; activeAugmentPlayerColor = sv.ap; selectedAugmentIdx = sv.si; }
+            return f.rm;
+        }
+        // ---- 근거 설명(자세히): 두 수 이후의 예상 진행을 짧게 탐색해 기물 득실을 비교하고, 엔진이 확인할 수 있는 전술·위치 요인을 말한다 ----
+        const RV_PT = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 }, RV_PL = { p: '', n: 'N', b: 'B', r: 'R', q: 'Q', k: 'K' };
+        const rvMvTxt = x => (x.pc === 'k' && Math.abs(x.from.charCodeAt(0) - x.to.charCodeAt(0)) === 2) ? (x.to[0] === 'g' ? 'O-O' : 'O-O-O') : `${RV_PL[x.pc] || ''}${x.from}${x.cap ? '×' : '→'}${x.to}${x.p ? '=' + (RV_PL[x.p] || '') : ''}`;
+        function rvPVLine(stateStr, first, mover) {   // stateStr 판에서 first 수를 둔 뒤 컴퓨터끼리 4수(마지막이 잡기면 최대 2수 더) 진행. 탐색기와 같은 botMake로 판을 직접 진행한다(증강 상태에도 안전)
+            deserializeGameState(stateStr, true);
+            const mv = []; let sc = null;
+            const play = (x0) => {
+                const all = game.moves(), mo = all.find(y => y.from === x0.from && y.to === x0.to && (x0.promotion ? y.promotion === x0.promotion : true)) || all.find(y => y.from === x0.from && y.to === x0.to);
+                if (!mo) return false;
+                const by = game.turn(), rec = { from: mo.from, to: mo.to, pc: mo.piece, cap: mo.captured || null, p: mo.promotion || null, by };
+                botMake(game, mo); mv.push(rec); return true;
+            };
+            if (!play(first)) return { mv, net: 0, sc: null, mate: false };
+            for (let k = 0; k < 6; k++) {
+                if (k >= 3 && !mv[mv.length - 1].cap) break;
+                const b = botFindMove({ timeMs: 220, maxDepth: 10 }); if (!b) break;
+                if (k === 0) sc = b.__score;
+                if (!play(b)) break;
+            }
+            let net = 0; mv.forEach(x => { let v = 0; if (x.cap && x.cap !== 'k') v += RV_PT[x.cap] || 0; if (x.p) v += (RV_PT[x.p] || 0) - 1; net += x.by === mover ? v : -v; });
+            let mate = false; try { mate = game.moves().length === 0 && game.in_check(game.turn()); } catch (e) {}
+            return { mv, net, sc, mate };
+        }
+        const rvJosa = t => t.replace(/나이트(을|이|은|으로)/g, (x, j) => '나이트' + ({ '을': '를', '이': '가', '은': '는', '으로': '로' })[j]);   // '나이트'만 받침이 없다
+        function rvMatN(sc) { return Math.max(1, Math.ceil((BOT_MATE - sc) / 2)); }
+        function rvWhyBuild(frames, i) {   // 결과를 f.why = { bad, good, pb, pg, goodMode, badPos, err } 로 저장 (탐색 포함, 약 2~3초)
+            const f = frames[i], prev = frames[i - 1], cls = f.rv && f.rv.c, goodMode = !!RV_GOOD_CLS[cls], posPlayed = cls === 'great' || cls === 'good';
+            const W = f.why = { bad: [], good: [], pb: '', pg: '', goodMode, badPos: false };
+            const m = goodMode ? null : f.rm;
+            const N = c => RV_PN[c] || '기물', mover = f.by, opp = mover === 'w' ? 'b' : 'w', early = i <= 20, fmt = n => n === 0 ? '득실 없음' : (n > 0 ? `기물 +${n}점` : `기물 ${n}점`);
+            if (prev && prev.s && f.s && (goodMode || m)) {
+                const snap = botSnapshot(), sv = { mc: moveCount, pa: pendingAugments, ao: activeAugmentOptions, ap: activeAugmentPlayerColor, si: selectedAugmentIdx };
+                try {
+                    deserializeGameState(prev.s, true);
+                    const root = game.moves(), pm = root.find(x => x.from === f.from && x.to === f.to && x.promotion === 'q') || root.find(x => x.from === f.from && x.to === f.to);
+                    const att = (sq, c) => { try { const { r, c: cc } = game.sqToRC(sq); return game.isSquareAttacked(r, cc, c); } catch (e) { return false; } };
+                    const preHang = new Set();
+                    try { for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const pc = game._board[r][c]; if (pc && pc.color === mover && pc.type !== 'k' && pc.type !== 'wall') { const sq = 'abcdefgh'[c] + (8 - r); if (att(sq, opp) && (!att(sq, mover) || pc.type === 'q' || pc.type === 'r')) preHang.add(sq); } } } catch (e) {}
+                    const facts = rec => { let check = false, mates = false; try { const S2 = cloneGameState(game), bm = S2.moves().find(x => x.from === rec.from && x.to === rec.to && (rec.p ? x.promotion === rec.p : true)); if (bm) { const u = botMake(S2, bm); try { check = S2.in_check(S2._turn); mates = check && S2.moves().length === 0; } finally { botUnmake(S2, u); } } } catch (e) {} return { check, mates }; };
+                    const prec = pm ? { from: f.from, to: f.to, pc: pm.piece, cap: pm.captured || null, p: pm.promotion || null, sc: null } : null;
+                    const pf = prec ? facts(prec) : { check: false, mates: false }, mf = m ? facts(m) : null;   // (판이 아직 수 두기 전 상태일 때 먼저 구한다)
+                    const pl = pm ? rvPVLine(prev.s, pm, mover) : { mv: [], net: 0, sc: null, mate: false };
+                    const bl = m ? rvPVLine(prev.s, { from: m.from, to: m.to, promotion: m.p || undefined }, mover) : null;
+                    W.pb = pl.mv.slice(0, 5).map(rvMvTxt).join('  '); if (W.pb) W.pb += pl.mate ? '  (체크메이트)' : `  (${fmt(pl.net)})`;
+                    if (bl) { W.pg = bl.mv.slice(0, 5).map(rvMvTxt).join('  '); if (W.pg) W.pg += bl.mate ? '  (체크메이트)' : `  (${fmt(bl.net)})`; }
+                    // 좋은 이유 목록 (rec: 그 수, fc: 정적 사실, line: 그 수의 예상 진행, other: 비교할 다른 진행의 득실(없으면 null), mateN: 점수로 알아낸 메이트 수)
+                    const goodWhy = (rec, fc, line, other, mateN) => {
+                        const out = [];
+                        if (fc.mates) out.push('바로 체크메이트가 되는 수예요.');
+                        else if (mateN) out.push(`${mateN}수 만에 체크메이트로 이어지는 수예요.`);
+                        else {
+                            if (rec.cap && rec.cap !== 'k') { const mine = BOT_VAL[rec.pc] || 0, got = BOT_VAL[rec.cap] || 0; out.push(got >= mine + 100 ? `상대 ${N(rec.cap)}을 잡아 기물 이득을 봐요.` : `상대 ${N(rec.cap)}을 잡아요${line.net <= 0 ? ' (교환으로 위협을 정리).' : '.'}`); }
+                            const nxt = line.mv.find((x, k) => k >= 2 && x.by === mover && x.cap && x.cap !== 'k');
+                            if (!rec.cap && nxt && line.net >= 1) out.push(`다음 수에 ${N(nxt.cap)}(${nxt.to})을 잡는 위협이 생겨요.`);
+                            if (rec.p) out.push(`폰을 ${N(rec.p)}으로 승급시켜요.`);
+                            if (rec.pc === 'k' && Math.abs(rec.from.charCodeAt(0) - rec.to.charCodeAt(0)) === 2) out.push('캐슬링으로 킹을 안전하게 하고 룩을 활용해요.');
+                            if (fc.check && !rec.cap) out.push('체크를 걸어 상대의 선택지를 좁혀요.');
+                            if (preHang.has(rec.from) && !rec.cap && rec.pc !== 'k') out.push(`공격받던 ${N(rec.pc)}을 안전한 곳으로 피해요.`);
+                            else if (preHang.size && !rec.cap && other !== null && line.net - other >= 1) out.push('지금 위험한 기물을 지키면서 손해를 막아요.');
+                            if (early && !out.length) {
+                                if ((rec.pc === 'n' || rec.pc === 'b') && /[18]$/.test(rec.from)) out.push(`아직 움직이지 않은 ${N(rec.pc)}을 활동적인 자리로 내보내요(개발).`);
+                                else if (rec.pc === 'p' && ['d4', 'e4', 'd5', 'e5'].includes(rec.to)) out.push('중앙을 차지해 기물의 활동 공간을 넓혀요.');
+                            }
+                            if (other !== null && line.net - other >= 2 && !out.some(t => /점/.test(t))) out.push(`예상 진행에서 다른 수보다 기물이 ${line.net - other}점 유리해요.`);
+                        }
+                        return out;
+                    };
+                    if (goodMode) {
+                        const mn = pl.sc !== null && pl.sc <= -(BOT_MATE - 500) ? Math.max(1, Math.ceil((BOT_MATE + pl.sc + 1) / 2)) : 0;
+                        let g = prec ? goodWhy(prec, pf, pl, null, mn) : [];
+                        if (cls === 'brilliant' && prec && (BOT_VAL[prec.pc] || 0) >= 300 && pl.mv[1] && pl.mv[1].cap && pl.mv[1].to === f.to)
+                            g.unshift(`${N(prec.pc)}을 ${f.to}에 내주는 희생수예요. 상대가 잡아도 ${pl.net >= 0 ? '이후 진행에서 손해를 되찾아요.' : '공격 기회와 위치 이득이 손해보다 크다고 컴퓨터가 평가해요.'}`);
+                        if (cls === 'book') g.unshift('오프닝 이론(정석)에 있는 수예요.');
+                        if (!g.length) g.push(cls === 'brilliant' ? '겉보기와 달리 컴퓨터가 최선에 가깝다고 평가한 의외의 수예요.' : '컴퓨터가 고른 최선의 수와 같아요. 눈에 띄는 전술은 없지만 위치상 가장 좋은 선택이에요.');
+                        W.good = g.slice(0, 3);
+                    } else {
+                        // 둔 수 쪽
+                        if (posPlayed) {
+                            W.badPos = true; const g = prec ? goodWhy(prec, pf, pl, bl.net, 0) : [];
+                            W.bad = (g.length ? g : ['큰 손해 없이 무난한 수예요.']).slice(0, 3);
+                        } else {
+                            const first = pl.mv[0], reply = pl.mv[1];
+                            if (pl.sc !== null && pl.sc >= BOT_MATE - 500) W.bad.push(`이 수를 두면 상대가 ${rvMatN(pl.sc) === 1 ? '바로' : rvMatN(pl.sc) + '수 안에'} 체크메이트를 걸 수 있어요.`);
+                            if (reply && reply.by === opp && reply.cap && reply.cap !== 'k') {
+                                const tgt = reply.to, lost = N(reply.cap);
+                                if (first && tgt === f.to) W.bad.push(`둔 ${lost}이 ${tgt}에서 바로 잡혀요${pl.net <= -2 ? ' (큰 손해).' : '.'}`);
+                                else if (preHang.has(tgt)) W.bad.push(`이미 공격받던 ${lost}(${tgt})을 지키지 못하고 잡혀요.`);
+                                else W.bad.push(`상대가 ${tgt}의 ${lost}을 잡을 수 있게 돼요 (이 수로 틈이 생겼어요).`);
+                            }
+                            if (!W.bad.length && pl.net <= -1) { const lostMv = pl.mv.find(x => x.by === opp && x.cap && x.cap !== 'k'); W.bad.push(`이후 진행에서 기물 ${-pl.net}점을 잃어요${lostMv ? ` (${N(lostMv.cap)} ${lostMv.to})` : ''}.`); }
+                            if (first && first.pc === 'k' && !(Math.abs(first.from.charCodeAt(0) - first.to.charCodeAt(0)) === 2) && early) W.bad.push('킹이 일찍 중앙으로 나와 공격에 노출돼요.');
+                            if (bl.net - pl.net >= 1 && (m.cap || bl.mv.some(x => x.by === mover && x.cap))) W.bad.push(`추천 수로는 기물 ${bl.net - pl.net}점을 더 얻을 수 있었어요.`);
+                            W.bad = W.bad.slice(0, 3);
+                        }
+                        // 추천 수 쪽
+                        W.good = goodWhy(m, mf, bl, pl.net, typeof m.sc === 'number' && m.sc >= BOT_MATE - 500 ? rvMatN(m.sc) : 0).slice(0, 3);
+                    }
+                } catch (e) { W.err = String(e && e.message || e); }
+                finally { botRestore(snap); moveCount = sv.mc; pendingAugments = sv.pa; activeAugmentOptions = sv.ao; activeAugmentPlayerColor = sv.ap; selectedAugmentIdx = sv.si; }
+            }
+            // 어떤 경우에도 빈 칸이 되지 않도록 마지막 대비 문구
+            const lossTxt = typeof f.rv.loss === 'number' ? Math.round(f.rv.loss * 100) : 0;
+            if (goodMode) { if (!W.good.length) W.good.push('컴퓨터 평가로 좋은 수예요.'); }
+            else {
+                if (!W.bad.length) W.bad.push(lossTxt >= 4 ? `뚜렷한 기물 손실은 없지만 위치가 나빠져요(기물 활동성·킹 안전·주도권). 컴퓨터 평가상 승률이 약 ${lossTxt}%p 낮아져요.` : '큰 차이는 아니지만 더 정확한 수가 있었어요.');
+                if (!W.good.length) W.good.push(lossTxt >= 2 ? `전술적인 이득은 없어도 위치가 더 좋아요 (승률 약 ${lossTxt}%p 차이).` : '컴퓨터 평가로 가장 유리한 수예요.');
+            }
+        }
+        function rvSugArrow(L, from, to, color, width, opacity, knight) {   // 보드 좌표(0~100) 위에 화살표 하나. 나이트는 ㄴ자
+            const a = getCoords(from), b = getCoords(to), ax = a.x + 6.25, ay = a.y + 6.25, bx = b.x + 6.25, by = b.y + 6.25;
+            let pts = [[ax, ay], [bx, by]];
+            const dx = bx - ax, dy = by - ay;
+            if (knight && Math.abs(Math.abs(dx) - 25) < 1 && Math.abs(Math.abs(dy) - 12.5) < 1) pts = [[ax, ay], [bx, ay], [bx, by]];
+            else if (knight && Math.abs(Math.abs(dy) - 25) < 1 && Math.abs(Math.abs(dx) - 12.5) < 1) pts = [[ax, ay], [ax, by], [bx, by]];
+            const n = pts.length, [px, py] = pts[n - 2], [tx, ty] = pts[n - 1];
+            let ux = tx - px, uy = ty - py; const len = Math.hypot(ux, uy) || 1; ux /= len; uy /= len;
+            const head = 5.2, hw = 3.4, bxh = tx - ux * head, byh = ty - uy * head;   // 화살촉 밑변 중심
+            pts[n - 1] = [bxh, byh];
+            const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            poly.setAttribute('points', pts.map(p => p.join(',')).join(' ')); poly.setAttribute('fill', 'none'); poly.setAttribute('stroke', color);
+            poly.setAttribute('stroke-width', width); poly.setAttribute('stroke-linejoin', 'round'); poly.setAttribute('stroke-linecap', 'round'); poly.setAttribute('opacity', opacity);
+            const tri = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            tri.setAttribute('points', `${tx},${ty} ${bxh - uy * hw},${byh + ux * hw} ${bxh + uy * hw},${byh - ux * hw}`); tri.setAttribute('fill', color); tri.setAttribute('opacity', opacity);
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.setAttribute('class', 'sug-arrow'); g.appendChild(poly); g.appendChild(tri); L.appendChild(g);
+        }
+        function rvSugSquare(L, sq, color) {
+            const c = getCoords(sq), r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            r.setAttribute('x', c.x); r.setAttribute('y', c.y); r.setAttribute('width', 12.5); r.setAttribute('height', 12.5); r.setAttribute('fill', color); L.appendChild(r);
+        }
+        function rvSugShow(i) {   // 그 수를 두기 직전 판으로 돌아가, 화살표와 근거를 보여 준다 (좋은 수: 그 수와 이유 / 아니면: 둔 수(흐리게)와 추천 수)
+            const frames = replayFrames, f = frames[i], prev = frames[i - 1], L = document.getElementById('sug-layer'), cur = document.getElementById('rp-rv-cur'), btn = document.getElementById('rp-sug-btn');
+            if (!f || !prev || !L || !cur || !f.rv) return;
+            const goodMode = !!RV_GOOD_CLS[f.rv.c], info = RV[f.rv.c], m = goodMode ? null : rvSugGet(frames, i);
+            if (!goodMode && !m) { cur.innerHTML = '<span class="sug-txt">추천 수를 찾지 못했어요</span>'; return; }
+            deserializeGameState(prev.s);
+            previousMove = prev.kind === 'move' ? { from: prev.from, to: prev.to } : null;
+            muteShatter = true; drawPieces(false); muteShatter = false; updatePreviousMoveHighlights(); replayMarkChecks();
+            L.innerHTML = ''; rvSugIdx = i;
+            let pp = null; try { pp = game.get(f.from); } catch (e) {}
+            const knight = !!pp && pp.type === 'n', pn = RV_PN[pp && pp.type] || '', same = !goodMode && m.from === f.from && m.to === f.to;
+            if (goodMode) {
+                rvSugSquare(L, f.from, 'rgba(129,182,76,.22)'); rvSugSquare(L, f.to, 'rgba(129,182,76,.32)'); rvSugArrow(L, f.from, f.to, info.color, 2.3, .92, knight);
+                cur.innerHTML = `<span class="rv-ic">${info.svg}</span><span class="sug-txt">${info.label} · ${pn} ${f.from} → ${f.to}</span>`;
+            } else {
+                if (!same) { rvSugSquare(L, f.from, 'rgba(229,143,42,.22)'); rvSugArrow(L, f.from, f.to, info ? info.color : '#e58f2a', 1.9, .55, knight); }
+                rvSugSquare(L, m.from, 'rgba(129,182,76,.32)'); rvSugSquare(L, m.to, 'rgba(129,182,76,.32)');
+                rvSugArrow(L, m.from, m.to, '#81b64c', 2.3, .92, m.pc === 'n');
+                cur.innerHTML = `<span class="rv-ic">${RV.best.svg}</span><span class="sug-txt">${same ? '이 수가 추천 수와 같아요' : `추천 · ${RV_PN[m.pc] || ''} ${m.from} → ${m.to}${m.p ? '=' + (RV_PN[m.p] || '') : ''}`}</span>`;
+            }
+            if (btn) { btn.classList.add('on'); btn.textContent = '닫기'; }
+            const why = document.getElementById('rp-sug-why');
+            if (why) {
+                const W = same ? null : f.why; let h = '';
+                const blk = (cls, title, lines, pv) => `<div class="blk ${cls}"><b>${title}</b>${lines.map(t => `<div>${rvJosa(t)}</div>`).join('')}${pv ? `<div class="pv">${pv}</div>` : ''}</div>`;
+                if (W) {
+                    if (W.goodMode) h += blk('good', '이 수가 좋은 이유', W.good, W.pb);
+                    else {
+                        if (W.bad.length) h += blk(W.badPos ? 'good' : 'bad', W.badPos ? '둔 수 (좋은 점)' : '둔 수', W.bad, W.pb);
+                        if (W.good.length) h += blk('good', '추천 수', W.good, W.pg);
+                    }
+                    if (W.err) h += `<div class="err">설명 생성 중 오류: ${String(W.err).replace(/</g, '&lt;')}</div>`;
+                }
+                why.innerHTML = h; why.scrollTop = 0; why.style.display = h ? '' : 'none';
+            }
+        }
+        function rvSugToggle() {
+            if (rvSugBusy || rvLoading) return;
+            const i = replayIdx, f = replayFrames[i]; if (!f || f.kind !== 'move' || !f.rv) return;
+            if (rvSugIdx === i) { replayShow(i, false); return; }   // 다시 누르면 원래 장면으로
+            if (replayPlaying) replaySetPlaying(false);
+            const btn = document.getElementById('rp-sug-btn'), good = !!RV_GOOD_CLS[f.rv.c];
+            if (good ? f.why === undefined : (f.rm === undefined || f.why === undefined)) {   // 탐색이 필요하면 '분석 중'을 먼저 그린 뒤 계산한다(약 2~3초)
+                rvSugBusy = true; if (btn) { btn.textContent = '분석 중…'; btn.disabled = true; }
+                requestAnimationFrame(() => setTimeout(() => {
+                    try { if (!good) rvSugGet(replayFrames, i); rvWhyBuild(replayFrames, i); } catch (e) { replayFrames[i].why = replayFrames[i].why || { bad: [], good: [], pb: '', pg: '', goodMode: good, err: String(e && e.message || e) }; }
+                    finally { rvSugBusy = false; if (btn) btn.disabled = false; }
+                    if (replayActive && replayIdx === i) rvSugShow(i); else if (btn) btn.textContent = btn.dataset.lbl || '추천 수';
+                }, 0));
+            } else rvSugShow(i);
+        }
+        { const b = document.getElementById('rp-sug-btn'); if (b) b.onclick = rvSugToggle; }
         function replayShowBadge(f) {   // 지금 장면이 '수'라면 그 수의 평가를 보드(도착 칸)와 아래 줄에 표시
             rvClearBadges();
             const cur = document.getElementById('rp-rv-cur'); if (!cur) return;
             const info = f && f.kind === 'move' && f.rv && RV[f.rv.c] ? RV[f.rv.c] : null;
+            rvSugUpdateBtn(f);
             if (!info) { cur.textContent = ''; return; }
             const sq = squareEls.get(f.to); if (sq) { const b = document.createElement('div'); b.className = 'mv-badge'; b.innerHTML = info.svg; sq.appendChild(b); }
             cur.innerHTML = `<span class="rv-ic">${info.svg}</span><b style="color:${info.color}">${info.label}</b>`;
@@ -5805,12 +5973,11 @@
             const fill = document.getElementById('rv-load-fill'); if (!fill) return;
             fill.style.transitionDuration = ms + 'ms'; fill.style.transform = `scaleX(${Math.max(0, Math.min(1, target))})`;
         }
-        let rvFrac = 0;
         function rvPaintProgress() {
             const done = rvTotal > 0 && rvCount >= rvTotal;
             const btn = document.getElementById('rp-rv-btn'); if (btn) btn.textContent = done ? '수 평가' : '수 분석';
             const tx = document.getElementById('rv-load-txt'); if (tx) tx.textContent = `${rvCount} / ${rvTotal}수`;
-            rvSetBar(done ? 1 : rvFrac, 380);
+            if (!rvRunning) rvSetBar(rvTotal ? rvCount / rvTotal : 0, 200);
             const ov = document.getElementById('review-overlay'); if (ov && ov.style.display === 'flex') rvRenderReview();
         }
         // 한 수의 평가: 그 수를 두기 직전 판에서 최선의 수와 점수를 구하고, 실제로 둔 수의 점수를 같은 깊이로 구해 비교한다 (판은 분석 뒤 곧바로 되돌린다)
@@ -5842,138 +6009,50 @@
             const u = f.from + f.to, key = hist.join(' ');
             return hist.length === 0 ? !!BOT_BOOK[u] : (f.by === 'b' ? (BOT_BOOK[key] || []).includes(u) : !!BOT_BOOK[key + ' ' + u]);
         }
-        // ---- 분석 작업: 탐색은 별도 스레드(Worker)에서 돌려 화면 애니메이션이 멈추지 않게 한다. Worker를 쓸 수 없으면 같은 함수를 메인 스레드에서 돌린다 ----
-        // 수 i를 둔 직후의 판은 다음 수(i+1)를 두기 직전의 판과 같으므로, 그 판의 최선 점수(부호만 뒤집어)가 곧 수 i의 점수다. 증강이 끼어 판이 바뀐 경우에만 따로 탐색한다.
-        function rvSaveGlobals() { return { mc: moveCount, pa: pendingAugments, ao: activeAugmentOptions, ap: activeAugmentPlayerColor, si: selectedAugmentIdx, snap: botSnapshot() }; }
-        function rvRestoreGlobals(sv) { botRestore(sv.snap); moveCount = sv.mc; pendingAugments = sv.pa; activeAugmentOptions = sv.ao; activeAugmentPlayerColor = sv.ap; selectedAugmentIdx = sv.si; }
-        function rvJobSearch(j) {   // 그 수를 두기 직전 판에서 둘 차례인 쪽의 최선 수와 점수
-            const sv = rvSaveGlobals();
+        // 뒤에서부터 분석한다: 수 i를 둔 직후의 판은 바로 다음 수(i+1)를 두기 직전의 판과 같으므로, 그 판의 최선 점수(부호만 뒤집어)가 곧 수 i의 점수다.
+        // 그래서 수마다 탐색은 한 번뿐이고, 증강이 끼어 판이 바뀐 경우에만 따로 탐색한다.
+        function rvAnalyze(frames, i) {
+            const f = frames[i], prev = frames[i - 1];
+            if (!prev || !prev.s || !f.s) { f.rv = { c: 'none' }; return; }
+            if (rvIsBook(frames, i)) { f.rv = { c: 'book', loss: 0 }; return; }
+            const snap = botSnapshot(), sv = { mc: moveCount, pa: pendingAugments, ao: activeAugmentOptions, ap: activeAugmentPlayerColor, si: selectedAugmentIdx };
             try {
-                deserializeGameState(j.prevS, true);
-                const root = game.moves(), mvs = root.filter(m => m.from === j.from && m.to === j.to);
-                if (!mvs.length) return { none: true };
+                deserializeGameState(prev.s, true);
+                const root = game.moves(), mvs = root.filter(m => m.from === f.from && m.to === f.to);
+                if (!mvs.length) { f.rv = { c: 'none' }; return; }
                 const mv = mvs.find(m => m.promotion === 'q') || mvs[0];
-                if (root.length === 1 || mv.captured === 'k') return { forced: true };
+                if (root.length === 1 || mv.captured === 'k') { f.rv = { c: 'best', loss: 0 }; return; }
                 const best = botFindMove({ timeMs: RV_TIME, maxDepth: RV_DEPTH });
-                return { score: best.__score, depth: best.__depth || 1, bf: best.from, bt: best.to };
-            } finally { rvRestoreGlobals(sv); }
-        }
-        function rvJobClassify(j) {   // 실제로 둔 수의 점수를 구해 최선과 비교해 등급을 매긴다
-            const sv = rvSaveGlobals();
-            try {
-                deserializeGameState(j.prevS, true);
-                const root = game.moves(), mvs = root.filter(m => m.from === j.from && m.to === j.to);
-                if (!mvs.length) return { c: 'none', loss: 0 };
-                const mv = mvs.find(m => m.promotion === 'q') || mvs[0], isBest0 = j.bf === j.from && j.bt === j.to;
-                let ps = null;
-                if (isBest0) ps = j.score;
-                else if (typeof j.nextScore === 'number') ps = -j.nextScore;
-                else if (j.isLast) { deserializeGameState(j.fS, true); if (game.moves().length === 0) ps = game.in_check(game.turn()) ? BOT_MATE : 0; deserializeGameState(j.prevS, true); }
-                if (ps === null) ps = rvScoreMove(mv, Math.max(1, j.depth || 1));
-                if (ps === null) return { c: 'none', loss: 0 };
-                const bestScore = Math.max(j.score, ps), wb = rvWp(bestScore), wpp = rvWp(ps), loss = Math.max(0, wb - wpp), isBest = isBest0 || ps >= bestScore - 8;
-                let sac = false;
-                if (loss <= 0.02 && wb > 0.2 && wb < 0.85 && wpp > 0.3) { deserializeGameState(j.fS, true); sac = rvIsSacrifice({ to: j.to }, mv); }
-                let cls;
-                if (sac) cls = 'brilliant';
-                else if (wb >= 0.75 && loss >= 0.12 && wpp >= 0.35) cls = 'miss';
-                else if (isBest || loss <= 0.004) cls = 'best';
-                else if (loss <= 0.02) cls = 'great';
-                else if (loss <= 0.05) cls = 'good';
-                else if (loss <= 0.10) cls = 'inaccuracy';
-                else if (loss <= 0.20) cls = 'mistake';
-                else cls = 'blunder';
-                return { c: cls, loss: +loss.toFixed(3) };
-            } finally { rvRestoreGlobals(sv); }
-        }
-        function rvWorkerHandle(m) {   // Worker 안에서 실행되는 진입점
-            try { postMessage({ id: m.id, r: m.k === 'search' ? rvJobSearch(m.j) : rvJobClassify(m.j) }); }
-            catch (err) { postMessage({ id: m.id, err: String((err && err.message) || err) }); }
-        }
-        function rvWorkerParts(modText) {   // 이 페이지의 모듈 코드를 그대로 Worker에서 실행한다 (화면·Firebase 관련 호출은 빈 껍데기로 막는다)
-            const code = modText.replace(/^\s*import[\s\S]*?from\s+['"][^'"]+['"];?/gm, '');
-            const pre = [
-                "const __real = new Set(['Math','JSON','Date','Object','Array','Map','Set','WeakMap','WeakSet','Number','String','Boolean','Symbol','Promise','Error','TypeError','RangeError','RegExp','parseInt','parseFloat','isNaN','isFinite','console','setTimeout','clearTimeout','globalThis','self','undefined','NaN','Infinity','encodeURIComponent','decodeURIComponent','Uint8Array','Int32Array','Float64Array','ArrayBuffer','performance','queueMicrotask','structuredClone','BigInt','Reflect','Proxy','eval','Function','TextEncoder','TextDecoder','arguments','postMessage','WorkerGlobalScope']);",
-                "const __stub = () => { const f = function () {}; return new Proxy(f, { get(t, k) { if (k === Symbol.toPrimitive) return () => 0; if (k === 'then') return undefined; return __stub(); }, apply() { return __stub(); }, construct() { return __stub(); }, set() { return true; } }); };",
-                "const P = new Proxy({}, { has(t, k) { return typeof k === 'string' && !__real.has(k); }, get(t, k) { if (k === Symbol.unscopables) return undefined; return __stub(); }, set() { return true; } });"
-            ].join('\n');
-            return [pre, '\n(async () => { with (P) {\n', code, '\n;if (typeof WorkerGlobalScope !== "undefined") { self.onmessage = e => rvWorkerHandle(e.data); postMessage({ ready: true }); }\n} })().catch(e => postMessage({ fatal: String((e && e.message) || e) }));'];
-        }
-        let rvWorkerURL = null;
-        function rvWorkerExec() {   // Worker 한 개를 감싼 실행기. 만들 수 없으면 null
-            let w = null;
-            try {
-                if (typeof Worker === 'undefined' || typeof Blob === 'undefined') return null;
-                if (!rvWorkerURL) { const mod = document.querySelector('script[type="module"]'); if (!mod) return null; rvWorkerURL = URL.createObjectURL(new Blob(rvWorkerParts(mod.textContent), { type: 'text/javascript' })); }
-                w = new Worker(rvWorkerURL);
-            } catch (e) { return null; }
-            let seq = 0, ready = false; const pend = new Map();
-            const failAll = () => { pend.forEach(p => p.rej(new Error('worker'))); pend.clear(); };
-            const readyP = new Promise(res => {
-                const t = setTimeout(() => res(false), 15000);
-                w.onmessage = e => {
-                    const d = e.data || {};
-                    if (d.ready) { ready = true; clearTimeout(t); res(true); }
-                    else if (d.fatal) { clearTimeout(t); res(false); failAll(); }
-                    else if (d.id) { const p = pend.get(d.id); if (p) { pend.delete(d.id); if (d.err) p.rej(new Error(d.err)); else p.res(d.r); } }
-                };
-                w.onerror = ev => { try { ev.preventDefault(); } catch (e) {} if (!ready) { clearTimeout(t); res(false); } else failAll(); };
-            });
-            return {
-                ready: readyP,
-                run(kind, j) { return new Promise((res, rej) => { const id = ++seq; pend.set(id, { res, rej }); try { w.postMessage({ id, k: kind, j }); } catch (e) { pend.delete(id); rej(e); } }); },
-                kill() { try { w.terminate(); } catch (e) {} failAll(); }
-            };
-        }
-        const rvInlineExec = {   // Worker를 쓸 수 없을 때: 같은 작업을 메인 스레드에서 한 번에 하나씩
-            ready: Promise.resolve(true), kill() {},
-            run(kind, j) { return new Promise((res, rej) => setTimeout(() => { try { res(kind === 'search' ? rvJobSearch(j) : rvJobClassify(j)); } catch (e) { rej(e); } }, 0)); }
-        };
-        // 스케줄러: 탐색 작업을 실행기들에 나눠 주고, 수 i의 평가는 수 i와 i+1의 탐색이 끝나는 대로 이어서 처리한다
-        function rvSchedule(o) {
-            const frames = o.frames, todo = o.todo.slice().sort((a, b) => b - a), searchSet = new Set(), st = { cached: o.cached, books: 0, search: 0, cls: 0, total: o.total, need: 0 };
-            todo.forEach(i => { if (rvIsBook(frames, i)) { frames[i].rv = { c: 'book', loss: 0 }; st.books++; } else searchSet.add(i); });
-            st.need = searchSet.size; o.onUpdate(st);
-            if (!st.need) return Promise.resolve(true);
-            const sr = new Map(), queuedC = new Set(), classifyQ = [], searchQ = todo.filter(i => searchSet.has(i));
-            const finish = (i, rv) => { frames[i].rv = rv; st.cls++; o.onUpdate(st); };
-            const nextScore = i => {
-                const nx = frames[i + 1];
-                if (!nx || nx.kind !== 'move' || !searchSet.has(i + 1)) return { ready: true, val: null };
-                const r = sr.get(i + 1); if (!r) return { ready: false };
-                return { ready: true, val: typeof r.score === 'number' ? r.score : null };
-            };
-            const tryClassify = i => {
-                if (!searchSet.has(i) || queuedC.has(i)) return;
-                const r = sr.get(i); if (!r) return;
-                if (r.none) { queuedC.add(i); finish(i, { c: 'none', loss: 0 }); return; }
-                if (r.forced) { queuedC.add(i); finish(i, { c: 'best', loss: 0 }); return; }
-                const ns = nextScore(i); if (!ns.ready) return;
-                queuedC.add(i); classifyQ.push({ i, ns: ns.val, r });
-            };
-            return new Promise(resolve => {
-                let active = o.execs.length;
-                const pump = async ex => {
-                    let cur = ex;
-                    while (o.alive()) {
-                        let job = classifyQ.shift(), kind = 'classify', i;
-                        if (job) i = job.i; else { i = searchQ.shift(); if (i === undefined) break; kind = 'search'; }
-                        const f = frames[i], prev = frames[i - 1];
-                        const payload = kind === 'search' ? { prevS: prev.s, from: f.from, to: f.to }
-                            : { prevS: prev.s, fS: f.s, from: f.from, to: f.to, score: job.r.score, depth: job.r.depth, bf: job.r.bf, bt: job.r.bt, nextScore: job.ns, isLast: !frames[i + 1] };
-                        let res = null;
-                        for (let attempt = 0; attempt < 2 && res === null; attempt++) {
-                            try { res = await cur.run(kind, payload); }
-                            catch (e) { if (cur !== rvInlineExec) cur = rvInlineExec; else break; }   // Worker가 죽으면 메인 스레드로 이어서 한다
-                        }
-                        if (!o.alive()) break;
-                        if (kind === 'search') { if (res === null) res = { none: true }; sr.set(i, res); st.search++; o.onUpdate(st); tryClassify(i); tryClassify(i - 1); }
-                        else finish(i, res === null ? { c: 'none', loss: 0 } : res);
-                    }
-                    if (--active === 0) resolve(st.cls >= st.need);
-                };
-                o.execs.forEach(ex => pump(ex));
-            });
+                f.rb = { s: best.__score };   // 이 판에서 둘 차례인 쪽 기준 최선 점수 (바로 앞 수의 평가에 재사용)
+                f.rm = rvPackMove(best);   // 이 판의 최선 수(추천 수 표시용)
+                let bestScore = best.__score, ps = null;
+                if (best.from === f.from && best.to === f.to) ps = bestScore;
+                else {
+                    const nx = frames[i + 1];
+                    if (nx && nx.kind === 'move' && nx.rb) ps = -nx.rb.s;
+                    else if (!nx) { deserializeGameState(f.s, true); if (game.moves().length === 0) ps = game.in_check(game.turn()) ? BOT_MATE : 0; }
+                    if (ps === null) { deserializeGameState(prev.s, true); ps = rvScoreMove(mv, Math.max(1, best.__depth || 1)); }
+                }
+                let cls = 'none', loss = 0;
+                if (ps !== null) {
+                    bestScore = Math.max(bestScore, ps);
+                    const wb = rvWp(bestScore), wpp = rvWp(ps); loss = Math.max(0, wb - wpp);
+                    const isBest = (best.from === f.from && best.to === f.to) || ps >= bestScore - 8;
+                    let sac = false;
+                    if (loss <= 0.02 && wb > 0.2 && wb < 0.85 && wpp > 0.3) { deserializeGameState(f.s, true); sac = rvIsSacrifice(f, mv); }
+                    if (sac) cls = 'brilliant';
+                    else if (wb >= 0.75 && loss >= 0.12 && wpp >= 0.35) cls = 'miss';
+                    else if (isBest || loss <= 0.004) cls = 'best';
+                    else if (loss <= 0.02) cls = 'great';
+                    else if (loss <= 0.05) cls = 'good';
+                    else if (loss <= 0.10) cls = 'inaccuracy';
+                    else if (loss <= 0.20) cls = 'mistake';
+                    else cls = 'blunder';
+                }
+                f.rv = { c: cls, loss: +loss.toFixed(3) };
+            } finally {
+                botRestore(snap); moveCount = sv.mc; pendingAugments = sv.pa; activeAugmentOptions = sv.ao; activeAugmentPlayerColor = sv.ap; selectedAugmentIdx = sv.si;
+            }
         }
         function rvFinish() {   // 로딩 종료: 막아 둔 재생을 이어서 시작한다
             const want = rvWantPlay; rvWantPlay = false; rvHideLoading();
@@ -5988,6 +6067,7 @@
             rvLoading = true; rvLoadMode(true); document.getElementById('rv-loading').style.display = 'flex'; rvClash.start(); rvPaintProgress();
             if (replayPlaying) { rvWantPlay = true; replaySetPlaying(false); }
         }
+        let rvAvg = 600;
         function replayReviewKick(force, bg) {   // 사람·AI 대전 모두: 결과 화면에서 미리(bg), 또는 리플레이에 들어올 때 분석한다
             if (!bg && replayMode === 'live') return;
             const frames = replayFrames; rvRestore(frames);
@@ -5995,29 +6075,24 @@
             if (!force && rvSkipped === frames) return;
             rvSkipped = null;
             const all = []; frames.forEach((f, i) => { if (i > 0 && f.kind === 'move') all.push(i); });
-            const todo = all.filter(i => !frames[i].rv); rvTotal = all.length; rvCount = all.length - todo.length; rvFrac = rvTotal ? rvCount / rvTotal : 0; rvPaintProgress();
+            const todo = all.filter(i => !frames[i].rv).reverse(); rvTotal = all.length; rvCount = all.length - todo.length; rvPaintProgress();
             if (!todo.length) return;   // 이미 분석된 기록이면 로딩 없이 바로 재생
             rvRunning = frames; rvFrames = frames;
             if (!bg) rvShowLoading();
-            (async () => {
-                const want = (navigator.hardwareConcurrency || 2) >= 4 ? 2 : 1, execs = [];
-                for (let k = 0; k < want; k++) { const ex = rvWorkerExec(); if (ex) execs.push(ex); }
-                const ok = await Promise.all(execs.map(e => e.ready)), good = [];
-                execs.forEach((e, k) => { if (ok[k]) good.push(e); else e.kill(); });
-                if (!good.length) good.push(rvInlineExec);
-                const alive = () => rvRunning === frames && rvAlive(frames);
-                if (!alive()) { good.forEach(e => e.kill()); if (rvRunning === frames) { rvRunning = null; rvFrames = null; rvHideLoading(); } return; }
-                await rvSchedule({
-                    frames, todo, execs: good, alive, cached: rvCount, total: rvTotal,
-                    onUpdate: st => { rvCount = st.cached + st.books + st.cls; rvFrac = (st.cached + st.books + 0.85 * st.search + 0.15 * st.cls) / st.total; rvPaintProgress(); if (st.cls && st.cls % 10 === 0) rvPersist(frames, true); }
-                });
-                good.forEach(e => e.kill());
-                const mine = rvRunning === frames; rvPersist(frames);
-                if (!mine) return;   // 건너뛰기/나가기에서 이미 정리됨
-                rvRunning = null;
-                if (!rvAlive(frames)) { rvFrames = null; rvHideLoading(); return; }
-                rvPaintProgress(); rvFinish();
-            })();
+            const step = () => {
+                if (rvRunning !== frames) return;   // 건너뛰기/나가기로 취소됨
+                if (!rvAlive(frames)) { rvPersist(frames); rvRunning = null; rvFrames = null; rvHideLoading(); return; }
+                const i = todo.shift(); if (i === undefined) { rvRunning = null; rvPersist(frames); rvPaintProgress(); rvFinish(); return; }
+                if (rvLoading) rvSetBar((rvCount + 0.95) / rvTotal, Math.min(2500, Math.max(300, rvAvg)));   // 이번 수를 분석하는 동안 막대가 천천히 차오른다
+                requestAnimationFrame(() => setTimeout(() => {   // 막대 애니메이션이 시작된 뒤에 무거운 탐색을 한다
+                    if (rvRunning !== frames) return;
+                    const t0 = performance.now();
+                    try { rvAnalyze(frames, i); } catch (e) { frames[i].rv = { c: 'none' }; }
+                    const dt = performance.now() - t0; if (dt > 30) rvAvg = rvAvg * 0.6 + dt * 0.4;
+                    rvCount++; rvPaintProgress(); if (rvCount % 10 === 0) rvPersist(frames, true); setTimeout(step, 0);
+                }, 0));
+            };
+            setTimeout(step, 80);
         }
         function rvBgStart() {   // 경기가 끝나 결과 화면이 떠 있는 동안 미리 분석해 둔다 (리플레이를 열 때 기다리지 않도록)
             if (isSpectating || replayActive || replayFrames.length < 4) return;
@@ -6101,7 +6176,7 @@
             const banner = document.getElementById('replay-banner'); clearTimeout(replayBannerTimer); banner.style.display = 'none';
             if (animate && f.kind === 'augment') {   // 실제 경기와 같은 순서: 새 상태 적용 → 발동 문구 → 증강 이펙트 전체 재생
                 deserializeGameState(f.s); replayUpdateEval(f); previousMove = null; updatePreviousMoveHighlights(); replayMarkChecks();
-                const fx = f.fx || {}, lead = (!AUG_NO_LEAD.has(f.name) && (fx.t || []).length && !reduceMotion) ? 520 : 0;
+                const fx = f.fx || {}, lead = augLeadMs(f.name, fx.t, fx.fxMoves);
                 __timeScale = kSpd;
                 try { showCastText(f.name, () => {
                     if (!replayActive || token !== replayToken) return;
@@ -6543,7 +6618,7 @@
 
         function showEndScreen(resultType, reasonStr, opts = {}) {
             if(game.is_game_over) return;
-            game.set_game_over();
+            game.set_game_over(); closeAugmentUI();   // 기권·종료 때 증강 선택창이 남지 않도록
             try { botReactEnd(resultType); } catch (e) {}
             lastRank = null; mineReveal = true; updateBoardVisuals();   // 게임이 끝나면 모든 지뢰 위치를 바로 공개
             const delay = opts.delay || 0;
@@ -6575,7 +6650,7 @@
                 else if (lastRank) { rkEl.style.display = 'none'; }
                 else rkEl.style.display = 'none';
                 const rsBox = document.getElementById('result-score'); rsBox.style.display = 'none';
-                document.getElementById('result-overlay').style.display = 'flex'; setTimeout(rvBgStart, 800);
+                document.getElementById('result-overlay').style.display = 'flex'; setTimeout(rvBgStart, 2500);
                 if (lastRank && !lastRank.skipped) playScoreReel(lastRank.score - lastRank.delta, lastRank.score);   // 랭크전: 내 점수를 크게 띄우고 릴처럼 굴린다
             };
 
@@ -7378,11 +7453,11 @@
                   game.remove(bSq); spawnFloatingText(bSq, '🙏');
                   for (let r = 8; r >= 1; r--) { const sq = f + r, p = game.get(sq); if (p && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { game.remove(sq); spawnFloatingText(sq, '⚡'); hit.push(sq); } }
                   return { t: [bSq, ...hit], vfx: 'vfx-lightning', msg: hit.length > 0 ? '⚡ 비숍을 제물로 신의 심판이 내렸습니다!' : '⚡ 번개가 허공을 갈랐습니다...' }; } },
-            { name: '공성전', icon: '🏹', desc: '모든 아군 {룩}이 해당 {세로줄}의 가장 먼 칸을 [포격]하여 킹을 제외한 적 기물을 [파괴]합니다.', globalVfx: null, isKillType: true,
-              condition: (m, e) => siegeShots(m, e).some(s => s.hit),
+            { name: '공성전', icon: '🏹', desc: '모든 아군 {룩}이 자신의 {세로줄}에서 무작위 한 칸을 [포격]하여 그 칸의 적 기물(킹 제외)만 [파괴]합니다.', globalVfx: null, isKillType: true,
+              condition: (m, e) => siegeHasTarget(m, e),
               apply: (m, e) => {
                   const shots = siegeShots(m, e), hit = [];
-                  shots.forEach(sh => { if (sh.hit && !hit.includes(sh.to)) { const p = game.get(sh.to); if (p && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { game.remove(sh.to); hit.push(sh.to); spawnFloatingText(sh.to, '🏹'); } } });
+                  shots.forEach(sh => { if (sh.hit && !hit.includes(sh.to)) { const p = game.get(sh.to); if (p && p.color === e && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { game.remove(sh.to); hit.push(sh.to); spawnFloatingText(sh.to, '🏹'); } } });
                   return { t: hit, vfx: 'vfx-explosion', fxMoves: shots.map(sh => ({ from: sh.from, to: sh.to })), msg: hit.length > 0 ? `🏹 공성전! 룩의 화살이 적 ${hit.length}개를 꿰뚫었습니다!` : '🏹 화살이 빗나갔습니다...' }; } },
             { name: '벼락', icon: '🌩️', desc: '적 진영의 무작위 {3칸}에 벼락이 떨어집니다. 맞은 적 기물은 킹이 아닌 한 [파괴]됩니다.', globalVfx: null, isKillType: true,
               condition: (m, e) => findVulnerable(e).some(sq => (e === 'b' ? parseInt(sq[1]) >= 5 : parseInt(sq[1]) <= 4)),
@@ -7549,13 +7624,17 @@
         ];
 
         // 고유 연출이 끝난 뒤 다음 단계로 넘어가도록 증강별 대기 시간(ms)을 늘린다 (이미 지정된 delay는 유지)
-        // 공성전: 아군 룩마다 '자기 세로줄에서 가장 먼 끝 칸'(1행/8행 중 더 먼 쪽)을 포격한다
+        // 공성전: 아군 룩마다 '자기 세로줄'의 무작위 한 칸(룩 자리 제외)을 포격한다. 그 칸의 적 기물(킹·벽·무적 제외)만 파괴되고, 아군 기물이나 빈 칸은 아무 일도 없다
+        function siegeFile(from) { const out = []; for (let r = 1; r <= 8; r++) { const sq = from[0] + r; if (sq !== from) out.push(sq); } return out; }
+        function siegeKillable(sq, e) { const p = game.get(sq); return !!p && p.color === e && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]; }
+        function siegeHasTarget(m, e) { return findPieces(m, 'r').some(from => siegeFile(from).some(sq => siegeKillable(sq, e))); }   // 맞힐 수 있는 적이 한 칸이라도 있어야 쓸 수 있다
         function siegeShots(m, e) {
             return findPieces(m, 'r').map(from => {
-                const to = from[0] + (parseInt(from[1]) - 1 >= 8 - parseInt(from[1]) ? 1 : 8), p = game.get(to);
-                return { from, to, hit: !!p && p.color === e && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid] };
+                const sqs = siegeFile(from), to = sqs[Math.floor(Math.random() * sqs.length)];
+                return { from, to, hit: siegeKillable(to, e) };
             });
         }
+
         const AUG_DELAY = { '네크로맨서': 1900, '신의 심판': 1500, '공성전': 2100, '벼락': 1300, '독구름': 1500, '암살': 1300, '연계 분쇄': 1500, '흑사': 1400, '복수': 1400, '징집': 1300, '축복': 1400, '숲의 망령': 1400, '기사 서임': 1300, '프로모션': 1400, '캐슬링+': 1300, '나이트 클럽': 1500, '그림자 교체': 1300, '저주': 1600, '혼란': 1500, '광기': 1400, '강제 이주': 1400, '마인드 컨트롤': 1800, '차원 장벽': 1300, '잭팟': 1700, '아기는 어떻게 태어나?': 1600, '암전': 1600, '자아 분열': 1500, '빛의 수호': 1400, '여신의 가호': 1600, '수퍼 워너비': 1500, '동귀어진': 1300 };
         AUGMENT_POOL.forEach(ag => { if (!ag.delay && AUG_DELAY[ag.name]) ag.delay = AUG_DELAY[ag.name]; });
 
@@ -7614,7 +7693,7 @@
             '캐슬링+': { cap: '킹 주변의 폰이 룩으로 승급합니다' },
             '진군 명령': { w: 'Ke1 Qd1 Ra1 Rh1 Bc1 Bf1 Nb1 Ng1 Pa2 Pb2 Pc2 Pd2 Pe2 Pf2 Ph2 Pg7', b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Rh8 Pa7 Pb7 Pc7 Pd7 Pe7 Pf7 Ph7',
                 cap: '모든 폰이 전진하고, 끝줄에 닿은 폰은 원하는 기물로 승급합니다' },
-            '공성전': { cap: '각 룩이 자기 세로줄의 가장 먼 칸을 화살로 포격합니다' },
+            '공성전': { cap: '각 룩이 자기 세로줄의 무작위 한 칸을 화살로 포격합니다' },
             '차원 장벽': { target: 'd4', cap: '장벽은 10수 동안 모든 이동을 막습니다' },
             '빛의 수호': { cap: '무적이 된 폰은 2수 동안 잡히지 않습니다' },
             '잭팟': { cap: '이후 증강 단계에서 선택지가 한 장 더 나옵니다',
@@ -8078,6 +8157,17 @@
         }
 
         // ---- 증강 선택 제한 시간 (30초): 카드 고르기 + 설치/지정 단계를 합쳐서 센다. 시간이 다 되면 무작위로 골라지고, 놓을 자리·대상도 무작위 ----
+        let gameEpoch = 0;   // 판 경계 토큰: 기권·종료·새 게임 때 올라간다. 그 전에 걸어 둔 봇의 증강 선택 타이머와 증강 연출은 이어지지 않는다
+        function closeAugmentUI() {   // 증강 선택창을 닫고 선택 상태를 모두 비운다 (기권·종료·새 게임에 선택창이 남아 있지 않도록)
+            try { gameEpoch++; } catch (e) {}
+            try { stopAugTimer(); } catch (e) {}
+            try {
+                const ov = document.getElementById('augment-overlay'); if (ov) ov.style.display = 'none';
+                activeAugmentOptions = null; activeAugmentPlayerColor = null; selectedAugmentIdx = -1;
+                opponentAugmentSelection = null; opponentAugmentPreview = null; opponentAugmentPreviewColor = null;
+                if (targeting) { clearTargetVisuals(); targeting = null; }
+            } catch (e) {}
+        }
         function stopAugTimer() { augDeadline = 0; augCtx = null; oppAugDeadline = 0; const t = document.querySelector('#target-banner .tb-time'); if (t) t.textContent = ''; }
         function paintAugBar(bar, left) {
             const fill = bar.querySelector('i'), sec = Math.ceil(left / 1000);
@@ -8126,17 +8216,17 @@
                     const botOptions = weightedSample(available, augmentOptionCount(playerColor));
                     if (botOptions.length === 0) { processNextAugmentPhase(); return; }
                     renderOpponentPreviewCards(buildAugmentPreviewPayload(botOptions), playerColor, overlay);
-                    const t0 = Date.now(), smart = botDifficulty === '상';
-                    setTimeout(() => {   // 화면이 그려진 뒤 생각한다: 상급은 증강과 놓을 자리를 시뮬레이션으로 고르고, 나머지는 무작위
+                    const t0 = Date.now(), smart = botDifficulty === '상', gs = gameEpoch;
+                    setTimeout(() => { if (gs !== gameEpoch) return;   // 화면이 그려진 뒤 생각한다: 상급은 증강과 놓을 자리를 시뮬레이션으로 고르고, 나머지는 무작위
                         let plan = null;
                         if (smart) { try { plan = botPlanAugment(botOptions, playerColor, enemyColor); } catch (e) { plan = null; } }
                         if (!plan) plan = { aug: botOptions[Math.floor(Math.random() * botOptions.length)], target: null };
                         const think = (smart ? 1700 : 1100) + Math.random() * 800, wait = Math.max(500, think - (Date.now() - t0)), idx = Math.max(0, botOptions.indexOf(plan.aug));
-                        setTimeout(() => {
+                        setTimeout(() => { if (gs !== gameEpoch) return;
                             opponentAugmentSelection = { idx, confirmed: false }; applyOpponentSelection();   // 한 번 누름: 카드가 올라온다
-                            setTimeout(() => {
+                            setTimeout(() => { if (gs !== gameEpoch) return;
                                 opponentAugmentSelection = { idx, confirmed: true }; applyOpponentSelection();   // 확정
-                                setTimeout(() => { overlay.style.display = 'none'; opponentAugmentSelection = null; doApplyAugment(plan.aug, playerColor, enemyColor, plan.target); }, 480);
+                                setTimeout(() => { if (gs !== gameEpoch) return; overlay.style.display = 'none'; opponentAugmentSelection = null; doApplyAugment(plan.aug, playerColor, enemyColor, plan.target); }, 480);
                             }, 750);
                         }, wait);
                     }, 80);
@@ -8273,13 +8363,14 @@
         }
 
         function doApplyAugment(selectedAug, pColor, eColor, target) {
-            stopAugTimer(); augBusy = true; augBusyAt = Date.now();
+            stopAugTimer(); augBusy = true; augBusyAt = Date.now(); const gs0 = gameEpoch;
             addAugmentLog(pColor === myColor ? 'mine' : 'opp', selectedAug);
             let botSnapBefore = null; try { if (isBotMode) botSnapBefore = botSnap(); } catch (e) {}   // 봇 반응용: 증강 적용 전 상태
             activeAugmentOptions = null;
             activeAugmentPlayerColor = null;
             selectedAugmentIdx = -1;
             showCastText(selectedAug.name, () => {
+                if (gs0 !== gameEpoch || game.is_game_over) { augBusy = false; return; }   // 시전 중에 기권·종료·새 게임이 되었다면 적용하지 않는다
                 floatLog = [];
                 let res, capBefore = false;
                 try { if (pColor === myColor && !isSpectating) capBefore = canCaptureKing(pColor); } catch (e) {}   // 증강 전부터 킹을 잡을 수 있었다면 증강 덕이 아니다
