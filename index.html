@@ -1183,10 +1183,19 @@
         .rp-sug-why .blk { padding: 3px 0 5px; } .rp-sug-why .blk > b { display: block; font-size: 0.7rem; font-weight: 800; opacity: .7; letter-spacing: .02em; }
         .rp-sug-why .err { font-size: .66rem; color: #8a8a96; padding-top: 2px; }
         .rp-sug-why .bad { color: #e8a07e; } .rp-sug-why .good { color: #a6d67a; }
+        .rp-sug-why .pv-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 3px; }
+        .rp-sug-why .pv-row .pv { flex: 1; min-width: 0; }
+        .pv-play { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; border: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; background: var(--primary); color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .pv-play svg { width: 10px; height: 10px; fill: currentColor; stroke: none; display: block; }
+        .pv-play svg.st { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+        #replay-bar.pv-mode #rp-marks { display: none; }
+        .pv-play.on { background: rgba(128,128,128,0.38); }
+        .pv-play:active { transform: scale(.92); }
         .rp-sug-why .pv::before { content: '예상 진행  '; font-family: inherit; opacity: .7; }
         .rp-sug-why .pv { margin-top: 2px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.68rem; opacity: .8; word-break: keep-all; }
         #sug-layer { z-index: 40; overflow: visible; }
-        #sug-layer .sug-arrow { animation: sugIn .22s ease-out; }
+        #sug-layer .sug-arrow { animation: sugArrowIn .22s ease-out; }
+        @keyframes sugArrowIn { from { opacity: 0; } to { opacity: var(--o, 1); } }
         @keyframes sugIn { from { opacity: 0; } to { opacity: 1; } }
         .rp-rv-cur .sug-txt { color: #9ccc65; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
@@ -1237,7 +1246,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.68';
+      var VERSION = 'v3.73';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -1870,7 +1879,7 @@
             <h3 id="rv-load-title">경기 분석 중</h3>
             <div class="rv-load-bar"><i id="rv-load-fill"></i></div>
             <div id="rv-load-txt">0 / 0수</div>
-            <small id="rv-load-sub">컴퓨터가 모든 수를 평가하고 있어요.<br>끝나면 리플레이가 시작돼요.</small>
+            <small id="rv-load-sub">모든 수를 분석하고 있어요.<br>끝나면 리플레이가 시작돼요.</small>
             <button type="button" id="rv-load-skip" class="rp-rv-btn">건너뛰기</button>
         </div>
     </div>
@@ -5802,7 +5811,7 @@
             const box = document.getElementById('rv-load-box'); if (!box) return;
             box.classList.toggle('prep', !analysis);
             document.getElementById('rv-load-title').textContent = analysis ? '경기 분석 중' : '기록 불러오는 중';
-            document.getElementById('rv-load-sub').innerHTML = analysis ? '컴퓨터가 모든 수를 평가하고 있어요.<br>끝나면 리플레이가 시작돼요.' : '리플레이를 준비하고 있어요.';
+            document.getElementById('rv-load-sub').innerHTML = analysis ? '모든 수를 분석하고 있어요.<br>끝나면 리플레이가 시작돼요.' : '리플레이를 준비하고 있어요.';
         }
         function rvShowPrep() { if (rvLoading) return; rvPrep = true; rvLoadMode(false); document.getElementById('rv-loading').style.display = 'flex'; rvClash.start(); }
         function rvHidePrep() { rvPrep = false; if (!rvLoading) { const ov = document.getElementById('rv-loading'); if (ov) ov.style.display = 'none'; rvClash.stop(); } }
@@ -5866,6 +5875,7 @@
             if (prev && prev.s && f.s && (goodMode || m)) {
                 const snap = botSnapshot(), sv = { mc: moveCount, pa: pendingAugments, ao: activeAugmentOptions, ap: activeAugmentPlayerColor, si: selectedAugmentIdx };
                 try {
+                    const amv = rvMateAfterActual(f);   // v3.73: 실제 수 직후 판에서 상대의 한 수 체크메이트
                     deserializeGameState(prev.s, true);
                     const root = game.moves(), pm = root.find(x => x.from === f.from && x.to === f.to && x.promotion === 'q') || root.find(x => x.from === f.from && x.to === f.to);
                     const att = (sq, c) => { try { const { r, c: cc } = game.sqToRC(sq); return game.isSquareAttacked(r, cc, c); } catch (e) { return false; } };
@@ -5878,6 +5888,7 @@
                     const bl = m ? rvPVLine(prev.s, { from: m.from, to: m.to, promotion: m.p || undefined }, mover) : null;
                     W.pb = pl.mv.slice(0, 5).map(rvMvTxt).join('  '); if (W.pb) W.pb += pl.mate ? '  (체크메이트)' : `  (${fmt(pl.net)})`;
                     if (bl) { W.pg = bl.mv.slice(0, 5).map(rvMvTxt).join('  '); if (W.pg) W.pg += bl.mate ? '  (체크메이트)' : `  (${fmt(bl.net)})`; }
+                    { const pk = x => ({ from: x.from, to: x.to, pc: x.pc, cap: x.cap, p: x.p, by: x.by }); W.pbm = pl.mv.slice(0, 5).map(pk); W.pgm = bl ? bl.mv.slice(0, 5).map(pk) : []; }   // v3.69: 예상 진행 재생용 (표시하는 5수와 같다)
                     // 좋은 이유 목록 (rec: 그 수, fc: 정적 사실, line: 그 수의 예상 진행, other: 비교할 다른 진행의 득실(없으면 null), mateN: 점수로 알아낸 메이트 수)
                     const goodWhy = (rec, fc, line, other, mateN) => {
                         const out = [];
@@ -5904,9 +5915,10 @@
                         const mn = pl.sc !== null && pl.sc <= -(BOT_MATE - 500) ? Math.max(1, Math.ceil((BOT_MATE + pl.sc + 1) / 2)) : 0;
                         let g = prec ? goodWhy(prec, pf, pl, null, mn) : [];
                         if (cls === 'brilliant' && prec && (BOT_VAL[prec.pc] || 0) >= 300 && pl.mv[1] && pl.mv[1].cap && pl.mv[1].to === f.to)
-                            g.unshift(`${N(prec.pc)}을 ${f.to}에 내주는 희생수예요. 상대가 잡아도 ${pl.net >= 0 ? '이후 진행에서 손해를 되찾아요.' : '공격 기회와 위치 이득이 손해보다 크다고 컴퓨터가 평가해요.'}`);
+                            g.unshift(`${N(prec.pc)}을 ${f.to}에 내주는 희생수예요. 상대가 잡아도 ${pl.net >= 0 ? '이후 진행에서 손해를 되찾아요.' : '공격 기회와 위치 이득이 손해보다 크다고 분석돼요.'}`);
                         if (cls === 'book') g.unshift('오프닝 이론(정석)에 있는 수예요.');
-                        if (!g.length) g.push(cls === 'brilliant' ? '겉보기와 달리 컴퓨터가 최선에 가깝다고 평가한 의외의 수예요.' : '컴퓨터가 고른 최선의 수와 같아요. 눈에 띄는 전술은 없지만 위치상 가장 좋은 선택이에요.');
+                        if (amv) g.unshift(`다만 상대가 ${N(amv.pc)}로 ${amv.to}에서 바로 체크메이트를 걸 수 있는 판이에요 (다른 수로도 피하기 어려워요).`);
+                        if (!g.length) g.push(cls === 'brilliant' ? '겉보기와 달리 최선에 가깝다고 분석된 의외의 수예요.' : '분석한 최선의 수와 같아요. 눈에 띄는 전술은 없지만 위치상 가장 좋은 선택이에요.');
                         W.good = g.slice(0, 3);
                     } else {
                         // 둔 수 쪽
@@ -5915,7 +5927,8 @@
                             W.bad = (g.length ? g : ['큰 손해 없이 무난한 수예요.']).slice(0, 3);
                         } else {
                             const first = pl.mv[0], reply = pl.mv[1];
-                            if (pl.sc !== null && pl.sc >= BOT_MATE - 500) W.bad.push(`이 수를 두면 상대가 ${rvMatN(pl.sc) === 1 ? '바로' : rvMatN(pl.sc) + '수 안에'} 체크메이트를 걸 수 있어요.`);
+                            if (amv) W.bad.push(`이 수를 두면 상대가 ${N(amv.pc)}로 ${amv.from} → ${amv.to}에 두어 바로 체크메이트를 걸 수 있어요.`);
+                            else if (pl.sc !== null && pl.sc >= BOT_MATE - 500) W.bad.push(`이 수를 두면 상대가 ${rvMatN(pl.sc) === 1 ? '바로' : rvMatN(pl.sc) + '수 안에'} 체크메이트를 걸 수 있어요.`);
                             if (reply && reply.by === opp && reply.cap && reply.cap !== 'k') {
                                 const tgt = reply.to, lost = N(reply.cap);
                                 if (first && tgt === f.to) W.bad.push(`둔 ${lost}이 ${tgt}에서 바로 잡혀요${pl.net <= -2 ? ' (큰 손해).' : '.'}`);
@@ -5935,10 +5948,10 @@
             }
             // 어떤 경우에도 빈 칸이 되지 않도록 마지막 대비 문구
             const lossTxt = typeof f.rv.loss === 'number' ? Math.round(f.rv.loss * 100) : 0;
-            if (goodMode) { if (!W.good.length) W.good.push('컴퓨터 평가로 좋은 수예요.'); }
+            if (goodMode) { if (!W.good.length) W.good.push('분석상 좋은 수예요.'); }
             else {
-                if (!W.bad.length) W.bad.push(lossTxt >= 4 ? `뚜렷한 기물 손실은 없지만 위치가 나빠져요(기물 활동성·킹 안전·주도권). 컴퓨터 평가상 승률이 약 ${lossTxt}%p 낮아져요.` : '큰 차이는 아니지만 더 정확한 수가 있었어요.');
-                if (!W.good.length) W.good.push(lossTxt >= 2 ? `전술적인 이득은 없어도 위치가 더 좋아요 (승률 약 ${lossTxt}%p 차이).` : '컴퓨터 평가로 가장 유리한 수예요.');
+                if (!W.bad.length) W.bad.push(lossTxt >= 4 ? `뚜렷한 기물 손실은 없지만 위치가 나빠져요(기물 활동성·킹 안전·주도권). 분석상 승률이 약 ${lossTxt}%p 낮아져요.` : '큰 차이는 아니지만 더 정확한 수가 있었어요.');
+                if (!W.good.length) W.good.push(lossTxt >= 2 ? `전술적인 이득은 없어도 위치가 더 좋아요 (승률 약 ${lossTxt}%p 차이).` : '분석상 가장 유리한 수예요.');
             }
         }
         function rvSugArrow(L, from, to, color, width, opacity, knight) {   // 보드 좌표(0~100) 위에 화살표 하나. 나이트는 ㄴ자
@@ -5953,16 +5966,17 @@
             pts[n - 1] = [bxh, byh];
             const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
             poly.setAttribute('points', pts.map(p => p.join(',')).join(' ')); poly.setAttribute('fill', 'none'); poly.setAttribute('stroke', color);
-            poly.setAttribute('stroke-width', width); poly.setAttribute('stroke-linejoin', 'round'); poly.setAttribute('stroke-linecap', 'round'); poly.setAttribute('opacity', opacity);
+            poly.setAttribute('stroke-width', width); poly.setAttribute('stroke-linejoin', 'round'); poly.setAttribute('stroke-linecap', 'round');
             const tri = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-            tri.setAttribute('points', `${tx},${ty} ${bxh - uy * hw},${byh + ux * hw} ${bxh + uy * hw},${byh - ux * hw}`); tri.setAttribute('fill', color); tri.setAttribute('opacity', opacity);
-            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.setAttribute('class', 'sug-arrow'); g.appendChild(poly); g.appendChild(tri); L.appendChild(g);
+            tri.setAttribute('points', `${tx},${ty} ${bxh - uy * hw},${byh + ux * hw} ${bxh + uy * hw},${byh - ux * hw}`); tri.setAttribute('fill', color);
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.setAttribute('class', 'sug-arrow'); g.style.opacity = opacity; g.style.setProperty('--o', opacity); g.appendChild(poly);   // v3.70: 투명도는 몸통·촉에 따로 주지 않고 그룹 전체에 한 번만 준다(겹친 부분이 진하게 보이던 문제)
+             g.appendChild(tri); L.appendChild(g);
         }
         function rvSugSquare(L, sq, color) {
             const c = getCoords(sq), r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             r.setAttribute('x', c.x); r.setAttribute('y', c.y); r.setAttribute('width', 12.5); r.setAttribute('height', 12.5); r.setAttribute('fill', color); L.appendChild(r);
         }
-        function rvSugShow(i) {   // 그 수를 두기 직전 판으로 돌아가, 화살표와 근거를 보여 준다 (좋은 수: 그 수와 이유 / 아니면: 둔 수(흐리게)와 추천 수)
+        function rvSugShow(i) { rvPvEnd();   // 그 수를 두기 직전 판으로 돌아가, 화살표와 근거를 보여 준다 (좋은 수: 그 수와 이유 / 아니면: 둔 수(흐리게)와 추천 수)
             const frames = replayFrames, f = frames[i], prev = frames[i - 1], L = document.getElementById('sug-layer'), cur = document.getElementById('rp-rv-cur'), btn = document.getElementById('rp-sug-btn');
             if (!f || !prev || !L || !cur || !f.rv) return;
             const goodMode = !!RV_GOOD_CLS[f.rv.c], info = RV[f.rv.c], m = goodMode ? null : rvSugGet(frames, i);
@@ -5986,17 +6000,110 @@
             const why = document.getElementById('rp-sug-why');
             if (why) {
                 const W = same ? null : f.why; let h = '';
-                const blk = (cls, title, lines, pv) => `<div class="blk ${cls}"><b>${title}</b>${lines.map(t => `<div>${rvJosa(t)}</div>`).join('')}${pv ? `<div class="pv">${pv}</div>` : ''}</div>`;
+                const blk = (cls, title, lines, pv, mv, key) => `<div class="blk ${cls}"><b>${title}</b>${lines.map(t => `<div>${rvJosa(t)}</div>`).join('')}${pv ? `<div class="pv-row">${mv && mv.length ? `<button type="button" class="pv-play" data-k="${key}" aria-label="예상 진행 재생">${PV_ICO.play}</button>` : ''}<div class="pv">${pv}</div></div>` : ''}</div>`;
                 if (W) {
-                    if (W.goodMode) h += blk('good', '이 수가 좋은 이유', W.good, W.pb);
+                    if (W.goodMode) h += blk('good', '이 수가 좋은 이유', W.good, W.pb, W.pbm, 'pb');
                     else {
-                        if (W.bad.length) h += blk(W.badPos ? 'good' : 'bad', W.badPos ? '둔 수 (좋은 점)' : '둔 수', W.bad, W.pb);
-                        if (W.good.length) h += blk('good', '추천 수', W.good, W.pg);
+                        if (W.bad.length) h += blk(W.badPos ? 'good' : 'bad', W.badPos ? '둔 수 (좋은 점)' : '둔 수', W.bad, W.pb, W.pbm, 'pb');
+                        if (W.good.length) h += blk('good', '추천 수', W.good, W.pg, W.pgm, 'pg');
                     }
                     if (W.err) h += `<div class="err">설명 생성 중 오류: ${String(W.err).replace(/</g, '&lt;')}</div>`;
                 }
                 why.innerHTML = h; why.scrollTop = 0; why.style.display = h ? '' : 'none';
+                why.onclick = e => { const b = e.target && e.target.closest ? e.target.closest('.pv-play') : null; if (b) rvPvToggle(i, b.dataset.k, b); };
             }
+        }
+        // ---- 예상 진행 재생 (v3.69, v3.71 보강). 그 수를 두기 직전 판에서 예상 진행(최대 5수)을 한 수씩 판 위에서 보여 준다.
+        //      재생 중에는 아래 재생 바가 '예상 진행'용으로 바뀌고(1/5처럼 표시, 끌어서 앞뒤로 볼 수 있다), 평가 배지는 숨긴다. 끝나면 원래 기록 위치로 되돌아간다 ----
+        let rvPvTok = 0, rvPvS = null;
+        const PV_ICO = {
+            play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>',
+            stop: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
+            back: '<svg class="st" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3"/></svg>'
+        };
+        const rvPvWait = ms => new Promise(r => setTimeout(r, ms));
+        function rvPvBtn(b, st) { b.dataset.s = st; b.innerHTML = st ? PV_ICO.back : PV_ICO.play; b.classList.toggle('on', st !== ''); b.setAttribute('aria-label', st ? '원래대로' : '예상 진행 재생'); }   // v3.72: 예상 진행 중에는 (재생/일시정지와 상관없이) 원래대로 버튼. 정지·다음 수는 아래 재생 바 버튼이 맡는다
+        function rvPvSnap(pct) {   // v3.72: 재생 바 종류가 바뀔 때(리플레이 ↔ 둔 수 예상 ↔ 추천 수 예상)는 미끄러지지 않고 바로 그 자리로 바꾼다
+            setSeek(pct, 0);
+            const w = document.getElementById('rp-seek'); if (!w) return;
+            void w.offsetWidth; try { void getComputedStyle(w.querySelector('.rp-fill')).width; void getComputedStyle(w.querySelector('.rp-thumb')).left; } catch (e) {}   // 0ms 상태를 확정해 둬야 뒤따르는 setSeek가 옛 위치에서 출발하지 않는다
+        }
+        function rvPvPlayIcon() { const b = document.getElementById('rp-play'); if (b) b.innerHTML = (rvPvS ? rvPvS.playing : replayPlaying) ? RP_ICON.pause : RP_ICON.play; }
+        function rvPvBar(label, text, k, n, snap) {   // 재생 바를 예상 진행용으로 바꾼다 (snap: 바 종류가 바뀌는 순간이면 부드럽게 움직이지 않고 바로 바꾼다)
+            const bar = document.getElementById('replay-bar'); if (bar) bar.classList.add('pv-mode');
+            document.getElementById('replay-count').innerText = label; document.getElementById('replay-text').innerText = text;
+            const sk = document.getElementById('replay-seek'); sk.max = n; sk.value = k;
+            if (snap) rvPvSnap(n ? k / n * 100 : 0); else setSeek(n ? k / n * 100 : 0, 0);
+        }
+        function rvPvEnd() {   // 예상 진행 재생을 끝내고, 재생 바를 원래 기록 위치로 되돌린다
+            rvPvTok++;
+            if (!rvPvS) return; rvPvS = null;
+            const bar = document.getElementById('replay-bar'); if (bar) bar.classList.remove('pv-mode');
+            const sk = document.getElementById('replay-seek'); sk.max = Math.max(0, replayFrames.length - 1); sk.value = replayIdx; rvPvSnap(seekPos(replayIdx)); rvPvPlayIcon();
+            try { const lab = replayLabelParts(replayIdx); document.getElementById('replay-count').innerText = lab.count; document.getElementById('replay-text').innerText = lab.text; } catch (e) {}
+        }
+        function rvPvSet(k, animate) {   // 예상 진행의 k번째 수까지 둔 판을 보여 준다 (animate: 바로 다음 수만 미끄러지듯 이동)
+            const S = rvPvS; if (!S) return;
+            const prev = replayFrames[S.i - 1], n = S.mv.length;
+            const step = x => { const all = game.moves(), mo = all.find(y => y.from === x.from && y.to === x.to && (x.p ? y.promotion === x.p : true)) || all.find(y => y.from === x.from && y.to === x.to); if (!mo) return false; botMake(game, mo); return true; };
+            if (!animate || k !== S.k + 1) {
+                deserializeGameState(prev.s); previousMove = prev.kind === 'move' ? { from: prev.from, to: prev.to } : null;
+                for (let j = 0; j < k; j++) { if (!step(S.mv[j])) { k = j; break; } previousMove = { from: S.mv[j].from, to: S.mv[j].to }; }
+                muteShatter = true; drawPieces(false); muteShatter = false;
+            } else {
+                if (step(S.mv[k - 1])) previousMove = { from: S.mv[k - 1].from, to: S.mv[k - 1].to }; else k = S.k;
+                muteShatter = true; drawPieces(true); muteShatter = false;
+            }
+            S.k = k; updatePreviousMoveHighlights(); replayMarkChecks();
+            document.querySelectorAll('.mv-badge').forEach(e => e.remove());   // 평가 배지(이론적인 수 등)는 예상 진행 중에는 숨긴다
+            const x = k ? S.mv[k - 1] : null, cur = document.getElementById('rp-rv-cur');
+            if (cur) cur.innerHTML = `<span class="sug-txt">${x ? '예상 진행 · ' + rvMvTxt(x) : '예상 진행 · 시작 판'}</span>`;
+            rvPvBar(`${k} / ${n}`, x ? '예상 · ' + rvMvTxt(x) : '예상 · 시작 판', k, n, S.fresh); S.fresh = false;
+        }
+        function rvPvScrub(v) {   // 재생 바를 끌면 자동 재생을 멈추고 그 지점의 판을 보여 준다
+            const S = rvPvS; if (!S) return;
+            rvPvTok++; S.playing = false; rvPvPlayIcon();
+            try { rvPvSet(Math.max(0, Math.min(S.mv.length, v)), false); } catch (e) {}
+        }
+        // ---- v3.72: 예상 진행 중에도 재생 바 버튼(재생/정지, 처음, 이전, 다음, 끝, 배속)이 그대로 동작한다 ----
+        async function rvPvLoop() {
+            const S = rvPvS; if (!S) return; const tok = ++rvPvTok, n = S.mv.length; S.playing = true; rvPvPlayIcon();
+            try {
+                while (rvPvS === S && tok === rvPvTok && S.k < n) {
+                    const wait = (S.k <= 0 ? 650 : 950) / replaySpeed;
+                    setSeek((S.k + 1) / n * 100, wait);   // 다음 수까지 바가 차오른다
+                    await rvPvWait(wait); if (tok !== rvPvTok || rvPvS !== S) return;
+                    const before = S.k; rvPvSet(before + 1, true); if (rvPvS !== S || S.k !== before + 1) break;
+                }
+            } catch (e) { if (tok === rvPvTok && rvPvS === S) rvSugShow(S.i); return; }
+            if (tok === rvPvTok && rvPvS === S) { S.playing = false; rvPvPlayIcon(); setSeek(S.k / n * 100, 200); }
+        }
+        function rvPvPause() { const S = rvPvS; if (!S) return; const was = S.playing; rvPvTok++; S.playing = false; rvPvPlayIcon(); if (was) seekFreeze(); }   // v3.73: 재생 중이었다면 그 자리에서 멈춘다
+        function rvPvControl(act) {   // 재생 바 버튼 → 예상 진행 조작. 처리했으면 true
+            const S = rvPvS; if (!S) return false; const n = S.mv.length;
+            if (act === 'play') { if (S.playing) rvPvPause(); else { if (S.k >= n) rvPvSet(0, false); rvPvLoop(); } return true; }
+            rvPvPause();
+            try {
+                if (act === 'first') rvPvSet(0, false);
+                else if (act === 'last') rvPvSet(n, false);
+                else if (act === 'prev') rvPvSet(Math.max(0, S.k - 1), false);
+                else if (act === 'next') rvPvSet(Math.min(n, S.k + 1), S.k + 1 <= n);
+            } catch (e) {}
+            return true;
+        }
+        function rvPvToggle(i, key, btn) {
+            const f = replayFrames[i], prev = replayFrames[i - 1], W = f && f.why, mv = W && (key === 'pg' ? W.pgm : W.pbm);
+            if (!f || !prev || !prev.s || !mv || !mv.length) return;
+            if (btn.dataset.s === 'run' || btn.dataset.s === 'done') { rvSugShow(i); return; }   // 재생 중이면 멈추고, 끝났으면 설명 화면(원래 판)으로 돌아간다
+            rvPvPlay(i, mv, btn);
+        }
+        function rvPvPlay(i, mv, btn) {   // 둔 수 / 추천 수의 예상 진행을 처음부터 시작 (다른 쪽을 재생 중이었어도 바가 뚝 바뀐다)
+            const L = document.getElementById('sug-layer'), why = document.getElementById('rp-sug-why');
+            rvPvTok++; if (why) why.querySelectorAll('.pv-play').forEach(b => rvPvBtn(b, ''));
+            rvPvBtn(btn, 'run'); if (L) L.innerHTML = '';
+            rvPvS = { i, mv, k: -1, btn, playing: false, fresh: true };
+            try { rvPvSet(0, false); } catch (e) { rvSugShow(i); return; }
+            rvPvLoop();
         }
         function rvSugToggle() {
             if (rvSugBusy || rvLoading) return;
@@ -6046,6 +6153,19 @@
             const ov = document.getElementById('review-overlay'); if (ov && ov.style.display === 'flex') rvRenderReview();
         }
         // 한 수의 평가: 그 수를 두기 직전 판에서 최선의 수와 점수를 구하고, 실제로 둔 수의 점수를 같은 깊이로 구해 비교한다 (판은 분석 뒤 곧바로 되돌린다)
+        function rvMateIn1(S) {   // v3.73: S = 수를 둔 직후 판(둘 차례 = 상대). 상대에게 한 수로 체크메이트(또는 킹 잡기)가 있으면 그 수를, 없으면 null
+            let list = []; try { list = S.moves(); } catch (e) { return null; }
+            for (const m of list) {
+                if (m.captured === 'k') return { from: m.from, to: m.to, pc: m.piece, cap: 'k' };
+                let u = null, mate = false;
+                try { u = botMake(S, m); mate = S.in_check(S._turn) && S.moves().length === 0; } catch (e) {} finally { if (u) { try { botUnmake(S, u); } catch (e) {} } }
+                if (mate) return { from: m.from, to: m.to, pc: m.piece, cap: m.captured || null };
+            }
+            return null;
+        }
+        function rvMateAfterActual(f) {   // 실제로 기록된 '수 직후 판'(덩굴·벽 등 효과 반영 뒤)에서 상대의 한 수 체크메이트가 있는가
+            try { deserializeGameState(f.s, true); return rvMateIn1(cloneGameState(game)); } catch (e) { return null; }
+        }
         function rvScoreMove(mv, d) {   // 이 수를 둔 뒤의 점수(둔 쪽 기준)
             const S = cloneGameState(game); BOT.noise = 0; botSyncMines();
             for (let dd = d; dd >= 1; dd--) {
@@ -6091,7 +6211,36 @@
                 f.rb = { s: best.__score };   // 이 판에서 둘 차례인 쪽 기준 최선 점수 (바로 앞 수의 평가에 재사용)
                 f.rm = rvPackMove(best);   // 이 판의 최선 수(추천 수 표시용)
                 let bestScore = best.__score, ps = null;
-                if (best.from === f.from && best.to === f.to) ps = bestScore;
+                const nx0 = frames[i + 1], reuse = nx0 && nx0.kind === 'move' && nx0.rb && typeof nx0.rb.s === 'number' ? -nx0.rb.s : null;
+                const playedIsBest = best.from === f.from && best.to === f.to;
+                // v3.73: 탐색기는 덩굴·무적 같은 효과를 '멈춘 값'으로 본다. 그래서 효과가 풀리며 생기는 체크메이트를 못 보고 그 수를 최선이라 할 수 있다.
+                //        실제 기록된 수 직후 판(효과가 반영됨)과 다음 수의 분석에서 '체크메이트를 허용했는지'를 따로 확인한다.
+                let allowsMate = reuse !== null && reuse <= -(BOT_MATE - 500);
+                if (!allowsMate) { const mm = rvMateAfterActual(f); if (mm) allowsMate = true; }
+                deserializeGameState(prev.s, true);
+                const engineLost = bestScore <= -(BOT_MATE - 500) && !playedIsBest;   // 어떤 수를 둬도 진다고 분석된 판이면 허용 여부가 의미 없다
+                let forceBlunder = allowsMate && !engineLost;
+                if (playedIsBest) {
+                    ps = bestScore;
+                    if (forceBlunder) {   // 최선이라던 수가 사실 메이트를 허용했다 → 메이트를 피하는 수 중 가장 좋은 수를 새 추천 수로 삼는다
+                        const S = cloneGameState(game), esc = [], t0 = Date.now();
+                        for (const m2 of root) {
+                            if (m2.from === f.from && m2.to === f.to) continue;
+                            let u = null, ok = false;
+                            try { u = botMake(S, m2); ok = !rvMateIn1(S); } catch (e) {} finally { if (u) { try { botUnmake(S, u); } catch (e) {} } }
+                            if (ok) esc.push(m2);
+                        }
+                        let top = null;
+                        for (const m2 of esc) {
+                            if (Date.now() - t0 > 3000) break;
+                            const v = rvScoreMove(m2, 3); if (v === null) continue;
+                            if (!top || v > top.v) top = { m: m2, v };
+                        }
+                        if (!top && esc.length) top = { m: esc[0], v: 0 };
+                        if (top) { top.m.__score = top.v; f.rm = rvPackMove(top.m); f.rb = { s: top.v }; bestScore = top.v; ps = -(BOT_MATE - 1); }
+                        else { f.rb = { s: -(BOT_MATE - 1) }; bestScore = ps = f.rb.s; forceBlunder = false; }   // 모든 수가 메이트를 허용 → 이미 진 판
+                    }
+                }
                 else {
                     const nx = frames[i + 1];
                     if (nx && nx.kind === 'move' && nx.rb) ps = -nx.rb.s;
@@ -6113,6 +6262,7 @@
                     else if (loss <= 0.10) cls = 'inaccuracy';
                     else if (loss <= 0.20) cls = 'mistake';
                     else cls = 'blunder';
+                    if (forceBlunder) { cls = 'blunder'; loss = Math.max(loss, 0.5); }   // v3.73: 체크메이트를 허용한 수는 항상 블런더
                 }
                 f.rv = { c: cls, loss: +loss.toFixed(3) };
             } finally {
@@ -6300,7 +6450,7 @@
             RV_ORDER.forEach(k => { const d = RV[k], a = cnt.w[k] || 0, b = cnt.b[k] || 0;
                 h += `<div class="rv-row"><b style="color:${d.color}">${a}</b><span class="rv-ic">${d.svg}</span><span class="rv-lb">${d.label}</span><b style="color:${d.color}">${b}</b></div>`; });
             box.innerHTML = h;
-            document.getElementById('rv-note').textContent = rvCount < rvTotal ? `일부 수만 분석했어요 (${rvCount}/${rvTotal})` : '컴퓨터(상 난이도 이상)의 탐색을 기준으로 한 평가예요';
+            document.getElementById('rv-note').textContent = rvCount < rvTotal ? `일부 수만 분석했어요 (${rvCount}/${rvTotal})` : '수를 깊이 탐색한 분석을 기준으로 한 평가예요';
         }
         function replayUpdateEval(f) {   // deserializeGameState(f.s) 직후에 부른다 (이름은 예전 그대로)
             const row = document.getElementById('rp-review');
@@ -6322,7 +6472,7 @@
             squareList.forEach(sq => sq.classList.remove('in-check'));
             ['w', 'b'].forEach(c => { try { if (game.in_check(c)) { const k = findPieces(c, 'k')[0]; if (k && squareEls.get(k)) squareEls.get(k).classList.add('in-check'); } } catch (e) {} });
         }
-        function replayShow(i, animate) {
+        function replayShow(i, animate) { rvPvEnd();
             i = Math.max(0, Math.min(replayFrames.length - 1, i)); const f = replayFrames[i]; if (!f) return;
             replayIdx = i; const token = ++replayToken; replayStepMs = 0; const kSpd = replaySpeed; FX.speed(kSpd);
             const lab = replayLabelParts(i);
@@ -6370,11 +6520,19 @@
             replayFrames.forEach((f, i) => { if (f.kind === 'augment' && !(i > 0 && replayFrames[i - 1].kind === 'augment')) { const d = document.createElement('i'); d.style.left = (i / n * 100) + '%'; box.appendChild(d); } });   // 같은 증강 라운드는 첫 번째 선택에만 표시
         }
         const seekPos = i => replayFrames.length > 1 ? i / (replayFrames.length - 1) * 100 : 0;
+        function seekFreeze() {   // v3.73: 일시정지하면 바를 지금 보이는 자리에서 그대로 멈춘다 (장면 위치로 되감기지 않는다)
+            const w = document.getElementById('rp-seek'); if (!w) return;
+            try {
+                const tr = w.querySelector('.rp-track'), fl = w.querySelector('.rp-fill'), tw = tr.getBoundingClientRect().width;
+                if (tw > 0) { const pct = Math.max(0, Math.min(100, fl.getBoundingClientRect().width / tw * 100)); setSeek(pct, 0); void w.offsetWidth; void getComputedStyle(fl).width; return; }
+            } catch (e) {}
+            setSeek(seekPos(replayIdx), 0);
+        }
         function setSeek(pct, durMs) { const w = document.getElementById('rp-seek'); w.style.setProperty('--rp-dur', durMs + 'ms'); w.style.setProperty('--p', pct + '%'); }
         function replaySetPlaying(on) {
             if (on && rvLoading) { rvWantPlay = true; return; }   // 수 분석 로딩 중에는 재생하지 않는다
             replayPlaying = on; clearTimeout(replayTimer);
-            if (!on) setSeek(seekPos(replayIdx), 200);   // 일시정지: 진행 중이던 바를 현재 장면 위치로
+            if (!on) { if (!rvPvS) seekFreeze(); }   // 일시정지: 진행 중이던 바를 그 자리에서 멈춘다 (v3.73)
             document.getElementById('rp-play').innerHTML = on ? RP_ICON.pause : RP_ICON.play;
             if (on) scheduleReplayStep();
         }
@@ -6418,7 +6576,7 @@
             document.body.classList.add('replay-mode', 'live-review');
             liveShow(replayFrames.length - 2);
         }
-        function stopReplayUI() { rvStop();   // 새 게임/메인으로 이동 시 안전하게 정리
+        function stopReplayUI() { rvStop(); try { rvPvEnd(); } catch (e) {}   // 새 게임/메인으로 이동 시 안전하게 정리
             replayActive = false; replayPlaying = false; clearTimeout(replayTimer); clearTimeout(replayBannerTimer); replayToken++;
             FX.speed(1); applyAnimScale(1); __timeScale = 1;
             document.body.classList.remove('replay-mode', 'live-review', 'replay-archive'); syncStrip();
@@ -6728,16 +6886,16 @@
         document.getElementById('btn-replay').onclick = startReplay;
         document.getElementById('rp-exit').onclick = exitReplay;
         document.getElementById('btn-replay-exit').onclick = async () => { if (isSpectating) { if (await askConfirm('관전을 그만할까요?', { ok: '나가기' })) leaveSpectate(); } else exitReplay(); };
-        document.getElementById('rp-first').onclick = () => { replaySetPlaying(false); replayShow(0, false); };
-        document.getElementById('rp-last').onclick = () => { replaySetPlaying(false); replayShow(replayFrames.length - 1, false); };
-        document.getElementById('rp-prev').onclick = () => { replaySetPlaying(false); replayShow(replayIdx - 1, false); };
-        document.getElementById('rp-next').onclick = () => { replaySetPlaying(false); replayShow(replayIdx + 1, true); };
-        document.getElementById('rp-play').onclick = () => { if (!replayPlaying && replayIdx >= replayFrames.length - 1) replayShow(0, false); replaySetPlaying(!replayPlaying); };
-        document.getElementById('rp-speed').onclick = (e) => { replaySpeed = replaySpeed === 1 ? 2 : replaySpeed === 2 ? 4 : replaySpeed === 4 ? 0.5 : 1; e.target.innerText = replaySpeed + 'x'; FX.speed(replaySpeed); if (replayPlaying) scheduleReplayStep(); };
+        document.getElementById('rp-first').onclick = () => { if (rvPvControl('first')) return; replaySetPlaying(false); replayShow(0, false); };
+        document.getElementById('rp-last').onclick = () => { if (rvPvControl('last')) return; replaySetPlaying(false); replayShow(replayFrames.length - 1, false); };
+        document.getElementById('rp-prev').onclick = () => { if (rvPvControl('prev')) return; replaySetPlaying(false); replayShow(replayIdx - 1, false); };
+        document.getElementById('rp-next').onclick = () => { if (rvPvControl('next')) return; replaySetPlaying(false); replayShow(replayIdx + 1, true); };
+        document.getElementById('rp-play').onclick = () => { if (rvPvControl('play')) return; if (!replayPlaying && replayIdx >= replayFrames.length - 1) replayShow(0, false); replaySetPlaying(!replayPlaying); };
+        document.getElementById('rp-speed').onclick = (e) => { replaySpeed = replaySpeed === 1 ? 2 : replaySpeed === 2 ? 4 : replaySpeed === 4 ? 0.5 : 1; e.target.innerText = replaySpeed + 'x'; FX.speed(replaySpeed); if (rvPvS) { if (rvPvS.playing) rvPvLoop(); return; } if (replayPlaying) scheduleReplayStep(); };
         { const sw = document.getElementById('rp-seek'), sk = document.getElementById('replay-seek');
           ['pointerdown', 'touchstart', 'mousedown'].forEach(ev => sk.addEventListener(ev, () => sw.classList.add('dragging'), { passive: true }));
           ['pointerup', 'pointercancel', 'touchend', 'mouseup', 'change'].forEach(ev => sk.addEventListener(ev, () => sw.classList.remove('dragging'), { passive: true })); }
-        document.getElementById('replay-seek').oninput = (e) => { replaySetPlaying(false); replayShow(parseInt(e.target.value), false); setSeek(seekPos(parseInt(e.target.value)), 0); };
+        document.getElementById('replay-seek').oninput = (e) => { if (rvPvS) { rvPvScrub(parseInt(e.target.value)); return; } replaySetPlaying(false); replayShow(parseInt(e.target.value), false); setSeek(seekPos(parseInt(e.target.value)), 0); };
 
         // opts.delay > 0 이면 결과 창을 늦추고(마지막 수/이펙트를 볼 수 있게), opts.fx 로 체크메이트/스테일메이트 연출을 재생
         // ---- 결과 화면: 랭크 점수 릴 (슬롯머신처럼 자릿수가 위/아래로 굴러가 멈춘다) ----
