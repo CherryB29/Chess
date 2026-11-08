@@ -6149,6 +6149,7 @@
             const c = o.cause, a = o.adv || 0;
             if (c === 'mate') return V('t_m', '두기 전에 상대의 체크·잡기부터 확인하세요. 킹 주변이 막혀 있으면 체크 한 번이 곧 메이트예요.', '수를 확정하기 전에 "상대에게 체크메이트 수가 있나?"를 꼭 한 번 물어보세요. 킹 앞이 자기 기물로 막힌 판이 가장 위험해요.');
             if (c === 'hang' || c === 'left') return V('t_h', '두기 전에 "지켜지지 않은 내 기물이 없나?"와 "이 수로 지키던 기물이 빠지지 않나?"를 확인하세요.', '수를 확정하기 직전에 내 기물을 한 번 훑어보세요. 공격받는데 지켜 주는 기물이 없는 기물이 있다면 먼저 해결해야 해요.');
+            if (c === 'offer') return V('t_of', '교환을 노린 수는 되잡은 뒤 내 손에 남는 것까지 세어 보세요. 되잡아도 형세가 좋아지는지, 같은 목적을 더 싸게 이룰 수 있는 수는 없는지 비교하면 계획이 더 정확해져요.', '교환 제안은 되잡는 순간이 끝이 아니에요. 교환 뒤 내 기물이 안전한지, 다른 수로도 같은 목적을 이룰 수 있는지까지 견줘 보세요.');
             if (c === 'trade') return V('t_tr', '기물 값은 폰 1, 나이트·비숍 3, 룩 5, 퀸 9로 세면 쉬워요. 교환할 땐 잃는 값이 얻는 값보다 크지 않은지 비교하세요.', '교환은 숫자 싸움이에요. 큰 기물로 작은 기물을 잡으면 되잡혔을 때 손해가 되는 경우가 많아요.');
             if (c === 'gap') return V('t_g', '상대의 가장 큰 잡기를 먼저 보세요. 내 수가 만든 빈틈이 그 자리인 경우가 많아요.', '수를 두면 어떤 기물의 보호가 풀리는지 확인하세요. 지키던 기물이 빠지면 그 뒤가 무너져요.');
             if (c === 'king') return V('t_k', '캐슬링 전에 킹을 움직이면 킹 안전과 룩 연결을 함께 잃어요.', '킹은 캐슬링으로 먼저 안전하게 숨기고, 중앙에서 싸움이 커지기 전에는 움직이지 않는 편이 좋아요.');
@@ -6212,7 +6213,7 @@
                         : `이 수 <b>${a}%</b> · 추천 수 <b>${b}%</b> <small>평가 ${cpS(vp)} ↔ ${cpS(vb)}</small>`); }
                 const reply = pl.mv[1];
                 if (reply && reply.by === opp) { const Sr = rvAfterMove(Sp, reply); if (Sr) { const Fr = rvFacts(Sp, Sr, { to: reply.to, pc: reply.pc }, opp), ft = rvFactTexts(Fr, reply, N, V);
-                    const parts = []; if (reply.cap) parts.push(`${N(reply.cap)} 잡기`); parts.push(...ft);
+                    const parts = []; if (reply.cap) parts.push(`${N(reply.cap)} 잡기`); { const rc = pl.mv[2]; if (reply.cap && rc && rc.by === mover && rc.cap && rc.to === reply.to) parts.push(`${rc.from}의 ${N(rc.pc)}이 되잡아요`); } parts.push(...ft);
                     if (parts.length) add(B, V('rl', '상대 응수', '예상 반격'), `<b>${rvMvKo(reply, N, Sp)}</b> — ${parts.join(' · ')}`); } }
                 if (Fp.hang.length) { const sameInBest = Sb ? new Set(Fb.hang.map(x => x.to)) : null, seenTo = new Set();
                     const unique = Fp.hang.filter(x => (!sameInBest || !sameInBest.has(x.to)) && !seenTo.has(x.to) && seenTo.add(x.to) && !(reply && reply.cap && reply.to === x.to));
@@ -6477,6 +6478,146 @@
             }
             return out;
         }
+        // ---- v3.91: 수의 의도(계획) 읽기 — '준비 수 → 퀸 교환 제안 → 축복받은 상대 퀸 제거'처럼 몇 수에 걸친 노림을 알아본다 ----
+        // 퀸 교환 제안: 퀸을 비잡기로 내밀었는데, 상대 퀸이 잡아도 곧바로 되잡혀 손해가 없는 수. S = 그 퀸을 둘 차례(mover)인 판, bless = 상대의 아기 축복
+        function rvTradeOffers(S, bless) {
+            const out = [];
+            for (const mo of S.moves()) {
+                if (mo.captured || mo.piece !== 'q') continue;
+                let u = null, info = null;
+                try {
+                    u = botMake(S, mo);
+                    const takes = S.moves().filter(x => x.to === mo.to && x.captured && x.captured !== 'k');
+                    if (takes.length) {
+                        let safe = true, pick = null;
+                        for (const t of takes) {
+                            const tp = S.get(t.from) || {}; let u2 = null, re = null;
+                            try { u2 = botMake(S, t); re = S.moves().find(x => x.to === mo.to && x.captured); } finally { if (u2) { try { botUnmake(S, u2); } catch (e) {} } }
+                            if (!re || t.piece !== 'q') { safe = false; break; }   // 되잡히지 않거나, 퀸보다 싼 기물이 잡을 수 있으면 교환 제안이 아니다
+                            if (!pick || (bless && tp.uid === bless.qUid)) pick = { from: t.from, uid: tp.uid, re: { from: re.from, pc: re.piece } };
+                        }
+                        if (safe && pick) info = { from: mo.from, to: mo.to, taker: pick, baby: !!(bless && pick.uid === bless.qUid) };
+                    }
+                } catch (e) {} finally { if (u) { try { botUnmake(S, u); } catch (e) {} } }
+                if (info) out.push(info);
+            }
+            return out;
+        }
+        // 준비 수가 만든 계획을 끝까지 진행해 본다: P(둔 수) → 상대 응수(엔진) → O(교환 제안) → 이후 엔진 응수. 반환: { ok, mv, net, sc, end } (sc = O 직후 상대 차례 기준 점수)
+        function rvPlanLine(stateStr, P, O, fixedReply) {
+            const pa = BOT.ana; BOT.ana = true;
+            try {
+                deserializeGameState(stateStr, true);
+                const mv = [];
+                const play = x0 => { const all = game.moves(), mo = all.find(y => y.from === x0.from && y.to === x0.to); if (!mo) return false;
+                    const by = game.turn(); mv.push({ from: mo.from, to: mo.to, pc: mo.piece, cap: mo.captured || null, by }); botMake(game, mo); return true; };
+                if (!play(P)) return { ok: false, mv };
+                let b = fixedReply || botFindMove({ timeMs: 220, maxDepth: 10, ana: true }); if (!b || !play(b)) return { ok: false, mv };
+                const reply = mv[1];
+                if (!play(O)) return { ok: false, mv, blockedBy: reply };
+                let sc = null;
+                for (let k = 0; k < 4; k++) {
+                    if (k >= 2 && !mv[mv.length - 1].cap) break;
+                    b = botFindMove({ timeMs: 220, maxDepth: 10, ana: true }); if (!b) break;
+                    if (k === 0) sc = b.__score;
+                    if (!play(b)) break;
+                }
+                return { ok: true, mv, sc, end: cloneGameState(game), reply };
+            } finally { BOT.ana = pa; }
+        }
+        function rvPlanRead(c) {   // 반환: { kind: 'offer'(이 수가 곧 교환 제안) | 'setup'(다음 수의 교환 제안을 가능하게 하는 준비 수), o, bless, rem } 또는 null. 끝나면 판은 prev 상태로 돌려 둔다
+            const { prev, f, mover, opp, frames, idx } = c;
+            try {
+                deserializeGameState(prev.s, true);
+                const be = babyEffect[opp], bless = (be && be.remaining > 0) ? be : null; if (!bless) return null;   // 아기 축복이 걸린 상대 퀸이 있을 때만 읽는다 (일반 퀸 교환은 흔해서 계획으로 보지 않는다)
+                let hasQ = false; game.board().forEach(row => row.forEach(pc => { if (pc && pc.color === mover && pc.type === 'q') hasQ = true; })); if (!hasQ) return null;
+                let adj = false; { const sq = {}; game.board().forEach((row, r) => row.forEach((pc, cc) => { if (pc && pc.color === opp && (pc.uid === bless.kUid || pc.uid === bless.qUid)) sq[pc.uid] = [r, cc]; }));
+                    const a = sq[bless.kUid], b = sq[bless.qUid]; adj = !!(a && b && Math.max(Math.abs(a[0] - b[0]), Math.abs(a[1] - b[1])) <= 1); }
+                const S0 = cloneGameState(game), keyOf = o => o.from + o.to, before = rvTradeOffers(S0, bless).filter(o => o.baby);
+                const played = before.find(o => keyOf(o) === f.from + f.to);
+                if (played) {
+                    let follow = null;   // 앞서 둔 내 수가 이 교환을 받쳐 주는가 (되잡는 기물이 직전에 옮겨 둔 기물)
+                    if (frames && typeof idx === 'number') for (let k = idx - 1; k >= 1; k--) { const g = frames[k]; if (g && g.kind === 'move' && g.by === mover) { if (g.to === played.taker.re.from) follow = { from: g.from, to: g.to }; break; } }
+                    return { kind: 'offer', o: played, bless, rem: bless.remaining, adj, follow };
+                }
+                const Sp = rvAfterMove(S0, { from: f.from, to: f.to, p: null }); if (!Sp) return null;
+                const fresh = rvTradeOffers(rvNullTurn(Sp), bless).filter(o => o.baby && !before.some(b => keyOf(b) === keyOf(o)));
+                if (!fresh.length) return null;
+                fresh.sort((a, b) => (b.taker.re.from === f.to ? 1 : 0) - (a.taker.re.from === f.to ? 1 : 0));
+                return { kind: 'setup', o: fresh[0], bless, rem: bless.remaining, adj, viaPlayed: fresh[0].taker.re.from === f.to };
+            } catch (e) { return { err: String(e && e.message || e) }; }
+            finally { try { deserializeGameState(prev.s, true); } catch (e) {} }
+        }
+        // 의도를 문장으로: W 에 줄을 더한다. (goodMode: 이 수가 좋은 이유 / posPlayed: 둔 수의 좋은 점 / 그 외: 둔 수의 문제 + 추천 수와 비교)
+        function rvPlanApply(W, PLAN, c) {
+            const { prev, f, m, pl, bl, mover, opp, N, goodMode, posPlayed } = c;
+            if (!PLAN || PLAN.err || !PLAN.o) { if (PLAN && PLAN.err) W.planErr = PLAN.err; return; }
+            // 준비 수는 그 기물이 살아남아야 의미가 있다: 수 자체가 손해·메이트로 끝나는 판에서는 '계획'이라 부르지 않는다
+            if (PLAN.kind === 'setup' && ((pl && pl.net <= -2) || ['hang', 'mate', 'trade', 'left', 'gap', 'loss'].includes(W.cause))) return;
+            const o = PLAN.o, re = o.taker.re, rem = PLAN.rem, pcN = N(re.pc);
+            const cpS = v => Math.abs(v) >= BOT_MATE - 500 ? (v > 0 ? '메이트 승' : '메이트 패') : ((v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v / 100).toFixed(1));
+            const other = !goodMode && m && (m.from !== f.from || m.to !== f.to);
+            W.plan = { kind: PLAN.kind, offer: o.from + o.to };
+            // ① 의도 줄 (둔 수 / 이 수가 좋은 이유 블록에 들어간다)
+            const L = [];
+            if (PLAN.kind === 'offer') {
+                if (W.cause !== 'offer') L.push(`${o.to}에 퀸을 내밀어 교환을 제안해요. 상대 퀸이 잡으면 ${re.from}의 ${pcN}이 되잡아 퀸끼리 맞바꿔요 (득실 없음).`);
+                L.push(`교환이 이뤄지면 <b>축복받은 상대 퀸이 사라져 아기 탄생이 끊겨요</b> (남은 축복 ${rem}수).` + (PLAN.follow ? ` 앞서 ${PLAN.follow.from} → ${PLAN.follow.to}로 옮겨 둔 ${pcN}이 퀸 뒤에서 ${o.to} 칸을 받쳐 주는 계획의 실행 수예요.` : ''));
+            } else {
+                L.push(`<b>준비 수</b>예요. 다음에 퀸 ${o.from} → ${o.to}로 교환을 제안하고, 상대 퀸이 잡으면 ${re.from}의 ${pcN}이 되잡아 <b>축복받은 상대 퀸을 없앨</b> 수 있어요 (남은 축복 ${rem}수).${PLAN.viaPlayed ? ` 이 수 전에는 ${o.to} 칸을 받쳐 줄 기물이 없어 못 하던 일이에요.` : ''}`);
+            }
+            // ② 계획 점검 / 추천과 비교
+            const rows = [], reasons = [];
+            let alive = null, planEval = null, recEval = null;
+            try {   // 상대의 예상 응수 뒤에도 계획이 살아 있는가
+                deserializeGameState(prev.s, true); const S0 = cloneGameState(game), Sp = rvAfterMove(S0, { from: f.from, to: f.to, p: null }), rep = pl && pl.mv && pl.mv[1];
+                if (PLAN.kind === 'setup' && Sp && rep && rep.by === opp) {
+                    const S2 = rvAfterMove(Sp, { from: rep.from, to: rep.to, p: rep.p || null });
+                    if (S2) { alive = rvTradeOffers(S2, PLAN.bless).some(x => x.from === o.from && x.to === o.to);
+                        rows.push(['계획 점검', alive ? `상대의 예상 응수 <b>${rvMvTxt(rep)}</b> 뒤에도 교환 제안이 가능해요.` : `상대의 예상 응수 <b>${rvMvTxt(rep)}</b>가 계획의 길을 막아요.`]); }
+                }
+            } catch (e) {}
+            if (other && bl && typeof bl.sc === 'number') {
+                recEval = -bl.sc; let planEnd = null;
+                if (PLAN.kind === 'offer') { if (pl && typeof pl.sc === 'number') { planEval = -pl.sc; planEnd = pl.end; } }
+                else { try { const rp = pl && pl.mv && pl.mv[1] && pl.mv[1].by === opp ? { from: pl.mv[1].from, to: pl.mv[1].to } : null, PLN = rvPlanLine(prev.s, { from: f.from, to: f.to }, { from: o.from, to: o.to }, rp); if (PLN && PLN.ok && typeof PLN.sc === 'number') { planEval = -PLN.sc; planEnd = PLN.end; } else if (PLN && PLN.blockedBy) alive = false; } catch (e) {} }
+                if (planEval !== null) {
+                    const d = recEval - planEval; W.plan.planEval = planEval; W.plan.recEval = recEval;
+                    reasons.push(d >= 30 ? `계획대로 교환까지 가면 평가 <b>${cpS(planEval)}</b>, 추천 수는 ${cpS(recEval)} — ${(d / 100).toFixed(1)}점 차이예요.` : `계획대로 교환까지 가도 평가가 비슷해요 <small>${cpS(planEval)} ↔ ${cpS(recEval)}</small>`);
+                    if (planEnd) { try {   // 교환 뒤 내 기물이 노려지는가 (추천 수 진행에는 없는 위협만)
+                        const thr = E => { const T = E._turn === mover ? rvNullTurn(E) : E; return rvCapsFor(T, 100).filter(x => x.cap !== 'k'); };
+                        const tp = thr(planEnd), tb = (bl.end ? thr(bl.end) : []).map(x => x.to), t0 = tp.find(x => !tb.includes(x.to));
+                        if (t0) reasons.push(`교환 뒤 ${t0.to}의 ${N(t0.cap)}이 상대 ${t0.from}의 ${N(t0.pc)}에게 노려져 불안해져요.`);
+                    } catch (e) {} }
+                }
+                if (PLAN.kind === 'setup' && PLAN.adj && rem >= 2) reasons.push('준비에 한 수를 쓰는 동안 상대 킹·퀸은 붙어 있어 아기가 한 번 더 태어날 수 있어요.');
+                if (PLAN.kind === 'setup' && rem < 4) reasons.push(`축복이 ${rem}수밖에 안 남아 교환이 끝날 즈음엔 효과가 거의 없어요.`);
+                try {   // 추천 수를 먼저 두면 이 계획은 어떻게 되는가
+                    deserializeGameState(prev.s, true); const S0 = cloneGameState(game), S3 = rvAfterMove(S0, { from: m.from, to: m.to, p: m.p || null }), rep2 = bl.mv && bl.mv[1];
+                    if (S3 && rep2 && rep2.by === opp) { const S4 = rvAfterMove(S3, { from: rep2.from, to: rep2.to, p: rep2.p || null });
+                        if (S4) {
+                            if (rvTradeOffers(S4, PLAN.bless).some(x => x.from === o.from && x.to === o.to)) reasons.push(`추천 수를 둔 뒤에도 같은 교환 제안(${o.from} → ${o.to})이 가능해요. 계획을 버리는 게 아니라 순서를 바꾸는 거예요.`);
+                            else if (PLAN.kind === 'setup') { const SP = rvAfterMove(S4, { from: f.from, to: f.to, p: null }); if (SP && rvTradeOffers(rvNullTurn(SP), PLAN.bless).some(x => x.from === o.from && x.to === o.to)) reasons.push(`추천 수를 먼저 두고 이 수(${f.from} → ${f.to})는 한 수 늦춰도 계획을 이어 갈 수 있어요.`); }
+                        } }
+                } catch (e) {}
+            }
+            // ③ W 에 반영
+            if (goodMode) { W.good = L.concat(W.good).slice(0, 4); rows.forEach(r => W.goodDeep.push(r)); W.goodDeep = W.goodDeep.slice(0, 5); return; }
+            if (posPlayed) W.bad = L.concat(W.bad).slice(0, 5);
+            else if (W.cause === 'offer' && W.bad.length) W.bad = [W.bad[0]].concat(L, W.bad.slice(1)).slice(0, 5);
+            else W.bad = L.concat(W.bad).slice(0, 5);
+            const dRow = rows.slice();
+            if (other) {
+                const d = (recEval !== null && planEval !== null) ? recEval - planEval : null;
+                const head = alive === false ? `${posPlayed ? '이 수 자체는 무난해요. ' : ''}좋은 시도지만, 상대의 최선 응수로 계획이 막혀 실현하기 어려워요. 추천 수가 더 확실해요.`
+                    : d !== null && d >= 150 ? `${posPlayed ? '이 수 자체는 무난하지만, ' : ''}의도는 좋았어도 이 판에서는 교환을 실행하면 손해가 커서 추천 수가 더 나아요.`
+                    : d !== null && d >= 30 ? `${posPlayed ? '이 수 자체는 무난해요. ' : ''}좋은 시도예요. 다만 계획을 끝까지 밀면 추천 수 쪽이 더 나아요.`
+                    : `좋은 시도예요.${posPlayed ? ' 추천 수와 큰 차이는 없어요.' : ' 다만 추천 수가 한 끗 더 나아요.'}`;
+                dRow.push(['시도 vs 추천', `${head}${reasons.length ? ' ' + reasons.join(' ') : ''}`]);
+            }
+            const keepFirst = W.badDeep.filter(r => r[0] === '승률'), rest = W.badDeep.filter(r => r[0] !== '승률');
+            W.badDeep = keepFirst.concat(dRow, rest).slice(0, 7);
+        }
         function rvWhyBuild(frames, i) {   // 결과를 f.why = { bad, good, pb, pg, goodMode, badPos, err } 로 저장 (탐색 포함, 약 2~3초)
             const f = frames[i], prev = frames[i - 1], cls = f.rv && f.rv.c, goodMode = !!RV_GOOD_CLS[cls], posPlayed = cls === 'great' || cls === 'good';
             const W = f.why = { bad: [], good: [], pb: '', pg: '', goodMode, badPos: false };
@@ -6535,6 +6676,7 @@
                         return out;
                     };
                     try { rvDeepFill(W, { prev, f, m, pl, bl, mover, opp, goodMode, posPlayed, N, V }); } catch (e) { W.deepErr = String(e && e.message || e); }
+                    let PLAN = null; try { PLAN = rvPlanRead({ prev, f, mover, opp, frames, idx: i }); } catch (e) { W.planErr = String(e && e.message || e); }   // v3.91: 몇 수에 걸친 의도(준비 → 교환 제안 → 축복 퀸 제거)
                     if (goodMode) {
                         const mn = pl.sc !== null && pl.sc <= -(BOT_MATE - 500) ? Math.max(1, Math.ceil((BOT_MATE + pl.sc + 1) / 2)) : 0;
                         let g = prec ? goodWhy(prec, pf, pl, null, mn, 'g') : [];
@@ -6567,7 +6709,12 @@
                                     const mine = RV_PT[first.pc] || 0, got = first.cap ? (RV_PT[first.cap] || 0) : 0;
                                     if (first.cap && first.cap !== 'k') {
                                         if (mine > got) { cause = cause || 'trade'; W.bad.push(V('b_tr', `${N(first.cap)}을 잡긴 해도 ${tgt}에서 바로 되잡혀요. ${mine}점짜리를 내주고 ${got}점짜리를 얻는 손해 교환이에요.`, `${N(first.pc)}(${mine}점)과 ${N(first.cap)}(${got}점)의 교환이라, 값이 큰 쪽을 내주는 셈이에요.`)); }
-                                    } else { cause = cause || 'hang'; W.bad.push(V('b_hg', `둔 ${lost}이 ${tgt}에서 바로 잡혀요${big ? ' (큰 손해).' : '.'}`, `${tgt}로 나간 ${lost}을 상대가 곧장 가져가요${big ? '. 손해가 커요.' : '.'}`, `${lost}이 ${tgt}에 놓이자마자 잡히는 자리예요${big ? ' (큰 손해).' : '.'}`)); }
+                                    } else {
+                                        const rc2 = pl.mv[2], recap = !!(rc2 && rc2.by === mover && rc2.cap && rc2.to === tgt), lostPt = RV_PT[reply.cap] || 0, takerPt = RV_PT[reply.pc] || 0;   // v3.91: 잡혀도 되잡으면 '공짜로 잡힘'이 아니라 교환이다
+                                        if (recap && takerPt >= lostPt) { cause = cause || 'offer'; W.bad.push(V('b_of', `${tgt}에 ${lost}을 내밀어 교환을 제안하는 수예요. 상대가 ${N(reply.pc)}로 잡으면 ${rc2.from}의 ${N(rc2.pc)}이 되잡아요 (득실 없음).`, `${lost}을 ${tgt}에 내밀어 맞교환을 노려요. 상대가 잡아도 ${rc2.from}의 ${N(rc2.pc)}이 바로 되잡아요.`)); }
+                                        else if (recap) { cause = cause || 'trade'; W.bad.push(V('b_tr2', `${tgt}에서 되잡긴 해도 ${lost}(${lostPt}점)을 내주고 ${N(reply.pc)}(${takerPt}점)만 얻는 손해 교환이에요.`, `${lost}(${lostPt}점)과 ${N(reply.pc)}(${takerPt}점)의 교환이라, 값이 큰 쪽을 내주는 셈이에요.`)); }
+                                        else { cause = cause || 'hang'; W.bad.push(V('b_hg', `둔 ${lost}이 ${tgt}에서 바로 잡혀요${big ? ' (큰 손해).' : '.'}`, `${tgt}로 나간 ${lost}을 상대가 곧장 가져가요${big ? '. 손해가 커요.' : '.'}`, `${lost}이 ${tgt}에 놓이자마자 잡히는 자리예요${big ? ' (큰 손해).' : '.'}`)); }
+                                    }
                                 }
                                 else if (preHang.has(tgt)) { cause = cause || 'left'; W.bad.push(V('b_lf', `이미 공격받던 ${tgt}의 ${lost}을 지키지 못하고 잡혀요.`, `${tgt}의 ${lost}이 공격받고 있었는데, 이 수는 그 위협을 해결하지 못해요.`, `위협받던 ${tgt}의 ${lost}을 그대로 둔 채 다른 수를 둬서 결국 잃어요.`)); }
                                 else { cause = cause || 'gap'; W.bad.push(V('b_gp', `상대가 ${tgt}의 ${lost}을 잡을 수 있게 돼요 (이 수로 틈이 생겼어요).`, `이 수 때문에 ${tgt}의 ${lost}이 노출돼 잡힐 수 있어요.`, `상대에게 ${tgt}의 ${lost}을 잡을 기회를 내줘요.`)); }
@@ -6591,6 +6738,7 @@
                         if (goodMode) W.good = merge(W.good, A.played);
                         else if (posPlayed) { W.bad = merge(W.bad, A.played); W.good = merge(W.good, A.rec); }
                         else { W.bad = merge(W.bad, A.warn.concat(A.played)); W.good = merge(W.good, A.rec); if (A.cause && !W.cause) W.cause = A.cause; }
+                        try { rvPlanApply(W, PLAN, { prev, f, m, pl, bl, mover, opp, N, goodMode, posPlayed }); } catch (e) { W.planErr = String(e && e.message || e); }   // v3.91
                         W.augRows = A.rows && A.rows.length ? A.rows : [];   // v3.90: 판에 걸려 있던 증강을 '증강 상황' 블록으로 풀어서 보여 준다
                         if (!W.augRows.length && A.status && A.status.length) (goodMode ? W.goodDeep : W.badDeep).push(['증강', A.status.join(' · ')]);
                         if (A.err) W.augErr = A.err;
