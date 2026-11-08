@@ -312,8 +312,8 @@
         .vs-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
         .vs-title { font-size: 0.78rem; font-weight: 800; color: #e8b923; margin: -2px 0 5px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
         .vs-title:empty { display: none; }
-        .pd-tt { font-size: 0.62rem; font-weight: 800; color: #e8b923; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 1px; }
-        .rank-tt { margin-left: 6px; font-size: 0.72rem; font-weight: 800; color: #e8b923; white-space: nowrap; }
+        .pd-tt { font-size: 0.56rem; font-weight: 800; color: #e8b923; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 3px; }
+        .rank-tt { margin-left: 8px; font-size: 0.66rem; font-weight: 800; color: #e8b923; white-space: nowrap; }
         .vs-stats { font-size: 0.9rem; color: #888; white-space: pre-line; line-height: 1.5; text-align: center; }
         .vs-center { display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: var(--primary); font-style: italic; opacity: 0; animation: pop 0.5s 0.4s forwards;}
 
@@ -595,7 +595,7 @@
         .rp-seek.dragging .rp-thumb { transform: scale(1.25); }
         #rp-marks { position: absolute; left: 0; right: 0; top: 50%; height: 0; pointer-events: none; }
         #rp-marks i { position: absolute; top: -13px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: #f1c40f; opacity: 0.95; }
-        #replay-seek { position: absolute; left: -7px; top: -4px; width: calc(100% + 14px); height: calc(100% + 8px); margin: 0; opacity: 0; cursor: pointer; }
+        #replay-seek { position: absolute; left: -7px; top: calc(50% - 7px); width: calc(100% + 14px); height: 14px; margin: 0; opacity: 0; cursor: pointer; }   /* v3.85: 눌림 영역은 재생 줄(과 동그란 손잡이) 높이까지만. 줄 위에 찍힌 증강 점(−13px)은 눌러도 이동하지 않는다 */
         .replay-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
         .rp-left { display: flex; align-items: center; gap: 2px; min-width: 0; }
         .replay-row button { border: none; background: transparent; color: var(--text-color); width: 36px; height: 36px; border-radius: 50%; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -1185,7 +1185,9 @@
         #rp-why-sheet .ws-bar { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 5px 8px 3px 12px; font-size: .7rem; font-weight: 800; opacity: .8; }
         #rp-why-sheet .ws-x { border: 0; background: rgba(128,128,128,.25); color: inherit; width: 24px; height: 24px; border-radius: 50%; font-size: .75rem; line-height: 1; cursor: pointer; }
         #rp-why-sheet .rp-sug-why { flex: 1 1 auto; min-height: 0; max-height: none; padding: 0 12px 8px; -webkit-mask-image: none; mask-image: none; }
-        .why-hint { position: sticky; top: 0; z-index: 1; text-align: right; font-size: .62rem; font-weight: 800; opacity: .55; padding: 0 2px 1px; background: transparent; pointer-events: none; }
+        .why-hint { position: sticky; top: 0; z-index: 2; height: 0; pointer-events: none; }   /* v3.83: 글씨 대신 아이콘. 자리를 차지하지 않고 오른쪽 위에 떠 있다가, 글자와 겹치면 사라진다 */
+        .why-hint svg { position: absolute; right: 1px; top: 2px; width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; opacity: .5; transition: opacity .15s; }
+        .why-hint.hid svg { opacity: 0; }
         body.wide-mode .why-hint, #rp-why-sheet .why-hint { display: none; }
         .rp-sug-why.more { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent); }   /* 아래에 더 있으면 끝이 흐려진다 */
         .rp-sug-why .blk { padding: 3px 0 5px; } .rp-sug-why .blk > b { display: block; font-size: 0.7rem; font-weight: 800; opacity: .7; letter-spacing: .02em; }
@@ -1259,6 +1261,12 @@
         .mine-flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; opacity: 0.7; pointer-events: none; z-index: 1; animation: minePop 0.45s ease-out; }
         body.black-pov .mine-flash { rotate: 180deg; }
         .rp-sug-why .blk > div.mine-note { color: #f7b267; }
+            /* v3.84: 리플레이에서 지뢰·벽의 주인(흰/검) 표시 */
+        .mine-own { position: absolute; right: 9%; bottom: 9%; width: 12px; height: 12px; border-radius: 50%; border: 2px solid; pointer-events: none; z-index: 2; }
+        .own-w { background: #fff; border-color: #4a4a4a; } .own-b { background: #141414; border-color: #e8e8e8; }
+        .fx-chip .own { display: inline-block; width: 6px; height: 6px; margin-left: 2px; border-radius: 50%; border: 1px solid; box-sizing: border-box; }
+        .piece-wrapper.wall-own-w svg { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #fff); }
+        .piece-wrapper.wall-own-b svg { filter: drop-shadow(0 0 2px #000) drop-shadow(0 0 3px #000); }
     </style>
 </head>
 <body>
@@ -1276,7 +1284,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.80';
+      var VERSION = 'v3.85';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -2083,7 +2091,7 @@
         let roomListenerUnsubscribe = null;
         let saveBotReplay = true;
         let previousMove = null; const showPreviousMove = true;   // 이전 이동 표시는 항상 켜짐
-        let replayFogLock = false, replayMode = 'result', replaySavedPrev = null, historySaved = false, lastOppName = '', replayFrames = [], replayActive = false, replayIdx = 0, replayTimer = null, replayPlaying = false, replaySpeed = 1, replayFinalState = null, replayBannerTimer = null;
+        let replayFogLock = false, replayMode = 'result', replaySavedPrev = null, historySaved = false, lastOppName = '', replayNames = null, replayFrames = [], replayActive = false, replayIdx = 0, replayTimer = null, replayPlaying = false, replaySpeed = 1, replayFinalState = null, replayBannerTimer = null;
 
         // UI 오버레이 요소들
         const loginOverlay = document.getElementById('login-overlay');
@@ -2457,7 +2465,8 @@
           if (card) card.onclick = openTitlePicker;
           if (ov) { ov.addEventListener('click', e => { if (e.target === ov) closeTitlePicker(); }); document.getElementById('btn-close-title').onclick = closeTitlePicker;
             ov.querySelectorAll('.tp-tab').forEach(b => b.addEventListener('click', () => { titleFilter = b.dataset.f; renderTitlePicker(); const l = document.getElementById('tp-list'); if (l) l.scrollTop = 0; })); } }
-        function reportWinAch(ev, delay) {   // ev: { kind: 'bot', level: '하'|'중'|'상' } | { kind: 'human' }
+        function reportWinAch(ev, delay) {   // ev: { kind: 'bot', level: '하'|'중'|'상' } | { kind: 'human' } | { kind: 'aug', name }
+            if (ev.kind === 'aug' && (isBotMode || (typeof __AUG_DEMO !== 'undefined' && __AUG_DEMO))) return;   // v3.85: 증강 킬 칭호(네크로맨서·벼락 등)는 사람과의 대전(플레이어 대전)에서만 얻는다. 컴퓨터 대전·증강 체험에서는 얻지 못한다
             const a = ensureAch(), got = [];
             if (ev.kind === 'bot' && ev.level === '상') a.prog.botHard = (a.prog.botHard || 0) + 1;
             if (ev.kind === 'human') a.prog.pvpWin = (a.prog.pvpWin || 0) + 1;
@@ -2840,6 +2849,7 @@
             frames.__rvId = 'pub_' + id; setLobbyMsg(''); countRecentView(id); stopLiveList();
             modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'none';
             replayReturnTo = 'live'; replayMode = 'archive'; setReplayExitLabel(); replayFrames = frames; renderReplayMarks(); replayFinalState = null; replayQueue = [];
+            replayNames = { w: meta.wn || '', b: meta.bn || '' };
             myColor = 'w'; document.body.classList.remove('black-pov');
             playerInfo.innerText = `기록 · ${meta.wn || '백'} vs ${meta.bn || '흑'}`;
             showBoardContainer(); replayActive = true; document.body.classList.add('replay-mode', 'replay-archive');
@@ -4319,7 +4329,7 @@
             gameStartTs = 0; gameEndTs = 0; stopAugTimer(); isSystemLocked = false; selectedSquare = null; legalMoves = []; selectedAugmentIdx = -1; previousMove = null; clearPremove(); drawDots(); netQueue = []; postMovePending = 0; augBusy = false; resumePv = null; stopAwayWatch();
             muteShatter = true; drawPieces(false); muteShatter = false; updateProgressBar(); updateTurnIndicator(); updateBoardVisuals(); updateCheckStatus(); updatePreviousMoveHighlights();
             document.querySelectorAll('.floating-text').forEach(e => e.remove());
-            stopReplayUI(); replayFrames = []; historySaved = false; recordFrame('start');
+            stopReplayUI(); replayFrames = []; replayNames = null; historySaved = false; recordFrame('start');
         }
 
         function updateTurnIndicator() {
@@ -4331,6 +4341,12 @@
             turnDisplayEl.classList.toggle('my-turn', mine);
         }
 
+        // v3.84: 벽의 주인(만든 쪽). 새 벽은 기록돼 있고, 예전 기록은 리플레이에서 '차원 장벽' 증강 장면을 거슬러 찾는다
+        function wallOwnerAt(sq) {
+            const w = activeWalls.find(x => x.sq === sq); if (w && w.owner) return w.owner;
+            if (replayActive) for (let i = Math.min(replayIdx, replayFrames.length - 1); i >= 0; i--) { const f = replayFrames[i]; if (f && f.kind === 'augment' && f.name === '차원 장벽' && f.t && f.t.includes(sq)) return f.by || null; }
+            return null;
+        }
         // 기물에 걸린 효과 목록 (표시 순서 = 위에서 아래로 중요도 순)
         function statusChips(piece, sq, isReversed, blessEff) {
             const out = [], uid = piece.uid;
@@ -4338,7 +4354,7 @@
             if (rootedPieces[uid] > 0) out.push({ cls: 'c-root', icon: '🌿', n: rootedPieces[uid] });
             if (invinciblePieces[uid] > 0) out.push({ cls: 'c-inv', icon: '🛡️', n: invinciblePieces[uid] });
             if (blessEff) out.push({ cls: 'c-bless', icon: '🦢', n: blessEff.remaining });
-            if (piece.type === 'wall') { const w = activeWalls.find(x => x.sq === sq); if (w && w.duration > 0) out.push({ cls: 'c-wall', icon: '🧱', n: w.duration }); }
+            if (piece.type === 'wall') { const w = activeWalls.find(x => x.sq === sq); if (w && w.duration > 0) out.push({ cls: 'c-wall', icon: '🧱', n: w.duration, own: (replayActive || isSpectating) ? wallOwnerAt(sq) : null }); }
             if (prospects[uid] > 0) out.push({ cls: 'c-pro', icon: '🎖️', n: prospects[uid] });
             if (isReversed) out.push({ cls: 'c-rev', icon: '😵‍💫', n: reversedPawns[piece.color] });
             if (pactPieces[uid]) out.push({ cls: 'c-pact', icon: '⛓️', n: null });
@@ -4393,8 +4409,9 @@
                 const chips = statusChips(piece, sq, isReversed, isBlessed ? blessEff : null);
                 let box = el.querySelector('.fx-chips');
                 if (!box) { box = document.createElement('div'); box.className = 'fx-chips'; el.appendChild(box); }
-                const sig = chips.map(ch => ch.cls + ch.icon + (ch.n == null ? '' : ch.n)).join('|');
-                if (box.dataset.sig !== sig) { box.dataset.sig = sig; box.innerHTML = chips.map(ch => `<span class="fx-chip ${ch.cls}"><i>${ch.icon}</i>${ch.n == null ? '' : ch.n}</span>`).join(''); }
+                const sig = chips.map(ch => ch.cls + ch.icon + (ch.n == null ? '' : ch.n) + (ch.own || '')).join('|');
+                if (box.dataset.sig !== sig) { box.dataset.sig = sig; box.innerHTML = chips.map(ch => `<span class="fx-chip ${ch.cls}"><i>${ch.icon}</i>${ch.n == null ? '' : ch.n}${ch.own ? `<b class="own own-${ch.own}"></b>` : ''}</span>`).join(''); }
+                { const wo = piece.type === 'wall' && (replayActive || isSpectating) ? wallOwnerAt(sq) : null; el.classList.toggle('wall-own-w', wo === 'w'); el.classList.toggle('wall-own-b', wo === 'b'); }   // 리플레이: 벽 테두리 빛으로 주인(흰/검) 표시
 
                 // 칸 하나 = 기물 크기의 100%. translate는 자기 크기 기준 %라서 (열*100%, 행*100%)
                 if (!kickAnimating) el.classList.remove('piece-kicked');
@@ -5652,10 +5669,14 @@
                     }
                 });
             });
-            const wantMine = new Set();   // 지뢰는 설치한 사람에게만 보인다 (리플레이에서는 모두 공개)
-            mines.forEach(mi => { if (mi.owner === myColor || isSpectating || mineReveal || (replayActive && replayMode !== 'live')) wantMine.add(mi.sq); });
-            squareEls.forEach((el, sq) => { const mk = el.querySelector('.mine-mark'); if (mk && !wantMine.has(sq)) mk.remove(); });
-            wantMine.forEach(sq => { const el = squareEls.get(sq); if (!el || el.querySelector('.mine-mark')) return; const mk = document.createElement('span'); mk.className = 'mine-mark'; mk.textContent = '💣'; el.appendChild(mk); });
+            const wantMine = new Map(), showOwn = isSpectating || mineReveal || (replayActive && replayMode !== 'live');   // 지뢰는 설치한 사람에게만 보인다 (리플레이에서는 모두 공개, v3.84: 주인(흰/검) 점 표시)
+            mines.forEach(mi => { if (mi.owner === myColor || isSpectating || mineReveal || (replayActive && replayMode !== 'live')) wantMine.set(mi.sq, mi.owner); });
+            squareEls.forEach((el, sq) => { const mk = el.querySelector('.mine-mark'); if (mk && !wantMine.has(sq)) mk.remove(); const ow = el.querySelector('.mine-own'); if (ow && (!showOwn || !wantMine.has(sq) || ow.dataset.o !== wantMine.get(sq))) ow.remove(); });
+            wantMine.forEach((o, sq) => {
+                const el = squareEls.get(sq); if (!el) return;
+                if (!el.querySelector('.mine-mark')) { const mk = document.createElement('span'); mk.className = 'mine-mark'; mk.textContent = '💣'; el.appendChild(mk); }
+                if (showOwn && o && !el.querySelector('.mine-own')) { const d = document.createElement('span'); d.className = 'mine-own own-' + o; d.dataset.o = o; el.appendChild(d); }
+            });
         }
 
         function playBlasts(hit, lead = 0) {   // 폭발 연출 (양쪽 화면 모두에서 재생). lead > 0이면 터지기 전에 지뢰(💣)를 먼저 보여 준다 (리플레이는 상태에 지뢰가 이미 없다)
@@ -5927,7 +5948,8 @@
         // ---- 근거 설명(자세히): 두 수 이후의 예상 진행을 짧게 탐색해 기물 득실을 비교하고, 엔진이 확인할 수 있는 전술·위치 요인을 말한다 ----
         const RV_PT = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 }, RV_PL = { p: '', n: 'N', b: 'B', r: 'R', q: 'Q', k: 'K' };
         const rvMvTxt = x => (x.pc === 'k' && Math.abs(x.from.charCodeAt(0) - x.to.charCodeAt(0)) === 2) ? (x.to[0] === 'g' ? 'O-O' : 'O-O-O') : `${RV_PL[x.pc] || ''}${x.from}${x.cap ? '×' : '→'}${x.to}${x.p ? '=' + (RV_PL[x.p] || '') : ''}`;
-        function rvPVLine(stateStr, first, mover) {   // stateStr 판에서 first 수를 둔 뒤 컴퓨터끼리 4수(마지막이 잡기면 최대 2수 더) 진행. 탐색기와 같은 botMake로 판을 직접 진행한다(증강 상태에도 안전)
+        function rvPVLine(stateStr, first, mover) { const pa = BOT.ana; BOT.ana = true; try { return rvPVLine0(stateStr, first, mover); } finally { BOT.ana = pa; } }   // v3.81: 예상 진행도 분석 탐색과 같은 규칙(수마다 덩굴·유망주 카운터가 줄어든다)으로 진행한다
+        function rvPVLine0(stateStr, first, mover) {   // stateStr 판에서 first 수를 둔 뒤 컴퓨터끼리 4수(마지막이 잡기면 최대 2수 더) 진행. 탐색기와 같은 botMake로 판을 직접 진행한다(증강 상태에도 안전)
             deserializeGameState(stateStr, true);
             const mv = []; let sc = null;
             const play = (x0) => {
@@ -6091,6 +6113,98 @@
             }
             W.badDeep = W.badDeep.slice(0, 4); W.goodDeep = W.goodDeep.slice(0, 3);
         }
+        function rvAugNotes(c) {   // v3.83: 증강(덩굴·무적(여신의 가호·빛의 수호)·수퍼 워너비·독구름·동귀어진·장벽·자아 분열·지뢰)이 이 수의 평가에 끼친 영향을 말로 풀어 준다. 반환: { played: 둔 수의 장점, warn: 둔 수의 문제, rec: 추천 수의 장점, status: 그 판에 걸려 있던 증강 요약 }
+            const { prev, f, m, pl, mover, opp, N } = c, out = { played: [], warn: [], rec: [], status: [] };
+            deserializeGameState(prev.s, true);
+            const pros0 = {}, root0 = {}, inv0 = {}, pact0 = {}, B0 = game._board;   // 수를 두기 전의 효과가 걸린 기물: uid → { sq, color, type, rem }
+            const who = col => col === mover ? '내' : '상대', stat = [];
+            for (let r = 0; r < 8; r++) for (let cc = 0; cc < 8; cc++) {
+                const q = B0[r][cc]; if (!q || q.uid === undefined || q.type === 'wall') continue;
+                const sq = rvSqOf(r, cc);
+                if (q.type === 'p' && prospects[q.uid] > 0) { pros0[q.uid] = { sq, color: q.color, type: 'p', rem: prospects[q.uid] }; stat.push(`${who(q.color)} 수퍼 워너비 폰 ${sq}(${prospects[q.uid]}수 뒤 퀸)`); }
+                if (rootedPieces[q.uid] > 0) { root0[q.uid] = { sq, color: q.color, type: q.type, rem: rootedPieces[q.uid] }; stat.push(`${who(q.color)} ${N(q.type)} ${sq} 덩굴(${rootedPieces[q.uid]}수)`); }
+                if (invinciblePieces[q.uid] > 0) inv0[q.uid] = { sq, color: q.color, type: q.type, rem: invinciblePieces[q.uid] };
+                if (pactPieces[q.uid] && q.type !== 'k') { pact0[q.uid] = { sq, color: q.color, type: q.type }; stat.push(`${who(q.color)} ${N(q.type)} ${sq} 동귀어진`); }
+            }
+            // 무적은 폰이 여러 개일 수 있어 색·기간별로 묶어서 적는다 (빛의 수호/여신의 가호)
+            const invGroups = {};
+            for (const u in inv0) { const e = inv0[u], k = e.color + '|' + e.rem; (invGroups[k] || (invGroups[k] = { color: e.color, rem: e.rem, list: [] })).list.push(e); }
+            for (const k in invGroups) { const g = invGroups[k], pawns = g.list.filter(e => e.type === 'p'), rest = g.list.filter(e => e.type !== 'p'); const parts = rest.map(e => `${N(e.type)} ${e.sq}`); if (pawns.length) parts.push(pawns.length >= 3 ? `폰 ${pawns.length}개` : pawns.map(e => `폰 ${e.sq}`).join(', ')); stat.push(`${who(g.color)} ${parts.join('·')} 무적(${g.rem}수)`); }
+            (activePoison || []).forEach(x => stat.push(`${x.owner === mover ? '내' : '상대'} 독구름 ${x.squares.join('·')}(${x.duration}수)`));
+            (activeWalls || []).forEach(w => stat.push(`장벽 ${w.sq}(${w.duration}수)`));
+            ['w', 'b'].forEach(col => { if (reversedPawns[col] > 0) stat.push(`${who(col)} 폰 반대 방향 이동 중(${reversedPawns[col]}수)`); });
+            (mines || []).forEach(x => stat.push(`${x.owner === mover ? '내' : '상대'} 지뢰 ${x.sq}`));
+            out.status = stat.slice(0, 7);
+            const poison0 = (activePoison || []).map(x => ({ squares: x.squares.slice(), owner: x.owner, duration: x.duration }));
+            if (!Object.keys(pros0).length && !Object.keys(root0).length && !Object.keys(inv0).length && !Object.keys(pact0).length && !poison0.length) return out;
+            const S0 = cloneGameState(game), mvPc = (S0.get(f.from) || {}).type, mvUid = (S0.get(f.from) || {}).uid;
+            const tp = S0.get(f.to), capPlayed = tp && tp.color === opp ? tp : null, tr = m ? S0.get(m.to) : null, capRec = tr && tr.color === opp ? tr : null;
+            // ① 잡기: 곧 퀸이 될 상대 폰 / 덩굴에 묶여 도망칠 수 없는 상대 기물 / 동귀어진이 걸린 기물
+            if (capPlayed && pros0[capPlayed.uid]) out.played.push(`곧 퀸이 될 상대 수퍼 워너비 폰(${pros0[capPlayed.uid].rem}수 남음)을 잡아 견제했어요.`);
+            if (capPlayed && root0[capPlayed.uid]) out.played.push(`덩굴에 묶여 도망칠 수 없던 상대 ${N(capPlayed.type)}을 잡았어요.`);
+            if (capPlayed && pact0[capPlayed.uid] && mvPc !== 'k') out.warn.push(`동귀어진이 걸린 상대 ${N(capPlayed.type)}을 잡아서 내 ${N(mvPc)}도 같이 사라져요.`);
+            if (capRec && m && pros0[capRec.uid]) { const v = pros0[capRec.uid]; out.rec.push(`곧 퀸이 될 상대 수퍼 워너비 폰(${v.sq}, ${v.rem}수 남음)을 ${N(m.pc)}로 잡아 견제해요.`); if (!(capPlayed && pros0[capPlayed.uid])) out.warn.push(`${v.rem}수 뒤 퀸이 되는 상대 수퍼 워너비 폰(${v.sq})을 잡을 수 있었는데 놓쳤어요.`); }
+            if (capRec && m && root0[capRec.uid]) { const v = root0[capRec.uid]; out.rec.push(`덩굴에 묶여 도망칠 수 없는 상대 ${v.sq}의 ${N(v.type)}을 ${N(m.pc)}로 잡을 수 있어요.`); if (!(capPlayed && root0[capPlayed.uid])) out.warn.push(`덩굴에 묶여 도망칠 수 없는 상대 ${v.sq}의 ${N(v.type)}을 잡을 기회를 놓쳤어요.`); }
+            if (capRec && m && pact0[capRec.uid] && m.pc !== 'k') out.rec.push(`동귀어진이 걸린 상대 ${N(capRec.type)}과 맞바꾸는 수예요.`);
+            // ② 독구름: 상대가 만든 독 지대에 들어가면 기물이 사라진다
+            if (mvPc && mvPc !== 'k' && !inv0[mvUid] && poison0.some(x => x.owner !== mover && x.squares.includes(f.to))) out.warn.push(`독구름 지대(${f.to})에 들어가서 ${N(mvPc)}이 사라져요.`);
+            // ③ 새로 생긴 위협(견제): 곧 퀸이 될 폰 / 한동안 묶여 있을 기물을 노린다
+            const S2 = rvAfterMove(S0, { from: f.from, to: f.to, p: null }), T2 = S2 ? rvNullTurn(S2) : null;
+            const capThreats = (S, map) => { const res = new Map(); try { S.moves().forEach(mo => { if (!mo.captured) return; const t = S.get(mo.to); if (t && t.color === opp && map[t.uid] && !res.has(String(t.uid))) res.set(String(t.uid), mo); }); } catch (e) {} return res; };
+            const watch = (map, mk) => { const before = capThreats(S0, map), after = T2 ? capThreats(T2, map) : new Map(); for (const [u, mo] of after) { if (before.has(u) || (capPlayed && String(capPlayed.uid) === u)) continue; out.played.push(mk(map[u], N((T2.get(mo.from) || {}).type))); return; } };
+            const pEn = {}, rEn = {};
+            for (const u in pros0) if (pros0[u].color === opp && pros0[u].rem <= 5) pEn[u] = pros0[u];
+            for (const u in root0) if (root0[u].color === opp && root0[u].rem >= 2 && root0[u].type !== 'p') rEn[u] = root0[u];
+            watch(pEn, (v, a) => `곧 퀸이 될 상대 수퍼 워너비 폰(${v.sq}, ${v.rem}수 남음)을 ${a}로 노려 견제해요.`);
+            watch(rEn, (v, a) => `덩굴에 묶인 상대 ${v.sq}의 ${N(v.type)}을 ${a}로 노려요. 묶여 있는 동안은 피할 수 없어요.`);
+            // ④ 내 수퍼 워너비 폰이 노려지고 있었는데 지켰다
+            try {
+                const mineP = Object.keys(pros0).filter(u => pros0[u].color === mover && pros0[u].rem <= 4);
+                if (mineP.length && S2) {
+                    const hitSq = new Set(rvCapsFor(rvNullTurn(S0), 0).filter(x => x.cap === 'p').map(x => x.to)), after = new Set(rvCapsFor(S2, 0).filter(x => x.cap === 'p').map(x => x.to));
+                    for (const u of mineP) { const v = pros0[u], sq = v.sq === f.from ? f.to : v.sq; if (hitSq.has(v.sq) && !after.has(sq)) { out.played.push(`곧 퀸이 될 내 수퍼 워너비 폰(${v.sq})이 노려지고 있었는데 지켜요.`); break; } }
+                }
+            } catch (e) {}
+            // ⑤ 덩굴·무적: 수를 둔 뒤 카운터가 1씩 줄어든 상태로 본다
+            const attackedAt = (S, sq, by) => { try { const x = S.sqToRC(sq); return S.isSquareAttacked(x.r, x.c, by); } catch (e) { return false; } };
+            if (S2 && Object.keys(root0).length) {
+                const postR = {}; for (const u in root0) if (root0[u].rem - 1 > 0) postR[u] = root0[u].rem - 1;
+                const saved = rootedPieces, dest = f.to, pt = (S2.get(dest) || {}).type;
+                try {
+                    rootedPieces = postR;
+                    if (pt && pt !== 'k' && !attackedAt(S2, dest, opp)) {
+                        for (const u in postR) {
+                            const e = root0[u]; if (e.color !== opp) continue;
+                            const w = Object.assign({}, postR); delete w[u]; rootedPieces = w;
+                            if (attackedAt(S2, dest, opp)) { out.played.push(`상대 ${e.sq}의 ${N(e.type)}이 덩굴에 묶여 있어서 ${dest}의 ${N(pt)}은 잡히지 않아요 (${postR[u]}수 더).`); break; }
+                        }
+                    }
+                    rootedPieces = postR;
+                    const mvs = S2.moves();
+                    for (const u in root0) { const e = root0[u]; if (e.color !== opp || e.rem - 1 > 0) continue; if (mvs.some(mo => mo.from === e.sq && mo.to === dest && mo.captured)) { out.warn.push(`${e.sq}의 ${N(e.type)}을 묶던 덩굴이 이 수 뒤에 풀려서 ${dest}의 ${N(mvPc)}을 바로 잡을 수 있어요.`); break; } }
+                } finally { rootedPieces = saved; }
+            }
+            const mvInv = mvUid !== undefined ? inv0[mvUid] : null;   // 내가 움직인 기물이 무적(여신의 가호·빛의 수호)인가
+            if (S2 && mvInv && mvInv.color === mover && mvInv.rem - 1 > 0) {
+                const savedI = invinciblePieces; let att = false;
+                try { invinciblePieces = {}; att = attackedAt(S2, f.to, opp); } finally { invinciblePieces = savedI; }
+                if (att) out.played.push(`무적 상태라(${mvInv.rem - 1}수 더) ${f.to}로 나가도 잡히지 않아요.`);
+                try {
+                    const hit = T2 && T2.moves().find(mo => mo.from === f.to && mo.captured && (BOT_VAL[mo.captured] || 0) >= 300 && mo.captured !== 'k');
+                    if (hit && !capPlayed) out.played.push(`무적인 동안 ${N(mvPc)}로 상대 ${N(hit.captured)}을 노려요. 반격을 받아도 잡히지 않아요.`);
+                } catch (e) {}
+            }
+            // ⑥ 예상 진행에서 내 유망주 폰 / 묶인 기물 / 무적이 끝난 기물이 잡힌다
+            const reply = pl && pl.mv && pl.mv[1];
+            if (reply && reply.by === opp && reply.cap) {
+                let done = false;
+                for (const u in root0) { const e = root0[u]; if (e.color === mover && e.sq !== f.from && reply.to === e.sq) { out.warn.push(`덩굴에 묶여 움직일 수 없는 내 ${e.sq}의 ${N(e.type)}이 잡혀요.`); done = true; break; } }
+                if (!done) for (const u in inv0) { const e = inv0[u]; if (e.color === mover && e.rem <= 1 && e.sq !== f.from && reply.to === e.sq) { out.warn.push(`${e.sq}의 ${N(e.type)}을 지키던 무적이 이 수 뒤에 끝나서 바로 잡혀요.`); done = true; break; } }
+                if (!done) for (const u in pros0) { const e = pros0[u], sq = e.sq === f.from ? f.to : e.sq; if (e.color === mover && reply.to === sq) { out.warn.push(`곧 퀸이 될 내 수퍼 워너비 폰(${sq})이 잡혀요.`); break; } }
+                for (const u in pact0) { const e = pact0[u], sq = e.sq === f.from ? f.to : e.sq; if (e.color === mover && reply.to === sq) { out.played.push(`동귀어진이 걸린 내 ${N(e.type)}이 잡혀도 상대 기물이 함께 사라져요.`); break; } }
+            }
+            return out;
+        }
         function rvWhyBuild(frames, i) {   // 결과를 f.why = { bad, good, pb, pg, goodMode, badPos, err } 로 저장 (탐색 포함, 약 2~3초)
             const f = frames[i], prev = frames[i - 1], cls = f.rv && f.rv.c, goodMode = !!RV_GOOD_CLS[cls], posPlayed = cls === 'great' || cls === 'good';
             const W = f.why = { bad: [], good: [], pb: '', pg: '', goodMode, badPos: false };
@@ -6149,7 +6263,7 @@
                             g.unshift(`${N(prec.pc)}을 ${f.to}에 내주는 희생수예요. 상대가 잡아도 ${pl.net >= 0 ? '이후 진행에서 손해를 되찾아요.' : '공격 기회와 위치 이득이 손해보다 크다고 분석돼요.'}`);
                         if (cls === 'book') g.unshift('오프닝 이론(정석)에 있는 수예요.');
                         if (amv) g.unshift(`다만 상대가 ${N(amv.pc)}로 ${amv.to}에서 바로 체크메이트를 걸 수 있는 판이에요 (다른 수로도 피하기 어려워요).`);
-                        if (!g.length) g.push(cls === 'brilliant' ? '겉보기와 달리 최선에 가깝다고 분석된 의외의 수예요.' : '분석한 최선의 수와 같아요. 눈에 띄는 전술은 없지만 위치상 가장 좋은 선택이에요.');
+                        if (!g.length) g.push(cls === 'brilliant' ? '겉보기와 달리 최선에 가깝다고 분석된 의외의 수예요.' : (m && (m.from !== f.from || m.to !== f.to)) ? '분석한 최선의 수와 점수 차이가 거의 없는 좋은 수예요.' : '분석한 최선의 수와 같아요. 눈에 띄는 전술은 없지만 위치상 가장 좋은 선택이에요.');
                         W.good = g.slice(0, 3);
                     } else {
                         // 둔 수 쪽
@@ -6174,6 +6288,14 @@
                         // 추천 수 쪽
                         W.good = goodWhy(m, mf, bl, pl.net, typeof m.sc === 'number' && m.sc >= BOT_MATE - 500 ? rvMatN(m.sc) : 0).slice(0, 3);
                     }
+                    // v3.81: 덩굴·수퍼 워너비 같은 증강이 이 수에 끼친 영향 (탐색기는 이제 이런 효과를 수마다 줄여 가며 보지만, 말로도 짚어 준다)
+                    try {
+                        const A = rvAugNotes({ prev, f, m, pl, mover, opp, N }), merge = (arr, add) => add.length ? arr.slice(0, Math.max(1, 3 - add.length)).concat(add).slice(0, 3) : arr;
+                        if (goodMode) W.good = merge(W.good, A.played);
+                        else if (posPlayed) { W.bad = merge(W.bad, A.played); W.good = merge(W.good, A.rec); }
+                        else { W.bad = merge(W.bad, A.warn); W.good = merge(W.good, A.rec); }
+                        if (A.status && A.status.length) (goodMode ? W.goodDeep : W.badDeep).push(['증강', A.status.join(' · ')]);   // 그 판에 걸려 있던 증강을 한 줄로
+                    } catch (e) { W.augErr = String(e && e.message || e); }
                 } catch (e) { W.err = String(e && e.message || e); }
                 finally { botRestore(snap); moveCount = sv.mc; pendingAugments = sv.pa; activeAugmentOptions = sv.ao; activeAugmentPlayerColor = sv.ap; selectedAugmentIdx = sv.si; }
             }
@@ -6185,6 +6307,7 @@
             const lossTxt = typeof f.rv.loss === 'number' ? Math.round(f.rv.loss * 100) : 0;
             if (goodMode) { if (!W.good.length) W.good.push('분석상 좋은 수예요.'); }
             else {
+                if (!W.bad.length && f.rv.cp >= 100) W.bad.push(`이미 한쪽으로 크게 기운 판이라 승률은 거의 그대로지만, 추천 수보다 평가가 약 ${(f.rv.cp / 100).toFixed(1)}점(폰 ${Math.round(f.rv.cp / 100)}개 정도) 불리해져요.`);
                 if (!W.bad.length) W.bad.push(lossTxt >= 4 ? `뚜렷한 기물 손실은 없지만 위치가 나빠져요(기물 활동성·킹 안전·주도권). 분석상 승률이 약 ${lossTxt}%p 낮아져요.` : '큰 차이는 아니지만 더 정확한 수가 있었어요.');
                 if (!W.good.length) W.good.push(lossTxt >= 2 ? `전술적인 이득은 없어도 위치가 더 좋아요 (승률 약 ${lossTxt}%p 차이).` : '분석상 가장 유리한 수예요.');
             }
@@ -6253,7 +6376,7 @@
                     if (W.deepErr) h += `<div class="err">추가 분석 오류: ${String(W.deepErr).replace(/</g, '&lt;')}</div>`;
                     if (W.err) h += `<div class="err">설명 생성 중 오류: ${String(W.err).replace(/</g, '&lt;')}</div>`;
                 }
-                why.innerHTML = h ? '<div class="why-hint">탭하면 크게 보기 ⤢</div>' + h : ''; why.scrollTop = 0; why.style.display = h ? '' : 'none'; if (!h) rvWhySheet(false);
+                why.innerHTML = h ? '<div class="why-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M10 21H3v-7M21 3l-7.5 7.5M3 21l7.5-7.5"/></svg></div>' + h : ''; why.scrollTop = 0; rvWhyIconBind(why); why.style.display = h ? '' : 'none'; if (!h) rvWhySheet(false);
                 why.onclick = e => { const b = e.target && e.target.closest ? e.target.closest('.pv-play') : null, tg = e.target && e.target.closest ? e.target.closest('.pv-tg') : null; if (tg) { rvPvFold(why, tg, i); return; } if (b) rvPvToggle(i, b.dataset.k, b); else if (!document.body.classList.contains('wide-mode') || document.body.classList.contains('why-sheet')) { if (!(window.getSelection && String(window.getSelection()))) rvWhySheet(); } };
             }
         }
@@ -6494,24 +6617,34 @@
                     else if (!nx) { deserializeGameState(f.s, true); if (game.moves().length === 0) ps = game.in_check(game.turn()) ? BOT_MATE : 0; }
                     if (ps === null) { deserializeGameState(prev.s, true); ps = rvScoreMove(mv, Math.max(1, best.__depth || 1)); }
                 }
-                let cls = 'none', loss = 0;
+                let cls = 'none', loss = 0, cpl0 = 0;
                 if (ps !== null) {
                     bestScore = Math.max(bestScore, ps);
                     const wb = rvWp(bestScore), wpp = rvWp(ps); loss = Math.max(0, wb - wpp);
+                    // v3.82: 한쪽이 크게 앞서거나 뒤진 판에서는 승률이 포화돼(±1500점에서 잘림) 기물을 공짜로 내줘도 '손실 0'이 된다. 그런 판은 점수 차이(센티폰)로도 등급을 매긴다.
+                    const cpl = bestScore - ps, decisive = Math.abs(bestScore) >= 600 && Math.abs(bestScore) < BOT_MATE - 500 && Math.abs(ps) < BOT_MATE - 500;
                     const isBest = (best.from === f.from && best.to === f.to) || ps >= bestScore - 8;
                     let sac = false;
                     if (loss <= 0.02 && wb > 0.2 && wb < 0.85 && wpp > 0.3) { deserializeGameState(f.s, true); sac = rvIsSacrifice(f, mv); }
                     if (sac) cls = 'brilliant';
                     else if (wb >= 0.75 && loss >= 0.12 && wpp >= 0.35) cls = 'miss';
-                    else if (isBest || loss <= 0.004) cls = 'best';
+                    else if (isBest || (loss <= 0.004 && !(decisive && cpl > 40))) cls = 'best';
                     else if (loss <= 0.02) cls = 'great';
                     else if (loss <= 0.05) cls = 'good';
                     else if (loss <= 0.10) cls = 'inaccuracy';
                     else if (loss <= 0.20) cls = 'mistake';
                     else cls = 'blunder';
-                    if (forceBlunder) { cls = 'blunder'; loss = Math.max(loss, 0.5); }   // v3.73: 체크메이트를 허용한 수는 항상 블런더
+                    let cpNote = 0;
+                    if (decisive && cpl > 40 && ['best', 'great', 'good', 'inaccuracy', 'mistake'].includes(cls)) {   // 이기고 있을 때는 조금 더 너그럽게(2.2배)
+                        const T = cpl / (bestScore > 0 ? 2.2 : 1), ord = ['best', 'great', 'good', 'inaccuracy', 'mistake', 'blunder'];
+                        const tier = T <= 40 ? 'best' : T <= 90 ? 'great' : T <= 160 ? 'good' : T <= 300 ? 'inaccuracy' : T <= 550 ? 'mistake' : 'blunder';
+                        if (ord.indexOf(tier) > ord.indexOf(cls)) { cls = tier; loss = Math.max(loss, { great: 0.01, good: 0.03, inaccuracy: 0.07, mistake: 0.14, blunder: 0.24 }[tier]); }
+                        if (cpl >= 100) cpNote = Math.round(cpl);
+                    }
+                    if (forceBlunder) { cls = 'blunder'; loss = Math.max(loss, 0.5); }
+                    if (cpNote && cls !== 'blunder') cpl0 = cpNote;   // v3.73: 체크메이트를 허용한 수는 항상 블런더
                 }
-                f.rv = { c: cls, loss: +loss.toFixed(3) };
+                f.rv = { c: cls, loss: +loss.toFixed(3) }; if (cpl0) f.rv.cp = cpl0;   // cp: 점수 차이가 승률에 안 드러나는 판에서 설명용
             } finally {
                 botRestore(snap); moveCount = sv.mc; pendingAugments = sv.pa; activeAugmentOptions = sv.ao; activeAugmentPlayerColor = sv.ap; selectedAugmentIdx = sv.si;
             }
@@ -6657,9 +6790,10 @@
         const RV_CODE = { brilliant: 'B', best: 'b', great: 'g', good: 'o', book: 'k', inaccuracy: 'i', mistake: 'm', blunder: 'x', miss: 's', forced: 'f', none: 'n' };
         const RV_DECODE = Object.fromEntries(Object.entries(RV_CODE).map(([k, v]) => [v, k]));
         const RV_LS = 'augchess_rv_', RV_LS_KEYS = 'augchess_rv_keys', RV_LS_MAX = 60;
-        function rvEncode(frames) { return 'B' + frames.map(f => f && f.kind === 'move' && f.rv ? (RV_CODE[f.rv.c] || 'n') : '.').join(''); }
+        function rvEncode(frames) { return 'D' + frames.map(f => f && f.kind === 'move' && f.rv ? (RV_CODE[f.rv.c] || 'n') : '.').join(''); }
         function rvApply(frames, str) {   // 저장된 결과를 프레임에 채운다 (이미 분석된 수는 그대로 둔다)
-            if (typeof str !== 'string' || str[0] !== 'B' || str.length !== frames.length + 1) return 0;   // v3.74: 표식이 없는 옛 분석은 버리고 다시 분석한다 (v3.78: 'A' → 'B', 강제 수 등급 추가)
+            if (typeof str !== 'string' || str.length !== frames.length + 1) return 0;
+            if (str[0] !== 'D') return 0;   // v3.82: 표식 'D' = 점수 차이를 함께 보는 분석. 이전 표식('B'·'C')은 승률이 포화된 판(크게 앞서거나 뒤진 판)을 잘못 평가했을 수 있어 버리고 다시 분석한다
             let n = 0; for (let i = 0; i < frames.length; i++) { const c = RV_DECODE[str[i + 1]]; if (c && frames[i].kind === 'move' && !frames[i].rv) { frames[i].rv = { c, loss: 0 }; n++; } }
             return n;
         }
@@ -6733,10 +6867,17 @@
             } finally { __timeScale = 1; }
             return ms;
         }
+        // v3.84: 리플레이 표시용 플레이어 이름. 기록을 여는 곳에서 replayNames({w, b})를 채우고, 없으면 지금 경기의 내 이름/상대 이름을 쓴다
+        function replayPlayerName(c) {
+            let n = replayNames && replayNames[c];
+            if (!n) { try { if (isSpectating && typeof liveMeta !== 'undefined' && liveMeta) n = c === 'w' ? liveMeta.wn : liveMeta.bn; else n = myColor === c ? (userProfile && userProfile.name) : lastOppName; } catch (e) {} }
+            return n ? String(n) : '';
+        }
         function replayLabelParts(i) {
             const f = replayFrames[i], cn = c => c === 'w' ? '백' : c === 'b' ? '흑' : '', count = `${i} / ${replayFrames.length - 1}`;
-            if (f.kind === 'move') return { count, text: `${cn(f.by)} ${f.from} → ${f.to}${f.captured ? ' ✕' : ''}` };
-            if (f.kind === 'augment') return { count, text: `${cn(f.by)} ${f.icon || ''} ${f.name}`.trim() };
+            const nm = c => { const n = replayPlayerName(c); return n ? `(${n.length > 7 ? n.slice(0, 6) + '…' : n})` : ''; }, side = c => cn(c) + (c ? nm(c) : '');
+            if (f.kind === 'move') return { count, text: `${side(f.by)} ${f.from} → ${f.to}${f.captured ? ' ✕' : ''}` };
+            if (f.kind === 'augment') return { count, text: `${side(f.by)} ${f.icon || ''} ${f.name}`.trim() };
             return { count, text: f.kind === 'resume' ? '불러온 시점' : '경기 시작' };
         }
         function replayMarkChecks() {
@@ -7065,6 +7206,7 @@
             frames.__rvId = entry.id; frames.__rvSrv = !entry.local && !!myUid; if (entry.rv) frames.__rvHint = entry.rv;
             document.getElementById('history-overlay').style.display = 'none'; mainLobbyOverlay.style.display = 'none';
             replayMode = 'archive'; setReplayExitLabel(); replayFrames = frames; renderReplayMarks(); replayFinalState = null; replayQueue = [];
+            { let me = '나'; try { me = (userProfile && userProfile.name) || '나'; } catch (e) {} replayNames = entry.color === 'b' ? { w: entry.opp || '', b: me } : { w: me, b: entry.opp || '' }; }
             myColor = entry.color || 'w'; document.body.classList.toggle('black-pov', myColor === 'b');
             playerInfo.innerText = `기록 보기 · vs ${entry.opp}`;
             showBoardContainer(); replayActive = true; document.body.classList.add('replay-mode', 'replay-archive');
@@ -7134,6 +7276,21 @@
             const sh = document.getElementById('rp-why-sheet'), slot = document.getElementById('rp-why-slot'), cont = document.getElementById('board-container'); if (!sh || !slot || !cont) return;
             const top = Math.round(cont.getBoundingClientRect().bottom + 6), bottom = Math.round(window.innerHeight - slot.getBoundingClientRect().bottom);
             const fr = document.getElementById('game-frame').getBoundingClientRect(); sh.style.top = top + 'px'; sh.style.bottom = Math.max(0, bottom) + 'px'; sh.style.left = Math.round(fr.left) + 'px'; sh.style.width = Math.round(fr.width) + 'px'; sh.style.transform = 'none';
+        }
+        // v3.83: '크게 보기' 아이콘 — 아이콘 자리에 글자가 지나가면(스크롤·줄바꿈) 사라지고, 비면 다시 나타난다
+        function rvWhyIcon(why) {
+            const ic = why && why.querySelector('.why-hint'); if (!ic || !ic.firstElementChild) return;
+            const r = ic.firstElementChild.getBoundingClientRect(); if (!r.width) return;
+            let hit = false; const rg = document.createRange(), pad = 4;
+            const tw = document.createTreeWalker(why, NodeFilter.SHOW_TEXT, { acceptNode: n => (n.nodeValue.trim() && !(n.parentNode.closest && n.parentNode.closest('.why-hint'))) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
+            for (let n; !hit && (n = tw.nextNode());) { rg.selectNodeContents(n); for (const q of rg.getClientRects()) { if (q.width && q.right > r.left - pad && q.left < r.right + pad && q.bottom > r.top - pad && q.top < r.bottom + pad) { hit = true; break; } } }
+            ic.classList.toggle('hid', hit);
+        }
+        let rvWhyIconRaf = 0;
+        function rvWhyIconSoon(why) { if (rvWhyIconRaf) return; rvWhyIconRaf = requestAnimationFrame(() => { rvWhyIconRaf = 0; try { rvWhyIcon(why); } catch (e) {} }); }
+        function rvWhyIconBind(why) {
+            if (!why.__ic) { why.__ic = 1; why.addEventListener('scroll', () => rvWhyIconSoon(why), { passive: true }); window.addEventListener('resize', () => rvWhyIconSoon(why)); }
+            rvWhyIconSoon(why); setTimeout(() => rvWhyIconSoon(why), 250);
         }
         function rvWhySheet(open) {
             const why = document.getElementById('rp-sug-why'); if (!why) return; const isOpen = document.body.classList.contains('why-sheet');
@@ -7826,7 +7983,9 @@
             kmg: [-30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30, -20,-30,-30,-40,-40,-30,-30,-20, -10,-20,-20,-20,-20,-20,-20,-10, 20,20,0,0,0,0,20,20, 20,30,10,0,0,10,30,20],
             keg: [-50,-40,-30,-20,-20,-30,-40,-50, -30,-20,-10,0,0,-10,-20,-30, -30,-10,20,30,30,20,-10,-30, -30,-10,30,40,40,30,-10,-30, -30,-10,30,40,40,30,-10,-30, -30,-10,20,30,30,20,-10,-30, -30,-30,0,0,0,0,-30,-30, -50,-30,-30,-30,-30,-30,-30,-50]
         };
-        const BOT_PASSED = [0, 8, 14, 24, 44, 74, 118, 0];   // 전진한 칸 수(0~7)에 따른 통과폰 보너스
+        const BOT_PASSED = [0, 8, 14, 24, 44, 74, 118, 0];
+        // v3.81: 수퍼 워너비(유망주) 폰의 값어치 — 남은 수가 적을수록 퀸에 가깝다 (폰 값 위에 더해진다). 분석 전용.
+        const botProspectBonus = n => Math.round((BOT_VAL.q - BOT_VAL.p) * (n <= 1 ? 0.9 : n === 2 ? 0.75 : n <= 4 ? 0.55 : n <= 6 ? 0.4 : 0.28));   // 전진한 칸 수(0~7)에 따른 통과폰 보너스
 
         // 평가: 현재 둘 차례인 쪽 기준 점수 (센티폰)
         function botEvaluate(S) {
@@ -7839,6 +7998,11 @@
                 if (t === 'q' && babyEffect[p.color] && p.uid === babyEffect[p.color].qUid) bq[p.color] = { r, c };
                 if (t === 'k') { if (w) wk = { r, c }; else bk = { r, c }; continue; }
                 mat += sg * BOT_VAL[t]; pstMg += sg * BOT_PST[t][idx];
+                if (BOT.ana) {   // v3.81: 증강 상태 반영 (분석 전용) — 곧 퀸이 될 유망주 폰은 더 값지고, 한동안 풀리지 않을 덩굴에 묶인 기물은 값어치가 깎인다
+                    const pr = prospects[p.uid], rt = rootedPieces[p.uid];
+                    if (t === 'p' && pr > 0) pstMg += sg * botProspectBonus(pr);
+                    if (rt > 1) pstMg -= sg * Math.round(BOT_VAL[t] * 0.02 * Math.min(rt, 6));
+                }
                 if (t === 'p') { pf[p.color][c]++; pawns.push({ r, c, w }); }
                 else { npm += BOT_VAL[t]; if (t === 'b') { if (w) wBish++; else bBish++; } if (t === 'r') rooks.push({ r, c, w });
                     if ((t === 'n' || t === 'b') && r === (w ? 7 : 0)) minorsHome[p.color]++; }
@@ -7893,9 +8057,61 @@
             const base = 64 * 14, cs = S.castling; let extra = (S._turn === 'w' ? 1 : 0) | (cs.w.k ? 2 : 0) | (cs.w.q ? 4 : 0) | (cs.b.k ? 8 : 0) | (cs.b.q ? 16 : 0);
             if (S.ep_square) extra |= 32 | ((S.ep_square.charCodeAt(0) - 97) << 6);
             const z = BOT_Z[base + (extra % 40)]; h1 ^= z[0] ^ (extra * 2654435761 >>> 0); h2 ^= z[1];
+            if (BOT.ana) {   // v3.81: 같은 판이라도 덩굴·무적·유망주 남은 수가 다르면 다른 국면이다
+                let fx = 0;
+                for (const k in rootedPieces) fx = (Math.imul(fx, 31) + (parseInt(k) || 0) * 8 + rootedPieces[k]) | 0;
+                for (const k in invinciblePieces) fx = (Math.imul(fx, 37) + (parseInt(k) || 0) * 16 + invinciblePieces[k]) | 0;
+                for (const k in prospects) fx = (Math.imul(fx, 41) + (parseInt(k) || 0) * 32 + prospects[k]) | 0;
+                if (reversedPawns.w > 0 || reversedPawns.b > 0) fx = (Math.imul(fx, 43) + reversedPawns.w * 64 + reversedPawns.b) | 0;
+                for (const w of activeWalls) fx = (Math.imul(fx, 47) + w.duration * 5 + 1) | 0;
+                for (const x of activePoison) fx = (Math.imul(fx, 53) + x.duration * 7 + 3) | 0;
+                if (fx) { h1 ^= Math.imul(fx, 0x9E3779B1) >>> 0; h2 ^= Math.imul(fx, 40503) >>> 0; }
+            }
             return (h1 >>> 0) * 2097152 + ((h2 >>> 0) & 0x1FFFFF);
         }
 
+        // v3.81: 분석 탐색 전용 — 실제 경기의 handlePostMove처럼 수마다 덩굴·무적·유망주 카운터를 줄이고, 끝난 유망주 폰은 퀸으로 승급시킨다 (botUnmake가 되돌린다).
+        //        이걸 하지 않으면 탐색기는 덩굴이 '영원히' 안 풀리는 줄 알고, 수퍼 워너비는 '영원히 폰'인 줄 안다. (실제 봇의 탐색은 그대로 둔다)
+        function botFxTick(S, u) {
+            let any = false;
+            for (const k in rootedPieces) { any = true; break; }
+            if (!any) for (const k in invinciblePieces) { any = true; break; }
+            if (!any) for (const k in prospects) { any = true; break; }
+            if (!any && (reversedPawns.w > 0 || reversedPawns.b > 0 || activeWalls.length || activePoison.length)) any = true;
+            if (!any) return;
+            const fx = {
+                r: Object.assign({}, rootedPieces), i: Object.assign({}, invinciblePieces), p: Object.assign({}, prospects), promo: null,
+                rp: { w: reversedPawns.w, b: reversedPawns.b }, ru: { w: reversedUids.w, b: reversedUids.b },
+                aw: activeWalls.map(w => ({ w, d: w.duration })), ap: activePoison.map(x => ({ x, d: x.duration })), wl: null
+            };
+            for (const k in rootedPieces) if (--rootedPieces[k] <= 0) delete rootedPieces[k];
+            for (const k in invinciblePieces) if (--invinciblePieces[k] <= 0) delete invinciblePieces[k];
+            const done = [];
+            for (const k in prospects) if (--prospects[k] <= 0) { delete prospects[k]; done.push(k); }
+            if (done.length) {
+                const B = S._board;
+                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const q = B[r][c]; if (q && q.type === 'p' && done.includes(String(q.uid))) { (fx.promo || (fx.promo = [])).push({ r, c, q }); B[r][c] = { ...q, type: 'q' }; } }
+            }
+            for (const c of ['w', 'b']) if (reversedPawns[c] > 0 && --reversedPawns[c] <= 0) reversedUids[c] = {};   // 자아 분열
+            if (activeWalls.length) {   // 차원 장벽: 기간이 끝난 벽은 판에서 사라진다
+                const B = S._board, keep = []; fx.wl = [];
+                for (const w of activeWalls) { if (--w.duration <= 0) { const x = S.sqToRC(w.sq); fx.wl.push({ r: x.r, c: x.c, q: B[x.r][x.c] }); B[x.r][x.c] = null; } else keep.push(w); }
+                activeWalls = keep;
+            }
+            if (activePoison.length) { for (const x of activePoison) x.duration--; activePoison = activePoison.filter(x => x.duration > 0); }   // 독구름
+            u.fx = fx;
+        }
+        function botFxUndo(S, fx) {
+            const B = S._board;
+            if (fx.wl) for (const x of fx.wl) B[x.r][x.c] = x.q;
+            if (fx.promo) for (const x of fx.promo) B[x.r][x.c] = x.q;
+            for (const k in rootedPieces) delete rootedPieces[k]; Object.assign(rootedPieces, fx.r);
+            for (const k in invinciblePieces) delete invinciblePieces[k]; Object.assign(invinciblePieces, fx.i);
+            for (const k in prospects) delete prospects[k]; Object.assign(prospects, fx.p);
+            reversedPawns.w = fx.rp.w; reversedPawns.b = fx.rp.b; reversedUids.w = fx.ru.w; reversedUids.b = fx.ru.b;
+            activeWalls = fx.aw.map(e => { e.w.duration = e.d; return e.w; });
+            activePoison = fx.ap.map(e => { e.x.duration = e.d; return e.x; });
+        }
         // 두었다가 되돌리기 (castling/ep/승급/동귀어진 포함)
         function botMake(S, m) {
             const B = S._board, fc = m.from.charCodeAt(0) - 97, fr = 56 - m.from.charCodeAt(1), tc = m.to.charCodeAt(0) - 97, tr = 56 - m.to.charCodeAt(1);
@@ -7911,10 +8127,16 @@
             const vic = cap || u.epPc;   // 동귀어진: 잡은 기물도 함께 사라진다 (킹은 제외)
             if (vic && pactPieces[vic.uid] && piece.type !== 'k') { u.pact = B[tr][tc]; B[tr][tc] = null; }
             if (BOT.mineSet.size) { const key = String.fromCharCode(97 + tc) + (8 - tr); if (BOT.mineSet.has(key) && B[tr][tc]) { BOT.mineSet.delete(key); u.mine = key; if (B[tr][tc].type !== 'k') { u.mined = B[tr][tc]; B[tr][tc] = null; } } }   // 지뢰: 밟은 기물 파괴(킹은 폭발만), 지뢰도 사라진다
+            if (BOT.ana && activePoison.length) {   // v3.83: 독구름 — 상대가 만든 독 지대에 들어간 기물은 사라진다 (킹·무적 제외)
+                const pc = B[tr][tc];
+                if (pc && pc.type !== 'k' && pc.type !== 'wall' && !invinciblePieces[pc.uid]) { const key = String.fromCharCode(97 + tc) + (8 - tr); if (activePoison.some(x => x.owner !== pc.color && x.squares.includes(key))) B[tr][tc] = null; }
+            }
+            if (BOT.ana) botFxTick(S, u);
             return u;
         }
         function botUnmake(S, u) {
             const B = S._board, cs = S.castling;
+            if (u.fx) botFxUndo(S, u.fx);
             if (u.mine) BOT.mineSet.add(u.mine);
             if (u.pact) B[u.tr][u.tc] = u.pact;
             B[u.fr][u.fc] = u.piece; B[u.tr][u.tc] = u.cap;
@@ -8016,7 +8238,8 @@
         }
 
         // 지금 둘 차례의 최선 수를 찾는다. opts: { timeMs, maxDepth, spread(센티폰: 최선과 이 차이 안의 수 중 무작위), fixedDepth }
-        function botSyncMines() { const bc = myColor === 'w' ? 'b' : 'w'; BOT.mineSet = new Set(mines.filter(x => x.owner === bc).map(x => x.sq)); }   // 봇은 자기가 묻은 지뢰만 안다 (상대 지뢰는 보지 못한다)
+        function botSyncMines() { const bc = BOT.ana ? game.turn() : (myColor === 'w' ? 'b' : 'w');   // v3.83: 분석에서는 수를 둘 차례인 쪽(복기 대상)이 아는 지뢰 = 자기가 묻은 지뢰
+             BOT.mineSet = new Set(mines.filter(x => x.owner === bc).map(x => x.sq)); }   // 봇은 자기가 묻은 지뢰만 안다 (상대 지뢰는 보지 못한다)
         function botFindMove(opts) {   // v3.74: opts.ana(분석 전용 탐색: 가지치기·빠른 합법 판정), opts.stopFrac(다음 깊이를 시작하는 시간 한도 비율)
             if (opts.ana === undefined) return botFindMoveRaw(opts);
             const prevAna = BOT.ana; BOT.ana = !!opts.ana;
@@ -8207,7 +8430,7 @@
               condition: () => getEmptySquares().length > 0,
               apply: (m, e, target) => { const sq = (target && !game.get(target)) ? target : shuffle(getEmptySquares())[0];
                   if (mines.some(x => x.sq === sq)) { mines = mines.filter(x => x.sq !== sq); return { t: [sq], vfx: 'vfx-heal', blasts: [sq], msg: '💥 장벽이 지뢰와 함께 폭발했습니다!' }; }   // 지뢰 위에 세우면 벽과 지뢰가 모두 사라진다
-                  game.put({ type: 'wall', color: 'none' }, sq); activeWalls.push({ sq: sq, duration: 10 }); return { t: [sq], vfx: 'vfx-heal', msg: '차원 장벽이 생성되었습니다!' }; } },
+                  game.put({ type: 'wall', color: 'none' }, sq); activeWalls.push({ sq: sq, duration: 10, owner: m }); return { t: [sq], vfx: 'vfx-heal', msg: '차원 장벽이 생성되었습니다!' }; } },
             { name: '자아 분열', icon: '😵‍💫', desc: '적 폰들이 방향 감각을 잃고 {6수} 동안 [반대 방향]으로 움직입니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(e, 'p').length > 0,
               apply: (m, e) => { reversedPawns[e] = 6; reversedUids[e] = {}; findPieces(e, 'p').forEach(sq => { reversedUids[e][game.get(sq).uid] = true; }); return { t: findPieces(e, 'p'), vfx: 'vfx-void', msg: '😵‍💫 적 폰들이 방향 감각을 잃었습니다!' }; } },
             { name: '잭팟', icon: '🎰', desc: '이제부터 자신에게 나오는 증강 선택지가 {1개} [늘어납니다].', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => jackpotBonus[m] < 1,
