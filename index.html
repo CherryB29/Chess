@@ -95,7 +95,7 @@
         }
         
         .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; border-radius: 4px; }
-        #squares-layer { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); pointer-events: auto; }
+        #squares-layer { container-type: inline-size; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); pointer-events: auto; }
         .square { display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s; box-sizing: border-box;}
         .square.light { background-color: var(--board-light); }
         .square.dark { background-color: var(--board-dark); }
@@ -659,7 +659,7 @@
         #game-frame #replay-bar { width: 100%; max-width: none; margin: 0; padding: 6px 0 0; background: none; border: none; border-top: 1px solid var(--panel-border); border-radius: 0; }
 
         /* 지뢰 / 유망주 / 채팅 입력창 */
-        .mine-mark { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; opacity: 0.55; pointer-events: none; z-index: 1; }
+        .mine-mark { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-size: clamp(1.5rem, 6.4cqw, 4.5rem); opacity: 0.55; pointer-events: none; z-index: 1; }
         body.black-pov .mine-mark { rotate: 180deg; }
         .piece-prospect { filter: drop-shadow(0 0 5px rgba(255,215,0,0.9)); }
 
@@ -918,6 +918,18 @@
         .cl-aug b { font-weight: 800; }
         .cl-div { flex: 0 0 auto; align-self: stretch; height: 1px; margin: 4px 6px 8px; background: linear-gradient(90deg, transparent, rgba(243,156,18,0.55) 15%, rgba(243,156,18,0.55) 85%, transparent); }   /* 증강을 고른 뒤 구간을 나눈다 */
         body.wide-mode.replay-mode:not(.live-review) #chat-log { visibility: hidden; }   /* 리플레이 중에는 채팅 기록 칸을 비워 둔다(안내 문구 포함) */
+        /* 가로 모드 리플레이: 비어 있는 채팅 기록 칸을 '추천 수 / 좋은 이유' 분석으로 채운다 (분석 패널을 이 칸으로 옮겨 온다, rvWhyHome) */
+        body.wide-mode #game-frame > #rp-sug-why { grid-column: 2; grid-row: 3; margin: 0 16px; padding: 2px 4px 8px; max-height: none; min-height: 0; overflow-y: auto; font-size: .92rem; line-height: 1.55; }
+        body.wide-mode #game-frame > #rp-sug-why .blk { padding: 6px 0 8px; }
+        body.wide-mode #game-frame > #rp-sug-why .blk > b { font-size: .8rem; }
+        body.wide-mode #game-frame > #rp-sug-why .blk > b + div { font-size: .98rem; line-height: 1.5; margin-top: 2px; }
+        body.wide-mode #game-frame > #rp-sug-why .deep { font-size: .84rem; margin-top: 5px; gap: 9px; }
+        body.wide-mode #game-frame > #rp-sug-why .deep .tg { font-size: .68rem; min-width: 4.8em; }
+        body.wide-mode #game-frame > #rp-sug-why .tip { font-size: .82rem; margin-top: 6px; padding: 5px 9px; }
+        body.wide-mode #game-frame > #rp-sug-why .pv { font-size: .78rem; }
+        body.wide-mode #game-frame > #rp-sug-why .pv-tg { font-size: .8rem; }
+        body.wide-mode #game-frame > #rp-sug-why .err { font-size: .76rem; }
+        body.wide-mode:not(.replay-mode) #rp-sug-why, body.wide-mode.live-review #rp-sug-why { display: none !important; }   /* 기록 보기 바가 없는 상태에서는 분석 패널도 숨긴다(채팅 기록과 겹치지 않게) */
         .cl-aug .cl-aug-by { color: #9a9aa8; font-size: 0.74rem; }
         body.wide-mode #cast-text { left: var(--bcx, 50%); top: var(--bcy, 50%); width: var(--bcw, 100%); }   /* 가로 모드: '증강 발동!' 문구도 판 정중앙에 */
         /* 증강 선택: 판 위에 띄운다 (판 영역만 덮고, 오른쪽 패널은 그대로 보인다) */
@@ -1181,10 +1193,10 @@
         .rp-rv-btn.sug.on { background: #81b64c; color: #14210a; }
         .rp-rv-btn.sug:disabled { opacity: .6; }
         .rp-sug-why { padding: 2px 2px 6px; font-size: 0.74rem; line-height: 1.45; font-weight: 600; max-height: var(--why-h, 9em); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
-        #rp-why-sheet { position: fixed; left: 50%; transform: translateX(-50%); width: min(400px, calc(100% - 16px)); z-index: 220; display: flex; flex-direction: column; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 14px; box-shadow: 0 -6px 24px rgba(0,0,0,.45); overflow: hidden; }
+        #rp-why-sheet { position: fixed; left: 50%; transform: translateX(-50%); width: min(400px, calc(100% - 16px)); z-index: 220; display: flex; flex-direction: column; background: var(--panel-bg); border: 1px solid var(--panel-border); border-top: 0; border-radius: 0 0 20px 20px; box-shadow: none; box-sizing: border-box; overflow: hidden; }   /* 떠 있는 카드가 아니라, 판 아래 재생 바 자리까지 틀 안을 꽉 채운다 */
         #rp-why-sheet .ws-bar { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 5px 8px 3px 12px; font-size: .7rem; font-weight: 800; opacity: .8; }
         #rp-why-sheet .ws-x { border: 0; background: rgba(128,128,128,.25); color: inherit; width: 24px; height: 24px; border-radius: 50%; font-size: .75rem; line-height: 1; cursor: pointer; }
-        #rp-why-sheet .rp-sug-why { flex: 1 1 auto; min-height: 0; max-height: none; padding: 0 12px 8px; -webkit-mask-image: none; mask-image: none; }
+        #rp-why-sheet .rp-sug-why { flex: 1 1 auto; min-height: 0; max-height: none; padding: 0 12px 16px; -webkit-mask-image: none; mask-image: none; }
         .why-hint { position: sticky; top: 0; z-index: 2; height: 0; pointer-events: none; }   /* v3.83: 글씨 대신 아이콘. 자리를 차지하지 않고 오른쪽 위에 떠 있다가, 글자와 겹치면 사라진다 */
         .why-hint svg { position: absolute; right: 1px; top: 2px; width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; opacity: .5; transition: opacity .15s; }
         .why-hint.hid svg { opacity: 0; }
@@ -1195,11 +1207,37 @@
         .rp-sug-why .deep { display: flex; align-items: baseline; gap: 7px; font-size: .7rem; font-weight: 600; margin: 3px 0 0; line-height: 1.45; color: #d6d6df; }
         .rp-sug-why .deep .tg { flex: 0 0 auto; min-width: 4.3em; text-align: center; font-size: .6rem; font-weight: 800; padding: 1px 6px; border-radius: 999px; background: currentColor; }
         .rp-sug-why .deep .tg { background: rgba(255,255,255,.1); color: #bdbdca; }
+        .rp-sug-why .blk.aug { color: #c9b8ff; margin-top: 4px; padding-top: 7px; border-top: 1px dashed rgba(255,255,255,.14); }   /* v3.90: 증강 상황 블록 */
+        .rp-sug-why .blk.aug .deep .tg { background: rgba(176,124,255,.18); color: #c9b3ff; } .rp-sug-why .blk.aug .deep small { display: block; margin: 1px 0 0; }
         .rp-sug-why .blk.bad .deep .tg { background: rgba(232,160,126,.16); color: #e8a07e; } .rp-sug-why .blk.good .deep .tg { background: rgba(166,214,122,.15); color: #a6d67a; }
         .rp-sug-why .deep .tx { flex: 1; min-width: 0; word-break: keep-all; } .rp-sug-why .deep small { opacity: .62; font-size: .92em; margin-left: 2px; } .rp-sug-why .deep b { color: #fff; font-weight: 800; }
         .rp-sug-why .tip { font-size: .68rem; font-weight: 700; margin-top: 3px; padding: 3px 7px; border-radius: 6px; background: rgba(255,255,255,.07); color: #d9d9e2; }
         .rp-sug-why .tip::before { content: '배울 점  '; opacity: .65; }
         .rp-sug-why .err { font-size: .66rem; color: #8a8a96; padding-top: 2px; }
+        /* 분석 패널 스크롤바: 화살표 버튼·흰 바탕 없이 가늘고 어두운 막대만 */
+        .rp-sug-why::-webkit-scrollbar { width: 6px; height: 6px; }
+        .rp-sug-why::-webkit-scrollbar-track { background: transparent; }
+        .rp-sug-why::-webkit-scrollbar-thumb { background: rgba(128,128,128,.35); border-radius: 999px; }
+        .rp-sug-why::-webkit-scrollbar-thumb:hover { background: rgba(128,128,128,.55); }
+        .rp-sug-why::-webkit-scrollbar-button, .rp-sug-why::-webkit-scrollbar-corner { display: none; width: 0; height: 0; background: transparent; }
+        @supports not selector(::-webkit-scrollbar) { .rp-sug-why { scrollbar-width: thin; scrollbar-color: rgba(128,128,128,.45) transparent; } }
+        /* 분석 글 속 칸 이름(h1, e3 ...): 색을 달리하고, 누르면 판에서 그 칸을 강조한다 */
+        .rp-sug-why .sq-ref { color: #6cb8ff; font-weight: 800; cursor: pointer; padding: 0 2px; border-radius: 5px; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: background .15s; }
+        .rp-sug-why .sq-ref:hover { background: rgba(108,184,255,.16); }
+        /* 칸/기물 강조: 주변을 살짝 어둡게 했다가 걷고, 칸은 얇은 테두리가, 기물은 통통 튀며 커졌다 작아진다 (눈이 아래 글자에 있어도 보이도록) */
+        #sug-layer .sq-dim { animation: sqDim 1.15s ease-in-out 1 both; pointer-events: none; }
+        @keyframes sqDim { 0% { opacity: 0; } 18% { opacity: 1; } 72% { opacity: 1; } 100% { opacity: 0; } }
+        #sug-layer .sq-hl { animation: sqFlash 1.15s ease-in-out 1 both; }
+        @keyframes sqFlash { 0% { opacity: 0; } 18% { opacity: 1; } 72% { opacity: 1; } 100% { opacity: 0; } }
+        .piece-wrapper.piece-sqhl svg { transform-origin: 50% 80%; animation: pieceSqHl .8s cubic-bezier(.3,.7,.4,1) 1; }
+        @keyframes pieceSqHl {
+            0%   { transform: scale(1); filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4)) drop-shadow(0 0 0 rgba(77,171,247,0)); }
+            25%  { transform: scale(1.2, 1.12); filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4)) drop-shadow(0 0 3px rgba(77,171,247,.95)); }
+            48%  { transform: scale(.95, .97); filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4)) drop-shadow(0 0 2px rgba(77,171,247,.7)); }
+            70%  { transform: scale(1.08); filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4)) drop-shadow(0 0 2px rgba(77,171,247,.4)); }
+            100% { transform: scale(1); filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4)) drop-shadow(0 0 0 rgba(77,171,247,0)); }
+        }
+        @media (prefers-reduced-motion: reduce) { #sug-layer .sq-hl, #sug-layer .sq-dim, .piece-wrapper.piece-sqhl svg { animation-duration: .01s; } }
         .rp-sug-why .bad { color: #e8a07e; } .rp-sug-why .good { color: #a6d67a; }
         .rp-sug-why .pv-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 3px; }
         .rp-sug-why .pv-row .pv { flex: 1; min-width: 0; }
@@ -1258,11 +1296,11 @@
         .rv-load-box.prep .rv-load-bar, .rv-load-box.prep #rv-load-txt, .rv-load-box.prep #rv-load-skip { display: none; }
         .rv-load-box.prep small { margin-bottom: 4px; }
             /* v3.80: 리플레이에서 터지기 전 지뢰 표시 / '지뢰를 밟았다' 설명 문구 색 */
-        .mine-flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; opacity: 0.7; pointer-events: none; z-index: 1; animation: minePop 0.45s ease-out; }
+        .mine-flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-size: clamp(1.5rem, 6.4cqw, 4.5rem); opacity: 0.7; pointer-events: none; z-index: 1; animation: minePop 0.45s ease-out; }
         body.black-pov .mine-flash { rotate: 180deg; }
         .rp-sug-why .blk > div.mine-note { color: #f7b267; }
             /* v3.84: 리플레이에서 지뢰·벽의 주인(흰/검) 표시 */
-        .mine-own { position: absolute; right: 9%; bottom: 9%; width: 12px; height: 12px; border-radius: 50%; border: 2px solid; pointer-events: none; z-index: 2; }
+        .mine-own { position: absolute; right: 9%; bottom: 9%; width: 12px; height: 12px; width: clamp(12px, 1.9cqw, 24px); height: clamp(12px, 1.9cqw, 24px); border-radius: 50%; border: 2px solid; border-width: clamp(2px, 0.3cqw, 4px); pointer-events: none; z-index: 2; }
         .own-w { background: #fff; border-color: #4a4a4a; } .own-b { background: #141414; border-color: #e8e8e8; }
         .fx-chip .own { display: inline-block; width: 6px; height: 6px; margin-left: 2px; border-radius: 50%; border: 1px solid; box-sizing: border-box; }
         .piece-wrapper.wall-own-w svg { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #fff); }
@@ -1284,7 +1322,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.85';
+      var VERSION = 'v3.87';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -1661,10 +1699,8 @@
         <div class="replay-row">
             <div class="rp-left">
                 <button id="rp-play" type="button" class="rp-play" aria-label="재생/정지"></button>
-                <button id="rp-first" type="button" aria-label="처음"></button>
                 <button id="rp-prev" type="button" aria-label="이전"></button>
                 <button id="rp-next" type="button" aria-label="다음"></button>
-                <button id="rp-last" type="button" aria-label="끝"></button>
             </div>
             <button id="rp-speed" type="button" class="rp-pill">1x</button>
         </div>
@@ -6059,62 +6095,285 @@
             return out.sort((a, b) => Math.abs(b.d) - Math.abs(a.d)).slice(0, 2);
         }
         const rvCpTxt = cp => Math.abs(cp) >= BOT_MATE - 500 ? (cp > 0 ? '체크메이트 승' : '체크메이트 패') : ((cp > 0 ? '+' : '') + (cp / 100).toFixed(1));
-        function rvFactTexts(F, rec, N) {   // 사실을 짧은 명사구로 (문장 끝 조사 문제를 피한다)
-            const t = [];
-            if (F.mate) { t.push(F.backRank ? '백랭크 체크메이트 (킹이 자기 기물에 막힘)' : '체크메이트'); return t; }
-            if (F.check) t.push(F.flight <= 1 ? `체크 (킹이 갈 곳이 거의 없음, 응수 ${F.replies}가지)` : '체크');
-            if (F.forks.length >= 2) t.push(`포크 (${F.forks.map(c => N(c.cap) + ' ' + c.to).join(' + ')} 동시 공격)`);
-            if (F.disc.length) t.push(`발견 공격 (${N(F.disc[0].cap)} ${F.disc[0].to})`);
-            if (F.pins.length) { const p = F.pins[0]; t.push(`핀 (${N(p.pt)} ${p.pinned}이 ${p.king ? '킹' : N(p.behind)} 앞에 묶임)`); }
+        // ---- v3.86: 분석 문장 다듬기 — 같은 뜻을 여러 문장으로 돌려 쓰고, 포지션 요인·형세·배울 점을 사람이 읽기 좋은 말로 풀어 준다 ----
+        //      문구는 (수 번호 + 문구 이름)으로 고정해서 뽑는다: 같은 수를 다시 열어도 같은 문장이 나오고, 수마다는 다르게 읽힌다.
+        const rvHash = s => { s = String(s); let h = 2166136261; for (let k = 0; k < s.length; k++) { h ^= s.charCodeAt(k); h = Math.imul(h, 16777619); } return h >>> 0; };
+        const rvVarOf = seed => (key, ...opts) => opts[rvHash(seed + '|' + key) % opts.length];
+        const RV_TERM_UP = {   // 평가 요소가 좋아질 때 (앞에 '예상 진행에서'·'추천 수는' 등이 붙어도 어색하지 않은 서술)
+            pst: ['기물이 더 활동적인 칸으로 옮겨가요', '기물들의 배치가 한결 좋아져요', '기물이 중심 쪽에서 힘을 받아요'],
+            king: ['킹이 더 안전한 자리를 잡아요', '킹 주변이 한결 든든해져요'],
+            pair: ['비숍 두 개의 짝을 지켜 내요', '비숍 쌍의 이점을 계속 가져가요'],
+            rook: ['룩이 열린 줄을 차지해 활동성이 커져요', '룩이 길이 트인 줄로 나가 힘을 써요'],
+            pawn: ['폰 구조가 튼튼해져요', '흩어진 폰들이 서로 받쳐 주는 모양이 돼요'],
+            passed: ['통과폰이 승급에 한 걸음 가까워져요', '막아설 폰이 없는 통과폰이 힘을 얻어요'],
+            shield: ['킹 앞의 폰 방패가 단단하게 유지돼요', '킹을 가려 주는 폰 방패를 지켜 내요'],
+            dev: ['잠자던 기물이 전투에 참여해요', '기물 개발이 한 박자 빨라져요'],
+            mop: ['종반에서 상대 킹을 구석으로 몰아붙여요', '상대 킹을 가장자리로 몰며 마무리에 가까워져요']
+        };
+        const RV_TERM_DOWN = {   // 평가 요소가 나빠질 때
+            pst: ['기물이 소극적인 자리에 머물러요', '기물의 활동 공간이 줄어들어요', '기물들이 중심에서 멀어져 힘을 잃어요'],
+            king: ['킹이 위험한 자리에 놓여요', '킹 주변이 허술해져요'],
+            pair: ['비숍 쌍의 이점을 잃어요', '비숍 두 개의 짝이 깨져요'],
+            rook: ['룩이 길이 막힌 줄에 갇혀요', '룩이 열린 줄을 활용하지 못해요'],
+            pawn: ['폰 구조가 흐트러져요 (겹폰·고립폰)', '폰들이 서로 받쳐 주지 못하는 모양이 돼요'],
+            passed: ['통과폰의 힘이 약해져요', '통과폰이 승급에서 멀어져요'],
+            shield: ['킹 앞의 폰 방패가 얇아져요', '킹을 가려 주던 폰 방패가 약해져요'],
+            dev: ['기물 개발이 늦어져요', '잠자는 기물이 그대로 남아요'],
+            mop: ['종반에서 상대 킹을 몰아붙일 기회가 줄어요', '상대 킹이 구석에서 멀어져요']
+        };
+        function rvTermSay(V, tag, k, up) { const a = (up ? RV_TERM_UP : RV_TERM_DOWN)[k]; return a ? V(tag + k, ...a) : `${RV_TERM_NAME[k] || k}${up ? '이 좋아져요' : '이 나빠져요'}`; }
+        const rvWpWord = w => w >= 80 ? '승기를 굳히는 흐름' : w >= 60 ? '한 발 앞서는 흐름' : w >= 42 ? '팽팽한 균형' : w >= 25 ? '밀리지만 버티는 흐름' : '어려운 판에서 최대한 버티는 수';
+        function rvSituation(S, mover) {   // 수를 두기 전 판의 국면(남은 기물 값)과 기물 점수 차 (둔 쪽 기준, 센티폰)
+            const T = rvTerms(S), B = S._board; let npm = 0;
+            for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const p = B[r][c]; if (!p || p.type === 'wall' || p.type === 'k' || p.type === 'p') continue; npm += BOT_VAL[p.type] || 0; }
+            return { adv: (mover === 'w' ? 1 : -1) * T.mat, ph: npm >= 5200 ? 0 : npm >= 2800 ? 1 : 2 };
+        }
+        function rvSitText(V, s) {
+            const ph = ['초반전', '중반전', '종반전'][s.ph] || '', a = Math.abs(s.adv) / 100, n = a.toFixed(1);
+            const adv = a < 0.8 ? V('sa0', '기물 점수는 비슷해요', '기물 균형이 팽팽해요', '기물은 서로 엇비슷해요')
+                : s.adv > 0 ? V('sa1', `내가 기물 ${n}점 앞서 있어요`, `기물 점수가 내 쪽으로 +${n} 기울어 있어요`)
+                : V('sa2', `내가 기물 ${n}점 뒤져 있어요`, `기물 점수가 ${n}점 밀리는 상황이에요`);
+            return `${ph} · ${adv}`;
+        }
+        function rvTip(V, o) {   // 배울 점 한 줄 — 원인(o.cause)·전술(o.tact)·포지션 요인(o.key)·형세(o.adv)에 맞춰 고른다
+            if (o.good) {
+                if (o.cls === 'brilliant') return V('t_br', '희생수는 잃는 것보다 얻는 것이 큰지 3수 앞까지 세어 본 뒤에 두세요. 근거 없는 희생은 그냥 손해예요.', '기물을 내줄 땐 "받은 뒤에 내게 남는 공격"이 있는지 먼저 확인하세요. 이 수는 그 답이 분명했어요.');
+                if (o.tact === 'mate') return V('t_mt', '상대 킹 주변이 자기 기물로 막혀 있는지 늘 살펴보세요. 막혀 있으면 체크 한 번이 곧 메이트예요.', '메이트는 킹이 도망칠 빈 칸을 세는 데서 시작해요. 빈 칸이 없다면 체크부터 찾아보세요.');
+                if (o.tact === 'fork') return V('t_fk', '포크는 상대 기물 두 개가 한 기물의 공격 범위에 동시에 들어올 때 생겨요. 상대 기물의 배치를 먼저 훑어보세요.', '두 기물을 한 번에 노리는 칸이 있는지 찾아보세요. 나이트가 특히 자주 이런 칸을 만들어요.');
+                if (o.tact === 'pin') return V('t_pn', '핀은 뒤에 더 중요한 기물이 있는 줄에서 생겨요. 킹과 퀸이 놓인 직선을 먼저 살펴보세요.', '움직이면 더 큰 기물이 노출되는 상대 기물은 사실상 꼼짝 못 해요. 그런 기물을 찾아내는 눈이 중요해요.');
+                if (o.tact === 'disc') return V('t_dc', '발견 공격은 비켜나는 기물이 동시에 위협까지 걸 때 가장 강력해요. 내 기물이 길을 막고 있는지 살펴보세요.', '뒤에 있는 비숍·룩·퀸의 길을 내 기물이 막고 있다면, 위협을 하며 비켜날 수 있는지 찾아보세요.');
+                if (o.tact === 'check') return V('t_ck', '체크는 상대의 선택지를 줄여 주지만, 다음 수에 이어질 위협이 없으면 힘만 빼요. 체크 뒤의 계획을 함께 세워 두세요.', '체크는 템포를 얻는 도구예요. 상대가 킹을 피하는 사이에 내 기물이 더 좋은 자리로 갈 수 있는지 보세요.');
+                if (o.cls === 'book') return V('t_bk', '정석을 알아 두면 초반 시간을 아끼고 흔한 함정도 피할 수 있어요.', '오프닝 정석은 수많은 대국으로 검증된 길이에요. 첫 몇 수는 외워 두면 든든해요.');
+                return '';
+            }
+            const c = o.cause, a = o.adv || 0;
+            if (c === 'mate') return V('t_m', '두기 전에 상대의 체크·잡기부터 확인하세요. 킹 주변이 막혀 있으면 체크 한 번이 곧 메이트예요.', '수를 확정하기 전에 "상대에게 체크메이트 수가 있나?"를 꼭 한 번 물어보세요. 킹 앞이 자기 기물로 막힌 판이 가장 위험해요.');
+            if (c === 'hang' || c === 'left') return V('t_h', '두기 전에 "지켜지지 않은 내 기물이 없나?"와 "이 수로 지키던 기물이 빠지지 않나?"를 확인하세요.', '수를 확정하기 직전에 내 기물을 한 번 훑어보세요. 공격받는데 지켜 주는 기물이 없는 기물이 있다면 먼저 해결해야 해요.');
+            if (c === 'trade') return V('t_tr', '기물 값은 폰 1, 나이트·비숍 3, 룩 5, 퀸 9로 세면 쉬워요. 교환할 땐 잃는 값이 얻는 값보다 크지 않은지 비교하세요.', '교환은 숫자 싸움이에요. 큰 기물로 작은 기물을 잡으면 되잡혔을 때 손해가 되는 경우가 많아요.');
+            if (c === 'gap') return V('t_g', '상대의 가장 큰 잡기를 먼저 보세요. 내 수가 만든 빈틈이 그 자리인 경우가 많아요.', '수를 두면 어떤 기물의 보호가 풀리는지 확인하세요. 지키던 기물이 빠지면 그 뒤가 무너져요.');
+            if (c === 'king') return V('t_k', '캐슬링 전에 킹을 움직이면 킹 안전과 룩 연결을 함께 잃어요.', '킹은 캐슬링으로 먼저 안전하게 숨기고, 중앙에서 싸움이 커지기 전에는 움직이지 않는 편이 좋아요.');
+            if (c === 'queen') return V('t_q', '퀸은 기물 개발이 어느 정도 끝난 뒤에 활약해도 늦지 않아요. 나이트·비숍을 먼저 꺼내 보세요.', '퀸이 일찍 나서면 상대 기물이 퀸을 쫓으며 템포를 얻어요. 가벼운 기물부터 내보내는 게 정석이에요.');
+            if (c === 'miss') return V('t_ms', '수를 두기 전에 "상대가 공짜로 내준 기물이 있나?"를 먼저 훑어보세요. 잡을 수 있는 기물은 항상 확인할 가치가 있어요.', '내 계획에 빠지기 전에 잡기·체크·위협을 먼저 모두 살펴보는 습관을 들이면 놓치는 기회가 크게 줄어요.');
+            if (c === 'loss') return V('t_l', '당장 잡히지 않아도 몇 수 뒤에 손해가 이어질 수 있어요. 상대의 응수를 2~3수 앞까지 따라가 보세요.', '한 수만 보면 안전해 보여도 두세 수 뒤에 무너지는 경우가 많아요. 상대의 가장 아픈 응수를 먼저 떠올려 보세요.');
+            if (c === 'rev') return V('t_rv', '자아 분열 중에는 폰의 방향이 거꾸로예요. 칸이 안전한지 볼 때 폰의 공격 방향부터 뒤집어서 확인하고, 효과가 끝나는 수도 세어 두세요.', '뒤집힌 폰은 뒤쪽 대각선을 잡아요. 평소 안전하던 칸이 위험해질 수 있으니 폰의 방향을 먼저 확인하세요.');
+            if (c === 'baby') return V('t_by', '아기 축복이 켜진 동안은 킹과 퀸을 붙여 두는 것만으로도 폰이 공짜로 늘어요. 킹이나 퀸을 움직일 땐 둘이 붙어 있는지부터 확인하세요.', '축복 기간에는 킹·퀸의 거리가 곧 이득이에요. 남은 수가 짧아질수록 한 번의 탄생이 더 소중해요.');
+            if (c === 'poison') return V('t_ps', '독구름 지대 안의 기물은 한 수도 버티지 못해요. 수를 두기 전에 내 기물이 지대 안에 있는지, 이 수가 그 기물을 빼내는지부터 확인하세요.', '독구름이 걸린 판에서는 지대 위 기물 구하기가 최우선이에요. 지대를 먼저 훑어보는 습관을 들이세요.');
+            if (c === 'wall') return V('t_wl', '장벽은 사라지는 순간 숨어 있던 공격선이 열려요. 장벽 뒤에 상대 룩·비숍·퀸이 있는지, 몇 수 뒤에 열리는지 미리 점검하세요.', '장벽이 막아 주던 줄은 장벽이 사라지면 곧바로 위험해져요. 남은 수를 세어 두면 대비할 수 있어요.');
+            const K = {
+                king: '킹은 공격이 오기 전에 미리 단단히 해 두는 게 훨씬 싸요. 킹 주변 칸과 폰 방패부터 점검하세요.',
+                shield: '킹 앞의 폰을 함부로 밀면 방패가 얇아져요. 공격이 오기 전에 킹 주변부터 단단히 하세요.',
+                dev: '초반엔 한 기물을 여러 번 움직이기보다, 아직 잠든 기물을 먼저 깨우는 편이 이득이에요.',
+                rook: '룩은 폰이 없는 열린 줄에서 힘이 커져요. 어느 줄이 열려 있는지 늘 확인해 보세요.',
+                passed: '통과폰은 종반의 보물이에요. 앞길이 막히지 않게 킹과 기물로 호위해 주세요.',
+                pawn: '폰은 한번 앞으로 가면 돌아올 수 없어요. 겹폰·고립폰이 생기지 않는지 한 번 더 확인하세요.',
+                pst: '기물은 중앙과 열린 길에서 힘이 세요. 가장자리나 구석에 머물게 두지 마세요.',
+                pair: '비숍 두 개는 서로의 약점을 메워 줘요. 가벼운 교환으로 쉽게 내주지 마세요.',
+                mop: '종반에 앞서 있다면 상대 킹을 구석으로 모는 데 집중하세요. 킹도 훌륭한 전투원이에요.'
+            };
+            if (K[o.key]) return K[o.key];
+            if (a >= 300) return V('t_a', '이미 앞서 있다면 모험보다 안전한 교환이 이득이에요. 위험한 수는 한 번 더 점검하세요.', '앞선 판에서는 판을 단순하게 만드는 쪽이 유리해요. 복잡해지는 수는 한 번 더 따져 보세요.');
+            if (a <= -300) return V('t_b', '뒤처진 판일수록 한 수 한 수가 소중해요. 상대의 위협부터 정리하고 반격 기회를 찾으세요.', '밀리고 있을 때는 상대 위협을 먼저 지우고, 상대가 방심할 만한 틈을 노려 보세요.');
+            return V('t_d', '눈에 띄는 손실이 없어도 활동성·킹 안전이 조금씩 나빠지면 승률이 깎여요. 후보 수 2~3개를 비교해 보세요.', '큰 실수가 아니어도 작은 손해가 쌓이면 판이 기울어요. 마음에 드는 수를 찾았다면 다른 후보 한두 개와 꼭 견주어 보세요.');
+        }
+        function rvFactTexts(F, rec, N, V) {   // 사실을 짧은 명사구로 (문장 끝 조사 문제를 피한다). V가 있으면 이름을 돌려 쓴다
+            const t = [], v = (k, ...o) => V ? V(k, ...o) : o[0];
+            if (F.mate) { t.push(F.backRank ? v('fm1', '백랭크 체크메이트 (킹이 자기 기물에 막힘)', '백랭크 메이트 (킹이 제 기물에 갇힘)') : v('fm2', '체크메이트', '메이트 완성')); return t; }
+            if (F.check) t.push(F.flight <= 1 ? v('fc1', `체크 (킹이 갈 곳이 거의 없음, 응수 ${F.replies}가지)`, `체크 (킹의 도망칠 칸이 거의 없음 · 응수 ${F.replies}가지)`) : v('fc2', '체크', '체크로 선택지 제한'));
+            if (F.forks.length >= 2) t.push(`${v('ff', '포크', '이중 공격')} (${F.forks.map(c => N(c.cap) + ' ' + c.to).join(' + ')} 동시 공격)`);
+            if (F.disc.length) t.push(`${v('fd', '발견 공격', '숨은 공격(발견)')} (${N(F.disc[0].cap)} ${F.disc[0].to})`);
+            if (F.pins.length) { const p = F.pins[0]; t.push(`${v('fp', '핀', '핀(묶기)')} (${N(p.pt)} ${p.pinned}이 ${p.king ? '킹' : N(p.behind)} 앞에 묶임)`); }
             return t;
         }
         const rvMvKo = (rec, N, S) => { const p = rec.pc || ((S && S.get(rec.from)) || {}).type; return `${p ? N(p) + ' ' : ''}${rec.from}→${rec.to}`; };
-        function rvDeepFill(W, c) {   // W.badDeep / W.goodDeep: [라벨, 내용] 줄 목록, W.tip: 배울 점 한 줄
-            const { prev, f, m, pl, bl, mover, opp, goodMode, posPlayed, N } = c;
+        function rvDeepFill(W, c) {   // W.badDeep / W.goodDeep: [라벨, 내용] 줄 목록. v3.86: 문장을 돌려 쓰고, 포지션 요인을 말로 풀고, 형세(국면·기물 점수)를 덧붙인다. 배울 점(tip)은 rvWhyBuild가 원인을 정한 뒤 만든다
+            const { prev, f, m, pl, bl, mover, opp, goodMode, posPlayed, N, V } = c;
             W.badDeep = []; W.goodDeep = []; W.tip = '';
             deserializeGameState(prev.s, true); const S0 = cloneGameState(game);
             const pr = { from: f.from, to: f.to }, Sp = rvAfterMove(S0, pr), Sb = (!goodMode && m) ? rvAfterMove(S0, m) : null; if (!Sp) return;
             const Fp = rvFacts(S0, Sp, { to: f.to, pc: (S0.get(f.from) || {}).type }, mover), Fb = Sb ? rvFacts(S0, Sb, { to: m.to, pc: m.pc }, mover) : null;
+            W.tact = Fp.mate ? 'mate' : Fp.forks.length >= 2 ? 'fork' : Fp.pins.length ? 'pin' : Fp.disc.length ? 'disc' : Fp.check ? 'check' : '';
             const wp = x => Math.round(rvWp(x) * 100), lineWin = L => L && typeof L.sc === 'number' ? -L.sc : null, vp = lineWin(pl), vb = lineWin(bl);
             const cpS = v => Math.abs(v) >= BOT_MATE - 500 ? (v > 0 ? '메이트 승' : '메이트 패') : ((v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v / 100).toFixed(1));
-            const row = (lab, txt) => W[lab[0]].push([lab[1], txt]);
             const B = 'badDeep', G = 'goodDeep', add = (k, lab, txt) => W[k].push([lab, txt]);
+            let sitTxt = ''; try { const s = rvSituation(S0, mover); W.sit = { adv: s.adv, ph: s.ph }; sitTxt = rvSitText(V, s); } catch (e) {}
             if (goodMode) {
-                const ft = rvFactTexts(Fp, pr, N); if (ft.length) add(G, '핵심', ft.join(' · '));
-                if (Fp.newThreat.length && !Fp.mate && !Fp.disc.length && !Fp.forks.length) add(G, '다음 위협', Fp.newThreat.map(x => `${N(x.cap)} ${x.to}`).join(', ') + ' 공격');
-                if (typeof vp === 'number') add(G, '승률', `이 수 뒤 <b>${wp(vp)}%</b> <small>평가 ${cpS(vp)}</small>`);
-                if (pl.end) { const d = rvTermDiff(rvTerms(S0), rvTerms(pl.end), mover, 20).filter(x => x.d > 0); if (d.length) add(G, '포지션', `${d.map(x => RV_TERM_NAME[x.k]).join(', ')} 개선 <small>+${(d[0].d / 100).toFixed(1)}</small>`); }
-                W.goodDeep = W.goodDeep.slice(0, 3); return;
+                const ft = rvFactTexts(Fp, pr, N, V); if (ft.length) add(G, '핵심', ft.join(' · '));
+                if (Fp.newThreat.length && !Fp.mate && !Fp.disc.length && !Fp.forks.length) add(G, '다음 위협', Fp.newThreat.map(x => `${N(x.cap)} ${x.to}`).join(', ') + V('thr', ' 공격', ' 압박', ' 노림'));
+                if (typeof vp === 'number') { const w = wp(vp); add(G, '승률', V('gw', `이 수 뒤 <b>${w}%</b> <small>평가 ${cpS(vp)}</small>`, `${rvWpWord(w)} · 승률 <b>${w}%</b> <small>평가 ${cpS(vp)}</small>`)); }
+                if (pl.end) { const d = rvTermDiff(rvTerms(S0), rvTerms(pl.end), mover, 20).filter(x => x.d > 0);
+                    if (d.length) { W.posUp = rvTermSay(V, 'u', d[0].k, true); add(G, '포지션', `${d.map(x => rvTermSay(V, 'u', x.k, true)).join(' · ')} <small>+${(d[0].d / 100).toFixed(1)}</small>`); } }
+                if (sitTxt) add(G, '형세', sitTxt);
+                W.goodDeep = W.goodDeep.slice(0, 4); return;
             }
             if (!posPlayed) {
-                if (typeof vp === 'number' && typeof vb === 'number') add(B, '승률', `이 수 <b>${wp(vp)}%</b> · 추천 수 <b>${wp(vb)}%</b> <small>평가 ${cpS(vp)} ↔ ${cpS(vb)}</small>`);
+                if (typeof vp === 'number' && typeof vb === 'number') { const a = wp(vp), b = wp(vb), dif = b - a;
+                    add(B, '승률', dif >= 2
+                        ? V('bw', `추천 수라면 <b>${b}%</b>, 이 수는 <b>${a}%</b> <small>−${dif}%p · 평가 ${cpS(vp)} ↔ ${cpS(vb)}</small>`, `승률이 추천 수 <b>${b}%</b>에서 이 수 <b>${a}%</b>로 떨어져요 <small>평가 ${cpS(vb)} → ${cpS(vp)}</small>`)
+                        : `이 수 <b>${a}%</b> · 추천 수 <b>${b}%</b> <small>평가 ${cpS(vp)} ↔ ${cpS(vb)}</small>`); }
                 const reply = pl.mv[1];
-                if (reply && reply.by === opp) { const Sr = rvAfterMove(Sp, reply); if (Sr) { const Fr = rvFacts(Sp, Sr, { to: reply.to, pc: reply.pc }, opp), ft = rvFactTexts(Fr, reply, N);
+                if (reply && reply.by === opp) { const Sr = rvAfterMove(Sp, reply); if (Sr) { const Fr = rvFacts(Sp, Sr, { to: reply.to, pc: reply.pc }, opp), ft = rvFactTexts(Fr, reply, N, V);
                     const parts = []; if (reply.cap) parts.push(`${N(reply.cap)} 잡기`); parts.push(...ft);
-                    if (parts.length) add(B, '상대 응수', `<b>${rvMvKo(reply, N, Sp)}</b> — ${parts.join(' · ')}`); } }
+                    if (parts.length) add(B, V('rl', '상대 응수', '예상 반격'), `<b>${rvMvKo(reply, N, Sp)}</b> — ${parts.join(' · ')}`); } }
                 if (Fp.hang.length) { const sameInBest = Sb ? new Set(Fb.hang.map(x => x.to)) : null, seenTo = new Set();
                     const unique = Fp.hang.filter(x => (!sameInBest || !sameInBest.has(x.to)) && !seenTo.has(x.to) && seenTo.add(x.to) && !(reply && reply.cap && reply.to === x.to));
-                    if (unique.length) add(B, '방치한 위협', `${unique.map(x => `${x.to}의 ${N(x.cap)}`).join(', ')}이 이득 보고 잡힐 수 있음${Sb ? ' (추천 수는 이 위협 없음)' : ''}`); }
-                if (pl.end && bl && bl.end) { const d = rvTermDiff(rvTerms(pl.end), rvTerms(bl.end), mover, 25).filter(x => x.d > 0); if (d.length) add(B, '포지션', `추천 수 쪽이 ${d.map(x => `${RV_TERM_NAME[x.k]} <small>+${(x.d / 100).toFixed(1)}</small>`).join(', ')} 앞섬`); }
-                const rep1 = pl.mv[1], lostMate = (typeof vp === 'number' && vp <= -(BOT_MATE - 500));
-                if (lostMate) W.tip = '두기 전에 상대의 체크·잡기부터 확인하세요. 킹 주변이 막혀 있으면 체크 한 번이 곧 메이트예요.';
-                else if (Fp.hang.length) W.tip = '두기 전에 "지켜지지 않은 내 기물이 없나?"와 "이 수로 지키던 기물이 빠지지 않나?"를 확인하세요.';
-                else if (rep1 && rep1.by === opp && rep1.cap) W.tip = '상대의 가장 큰 잡기를 먼저 보세요. 내 수가 만든 빈틈이 그 자리인 경우가 많아요.';
-                else if (pl.mv[0] && pl.mv[0].pc === 'k') W.tip = '캐슬링 전에 킹을 움직이면 킹 안전과 룩 연결을 함께 잃어요.';
-                else W.tip = '눈에 띄는 손실이 없어도 활동성·킹 안전이 조금씩 나빠지면 승률이 깎여요. 후보 수 2~3개를 비교해 보세요.';
+                    if (unique.length) { const lst = unique.map(x => `${x.to}의 ${N(x.cap)}`).join(', ');
+                        add(B, '방치한 위협', V('hg', `${lst}이 이득 보고 잡힐 수 있어요`, `${lst}이 지켜지지 않아 상대가 이득을 챙길 수 있어요`, `${lst}이 노출된 채로 남아 있어요`) + (Sb ? V('hs', ' (추천 수는 이 위협이 없어요)', ' · 추천 수는 이 위협을 피해요') : '')); } }
+                if (pl.end && bl && bl.end) { const d = rvTermDiff(rvTerms(pl.end), rvTerms(bl.end), mover, 25).filter(x => x.d > 0);
+                    if (d.length) { W.posKey = d[0].k; W.posDown = rvTermSay(V, 'd', d[0].k, false); W.posUpBest = rvTermSay(V, 'u', d[0].k, true);
+                        add(B, '포지션', `${V('pc', '추천 수 쪽은', '예상 진행에서 추천 수 쪽은')} ${d.map(x => rvTermSay(V, 'u', x.k, true)).join(' · ')} <small>+${(d[0].d / 100).toFixed(1)}</small>`); } }
             } else {
-                const ft = rvFactTexts(Fp, pr, N); if (ft.length) add(B, '핵심', ft.join(' · '));
-                if (typeof vp === 'number' && typeof vb === 'number') add(B, '승률', `이 수 <b>${wp(vp)}%</b> · 추천 수 <b>${wp(vb)}%</b> <small>차이 작음</small>`);
+                const ft = rvFactTexts(Fp, pr, N, V); if (ft.length) add(B, '핵심', ft.join(' · '));
+                if (typeof vp === 'number' && typeof vb === 'number') add(B, '승률', V('pw', `이 수 <b>${wp(vp)}%</b> · 추천 수 <b>${wp(vb)}%</b> <small>차이 작음</small>`, `추천 수와 거의 같아요 <small>${wp(vp)}% vs ${wp(vb)}%</small>`, `승률 <b>${wp(vp)}%</b> — 추천 수(${wp(vb)}%)와 큰 차이 없어요`));
             }
             if (Fb) {
-                const ft = rvFactTexts(Fb, m, N); if (ft.length) add(G, '핵심', ft.join(' · '));
-                if (Fb.newThreat.length && !Fb.mate && !Fb.disc.length && !Fb.forks.length) add(G, '다음 위협', Fb.newThreat.map(x => `${N(x.cap)} ${x.to}`).join(', ') + ' 공격');
-                if (bl && bl.end && !posPlayed) { const d = rvTermDiff(rvTerms(S0), rvTerms(bl.end), mover, 25).filter(x => x.d > 0); if (d.length) add(G, '포지션', `${d.map(x => RV_TERM_NAME[x.k]).join(', ')} 개선`); }
+                const ft = rvFactTexts(Fb, m, N, V); if (ft.length) add(G, '핵심', ft.join(' · '));
+                if (Fb.newThreat.length && !Fb.mate && !Fb.disc.length && !Fb.forks.length) add(G, '다음 위협', Fb.newThreat.map(x => `${N(x.cap)} ${x.to}`).join(', ') + V('thr', ' 공격', ' 압박', ' 노림'));
+                if (bl && bl.end && !posPlayed) { const d = rvTermDiff(rvTerms(S0), rvTerms(bl.end), mover, 25).filter(x => x.d > 0); if (d.length) add(G, '포지션', d.map(x => rvTermSay(V, 'u', x.k, true)).join(' · ')); }
             }
-            W.badDeep = W.badDeep.slice(0, 4); W.goodDeep = W.goodDeep.slice(0, 3);
+            if (sitTxt) add(B, '형세', sitTxt);
+            W.badDeep = W.badDeep.slice(0, 5); W.goodDeep = W.goodDeep.slice(0, 4);
+        }
+        // ---- v3.90: 진행 중인 증강과 직전에 발동한 증강을 해설로 풀어 준다 (자아 분열·아기는 어떻게 태어나?·차원 장벽·독구름·암전·지뢰·덩굴·무적·수퍼 워너비·동귀어진) ----
+        function rvAugView(s) {   // 저장된 판(JSON)을 읽어 증강 상태와 기물 위치를 한곳에 모은다 (전역 상태는 건드리지 않는다)
+            const o = JSON.parse(s), v = { o, byUid: {}, bySq: {}, mc: o.moveCount || 0 };
+            const rp = o.reversedPawns; v.rev = (rp && rp.color !== undefined) ? { w: rp.color === 'w' ? rp.duration : 0, b: rp.color === 'b' ? rp.duration : 0 } : (rp || { w: 0, b: 0 });
+            v.ru = o.reversedUids || { w: {}, b: {} };
+            const be = o.babyEffect; v.baby = (be && be.color) ? { w: be.color === 'w' ? be : null, b: be.color === 'b' ? be : null } : (be || { w: null, b: null });
+            const bo = o.blackout; v.dark = (bo && bo.target) ? { w: bo.target === 'w' ? bo.duration : 0, b: bo.target === 'b' ? bo.duration : 0 } : (bo || { w: 0, b: 0 });
+            v.walls = o.activeWalls || []; v.poison = o.activePoison || []; v.mines = o.mines || []; v.inv = o.invinciblePieces || {}; v.root = o.rootedPieces || {}; v.pros = o.prospects || {}; v.pact = o.pactPieces || {};
+            for (let r = 0; r < 8; r++) for (let cc = 0; cc < 8; cc++) { const q = o.board[r][cc]; if (!q || q.type === 'wall' || q.uid === undefined) continue; const e = { sq: rvSqOf(r, cc), color: q.color, type: q.type, uid: q.uid }; v.byUid[q.uid] = e; v.bySq[e.sq] = e; }
+            return v;
+        }
+        function rvAugExtra(c, out) {   // out.played / out.warn / out.rec 에 문장을, out.rows 에 [라벨, 내용] 줄을 더한다. 끝나면 호출한 쪽이 판 상태를 되돌린다
+            const { prev, f, m, pl, mover, opp, N, V, frames, idx } = c;
+            const P = rvAugView(prev.s), A = rvAugView(f.s), rows = [], head = [];
+            const who = col => col === mover ? '내' : '상대', cause = k => { out.cause = out.cause || k; };
+            const cheb = (a, b) => Math.max(Math.abs(a.charCodeAt(0) - b.charCodeAt(0)), Math.abs(parseInt(a[1]) - parseInt(b[1])));
+            const fmt = n => n > 0 ? '+' + n : n < 0 ? '−' + (-n) : '±0', fw = col => col === 'w' ? 1 : -1;
+            const reply = pl && pl.mv && pl.mv[1], pm = P.bySq[f.from] || null, other = m && (m.from !== f.from || m.to !== f.to);
+            deserializeGameState(prev.s, true);
+            const S0 = cloneGameState(game);
+            const attackedAt = (S, sq, by) => { try { const x = S.sqToRC(sq); return S.isSquareAttacked(x.r, x.c, by); } catch (e) { return false; } };
+
+            // ① 직전에 발동한 증강: 이름·대상·효과 한 줄 + 그 증강으로 바뀐 기물 점수
+            try {
+                if (frames && typeof idx === 'number') {
+                    let k = idx - 1; const augs = [];
+                    while (k >= 1 && frames[k] && frames[k].kind === 'augment') { augs.unshift(frames[k]); k--; }
+                    if (augs.length) {
+                        const mat = V0 => { const t = { w: 0, b: 0 }; for (const u in V0.byUid) { const e = V0.byUid[u]; if (e.type !== 'k') t[e.color] += RV_PT[e.type] || 0; } return t; };
+                        const txt = augs.slice(-2).map(a => {
+                            const d = ((AUGMENT_POOL.find(x => x.name === a.name) || {}).desc || '').replace(/[{}\[\]]/g, ''), brief = (d.match(/^[^.!?]*[.!?]?/) || [''])[0].trim();
+                            const tg = Array.isArray(a.t) && a.t.length ? ` → ${a.t.slice(0, 4).join('·')}${a.t.length > 4 ? ' 외' : ''}` : '';
+                            return `${a.by ? who(a.by) + ' ' : ''}<b>${a.icon || ''} ${a.name}</b>${tg}${brief ? `<small>${brief}</small>` : ''}`;
+                        }).join('');
+                        let delta = '';
+                        if (frames[k] && frames[k].s) { const b0 = mat(rvAugView(frames[k].s)), b1 = mat(P), dm = b1[mover] - b0[mover], dop = b1[opp] - b0[opp]; if (dm || dop) delta = `<small>증강 결과 기물 점수: 내 ${fmt(dm)} · 상대 ${fmt(dop)}</small>`; }
+                        rows.push(['직전 증강', txt + delta]);
+                    }
+                }
+            } catch (e) {}
+
+            // ② 증강 타이밍: 이 수를 두면 곧바로 증강 선택이 시작되는가
+            { const remain = AUGMENT_INTERVAL - (P.mc % AUGMENT_INTERVAL);
+              if (P.mc > 0 && remain === 1) head.push(['증강 타이밍', '이 수를 두고 나면 <b>곧바로 증강 선택</b>이 시작돼요. 증강 한 번에 판이 크게 흔들릴 수 있으니 킹 안전과 지켜지지 않은 기물을 먼저 정리해 두세요.']);
+              else if (P.mc > 0 && remain === 2) head.push(['증강 타이밍', '<b>2수 뒤</b> 증강 선택이 시작돼요. 상대 증강으로 위험해질 기물이 없는지 미리 살펴보세요.']); }
+
+            // ③ 자아 분열: 상대(또는 내) 폰이 거꾸로 움직인다. 뒤집힌 폰은 앞으로 못 가고 뒤쪽 대각선을 공격한다
+            const revInfo = col => { const n = P.rev[col] || 0; if (!(n > 0)) return null; const ru = P.ru[col] || {}, ps = Object.keys(ru).map(u => P.byUid[u]).filter(e => e && e.type === 'p' && e.color === col); return ps.length ? { col, n, ps, has: uid => !!ru[uid] } : null; };
+            const rM = revInfo(mover), rO = revInfo(opp), prRank = col => col === 'w' ? 7 : 2;
+            const revRow = (ri, mine) => { const near = ri.ps.filter(e => parseInt(e.sq[1]) === prRank(ri.col)).map(e => e.sq);
+                return `${mine ? '내' : '상대'} 폰 ${ri.ps.length}개${ri.ps.length <= 4 ? `(${ri.ps.map(e => e.sq).join('·')})` : ''}가 <b>${ri.n}수</b> 동안 거꾸로 움직여요. ` + (mine ? '앞으로 나아가지 못해 전진·두 칸 전진·승급이 막히고, 잡기는 뒤쪽 대각선으로만 가능해요.' : '앞쪽 대각선은 더 이상 지키지 못해 안전해지고, 대신 뒤쪽 대각선 칸이 위험해져요.') + (near.length ? `<small>승급 직전의 ${near.join('·')}도 ${ri.n}수 동안은 승급할 수 없어요.</small>` : ''); };
+            if (rO) rows.push(['자아 분열', revRow(rO, false)]);
+            if (rM) rows.push(['자아 분열', revRow(rM, true)]);
+            const revSafe = dest => { if (!rO) return null; const w = fw(opp); for (const e of rO.ps) { if (e.sq === dest) continue; if (Math.abs(e.sq.charCodeAt(0) - dest.charCodeAt(0)) === 1 && parseInt(dest[1]) - parseInt(e.sq[1]) === w) return { e, keep: rO.n - 1 > 0 }; } return null; };
+            { const rs = revSafe(f.to);
+              if (rs) { if (rs.keep) out.played.push(V('r1', `${f.to} 칸은 원래 상대 폰 ${rs.e.sq}의 공격을 받는 자리지만, 그 폰이 자아 분열로 뒤집혀 있어 지금은 안전해요 (${rO.n - 1}수 남음).`, `상대 ${rs.e.sq} 폰이 자아 분열로 거꾸로 서 있어서, 평소라면 잡혔을 ${f.to} 칸으로 나가도 괜찮아요 (${rO.n - 1}수 남음).`));
+                  else { out.warn.push(`자아 분열이 이 수 뒤에 풀려요. 그러면 상대 ${rs.e.sq} 폰이 다시 ${f.to} 칸을 공격할 수 있어요.`); cause('rev'); } }
+              if (other && m) { const rr = revSafe(m.to); if (rr && rr.keep) out.rec.push(`${m.to} 칸은 원래 상대 ${rr.e.sq} 폰에게 공격받지만, 자아 분열로 뒤집혀 있어 ${N(m.pc)}로 갈 수 있어요 (${rO.n - 1}수 남음).`); } }
+            if (rM && f.captured && f.captured !== 'k' && pm && pm.type === 'p' && rM.has(pm.uid)) out.played.push(`자아 분열로 뒤집힌 내 폰으로 뒤쪽 대각선의 상대 ${N(f.captured)}을 잡았어요. 평소엔 닿지 못하는 방향이라 상대가 놓치기 쉬운 공격이에요.`);
+            if (other && m && m.cap && m.cap !== 'k' && rM && P.bySq[m.from] && P.bySq[m.from].type === 'p' && rM.has(P.bySq[m.from].uid)) out.rec.push(`${m.from}의 폰이 자아 분열로 뒤집혀 있어, 뒤쪽 대각선의 상대 ${N(m.cap)}을 잡을 수 있어요. 평소엔 닿지 못하는 방향이에요.`);
+            if (rO && reply && reply.by === opp && reply.pc === 'p' && reply.cap && reply.cap !== 'k' && P.bySq[reply.from] && rO.has(P.bySq[reply.from].uid)) { out.warn.push(`상대 ${reply.from} 폰이 자아 분열로 뒤집혀 있어서, 뒤쪽 대각선인 ${reply.to} 칸의 ${N(reply.cap)}을 잡을 수 있어요. 평소라면 폰이 닿지 못하는 방향이에요.`); cause('rev'); }
+
+            // ④ 아기는 어떻게 태어나?: 축복받은 킹·퀸이 붙어 있으면 주인이 수를 둘 때마다 빈칸에 폰이 태어난다 (가끔 값비싼 기물)
+            const babyInfo = (V0, col) => { const be = V0.baby[col]; if (!be || !(be.remaining > 0)) return null;
+                const pick = (uid, ty) => (uid && V0.byUid[uid]) || Object.values(V0.byUid).find(e => e.color === col && e.type === ty) || null, k = pick(be.kUid, 'k'), q = pick(be.qUid, 'q');
+                return (k && q) ? { be, rem: be.remaining, k, q, adj: cheb(k.sq, q.sq) <= 1 } : null; };
+            const bM = babyInfo(P, mover), bO = babyInfo(P, opp), bn = n => n > 0 ? `최대 ${n}번 더 탄생` : '더는 태어나지 않음';
+            const born = Object.keys(A.byUid).filter(u => !P.byUid[u]).map(u => A.byUid[u]).filter(e => e.color === mover);
+            if (bM) rows.push(['아기', `<b>내 킹·퀸 축복</b> (${bM.rem}수 남음 · ${bn(Math.ceil(bM.rem / 2))}) — ` + (bM.adj ? `킹(${bM.k.sq})과 퀸(${bM.q.sq})이 붙어 있어 내가 수를 둘 때마다 빈칸에 폰이 태어나요.` : `킹(${bM.k.sq})과 퀸(${bM.q.sq})이 떨어져 있어 탄생이 멈춰 있어요. 다시 붙여야 태어나요.`) + '<small>약 12%의 확률로 폰 대신 나이트·비숍·룩·퀸이 태어나요.</small>']);
+            if (bO) rows.push(['아기', `<b>상대 킹·퀸 축복</b> (${bO.rem}수 남음 · ${bn(Math.floor(bO.rem / 2))}) — ` + (bO.adj ? '킹과 퀸이 붙어 있어 상대가 수를 둘 때마다 폰이 늘어나요. 퀸을 노리거나 둘 사이를 갈라놓으면 탄생을 끊을 수 있어요.' : '킹과 퀸이 떨어져 있어 지금은 탄생이 멈춰 있어요.')]);
+            if (bM || P.baby[mover]) {
+                const kA = bM && A.byUid[bM.k.uid], qA = bM && A.byUid[bM.q.uid], adjA = !!(kA && qA && cheb(kA.sq, qA.sq) <= 1);
+                if (born.length) { const b0 = born[0], sp = b0.type !== 'p', fresh = b0.type === 'p' && (A.rev[mover] || 0) > 0 && !((A.ru[mover] || {})[b0.uid]);
+                    out.played.push((sp ? `행운이에요! 축복 덕분에 ${b0.sq}에 ${N(b0.type)}이 태어났어요 (기물 +${RV_PT[b0.type]}점, 약 12%의 확률).` : V('b1', `킹과 퀸이 붙어 있어 ${b0.sq}에 새 폰이 태어났어요 (기물 +1점).`, `아기 축복으로 ${b0.sq}에 새 폰이 태어났어요. 킹과 퀸을 붙여 둔 보람이 있어요 (기물 +1점).`)) + (fresh ? ' 새로 태어난 폰이라 자아 분열의 영향도 받지 않아요.' : '')); }
+                else if (bM && bM.adj && !adjA) { out.warn.push(`킹과 퀸 사이가 벌어져 이번에 태어날 아기를 놓쳐요 (축복 ${bM.rem - 1}수 남음). 축복 중에는 킹과 퀸을 붙여 두는 것만으로 폰이 공짜로 늘어요.`); cause('baby'); }
+                if (bM && other && m && !born.length && !adjA) {
+                    const ks = m.from === bM.k.sq ? m.to : bM.k.sq, qs = m.from === bM.q.sq ? m.to : bM.q.sq;
+                    if (cheb(ks, qs) <= 1) out.rec.push(`추천 수는 킹과 퀸을 붙여 두어 아기가 한 번 더 태어나요 (축복 ${bM.rem}수 남음).`);
+                }
+            }
+            { const capE = P.bySq[f.to], isBQ = e => !!(bO && e && e.color === opp && e.type === 'q' && (!bO.be.qUid || e.uid === bO.be.qUid));
+              if (isBQ(capE)) out.played.push(`축복받은 상대 퀸을 잡아 상대의 아기 탄생을 끊었어요 (남은 축복 ${bO.rem}수).`);
+              else if (other && m && m.cap === 'q' && isBQ(P.bySq[m.to])) { out.rec.push('축복받은 상대 퀸을 잡아 아기 탄생을 끊을 수 있어요.'); out.warn.push('축복받은 상대 퀸을 잡아 아기 탄생을 끊을 기회를 놓쳤어요.'); } }
+
+            // ⑤ 차원 장벽: 길을 막아 주는 동안의 안전 / 사라지는 순간 열리는 공격선
+            if (P.walls.length) {
+                rows.push(['장벽', P.walls.map(w => `<b>${w.sq}</b>(${who(w.owner)} 장벽 · ${w.duration}수)`).join(', ') + ' — 모든 이동과 공격선을 막아요. 사라지는 수를 세어 두면 길이 열리는 때를 미리 알 수 있어요.']);
+                try {
+                    const S2 = rvAfterMove(S0, { from: f.from, to: f.to, p: null });
+                    if (S2) {
+                        const strip = S => { const T = cloneGameState(S); P.walls.forEach(w => { const x = T.sqToRC(w.sq), q = T._board[x.r][x.c]; if (q && q.type === 'wall') T._board[x.r][x.c] = null; }); return T; };
+                        if (!attackedAt(S2, f.to, opp) && attackedAt(strip(S2), f.to, opp)) out.played.push(`${f.to} 칸은 장벽이 상대의 공격선을 막아 주어 안전해요. 다만 장벽이 사라지면 다시 위험해져요.`);
+                        const gone = P.walls.filter(w => w.duration <= 1 && !A.walls.some(x => x.sq === w.sq));
+                        if (gone.length) {
+                            deserializeGameState(f.s, true); const F = cloneGameState(game); deserializeGameState(prev.s, true);
+                            const hit = Object.values(A.byUid).find(e => e.color === mover && (e.type === 'k' || (RV_PT[e.type] || 0) >= 3) && attackedAt(F, e.sq, opp) && !attackedAt(S2, e.sq, opp));
+                            if (hit) { out.warn.push(`${gone[0].sq}의 장벽이 이 수 뒤에 사라지면서, 막혀 있던 길이 열려 ${hit.sq}의 내 ${N(hit.type)}이 공격받게 돼요.`); cause('wall'); }
+                        }
+                    }
+                } catch (e) {} finally { deserializeGameState(prev.s, true); }
+            }
+
+            // ⑥ 독구름: 지대에 서 있는 기물을 구했는가 / 놓쳤는가
+            if (P.poison.length) {
+                const zs = P.poison.filter(z => z.duration > 0), enemy = new Set(), mine = new Set(); zs.forEach(z => z.squares.forEach(q => (z.owner === mover ? mine : enemy).add(q)));
+                if (zs.length) rows.push(['독구름', zs.map(z => `${who(z.owner)} <b>${z.squares.join('·')}</b>(${z.duration}수)`).join(' / ') + ' — 주인이 아닌 쪽 기물은 들어가는 즉시 사라져요 (킹·무적은 제외).']);
+                for (const u in P.byUid) { const e = P.byUid[u]; if (e.type === 'k') continue;
+                    if (e.color === mover && enemy.has(e.sq) && !(P.inv[u] > 0)) {
+                        if (f.from === e.sq) { if (!enemy.has(f.to)) out.played.push(`독구름 지대(${e.sq})에 서 있던 ${N(e.type)}을 빼내 살려요.`); }
+                        else if (!A.byUid[u]) { out.warn.push(`독구름 지대(${e.sq}) 안에 있던 내 ${N(e.type)}이 이 수 뒤에 사라져요. 이 수로는 구하지 못했어요.`); cause('poison'); }
+                        if (other && m && m.from === e.sq && f.from !== e.sq && !enemy.has(m.to)) out.rec.push(`추천 수는 독구름 지대(${e.sq})에 있는 ${N(e.type)}을 먼저 빼내요.`);
+                    } else if (e.color === opp && mine.has(e.sq) && !(P.inv[u] > 0) && !A.byUid[u] && f.to !== e.sq) out.played.push(`내 독구름 지대(${e.sq})에 있던 상대 ${N(e.type)}이 이 수 뒤에 사라져요.`);
+                }
+            }
+
+            // ⑦ 암전: 시야가 막힌 쪽 / 막은 쪽
+            if (P.dark[mover] > 0) { rows.push(['암전', `내가 <b>${P.dark[mover]}수</b> 동안 암전이라 상대 기물이 보이지 않아요. 이 분석은 모든 기물이 보인다고 보고 평가해요.`]); out.warn.push('암전으로 시야가 막혀 있던 상황이라 이해할 만한 수예요. 분석은 상대 기물이 모두 보인다고 보고 평가해요.'); }
+            if (P.dark[opp] > 0) rows.push(['암전', `상대가 <b>${P.dark[opp]}수</b> 동안 암전이라 내 기물이 보이지 않아요. 기습이나 함정 같은 수가 잘 통하는 때예요.`]);
+
+            // ⑧ 지뢰
+            if (P.mines.length) {
+                const mm = P.mines.filter(x => x.owner === mover).map(x => x.sq), mo = P.mines.filter(x => x.owner !== mover).map(x => x.sq);
+                rows.push(['지뢰', [mm.length ? `내 지뢰 <b>${mm.join('·')}</b>` : '', mo.length ? `상대 지뢰 <b>${mo.join('·')}</b>` : ''].filter(Boolean).join(' / ') + ' — 밟은 기물은 피아 구분 없이 파괴돼요 (킹은 제외).' + (mo.length ? '<small>실전에서는 상대가 묻은 지뢰가 보이지 않아요.</small>' : '')]);
+                if (other && m && m.pc !== 'k') { const hitM = P.mines.find(x => x.sq === m.to); if (hitM) out.rec.push(`다만 ${m.to} 칸에는 ${hitM.owner === mover ? '내' : '상대'} 지뢰가 있어요. 밟으면 ${N(m.pc)}이 파괴돼요.`); }
+            }
+
+            // ⑨ 덩굴·무적·수퍼 워너비·동귀어진 (문장은 rvAugNotes가 따로 만들고, 여기서는 판에 걸린 상태를 풀어 준다)
+            { const vs = Object.keys(P.root).filter(u => P.root[u] > 0 && P.byUid[u]);
+              if (vs.length) rows.push(['덩굴', vs.slice(0, 4).map(u => `${who(P.byUid[u].color)} ${N(P.byUid[u].type)} ${P.byUid[u].sq}(${P.root[u]}수)`).join(', ') + ' — 묶인 기물은 움직이지도, 공격하지도 못해요. 풀리는 수에 맞춰 수읽기를 해야 해요.']); }
+            { const g = {}; Object.keys(P.inv).forEach(u => { if (!(P.inv[u] > 0) || !P.byUid[u]) return; const e = P.byUid[u], k = e.color + '|' + P.inv[u]; (g[k] = g[k] || { color: e.color, rem: P.inv[u], l: [] }).l.push(e); });
+              const txt = Object.values(g).map(x => { const pw = x.l.filter(e => e.type === 'p'), rest = x.l.filter(e => e.type !== 'p'), parts = rest.map(e => `${N(e.type)} ${e.sq}`); if (pw.length) parts.push(pw.length >= 3 ? `폰 ${pw.length}개` : pw.map(e => `폰 ${e.sq}`).join(', ')); return `${who(x.color)} ${parts.join('·')}(${x.rem}수)`; }).join(' / ');
+              if (txt) rows.push(['무적', txt + ' — 무적인 기물은 잡히지 않아요. 끝나는 수에 맞춰 위치를 정리해 두세요.']); }
+            { const ps = Object.keys(P.pros).filter(u => P.pros[u] > 0 && P.byUid[u] && P.byUid[u].type === 'p');
+              if (ps.length) rows.push(['수퍼 워너비', ps.map(u => `${who(P.byUid[u].color)} 폰 ${P.byUid[u].sq}(${P.pros[u]}수 뒤 퀸)`).join(', ') + ' — 카운트가 끝나면 퀸이 돼요. 지키거나 미리 잡는 쪽이 이득이에요.']); }
+            { const pc = Object.keys(P.pact).filter(u => P.pact[u] && P.byUid[u] && P.byUid[u].type !== 'k');
+              if (pc.length) rows.push(['동귀어진', pc.slice(0, 4).map(u => `${who(P.byUid[u].color)} ${N(P.byUid[u].type)} ${P.byUid[u].sq}`).join(', ') + ' — 잡히면 잡은 기물도 함께 사라져요 (영구, 킹 제외).']); }
+
+            out.rows = head.concat(rows).slice(0, 9);
         }
         function rvAugNotes(c) {   // v3.83: 증강(덩굴·무적(여신의 가호·빛의 수호)·수퍼 워너비·독구름·동귀어진·장벽·자아 분열·지뢰)이 이 수의 평가에 끼친 영향을 말로 풀어 준다. 반환: { played: 둔 수의 장점, warn: 둔 수의 문제, rec: 추천 수의 장점, status: 그 판에 걸려 있던 증강 요약 }
-            const { prev, f, m, pl, mover, opp, N } = c, out = { played: [], warn: [], rec: [], status: [] };
+            const { prev, f, m, pl, mover, opp, N, V } = c, out = { played: [], warn: [], rec: [], status: [], rows: [], cause: '' };
             deserializeGameState(prev.s, true);
             const pros0 = {}, root0 = {}, inv0 = {}, pact0 = {}, B0 = game._board;   // 수를 두기 전의 효과가 걸린 기물: uid → { sq, color, type, rem }
             const who = col => col === mover ? '내' : '상대', stat = [];
@@ -6135,19 +6394,20 @@
             ['w', 'b'].forEach(col => { if (reversedPawns[col] > 0) stat.push(`${who(col)} 폰 반대 방향 이동 중(${reversedPawns[col]}수)`); });
             (mines || []).forEach(x => stat.push(`${x.owner === mover ? '내' : '상대'} 지뢰 ${x.sq}`));
             out.status = stat.slice(0, 7);
+            try { rvAugExtra(c, out); } catch (e) { out.err = String(e && e.message || e); } finally { deserializeGameState(prev.s, true); }   // v3.90: 자아 분열·아기·장벽·독구름·암전·지뢰와 직전 증강 해설
             const poison0 = (activePoison || []).map(x => ({ squares: x.squares.slice(), owner: x.owner, duration: x.duration }));
             if (!Object.keys(pros0).length && !Object.keys(root0).length && !Object.keys(inv0).length && !Object.keys(pact0).length && !poison0.length) return out;
             const S0 = cloneGameState(game), mvPc = (S0.get(f.from) || {}).type, mvUid = (S0.get(f.from) || {}).uid;
             const tp = S0.get(f.to), capPlayed = tp && tp.color === opp ? tp : null, tr = m ? S0.get(m.to) : null, capRec = tr && tr.color === opp ? tr : null;
             // ① 잡기: 곧 퀸이 될 상대 폰 / 덩굴에 묶여 도망칠 수 없는 상대 기물 / 동귀어진이 걸린 기물
-            if (capPlayed && pros0[capPlayed.uid]) out.played.push(`곧 퀸이 될 상대 수퍼 워너비 폰(${pros0[capPlayed.uid].rem}수 남음)을 잡아 견제했어요.`);
-            if (capPlayed && root0[capPlayed.uid]) out.played.push(`덩굴에 묶여 도망칠 수 없던 상대 ${N(capPlayed.type)}을 잡았어요.`);
+            if (capPlayed && pros0[capPlayed.uid]) out.played.push(V('k1', `곧 퀸이 될 상대 수퍼 워너비 폰(${pros0[capPlayed.uid].rem}수 남음)을 잡아 견제했어요.`, `곧 퀸이 될 상대의 수퍼 워너비 폰(${pros0[capPlayed.uid].rem}수 남음)을 미리 잡아 싹을 잘랐어요.`));
+            if (capPlayed && root0[capPlayed.uid]) out.played.push(V('k2', `덩굴에 묶여 도망칠 수 없던 상대 ${N(capPlayed.type)}을 잡았어요.`, `덩굴에 발이 묶여 도망갈 수 없던 상대 ${N(capPlayed.type)}을 놓치지 않고 잡았어요.`));
             if (capPlayed && pact0[capPlayed.uid] && mvPc !== 'k') out.warn.push(`동귀어진이 걸린 상대 ${N(capPlayed.type)}을 잡아서 내 ${N(mvPc)}도 같이 사라져요.`);
-            if (capRec && m && pros0[capRec.uid]) { const v = pros0[capRec.uid]; out.rec.push(`곧 퀸이 될 상대 수퍼 워너비 폰(${v.sq}, ${v.rem}수 남음)을 ${N(m.pc)}로 잡아 견제해요.`); if (!(capPlayed && pros0[capPlayed.uid])) out.warn.push(`${v.rem}수 뒤 퀸이 되는 상대 수퍼 워너비 폰(${v.sq})을 잡을 수 있었는데 놓쳤어요.`); }
-            if (capRec && m && root0[capRec.uid]) { const v = root0[capRec.uid]; out.rec.push(`덩굴에 묶여 도망칠 수 없는 상대 ${v.sq}의 ${N(v.type)}을 ${N(m.pc)}로 잡을 수 있어요.`); if (!(capPlayed && root0[capPlayed.uid])) out.warn.push(`덩굴에 묶여 도망칠 수 없는 상대 ${v.sq}의 ${N(v.type)}을 잡을 기회를 놓쳤어요.`); }
+            if (capRec && m && pros0[capRec.uid]) { const v = pros0[capRec.uid]; out.rec.push(V('k3', `곧 퀸이 될 상대 수퍼 워너비 폰(${v.sq}, ${v.rem}수 남음)을 ${N(m.pc)}로 잡아 견제해요.`, `${N(m.pc)}로 ${v.sq}의 수퍼 워너비 폰(${v.rem}수 뒤 퀸)을 잡아 견제할 수 있어요.`)); if (!(capPlayed && pros0[capPlayed.uid])) out.warn.push(`${v.rem}수 뒤 퀸이 되는 상대 수퍼 워너비 폰(${v.sq})을 잡을 수 있었는데 놓쳤어요.`); }
+            if (capRec && m && root0[capRec.uid]) { const v = root0[capRec.uid]; out.rec.push(V('k4', `덩굴에 묶여 도망칠 수 없는 상대 ${v.sq}의 ${N(v.type)}을 ${N(m.pc)}로 잡을 수 있어요.`, `${v.sq}의 ${N(v.type)}은 덩굴에 묶여 도망칠 수 없어서, ${N(m.pc)}로 잡을 기회예요.`)); if (!(capPlayed && root0[capPlayed.uid])) out.warn.push(`덩굴에 묶여 도망칠 수 없는 상대 ${v.sq}의 ${N(v.type)}을 잡을 기회를 놓쳤어요.`); }
             if (capRec && m && pact0[capRec.uid] && m.pc !== 'k') out.rec.push(`동귀어진이 걸린 상대 ${N(capRec.type)}과 맞바꾸는 수예요.`);
             // ② 독구름: 상대가 만든 독 지대에 들어가면 기물이 사라진다
-            if (mvPc && mvPc !== 'k' && !inv0[mvUid] && poison0.some(x => x.owner !== mover && x.squares.includes(f.to))) out.warn.push(`독구름 지대(${f.to})에 들어가서 ${N(mvPc)}이 사라져요.`);
+            if (mvPc && mvPc !== 'k' && !inv0[mvUid] && poison0.some(x => x.owner !== mover && x.squares.includes(f.to))) out.warn.push(V('k5', `독구름 지대(${f.to})에 들어가서 ${N(mvPc)}이 사라져요.`, `${f.to}는 독구름 지대라서, 들어간 ${N(mvPc)}이 그대로 사라져요.`));
             // ③ 새로 생긴 위협(견제): 곧 퀸이 될 폰 / 한동안 묶여 있을 기물을 노린다
             const S2 = rvAfterMove(S0, { from: f.from, to: f.to, p: null }), T2 = S2 ? rvNullTurn(S2) : null;
             const capThreats = (S, map) => { const res = new Map(); try { S.moves().forEach(mo => { if (!mo.captured) return; const t = S.get(mo.to); if (t && t.color === opp && map[t.uid] && !res.has(String(t.uid))) res.set(String(t.uid), mo); }); } catch (e) {} return res; };
@@ -6162,33 +6422,45 @@
                 const mineP = Object.keys(pros0).filter(u => pros0[u].color === mover && pros0[u].rem <= 4);
                 if (mineP.length && S2) {
                     const hitSq = new Set(rvCapsFor(rvNullTurn(S0), 0).filter(x => x.cap === 'p').map(x => x.to)), after = new Set(rvCapsFor(S2, 0).filter(x => x.cap === 'p').map(x => x.to));
-                    for (const u of mineP) { const v = pros0[u], sq = v.sq === f.from ? f.to : v.sq; if (hitSq.has(v.sq) && !after.has(sq)) { out.played.push(`곧 퀸이 될 내 수퍼 워너비 폰(${v.sq})이 노려지고 있었는데 지켜요.`); break; } }
+                    for (const u of mineP) { const v = pros0[u], sq = v.sq === f.from ? f.to : v.sq; if (hitSq.has(v.sq) && !after.has(sq)) { out.played.push(V('k9', `곧 퀸이 될 내 수퍼 워너비 폰(${v.sq})이 노려지고 있었는데 지켜요.`, `상대가 노리던 내 수퍼 워너비 폰(${v.sq})을 지켜 퀸 승급의 길을 열어 둬요.`)); break; } }
                 }
             } catch (e) {}
             // ⑤ 덩굴·무적: 수를 둔 뒤 카운터가 1씩 줄어든 상태로 본다
             const attackedAt = (S, sq, by) => { try { const x = S.sqToRC(sq); return S.isSquareAttacked(x.r, x.c, by); } catch (e) { return false; } };
-            if (S2 && Object.keys(root0).length) {
-                const postR = {}; for (const u in root0) if (root0[u].rem - 1 > 0) postR[u] = root0[u].rem - 1;
-                const saved = rootedPieces, dest = f.to, pt = (S2.get(dest) || {}).type;
+            const postR = {}; for (const u in root0) if (root0[u].rem - 1 > 0) postR[u] = root0[u].rem - 1;
+            // v3.87: 도착 칸이 원래는 상대 기물의 위협을 받는데, 그 기물이 덩굴에 묶여 있어서 갈 수 있는 경우 (rootedPieces를 잠깐 바꿔 가며 확인한다)
+            const vineGuard = (S, dest) => {
+                if (!S || !Object.keys(postR).length) return null;
+                const saved = rootedPieces; let txt = null;
                 try {
                     rootedPieces = postR;
-                    if (pt && pt !== 'k' && !attackedAt(S2, dest, opp)) {
-                        for (const u in postR) {
-                            const e = root0[u]; if (e.color !== opp) continue;
-                            const w = Object.assign({}, postR); delete w[u]; rootedPieces = w;
-                            if (attackedAt(S2, dest, opp)) { out.played.push(`상대 ${e.sq}의 ${N(e.type)}이 덩굴에 묶여 있어서 ${dest}의 ${N(pt)}은 잡히지 않아요 (${postR[u]}수 더).`); break; }
-                        }
+                    const pt = (S.get(dest) || {}).type;
+                    if (pt && !attackedAt(S, dest, opp)) for (const u in postR) {
+                        const e = root0[u]; if (e.color !== opp) continue;
+                        const w = Object.assign({}, postR); delete w[u]; rootedPieces = w;
+                        if (attackedAt(S, dest, opp)) { txt = { e, rem: postR[u], pt }; break; }
                     }
+                } finally { rootedPieces = saved; }
+                return txt;
+            };
+            if (S2 && Object.keys(root0).length) {
+                const dest = f.to, vg = vineGuard(S2, dest), saved = rootedPieces;
+                if (vg) out.played.push(V('k11', `${dest}는 원래 상대 ${vg.e.sq}의 ${N(vg.e.type)}의 위협을 받는 칸이지만, 덩굴(${vg.rem}수 남음) 덕분에 갈 수 있어요.`, `원래는 상대 ${vg.e.sq}의 ${N(vg.e.type)}에게 잡힐 자리지만, 그 기물이 덩굴(${vg.rem}수 남음)에 묶여 있어서 ${dest}로 나가도 괜찮아요.`));
+                try {
                     rootedPieces = postR;
                     const mvs = S2.moves();
                     for (const u in root0) { const e = root0[u]; if (e.color !== opp || e.rem - 1 > 0) continue; if (mvs.some(mo => mo.from === e.sq && mo.to === dest && mo.captured)) { out.warn.push(`${e.sq}의 ${N(e.type)}을 묶던 덩굴이 이 수 뒤에 풀려서 ${dest}의 ${N(mvPc)}을 바로 잡을 수 있어요.`); break; } }
                 } finally { rootedPieces = saved; }
+                if (m && (m.from !== f.from || m.to !== f.to)) {
+                    const S3 = rvAfterMove(S0, { from: m.from, to: m.to, p: m.p || null }), vr = vineGuard(S3, m.to);
+                    if (vr) out.rec.push(`${m.to}는 원래 상대 ${vr.e.sq}의 ${N(vr.e.type)}의 위협을 받는 칸이지만, 덩굴(${vr.rem}수 남음) 덕분에 ${N(m.pc)}로 갈 수 있어요.`);
+                }
             }
             const mvInv = mvUid !== undefined ? inv0[mvUid] : null;   // 내가 움직인 기물이 무적(여신의 가호·빛의 수호)인가
             if (S2 && mvInv && mvInv.color === mover && mvInv.rem - 1 > 0) {
                 const savedI = invinciblePieces; let att = false;
                 try { invinciblePieces = {}; att = attackedAt(S2, f.to, opp); } finally { invinciblePieces = savedI; }
-                if (att) out.played.push(`무적 상태라(${mvInv.rem - 1}수 더) ${f.to}로 나가도 잡히지 않아요.`);
+                if (att) { let who2 = ''; try { invinciblePieces = {}; const ah = S2.moves().find(mo => mo.to === f.to && mo.captured); if (ah) who2 = `상대 ${ah.from}의 ${N((S2.get(ah.from) || {}).type)}의 `; } catch (e) {} finally { invinciblePieces = savedI; } out.played.push(V('k6', `${f.to}는 원래 ${who2}위협을 받는 칸이지만, 무적(${mvInv.rem - 1}수 남음) 덕분에 갈 수 있어요.`, `원래는 ${who2}위협을 받아 잡힐 자리지만, 무적(${mvInv.rem - 1}수 남음) 덕분에 ${f.to}로 나가도 안전해요.`)); }
                 try {
                     const hit = T2 && T2.moves().find(mo => mo.from === f.to && mo.captured && (BOT_VAL[mo.captured] || 0) >= 300 && mo.captured !== 'k');
                     if (hit && !capPlayed) out.played.push(`무적인 동안 ${N(mvPc)}로 상대 ${N(hit.captured)}을 노려요. 반격을 받아도 잡히지 않아요.`);
@@ -6198,10 +6470,10 @@
             const reply = pl && pl.mv && pl.mv[1];
             if (reply && reply.by === opp && reply.cap) {
                 let done = false;
-                for (const u in root0) { const e = root0[u]; if (e.color === mover && e.sq !== f.from && reply.to === e.sq) { out.warn.push(`덩굴에 묶여 움직일 수 없는 내 ${e.sq}의 ${N(e.type)}이 잡혀요.`); done = true; break; } }
+                for (const u in root0) { const e = root0[u]; if (e.color === mover && e.sq !== f.from && reply.to === e.sq) { out.warn.push(V('k10', `덩굴에 묶여 움직일 수 없는 내 ${e.sq}의 ${N(e.type)}이 잡혀요.`, `덩굴에 묶여 꼼짝 못 하는 내 ${e.sq}의 ${N(e.type)}이 표적이 돼요.`)); done = true; break; } }
                 if (!done) for (const u in inv0) { const e = inv0[u]; if (e.color === mover && e.rem <= 1 && e.sq !== f.from && reply.to === e.sq) { out.warn.push(`${e.sq}의 ${N(e.type)}을 지키던 무적이 이 수 뒤에 끝나서 바로 잡혀요.`); done = true; break; } }
-                if (!done) for (const u in pros0) { const e = pros0[u], sq = e.sq === f.from ? f.to : e.sq; if (e.color === mover && reply.to === sq) { out.warn.push(`곧 퀸이 될 내 수퍼 워너비 폰(${sq})이 잡혀요.`); break; } }
-                for (const u in pact0) { const e = pact0[u], sq = e.sq === f.from ? f.to : e.sq; if (e.color === mover && reply.to === sq) { out.played.push(`동귀어진이 걸린 내 ${N(e.type)}이 잡혀도 상대 기물이 함께 사라져요.`); break; } }
+                if (!done) for (const u in pros0) { const e = pros0[u], sq = e.sq === f.from ? f.to : e.sq; if (e.color === mover && reply.to === sq) { out.warn.push(V('k8', `곧 퀸이 될 내 수퍼 워너비 폰(${sq})이 잡혀요.`, `곧 퀸이 될 내 수퍼 워너비 폰(${sq})을 잃게 돼요.`)); break; } }
+                for (const u in pact0) { const e = pact0[u], sq = e.sq === f.from ? f.to : e.sq; if (e.color === mover && reply.to === sq) { out.played.push(V('k7', `동귀어진이 걸린 내 ${N(e.type)}이 잡혀도 상대 기물이 함께 사라져요.`, `동귀어진 덕분에 내 ${N(e.type)}이 잡혀도 상대 기물이 같이 쓰러져요.`)); break; } }
             }
             return out;
         }
@@ -6209,7 +6481,7 @@
             const f = frames[i], prev = frames[i - 1], cls = f.rv && f.rv.c, goodMode = !!RV_GOOD_CLS[cls], posPlayed = cls === 'great' || cls === 'good';
             const W = f.why = { bad: [], good: [], pb: '', pg: '', goodMode, badPos: false };
             const m = goodMode ? null : f.rm;
-            const N = c => RV_PN[c] || '기물', mover = f.by, opp = mover === 'w' ? 'b' : 'w', early = i <= 20, fmt = n => n === 0 ? '득실 없음' : (n > 0 ? `기물 +${n}점` : `기물 ${n}점`);
+            const N = c => RV_PN[c] || '기물', V = rvVarOf(i + ':' + f.from + f.to), mover = f.by, opp = mover === 'w' ? 'b' : 'w', early = i <= 20, fmt = n => n === 0 ? '득실 없음' : (n > 0 ? `기물 +${n}점` : `기물 ${n}점`);
             if (prev && prev.s && f.s && (goodMode || m)) {
                 const snap = botSnapshot(), sv = { mc: moveCount, pa: pendingAugments, ao: activeAugmentOptions, ap: activeAugmentPlayerColor, si: selectedAugmentIdx };
                 try {
@@ -6228,73 +6500,100 @@
                     const facts = rec => { let check = false, mates = false; try { const S2 = cloneGameState(game), bm = S2.moves().find(x => x.from === rec.from && x.to === rec.to && (rec.p ? x.promotion === rec.p : true)); if (bm) { const u = botMake(S2, bm); try { check = S2.in_check(S2._turn); mates = check && S2.moves().length === 0; } finally { botUnmake(S2, u); } } } catch (e) {} return { check, mates }; };
                     const prec = pm ? { from: f.from, to: f.to, pc: pm.piece, cap: pm.captured || null, p: pm.promotion || null, sc: null } : null;
                     const pf = prec ? facts(prec) : { check: false, mates: false }, mf = m ? facts(m) : null;   // (판이 아직 수 두기 전 상태일 때 먼저 구한다)
+                    let sit = null; try { sit = rvSituation(cloneGameState(game), mover); } catch (e) {}   // v3.86: 수를 두기 전 판의 국면·기물 점수 차
                     const pl = pm ? rvPVLine(prev.s, pm, mover) : { mv: [], net: 0, sc: null, mate: false };
                     const bl = m ? rvPVLine(prev.s, { from: m.from, to: m.to, promotion: m.p || undefined }, mover) : null;
                     W.pb = pl.mv.slice(0, 5).map(rvMvTxt).join('  '); if (W.pb) W.pb += pl.mate ? '  (체크메이트)' : `  (${fmt(pl.net)})`;
                     if (bl) { W.pg = bl.mv.slice(0, 5).map(rvMvTxt).join('  '); if (W.pg) W.pg += bl.mate ? '  (체크메이트)' : `  (${fmt(bl.net)})`; }
                     { const pk = x => ({ from: x.from, to: x.to, pc: x.pc, cap: x.cap, p: x.p, by: x.by }); W.pbm = pl.mv.slice(0, 5).map(pk); W.pgm = bl ? bl.mv.slice(0, 5).map(pk) : []; }   // v3.69: 예상 진행 재생용 (표시하는 5수와 같다)
-                    // 좋은 이유 목록 (rec: 그 수, fc: 정적 사실, line: 그 수의 예상 진행, other: 비교할 다른 진행의 득실(없으면 null), mateN: 점수로 알아낸 메이트 수)
-                    const goodWhy = (rec, fc, line, other, mateN) => {
-                        const out = [];
-                        if (fc.mates) out.push('바로 체크메이트가 되는 수예요.');
-                        else if (mateN) out.push(`${mateN}수 만에 체크메이트로 이어지는 수예요.`);
+                    // 좋은 이유 목록 (rec: 그 수, fc: 정적 사실, line: 그 수의 예상 진행, other: 비교할 다른 진행의 득실(없으면 null), mateN: 점수로 알아낸 메이트 수, tg: 문구 키 접두어)
+                    // v3.86: 같은 뜻을 여러 문장으로 돌려 쓰고(V), 앞서 있을 때의 교환 단순화 같은 이유를 더했다
+                    const goodWhy = (rec, fc, line, other, mateN, tg) => {
+                        const out = [], K = k => tg + k;
+                        if (fc.mates) out.push(V(K('m1'), '바로 체크메이트가 되는 수예요.', '상대 킹을 그대로 몰아 체크메이트로 끝내는 수예요.', '더 볼 것 없이 체크메이트로 승부를 끝내는 수예요.'));
+                        else if (mateN) out.push(V(K('mn'), `${mateN}수 만에 체크메이트로 이어지는 수예요.`, `이 수 뒤로 ${mateN}수 안에 상대 킹이 메이트에 걸려요.`, `상대가 최선으로 받아도 ${mateN}수 안에 메이트로 이어져요.`));
                         else {
-                            if (rec.cap && rec.cap !== 'k') { const mine = BOT_VAL[rec.pc] || 0, got = BOT_VAL[rec.cap] || 0; out.push(got >= mine + 100 ? `상대 ${N(rec.cap)}을 잡아 기물 이득을 봐요.` : `상대 ${N(rec.cap)}을 잡아요${line.net <= 0 ? ' (교환으로 위협을 정리).' : '.'}`); }
-                            const nxt = line.mv.find((x, k) => k >= 2 && x.by === mover && x.cap && x.cap !== 'k');
-                            if (!rec.cap && nxt && line.net >= 1) out.push(`다음 수에 ${N(nxt.cap)}(${nxt.to})을 잡는 위협이 생겨요.`);
-                            if (rec.p) out.push(`폰을 ${N(rec.p)}으로 승급시켜요.`);
-                            if (rec.pc === 'k' && Math.abs(rec.from.charCodeAt(0) - rec.to.charCodeAt(0)) === 2) out.push('캐슬링으로 킹을 안전하게 하고 룩을 활용해요.');
-                            if (fc.check && !rec.cap) out.push('체크를 걸어 상대의 선택지를 좁혀요.');
-                            if (preHang.has(rec.from) && !rec.cap && rec.pc !== 'k') out.push(`공격받던 ${N(rec.pc)}을 안전한 곳으로 피해요.`);
-                            else if (preHang.size && !rec.cap && other !== null && line.net - other >= 1) out.push('지금 위험한 기물을 지키면서 손해를 막아요.');
-                            if (early && !out.length) {
-                                if ((rec.pc === 'n' || rec.pc === 'b') && /[18]$/.test(rec.from)) out.push(`아직 움직이지 않은 ${N(rec.pc)}을 활동적인 자리로 내보내요(개발).`);
-                                else if (rec.pc === 'p' && ['d4', 'e4', 'd5', 'e5'].includes(rec.to)) out.push('중앙을 차지해 기물의 활동 공간을 넓혀요.');
+                            if (rec.cap && rec.cap !== 'k') { const mine = BOT_VAL[rec.pc] || 0, got = BOT_VAL[rec.cap] || 0;
+                                if (got >= mine + 100) out.push(V(K('c1'), `상대 ${N(rec.cap)}을 잡아 기물 이득을 봐요.`, `${N(rec.pc)}로 상대 ${N(rec.cap)}을 가져와 기물 점수에서 앞서가요.`, `값이 더 큰 상대 ${N(rec.cap)}을 잡아 확실한 이득을 챙겨요.`));
+                                else if (line.net <= 0) out.push(V(K('c2'), `상대 ${N(rec.cap)}을 잡아요 (교환으로 위협을 정리).`, `${N(rec.cap)}을 잡아 위협을 정리하는 교환이에요.`, `${N(rec.cap)}을 맞바꿔 판을 깔끔하게 정리해요.`));
+                                else out.push(V(K('c3'), `상대 ${N(rec.cap)}을 잡아요.`, `${N(rec.cap)}을 잡아 기물을 챙겨요.`, `${rec.to}의 ${N(rec.cap)}을 거둬들여요.`));
                             }
-                            if (other !== null && line.net - other >= 2 && !out.some(t => /점/.test(t))) out.push(`예상 진행에서 다른 수보다 기물이 ${line.net - other}점 유리해요.`);
+                            const nxt = line.mv.find((x, k) => k >= 2 && x.by === mover && x.cap && x.cap !== 'k');
+                            if (!rec.cap && nxt && line.net >= 1) out.push(V(K('nx'), `다음 수에 ${nxt.to}의 ${N(nxt.cap)}을 잡는 위협이 생겨요.`, `${nxt.to}의 ${N(nxt.cap)}을 노려, 다음 수에 잡을 수 있는 길이 열려요.`, `곧 ${nxt.to}의 ${N(nxt.cap)}을 가져갈 수 있다는 압박을 줘요.`));
+                            if (rec.p) out.push(V(K('pr'), `폰을 ${N(rec.p)}으로 승급시켜요.`, `폰이 ${N(rec.p)}으로 승급해 전력이 확 늘어요.`));
+                            if (rec.pc === 'k' && Math.abs(rec.from.charCodeAt(0) - rec.to.charCodeAt(0)) === 2) out.push(V(K('cs'), '캐슬링으로 킹을 안전하게 하고 룩을 활용해요.', '캐슬링으로 킹을 안전한 구석에 옮기고 룩까지 중앙으로 불러와요.', '킹의 안전과 룩의 활동성을 한 번에 챙기는 캐슬링이에요.'));
+                            if (fc.check && !rec.cap) out.push(V(K('ck'), '체크를 걸어 상대의 선택지를 좁혀요.', '체크로 상대가 둘 수 있는 수를 제한해요.', '체크로 주도권을 쥐고 상대를 방어에 묶어 둬요.'));
+                            if (preHang.has(rec.from) && !rec.cap && rec.pc !== 'k') out.push(V(K('es'), `공격받던 ${N(rec.pc)}을 안전한 곳으로 피해요.`, `위험했던 ${N(rec.pc)}이 안전한 자리로 빠져나가요.`, `${N(rec.pc)}이 공격받던 자리를 벗어나 손해를 막아요.`));
+                            else if (preHang.size && !rec.cap && other !== null && line.net - other >= 1) out.push(V(K('pt'), '지금 위험한 기물을 지키면서 손해를 막아요.', '공격받는 기물을 지켜 내며 손해를 미리 막아요.', '위협받던 기물을 챙기면서 다음 진행도 편해져요.'));
+                            if (early && !out.length) {
+                                if ((rec.pc === 'n' || rec.pc === 'b') && /[18]$/.test(rec.from)) out.push(V(K('dv'), `아직 움직이지 않은 ${N(rec.pc)}을 활동적인 자리로 내보내요(개발).`, `제자리에 있던 ${N(rec.pc)}을 풀어 주며 기물 개발에 속도를 내요.`, `${N(rec.pc)}을 일찍 꺼내 전투에 참여시켜요(개발).`));
+                                else if (rec.pc === 'p' && ['d4', 'e4', 'd5', 'e5'].includes(rec.to)) out.push(V(K('ct'), '중앙을 차지해 기물의 활동 공간을 넓혀요.', '폰으로 중앙을 선점해 기물이 뛰놀 공간을 만들어요.', '중앙을 장악해 이후 기물 전개가 편해져요.'));
+                            }
+                            if (rec.cap && sit && sit.adv >= 250 && line.net >= 0 && out.length < 2) out.push(V(K('sm'), '앞서 있는 만큼 교환으로 판을 단순하게 만들어 승리에 가까워져요.', '이미 앞선 판이라 기물을 맞바꿔 판을 줄이는 게 유리해요.'));
+                            if (other !== null && line.net - other >= 2 && !out.some(t => /점/.test(t))) out.push(V(K('ot'), `예상 진행에서 다른 수보다 기물이 ${line.net - other}점 유리해요.`, `이후 진행을 비교하면 이 수 쪽이 기물 ${line.net - other}점 더 나아요.`, `몇 수 뒤 기물 점수가 다른 선택보다 ${line.net - other}점 앞서요.`));
                         }
                         return out;
                     };
-                    try { rvDeepFill(W, { prev, f, m, pl, bl, mover, opp, goodMode, posPlayed, N }); } catch (e) { W.deepErr = String(e && e.message || e); }
+                    try { rvDeepFill(W, { prev, f, m, pl, bl, mover, opp, goodMode, posPlayed, N, V }); } catch (e) { W.deepErr = String(e && e.message || e); }
                     if (goodMode) {
                         const mn = pl.sc !== null && pl.sc <= -(BOT_MATE - 500) ? Math.max(1, Math.ceil((BOT_MATE + pl.sc + 1) / 2)) : 0;
-                        let g = prec ? goodWhy(prec, pf, pl, null, mn) : [];
-                        if (cls === 'brilliant' && prec && (BOT_VAL[prec.pc] || 0) >= 300 && pl.mv[1] && pl.mv[1].cap && pl.mv[1].to === f.to)
-                            g.unshift(`${N(prec.pc)}을 ${f.to}에 내주는 희생수예요. 상대가 잡아도 ${pl.net >= 0 ? '이후 진행에서 손해를 되찾아요.' : '공격 기회와 위치 이득이 손해보다 크다고 분석돼요.'}`);
-                        if (cls === 'book') g.unshift('오프닝 이론(정석)에 있는 수예요.');
-                        if (amv) g.unshift(`다만 상대가 ${N(amv.pc)}로 ${amv.to}에서 바로 체크메이트를 걸 수 있는 판이에요 (다른 수로도 피하기 어려워요).`);
-                        if (!g.length) g.push(cls === 'brilliant' ? '겉보기와 달리 최선에 가깝다고 분석된 의외의 수예요.' : (m && (m.from !== f.from || m.to !== f.to)) ? '분석한 최선의 수와 점수 차이가 거의 없는 좋은 수예요.' : '분석한 최선의 수와 같아요. 눈에 띄는 전술은 없지만 위치상 가장 좋은 선택이에요.');
+                        let g = prec ? goodWhy(prec, pf, pl, null, mn, 'g') : [];
+                        if (cls === 'brilliant' && prec && (BOT_VAL[prec.pc] || 0) >= 300 && pl.mv[1] && pl.mv[1].cap && pl.mv[1].to === f.to) {
+                            const back = pl.net >= 0;
+                            g.unshift(V('sac', `${N(prec.pc)}을 ${f.to}에 내주는 희생수예요. 상대가 잡아도 ${back ? '이후 진행에서 손해를 되찾아요.' : '공격 기회와 위치 이득이 손해보다 크다고 분석돼요.'}`,
+                                `일부러 ${N(prec.pc)}을 ${f.to}에 내주는 대담한 수예요. ${back ? '받아 주면 곧 손해를 되찾아요.' : '잃는 것보다 얻는 공격과 위치가 더 커요.'}`,
+                                `겉보기엔 ${N(prec.pc)}을 그냥 버리는 것 같지만, ${back ? '몇 수 뒤 기물을 되찾으며 이득을 봐요.' : '그 대가로 얻는 공격 기회가 훨씬 값져요.'}`));
+                        }
+                        if (cls === 'book') g.unshift(V('bk', '오프닝 이론(정석)에 있는 수예요.', '검증된 오프닝 정석에 나오는 수예요.', '오프닝 이론에서 널리 쓰이는 정석 수예요.'));
+                        if (amv) g.unshift(V('am', `다만 상대가 ${N(amv.pc)}로 ${amv.to}에서 바로 체크메이트를 걸 수 있는 판이에요 (다른 수로도 피하기 어려워요).`, `다만 이 판은 상대 ${N(amv.pc)}의 ${amv.to} 한 수가 체크메이트예요. 어떤 수로도 막기 어려웠어요.`));
+                        if (!g.length) g.push(cls === 'brilliant' ? V('g_br', '겉보기와 달리 최선에 가깝다고 분석된 의외의 수예요.', '눈에 잘 띄지 않지만 분석해 보면 최선에 가까운 뜻밖의 수예요.')
+                            : (m && (m.from !== f.from || m.to !== f.to)) ? V('g_alt', '분석한 최선의 수와 점수 차이가 거의 없는 좋은 수예요.', '최선의 수와 견줘도 손색없는 좋은 수예요.')
+                            : (W.posUp ? V('g_pu', `눈에 띄는 전술은 없지만, 예상 진행에서 ${W.posUp}.`, `조용한 수지만 ${W.posUp}.`, `화려하진 않아도 ${W.posUp}.`)
+                                : V('g_bs', '분석한 최선의 수와 같아요. 눈에 띄는 전술은 없지만 위치상 가장 좋은 선택이에요.', '엔진이 꼽은 최선의 수와 같아요. 전술은 없어도 위치상 가장 알찬 선택이에요.')));
                         W.good = g.slice(0, 3);
                     } else {
                         // 둔 수 쪽
                         if (posPlayed) {
-                            W.badPos = true; const g = prec ? goodWhy(prec, pf, pl, bl.net, 0) : [];
-                            W.bad = (g.length ? g : ['큰 손해 없이 무난한 수예요.']).slice(0, 3);
+                            W.badPos = true; const g = prec ? goodWhy(prec, pf, pl, bl.net, 0, 'p') : [];
+                            W.bad = (g.length ? g : [V('b_pp', '큰 손해 없이 무난한 수예요.', '위험한 구석 없이 안정적으로 둔 수예요.', '크게 흠잡을 곳 없는 무난한 수예요.')]).slice(0, 3);
                         } else {
-                            const first = pl.mv[0], reply = pl.mv[1];
-                            if (amv) W.bad.push(`이 수를 두면 상대가 ${N(amv.pc)}로 ${amv.from} → ${amv.to}에 두어 바로 체크메이트를 걸 수 있어요.`);
-                            else if (pl.sc !== null && pl.sc >= BOT_MATE - 500) W.bad.push(`이 수를 두면 상대가 ${rvMatN(pl.sc) === 1 ? '바로' : rvMatN(pl.sc) + '수 안에'} 체크메이트를 걸 수 있어요.`);
+                            const first = pl.mv[0], reply = pl.mv[1], mateN = amv ? 1 : (pl.sc !== null && pl.sc >= BOT_MATE - 500 ? rvMatN(pl.sc) : 0), when = mateN === 1 ? '바로' : `${mateN}수 안에`;
+                            let cause = '';
+                            if (amv) { cause = 'mate'; W.bad.push(V('b_am', `이 수를 두면 상대가 ${N(amv.pc)}로 ${amv.from} → ${amv.to}에 두어 바로 체크메이트를 걸 수 있어요.`, `상대 ${N(amv.pc)}가 ${amv.to}에 오면 그대로 체크메이트예요. 이 수로는 그 길을 막지 못해요.`, `킹이 위험해요. ${amv.from}의 ${N(amv.pc)}가 ${amv.to}로 오는 한 수에 메이트를 당해요.`)); }
+                            else if (mateN) { cause = 'mate'; W.bad.push(V('b_mn', `이 수를 두면 상대가 ${when} 체크메이트를 걸 수 있어요.`, `이 수 뒤에는 ${when} 메이트를 허용해요. 킹의 안전이 무너진 거예요.`, `상대에게 ${when} 체크메이트로 이어지는 길을 열어 준 수예요.`)); }
                             if (reply && reply.by === opp && reply.cap && reply.cap !== 'k') {
-                                const tgt = reply.to, lost = N(reply.cap);
-                                if (first && tgt === f.to) W.bad.push(`둔 ${lost}이 ${tgt}에서 바로 잡혀요${pl.net <= -2 ? ' (큰 손해).' : '.'}`);
-                                else if (preHang.has(tgt)) W.bad.push(`이미 공격받던 ${lost}(${tgt})을 지키지 못하고 잡혀요.`);
-                                else W.bad.push(`상대가 ${tgt}의 ${lost}을 잡을 수 있게 돼요 (이 수로 틈이 생겼어요).`);
+                                const tgt = reply.to, lost = N(reply.cap), big = pl.net <= -2;
+                                if (first && tgt === f.to) {
+                                    const mine = RV_PT[first.pc] || 0, got = first.cap ? (RV_PT[first.cap] || 0) : 0;
+                                    if (first.cap && first.cap !== 'k') {
+                                        if (mine > got) { cause = cause || 'trade'; W.bad.push(V('b_tr', `${N(first.cap)}을 잡긴 해도 ${tgt}에서 바로 되잡혀요. ${mine}점짜리를 내주고 ${got}점짜리를 얻는 손해 교환이에요.`, `${N(first.pc)}(${mine}점)과 ${N(first.cap)}(${got}점)의 교환이라, 값이 큰 쪽을 내주는 셈이에요.`)); }
+                                    } else { cause = cause || 'hang'; W.bad.push(V('b_hg', `둔 ${lost}이 ${tgt}에서 바로 잡혀요${big ? ' (큰 손해).' : '.'}`, `${tgt}로 나간 ${lost}을 상대가 곧장 가져가요${big ? '. 손해가 커요.' : '.'}`, `${lost}이 ${tgt}에 놓이자마자 잡히는 자리예요${big ? ' (큰 손해).' : '.'}`)); }
+                                }
+                                else if (preHang.has(tgt)) { cause = cause || 'left'; W.bad.push(V('b_lf', `이미 공격받던 ${tgt}의 ${lost}을 지키지 못하고 잡혀요.`, `${tgt}의 ${lost}이 공격받고 있었는데, 이 수는 그 위협을 해결하지 못해요.`, `위협받던 ${tgt}의 ${lost}을 그대로 둔 채 다른 수를 둬서 결국 잃어요.`)); }
+                                else { cause = cause || 'gap'; W.bad.push(V('b_gp', `상대가 ${tgt}의 ${lost}을 잡을 수 있게 돼요 (이 수로 틈이 생겼어요).`, `이 수 때문에 ${tgt}의 ${lost}이 노출돼 잡힐 수 있어요.`, `상대에게 ${tgt}의 ${lost}을 잡을 기회를 내줘요.`)); }
                             }
-                            if (!W.bad.length && pl.net <= -1) { const lostMv = pl.mv.find(x => x.by === opp && x.cap && x.cap !== 'k'); W.bad.push(`이후 진행에서 기물 ${-pl.net}점을 잃어요${lostMv ? ` (${N(lostMv.cap)} ${lostMv.to})` : ''}.`); }
-                            if (first && first.pc === 'k' && !(Math.abs(first.from.charCodeAt(0) - first.to.charCodeAt(0)) === 2) && early) W.bad.push('킹이 일찍 중앙으로 나와 공격에 노출돼요.');
-                            if (bl.net - pl.net >= 1 && (m.cap || bl.mv.some(x => x.by === mover && x.cap))) W.bad.push(`추천 수로는 기물 ${bl.net - pl.net}점을 더 얻을 수 있었어요.`);
-                            W.bad = W.bad.slice(0, 3);
+                            if (!W.bad.length && pl.net <= -1) { cause = 'loss'; const lostMv = pl.mv.find(x => x.by === opp && x.cap && x.cap !== 'k'), at = lostMv ? ` (${N(lostMv.cap)} ${lostMv.to})` : '';
+                                W.bad.push(V('b_ls', `이후 진행에서 기물 ${-pl.net}점을 잃어요${at}.`, `예상 진행을 따라가면 결국 기물 ${-pl.net}점이 빠져나가요${at}.`, `당장은 괜찮아 보여도 몇 수 뒤 기물 ${-pl.net}점을 손해 봐요${at}.`)); }
+                            if (first && first.pc === 'k' && !(Math.abs(first.from.charCodeAt(0) - first.to.charCodeAt(0)) === 2) && early) { cause = cause || 'king'; W.bad.push(V('b_kg', '킹이 일찍 중앙으로 나와 공격에 노출돼요.', '캐슬링도 하기 전에 킹이 움직여서 공격의 표적이 돼요.', '킹이 너무 일찍 나서면서 안전을 잃고 룩 연결도 늦어져요.')); }
+                            if (!W.bad.length && first && first.pc === 'q' && early && !first.cap) { cause = 'queen'; W.bad.push(V('b_qn', '퀸을 일찍 내보내면 상대 기물에 쫓겨 템포를 잃기 쉬워요.', '기물이 덜 풀린 때에 퀸이 먼저 나서면 공격의 표적이 되기 쉬워요.')); }
+                            if (bl.net - pl.net >= 1 && (m.cap || bl.mv.some(x => x.by === mover && x.cap))) { const d = bl.net - pl.net; cause = cause || 'miss';
+                                W.bad.push(m.cap && m.cap !== 'k' && !(first && first.cap)
+                                    ? V('b_ms', `추천 수라면 ${m.to}의 ${N(m.cap)}을 잡아 기물 ${d}점을 더 챙길 수 있었어요.`, `${m.to}의 ${N(m.cap)}을 잡을 기회를 놓쳤어요. 추천 수로는 기물 ${d}점을 더 얻어요.`)
+                                    : V('b_mg', `추천 수로는 기물 ${d}점을 더 얻을 수 있었어요.`, `추천 수를 따라가면 기물 ${d}점이 더 남아요.`, `같은 흐름에서도 추천 수 쪽이 기물 ${d}점 더 이득이에요.`)); }
+                            W.cause = cause; W.bad = W.bad.slice(0, 4);
                         }
                         // 추천 수 쪽
-                        W.good = goodWhy(m, mf, bl, pl.net, typeof m.sc === 'number' && m.sc >= BOT_MATE - 500 ? rvMatN(m.sc) : 0).slice(0, 3);
+                        W.good = goodWhy(m, mf, bl, pl.net, typeof m.sc === 'number' && m.sc >= BOT_MATE - 500 ? rvMatN(m.sc) : 0, 'r').slice(0, 3);
                     }
                     // v3.81: 덩굴·수퍼 워너비 같은 증강이 이 수에 끼친 영향 (탐색기는 이제 이런 효과를 수마다 줄여 가며 보지만, 말로도 짚어 준다)
                     try {
-                        const A = rvAugNotes({ prev, f, m, pl, mover, opp, N }), merge = (arr, add) => add.length ? arr.slice(0, Math.max(1, 3 - add.length)).concat(add).slice(0, 3) : arr;
+                        const A = rvAugNotes({ prev, f, m, pl, mover, opp, N, V, frames, idx: i }), merge = (arr, add) => add.length ? arr.slice(0, Math.max(1, 5 - Math.min(3, add.length))).concat(add.slice(0, 3)).slice(0, 5) : arr;
                         if (goodMode) W.good = merge(W.good, A.played);
                         else if (posPlayed) { W.bad = merge(W.bad, A.played); W.good = merge(W.good, A.rec); }
-                        else { W.bad = merge(W.bad, A.warn); W.good = merge(W.good, A.rec); }
-                        if (A.status && A.status.length) (goodMode ? W.goodDeep : W.badDeep).push(['증강', A.status.join(' · ')]);   // 그 판에 걸려 있던 증강을 한 줄로
+                        else { W.bad = merge(W.bad, A.warn.concat(A.played)); W.good = merge(W.good, A.rec); if (A.cause && !W.cause) W.cause = A.cause; }
+                        W.augRows = A.rows && A.rows.length ? A.rows : [];   // v3.90: 판에 걸려 있던 증강을 '증강 상황' 블록으로 풀어서 보여 준다
+                        if (!W.augRows.length && A.status && A.status.length) (goodMode ? W.goodDeep : W.badDeep).push(['증강', A.status.join(' · ')]);
+                        if (A.err) W.augErr = A.err;
                     } catch (e) { W.augErr = String(e && e.message || e); }
                 } catch (e) { W.err = String(e && e.message || e); }
                 finally { botRestore(snap); moveCount = sv.mc; pendingAugments = sv.pa; activeAugmentOptions = sv.ao; activeAugmentPlayerColor = sv.ap; selectedAugmentIdx = sv.si; }
@@ -6303,13 +6602,23 @@
                 const h = W.mineHit, t = `${goodMode || posPlayed ? '다만 ' : ''}${RV_PN[h.pc] || '기물'}이 ${f.to}에 ${h.owner === f.by ? '내가' : '상대가'} 묻어 둔 지뢰를 밟아 파괴됐어요.`;
                 if (goodMode) W.good.push(t); else W.bad.push(t);
             }
+            // v3.86: 배울 점 — 원인(W.cause)·전술(W.tact)·포지션 요인(W.posKey)·형세(W.sit)에 맞춰 한 줄 고른다 (둔 수가 나쁜 경우와 좋은 수에만)
+            try { W.tip = (goodMode || !posPlayed) ? rvTip(V, { good: goodMode, cls, cause: W.cause || '', tact: W.tact || '', key: W.posKey || '', adv: W.sit ? W.sit.adv : 0 }) : ''; } catch (e) { W.tip = ''; }
             // 어떤 경우에도 빈 칸이 되지 않도록 마지막 대비 문구
             const lossTxt = typeof f.rv.loss === 'number' ? Math.round(f.rv.loss * 100) : 0;
-            if (goodMode) { if (!W.good.length) W.good.push('분석상 좋은 수예요.'); }
+            if (goodMode) { if (!W.good.length) W.good.push(V('f_g', '분석상 좋은 수예요.', '엔진이 좋은 선택으로 본 수예요.')); }
             else {
-                if (!W.bad.length && f.rv.cp >= 100) W.bad.push(`이미 한쪽으로 크게 기운 판이라 승률은 거의 그대로지만, 추천 수보다 평가가 약 ${(f.rv.cp / 100).toFixed(1)}점(폰 ${Math.round(f.rv.cp / 100)}개 정도) 불리해져요.`);
-                if (!W.bad.length) W.bad.push(lossTxt >= 4 ? `뚜렷한 기물 손실은 없지만 위치가 나빠져요(기물 활동성·킹 안전·주도권). 분석상 승률이 약 ${lossTxt}%p 낮아져요.` : '큰 차이는 아니지만 더 정확한 수가 있었어요.');
-                if (!W.good.length) W.good.push(lossTxt >= 2 ? `전술적인 이득은 없어도 위치가 더 좋아요 (승률 약 ${lossTxt}%p 차이).` : '분석상 가장 유리한 수예요.');
+                if (!W.bad.length && f.rv.cp >= 100) { W.cause = W.cause || 'pos'; const pawns = Math.round(f.rv.cp / 100), pt = (f.rv.cp / 100).toFixed(1);
+                    W.bad.push(V('f_cp', `이미 한쪽으로 크게 기운 판이라 승률은 거의 그대로지만, 추천 수보다 평가가 약 ${pt}점(폰 ${pawns}개 정도) 불리해져요.`, `판이 크게 기울어 있어 승률엔 거의 안 드러나지만, 추천 수와 비교하면 폰 ${pawns}개쯤(${pt}점) 손해 보는 수예요.`)); }
+                if (!W.bad.length) { W.cause = W.cause || 'pos';
+                    W.bad.push(W.posDown ? V('f_pd', `기물을 잃는 건 아니지만, 예상 진행에서 ${W.posDown}.${lossTxt >= 3 ? ` 승률은 약 ${lossTxt}%p 낮아져요.` : ''}`, `눈에 띄는 손실은 없어도 ${W.posDown}. 이런 작은 차이가 쌓이면 승률이 ${lossTxt >= 3 ? `약 ${lossTxt}%p ` : ''}깎여요.`)
+                        : lossTxt >= 4 ? V('f_pl', `뚜렷한 기물 손실은 없지만 위치가 나빠져요(기물 활동성·킹 안전·주도권). 분석상 승률이 약 ${lossTxt}%p 낮아져요.`, `당장 잃는 기물은 없어도 활동성과 킹 안전, 주도권이 조금씩 밀려요. 분석상 승률이 약 ${lossTxt}%p 내려가요.`)
+                        : V('f_ps', '큰 차이는 아니지만 더 정확한 수가 있었어요.', '나쁘지 않지만, 한 끗 더 정확한 수가 있었어요.', '크게 문제 될 건 없어요. 다만 더 알맞은 선택지가 하나 있었어요.')); }
+                if (!W.good.length) W.good.push(W.cause === 'mate' ? V('f_gm', '메이트를 피하면서 킹을 지켜 내는 수예요.', '킹이 위험한 순간을 넘기는 가장 안전한 수예요.')
+                    : (W.cause === 'hang' || W.cause === 'left' || W.cause === 'trade' || W.cause === 'gap' || W.cause === 'loss') ? V('f_gh', '기물을 잃지 않고 판을 안정적으로 이어 가는 수예요.', '손해 없이 다음 계획으로 넘어갈 수 있는 수예요.')
+                    : W.posUpBest ? V('f_gu', `추천 수 쪽은 ${W.posUpBest}.`, `추천 수는 조용하지만 ${W.posUpBest}.`)
+                    : lossTxt >= 2 ? V('f_gl', `전술적인 이득은 없어도 위치가 더 좋아요 (승률 약 ${lossTxt}%p 차이).`, `화려한 전술은 없지만 위치가 한결 나아요. 승률로 약 ${lossTxt}%p 차이예요.`)
+                    : V('f_gb', '분석상 가장 유리한 수예요.', '엔진이 가장 유리하다고 본 수예요.'));
             }
         }
         function rvSugArrow(L, from, to, color, width, opacity, knight) {   // 보드 좌표(0~100) 위에 화살표 하나. 나이트는 ㄴ자
@@ -6329,6 +6638,47 @@
             tri.setAttribute('points', `${tx},${ty} ${bxh - uy * hw},${byh + ux * hw} ${bxh + uy * hw},${byh - ux * hw}`); tri.setAttribute('fill', color);
             const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.setAttribute('class', 'sug-arrow'); g.style.opacity = opacity; g.style.setProperty('--o', opacity); g.appendChild(poly);   // v3.70: 투명도는 몸통·촉에 따로 주지 않고 그룹 전체에 한 번만 준다(겹친 부분이 진하게 보이던 문제)
              g.appendChild(tri); L.appendChild(g);
+        }
+        // 분석 글 속 칸 이름(a1~h8)을 눌러 볼 수 있는 글자로 바꾼다. '예상 진행'·오류 문구·뱃지 안은 건드리지 않는다.
+        function rvWhyLink(why) {
+            if (!why) return;
+            const re = /(?<![A-Za-z0-9])([a-h][1-8])(?![A-Za-z0-9])/g, nodes = [];
+            const tw = document.createTreeWalker(why, NodeFilter.SHOW_TEXT, { acceptNode: n => {
+                if (!n.nodeValue || !re.test(n.nodeValue)) { re.lastIndex = 0; return NodeFilter.FILTER_REJECT; } re.lastIndex = 0;
+                const pe = n.parentNode; if (pe && pe.closest && pe.closest('.pv-wrap, .pv-play, .why-hint, .err, .tg, .sq-ref')) return NodeFilter.FILTER_REJECT;
+                return NodeFilter.FILTER_ACCEPT; } });
+            for (let n; (n = tw.nextNode());) nodes.push(n);
+            nodes.forEach(n => {
+                const t = n.nodeValue, frag = document.createDocumentFragment(); let last = 0, m; re.lastIndex = 0;
+                while ((m = re.exec(t))) {
+                    if (m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index)));
+                    const sp = document.createElement('span'); sp.className = 'sq-ref'; sp.dataset.sq = m[1]; sp.textContent = m[1];
+                    const after = t.slice(m.index + 2, m.index + 10), before = t.slice(Math.max(0, m.index - 6), m.index);   // 'h1의 폰', '룩 h6'처럼 기물을 가리키면 기물, 'e3 칸' 등은 칸
+                    sp.dataset.kind = (/^\s*칸/.test(after)) ? 'sq' : ((/^\s*(의|에 있는|에 있던|에 놓인)?\s*(폰|나이트|비숍|룩|퀸|킹|기물)/.test(after) || /(폰|나이트|비숍|룩|퀸|킹)\s*$/.test(before)) ? 'piece' : 'sq');
+                    frag.appendChild(sp); last = m.index + m[1].length;
+                }
+                if (last < t.length) frag.appendChild(document.createTextNode(t.slice(last)));
+                n.parentNode.replaceChild(frag, n);
+            });
+        }
+        function rvSqHl(sq, kind) {   // 칸 이름을 누르면: 주변을 살짝 어둡게 하고, 기물은 통통 튀게 / 칸은 얇은 테두리를 한 번 보여 준다
+            const L = document.getElementById('sug-layer'); if (!sq) return;
+            let el = null;
+            if (kind === 'piece') el = Array.from(pieceEls.values()).find(e => e.dataset.square === sq && e.dataset.type && e.dataset.type !== 'wall' && !e.classList.contains('piece-kicked')) || null;
+            if (L) {
+                L.querySelectorAll('.sq-dim, .sq-hl').forEach(e => e.remove());
+                const NS = 'http://www.w3.org/2000/svg', c = getCoords(sq), added = [];
+                const dim = document.createElementNS(NS, 'path');   // 그 칸만 뚫린 어두운 막
+                dim.setAttribute('class', 'sq-dim'); dim.setAttribute('fill-rule', 'evenodd'); dim.setAttribute('fill', 'rgba(0,0,0,.42)');
+                dim.setAttribute('d', `M0 0H100V100H0Z M${c.x} ${c.y}h12.5v12.5h-12.5Z`); L.appendChild(dim); added.push(dim);
+                if (!el) {
+                    const sw = .45, r = document.createElementNS(NS, 'rect');
+                    r.setAttribute('class', 'sq-hl'); r.setAttribute('x', c.x + sw / 2); r.setAttribute('y', c.y + sw / 2); r.setAttribute('width', 12.5 - sw); r.setAttribute('height', 12.5 - sw);
+                    r.setAttribute('fill', 'none'); r.setAttribute('stroke', '#4dabf7'); r.setAttribute('stroke-width', sw); L.appendChild(r); added.push(r);
+                }
+                setTimeout(() => added.forEach(e => { if (e.parentNode) e.remove(); }), 1250);
+            }
+            if (el) { el.classList.remove('piece-sqhl'); void el.offsetWidth; el.classList.add('piece-sqhl'); clearTimeout(el.__sqhlT); el.__sqhlT = setTimeout(() => el.classList.remove('piece-sqhl'), 900); }
         }
         function rvSugSquare(L, sq, color) {
             const c = getCoords(sq), r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -6368,21 +6718,22 @@
                 const W = same ? null : f.why; let h = '';
                 const blk = (cls, title, lines, pv, mv, key, deep, tip) => `<div class="blk ${cls}"><b>${title}</b>${lines.map(t => `<div${/지뢰를 밟아 파괴됐어요/.test(t) ? ' class="mine-note"' : ''}>${rvJosa(t)}</div>`).join('')}${deep && deep.length ? deep.map(t => Array.isArray(t) ? `<div class="deep"><span class="tg">${t[0]}</span><span class="tx">${rvJosa(t[1])}</span></div>` : `<div class="deep"><span class="tx">${rvJosa(t)}</span></div>`).join('') : ''}${tip ? `<div class="tip">${rvJosa(tip)}</div>` : ''}${pv ? `<div class="pv-wrap${rvPvOpenSet.has(i + ':' + key) ? ' open' : ''}" data-k="${key}"><button type="button" class="pv-tg" aria-expanded="${rvPvOpenSet.has(i + ':' + key)}"><span>예상 진행</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button><div class="pv-body"><div class="pv-in"><div class="pv-row">${mv && mv.length ? `<button type="button" class="pv-play" data-k="${key}" aria-label="예상 진행 재생">${PV_ICO.play}</button>` : ''}<div class="pv">${pv}</div></div></div></div></div>` : ''}</div>`;
                 if (W) {
-                    if (W.goodMode) h += blk('good', '이 수가 좋은 이유', W.good, W.pb, W.pbm, 'pb', W.goodDeep);
+                    if (W.goodMode) h += blk('good', '이 수가 좋은 이유', W.good, W.pb, W.pbm, 'pb', W.goodDeep, W.tip);
                     else {
                         if (W.bad.length) h += blk(W.badPos ? 'good' : 'bad', W.badPos ? '둔 수 (좋은 점)' : '둔 수', W.bad, W.pb, W.pbm, 'pb', W.badDeep, W.tip);
                         if (W.good.length) h += blk('good', '추천 수', W.good, W.pg, W.pgm, 'pg', W.goodDeep);
                     }
+                    if (W.augRows && W.augRows.length) h += blk('aug', '증강 상황', [], '', null, 'au', W.augRows);
                     if (W.deepErr) h += `<div class="err">추가 분석 오류: ${String(W.deepErr).replace(/</g, '&lt;')}</div>`;
                     if (W.err) h += `<div class="err">설명 생성 중 오류: ${String(W.err).replace(/</g, '&lt;')}</div>`;
                 }
-                why.innerHTML = h ? '<div class="why-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M10 21H3v-7M21 3l-7.5 7.5M3 21l7.5-7.5"/></svg></div>' + h : ''; why.scrollTop = 0; rvWhyIconBind(why); why.style.display = h ? '' : 'none'; if (!h) rvWhySheet(false);
-                why.onclick = e => { const b = e.target && e.target.closest ? e.target.closest('.pv-play') : null, tg = e.target && e.target.closest ? e.target.closest('.pv-tg') : null; if (tg) { rvPvFold(why, tg, i); return; } if (b) rvPvToggle(i, b.dataset.k, b); else if (!document.body.classList.contains('wide-mode') || document.body.classList.contains('why-sheet')) { if (!(window.getSelection && String(window.getSelection()))) rvWhySheet(); } };
+                why.innerHTML = h ? '<div class="why-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M10 21H3v-7M21 3l-7.5 7.5M3 21l7.5-7.5"/></svg></div>' + h : ''; why.scrollTop = 0; rvWhyLink(why); rvWhyIconBind(why); why.style.display = h ? '' : 'none'; if (!h) rvWhySheet(false);
+                why.onclick = e => { { const q = e.target && e.target.closest ? e.target.closest('.sq-ref') : null; if (q) { rvSqHl(q.dataset.sq, q.dataset.kind); return; } } const b = e.target && e.target.closest ? e.target.closest('.pv-play') : null, tg = e.target && e.target.closest ? e.target.closest('.pv-tg') : null; if (tg) { rvPvFold(why, tg, i); return; } if (b) rvPvToggle(i, b.dataset.k, b); else if (!document.body.classList.contains('wide-mode') || document.body.classList.contains('why-sheet')) { if (!(window.getSelection && String(window.getSelection()))) rvWhySheet(); } };
             }
         }
         // ---- 예상 진행 재생 (v3.69, v3.71 보강). 그 수를 두기 직전 판에서 예상 진행(최대 5수)을 한 수씩 판 위에서 보여 준다.
         //      재생 중에는 아래 재생 바가 '예상 진행'용으로 바뀌고(1/5처럼 표시, 끌어서 앞뒤로 볼 수 있다), 평가 배지는 숨긴다. 끝나면 원래 기록 위치로 되돌아간다 ----
-        let rvPvTok = 0, rvPvS = null;
+        let rvPvTok = 0, rvPvS = null, rvPvSheetIdx = -1;   // rvPvSheetIdx: 해설을 크게 펼친 채 예상 진행을 눌렀을 때, 재생 바를 보이려고 접어 둔 장면(끝나면 다시 펼친다)
         const rvPvOpenSet = new Set();   // v3.78: 펼쳐 둔 '예상 진행' (수 번호:pb|pg). 다른 장면으로 넘어가면 비운다(rvSugClear)
         const PV_ICO = {
             play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>',
@@ -6406,6 +6757,7 @@
         function rvPvEnd() {   // 예상 진행 재생을 끝내고, 재생 바를 원래 기록 위치로 되돌린다
             rvPvTok++;
             if (!rvPvS) return; rvPvS = null;
+            { const re = rvPvSheetIdx; rvPvSheetIdx = -1; if (re >= 0) requestAnimationFrame(() => { if (rvSugIdx === re && replayActive && !document.body.classList.contains('why-sheet') && !document.body.classList.contains('wide-mode')) { const w = document.getElementById('rp-sug-why'); if (w && w.style.display !== 'none') rvWhySheet(true); } }); }
             const bar = document.getElementById('replay-bar'); if (bar) bar.classList.remove('pv-mode');
             const sk = document.getElementById('replay-seek'); sk.max = Math.max(0, replayFrames.length - 1); sk.value = replayIdx; rvPvSnap(seekPos(replayIdx)); rvPvPlayIcon();
             try { const lab = replayLabelParts(replayIdx); document.getElementById('replay-count').innerText = lab.count; document.getElementById('replay-text').innerText = lab.text; } catch (e) {}
@@ -6467,6 +6819,7 @@
         }
         function rvPvPlay(i, mv, btn) {   // 둔 수 / 추천 수의 예상 진행을 처음부터 시작 (다른 쪽을 재생 중이었어도 바가 뚝 바뀐다)
             const L = document.getElementById('sug-layer'), why = document.getElementById('rp-sug-why');
+            if (document.body.classList.contains('why-sheet')) { rvPvSheetIdx = i; rvWhySheet(false); }   // 예상 진행을 볼 때는 재생 바가 보여야 하므로 크게 펼친 해설을 접는다
             rvPvTok++; if (why) why.querySelectorAll('.pv-play').forEach(b => rvPvBtn(b, ''));
             rvPvBtn(btn, 'run'); if (L) L.innerHTML = '';
             rvPvS = { i, mv, k: -1, btn, playing: false, fresh: true };
@@ -6495,7 +6848,7 @@
                         const fr = replayFrames[i]; if (!fr) { done(); return; }
                         if (!good) fr.rm = d.rm || null; fr.why = d.why; if (d.rv && fr.rv && d.rv.c !== fr.rv.c) { fr.rv = d.rv; fr.rvFixed = !!d.fixed; } done();
                     });
-                    try { rvW.postMessage({ t: 'why', id, i, prev: rvPlain(replayFrames[i - 1]), f: rvPlain(f) }); } catch (e) { rvWHandlers.delete(id); viaMain(); }
+                    try { rvW.postMessage({ t: 'why', id, i, prev: rvPlain(replayFrames[i - 1]), older: [2, 3, 4].map(k => replayFrames[i - k] ? rvPlain(replayFrames[i - k]) : null), f: rvPlain(f) }); } catch (e) { rvWHandlers.delete(id); viaMain(); }
                 });
             } else rvSugShow(i);
         }
@@ -6690,7 +7043,7 @@
                 if (d.t === 'analyze') { job = { id: d.id, frames: d.frames, todo: d.todo }; nativeST(pump, 0); }
                 else if (d.t === 'cancel') job = null;
                 else if (d.t === 'why') {
-                    const arr = []; arr[d.i - 1] = d.prev; arr[d.i] = d.f; const f = arr[d.i];
+                    const arr = []; arr[d.i - 1] = d.prev; (d.older || []).forEach((o, k) => { if (o) arr[d.i - 2 - k] = o; }); arr[d.i] = d.f; const f = arr[d.i];
                     try { if (!api.RV_GOOD_CLS[f.rv.c] && f.rm === undefined) api.rvSugGet(arr, d.i); api.rvWhyBuild(arr, d.i); }
                     catch (err) { f.why = f.why || { bad: [], good: [], pb: '', pg: '', goodMode: false, err: String(err && err.message || err) }; }
                     postMessage({ t: 'why', id: d.id, rm: f.rm === undefined ? null : f.rm, why: f.why, rv: f.rv || null, fixed: !!f.rvFixed });
@@ -6725,7 +7078,7 @@
             } catch (e) { rvWFail(); }
         }
         function rvWhenReady(cb) { rvWorkerEnsure(); if (rvWState === 'ready') cb(true); else if (rvWState === 'fail') cb(false); else rvWWaiters.push(cb); }
-        function rvPlain(f) { const o = { kind: f.kind, from: f.from, to: f.to, by: f.by, s: f.s, captured: f.captured || null }; if (f.rv) o.rv = f.rv; if (f.rm !== undefined) o.rm = f.rm; return o; }
+        function rvPlain(f) { const o = { kind: f.kind, from: f.from, to: f.to, by: f.by, s: f.s, captured: f.captured || null }; if (f.rv) o.rv = f.rv; if (f.rm !== undefined) o.rm = f.rm; if (f.kind === 'augment') { o.name = f.name; o.icon = f.icon; o.t = f.t; } return o; }   // v3.90: 증강 프레임은 이름·아이콘·대상 칸도 함께 보낸다(해설의 '직전 증강')
         function rvRunViaWorker(frames, todo, runMain) {   // true: 워커가 맡았다(또는 준비되는 대로 맡는다) / false: 워커를 못 써서 호출한 쪽이 메인 스레드로 돌려야 함
             rvWorkerEnsure(); if (rvWState === 'fail') return false;
             const id = ++rvWJob; let last = performance.now();
@@ -6926,7 +7279,7 @@
             first: '<svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zM9.5 12 18 6v12z"/></svg>', last: '<svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 6v12l8.5-6z"/></svg>',
             prev: '<svg viewBox="0 0 24 24"><path d="M15.4 6 14 4.6 6.6 12 14 19.4 15.4 18 9.4 12z"/></svg>', next: '<svg viewBox="0 0 24 24"><path d="M8.6 6 10 4.6 17.4 12 10 19.4 8.6 18l6-6z"/></svg>'
         };
-        ['first', 'prev', 'next', 'last'].forEach(k => { document.getElementById('rp-' + k).innerHTML = RP_ICON[k]; });
+        ['prev', 'next'].forEach(k => { document.getElementById('rp-' + k).innerHTML = RP_ICON[k]; });
         document.getElementById('rp-play').innerHTML = RP_ICON.pause;
         function renderReplayMarks() {   // 증강이 일어난 시점을 재생 바 위에 점으로 표시
             const box = document.getElementById('rp-marks'), n = replayFrames.length - 1; box.innerHTML = '';
@@ -7274,8 +7627,9 @@
         // 설명 패널을 탭하면 판 바로 아래부터 진행 막대 위까지를 크게 쓰는 시트로 펼친다. 자리(slot)가 그대로 남아 레이아웃이 움직이지 않고, 판은 그대로 보인다.
         function rvPlaceWhySheet() {
             const sh = document.getElementById('rp-why-sheet'), slot = document.getElementById('rp-why-slot'), cont = document.getElementById('board-container'); if (!sh || !slot || !cont) return;
-            const top = Math.round(cont.getBoundingClientRect().bottom + 6), bottom = Math.round(window.innerHeight - slot.getBoundingClientRect().bottom);
-            const fr = document.getElementById('game-frame').getBoundingClientRect(); sh.style.top = top + 'px'; sh.style.bottom = Math.max(0, bottom) + 'px'; sh.style.left = Math.round(fr.left) + 'px'; sh.style.width = Math.round(fr.width) + 'px'; sh.style.transform = 'none';
+            const fr = document.getElementById('game-frame').getBoundingClientRect();
+            const top = Math.round(cont.getBoundingClientRect().bottom + 4), bottom = Math.round(window.innerHeight - fr.bottom);   // 아래는 재생 바 자리를 지나 틀 끝까지
+            sh.style.top = top + 'px'; sh.style.bottom = Math.max(0, bottom) + 'px'; sh.style.left = Math.round(fr.left) + 'px'; sh.style.width = Math.round(fr.width) + 'px'; sh.style.transform = 'none';
         }
         // v3.83: '크게 보기' 아이콘 — 아이콘 자리에 글자가 지나가면(스크롤·줄바꿈) 사라지고, 비면 다시 나타난다
         function rvWhyIcon(why) {
@@ -7292,6 +7646,15 @@
             if (!why.__ic) { why.__ic = 1; why.addEventListener('scroll', () => rvWhyIconSoon(why), { passive: true }); window.addEventListener('resize', () => rvWhyIconSoon(why)); }
             rvWhyIconSoon(why); setTimeout(() => rvWhyIconSoon(why), 250);
         }
+        function rvWhyGrow(sh, slot) {   // 작은 설명 패널 자리에서 시작해 위아래로 커지며 판 아래 전체를 채운다
+            const r = slot.getBoundingClientRect(), W = window.innerHeight;
+            sh.style.transition = 'none'; sh.style.transform = 'none';
+            sh.style.top = Math.round(r.top) + 'px'; sh.style.bottom = Math.max(0, Math.round(W - r.bottom)) + 'px'; sh.style.left = Math.round(r.left) + 'px'; sh.style.width = Math.round(r.width) + 'px';
+            void sh.offsetWidth;
+            const e = '.3s cubic-bezier(.2,.8,.2,1)'; sh.style.transition = `top ${e}, bottom ${e}, left ${e}, width ${e}`;
+            rvPlaceWhySheet();
+            setTimeout(() => { if (sh.parentNode) sh.style.transition = ''; }, 360);
+        }
         function rvWhySheet(open) {
             const why = document.getElementById('rp-sug-why'); if (!why) return; const isOpen = document.body.classList.contains('why-sheet');
             if (open === undefined) open = !isOpen; if (open === isOpen) return;
@@ -7300,7 +7663,7 @@
                 const slot = document.createElement('div'); slot.id = 'rp-why-slot'; slot.style.cssText = 'flex:0 0 auto;height:' + why.offsetHeight + 'px'; why.parentNode.insertBefore(slot, why);
                 const sh = document.createElement('div'); sh.id = 'rp-why-sheet'; sh.innerHTML = '<div class="ws-bar"><span>설명</span><button type="button" class="ws-x" aria-label="닫기">✕</button></div>';
                 sh.appendChild(why); document.body.appendChild(sh); document.body.classList.add('why-sheet');
-                sh.querySelector('.ws-x').onclick = () => rvWhySheet(false); rvPlaceWhySheet(); why.scrollTop = 0; why.classList.remove('more');
+                sh.querySelector('.ws-x').onclick = () => rvWhySheet(false); rvWhyGrow(sh, slot); why.scrollTop = 0; why.classList.remove('more');
             } else {
                 const slot = document.getElementById('rp-why-slot'), sh = document.getElementById('rp-why-sheet');
                 if (slot && slot.parentNode) { slot.parentNode.insertBefore(why, slot); slot.remove(); } if (sh) sh.remove(); document.body.classList.remove('why-sheet');
@@ -7312,6 +7675,18 @@
         window.addEventListener('resize', scheduleFit); window.addEventListener('orientationchange', () => setTimeout(scheduleFit, 200));
         if (window.ResizeObserver) { const ro = new ResizeObserver(scheduleFit); ['.header', '#history-strip', '#game-controls', '#replay-bar', '#blackout-badge', '#rp-sug-why'].forEach(q => { const el = document.querySelector(q); if (el) ro.observe(el); }); }
         new MutationObserver(scheduleFit).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        // 가로 모드에서는 분석 패널(#rp-sug-why)을 재생 바 안에서 꺼내 채팅 기록 칸(오른쪽 패널 가운데)에 둔다. 세로 모드로 돌아오면 원래 자리(진행 막대 위)로 되돌린다.
+        function rvWhyHome() {
+            const why = document.getElementById('rp-sug-why'), frame = document.getElementById('game-frame'), bar = document.getElementById('replay-bar'), seek = document.getElementById('rp-seek'), log = document.getElementById('chat-log');
+            if (!why || !frame || !bar || !seek || !log) return;
+            if (document.body.classList.contains('why-sheet')) return;   // 시트로 펼쳐진 동안은 옮기지 않는다
+            const wide = document.body.classList.contains('wide-mode');
+            if (wide) { if (why.parentNode !== frame) frame.insertBefore(why, log.nextSibling); }
+            else if (why.parentNode !== bar) bar.insertBefore(why, seek);
+        }
+        new MutationObserver(rvWhyHome).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        rvWhyHome();
+
         ['history-strip', 'blackout-badge', 'btn-settings-game'].forEach(id => { const el = document.getElementById(id); if (el) new MutationObserver(scheduleFit).observe(el, { attributes: true, attributeFilter: ['style'] }); });
         setTimeout(scheduleFit, 300);
         { const why = document.getElementById('rp-sug-why');   // 설명 패널: 아래에 더 있을 때 끝을 흐리게 하는 표시를 갱신
@@ -7347,8 +7722,6 @@
         document.getElementById('btn-replay').onclick = startReplay;
         document.getElementById('rp-exit').onclick = exitReplay;
         document.getElementById('btn-replay-exit').onclick = async () => { if (isSpectating) { if (await askConfirm('관전을 그만할까요?', { ok: '나가기' })) leaveSpectate(); } else exitReplay(); };
-        document.getElementById('rp-first').onclick = () => { if (rvPvControl('first')) return; replaySetPlaying(false); replayShow(0, false); };
-        document.getElementById('rp-last').onclick = () => { if (rvPvControl('last')) return; replaySetPlaying(false); replayShow(replayFrames.length - 1, false); };
         document.getElementById('rp-prev').onclick = () => { if (rvPvControl('prev')) return; replaySetPlaying(false); replayShow(replayIdx - 1, false); };
         document.getElementById('rp-next').onclick = () => { if (rvPvControl('next')) return; replaySetPlaying(false); replayShow(replayIdx + 1, true); };
         document.getElementById('rp-play').onclick = () => { if (rvPvControl('play')) return; if (!replayPlaying && replayIdx >= replayFrames.length - 1) replayShow(0, false); replaySetPlaying(!replayPlaying); };
