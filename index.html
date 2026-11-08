@@ -687,6 +687,7 @@
         .s-val { font-size: 0.9rem; color: #aaa; }
         .s-row .switch { flex-shrink: 0; }
         .piece-pact { filter: drop-shadow(0 0 5px rgba(255,60,50,0.9)); }
+        .piece-fate { filter: drop-shadow(0 0 5px rgba(190,110,255,0.95)); }
 
         /* 감정표현: ❓ 갸웃거리며 튀어나옴 / ☠️ 덜덜 떨다 초록 기운을 내뿜음 / 💩 떨어져 납작해졌다 튀어 오름 */
         @keyframes animQuestion { 0% { transform: scale(0.4) rotate(-25deg); opacity: 0; } 25% { transform: scale(1.3) rotate(14deg); opacity: 1; } 50% { transform: scale(1.05) rotate(-12deg); } 75% { transform: scale(1.15) rotate(8deg); } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
@@ -708,6 +709,7 @@
         .fx-chip.c-pro { background: #d4a017; color: #222; }
         .fx-chip.c-rev { background: rgba(115,60,170,0.94); }
         .fx-chip.c-pact { background: rgba(170,35,35,0.94); }
+        .fx-chip.c-fate { background: rgba(125,60,190,0.94); }
         @keyframes pieceSpawn { 0% { transform: scale(0.35); opacity: 0; filter: brightness(2.2); } 55% { transform: scale(1.12); opacity: 1; filter: brightness(1.45); } 100% { transform: scale(1); opacity: 1; filter: none; } }
         @keyframes pieceMorph { 0% { transform: scale(1); filter: brightness(1); } 28% { transform: scale(0.62) rotate(-8deg); filter: brightness(2.4); } 60% { transform: scale(1.2) rotate(4deg); filter: brightness(1.6); } 100% { transform: scale(1) rotate(0); filter: none; } }
         .piece-spawn { animation: pieceSpawn 0.45s cubic-bezier(.2, .9, .3, 1.2); }
@@ -2446,6 +2448,52 @@
         });
         function markSelectedEmoji() { emojiContainer.querySelectorAll('.emoji-item').forEach(sp => sp.classList.toggle('sel', sp.innerText === userProfile.icon)); }
 
+        // ===== 증강 정의 (한 곳에서 관리) =====
+        // 증강 하나의 부가 정보(연출 지연·분류·위험 표시·연출 종류·가산점·승리 칭호)를 이 표 한 줄에 모았다.
+        // 새 증강을 넣을 때는 AUGMENT_POOL에 효과를 쓰고, 여기에 한 줄만 추가하면 나머지 표는 자동으로 만들어진다.
+        // delay 연출 시간(ms) / category 분류 / risk 위험 표시 / kind 연출 색·종류 / stagger·scale 번개 연출 조정 / noLead 대상 표시 생략 / bot 봇 가산점 / win [칭호 id, 아이콘, 칭호]
+        const AUGMENT_SPEC = {
+            '네크로맨서': { delay: 1900, category: '소환', risk: '자기 희생', kind: 'summon', win: ['aug_necro', '💀', '죽음의 군주'] },
+            '신의 심판': { delay: 1500, category: '피해', risk: '비숍 희생', kind: 'damage', stagger: 60, win: ['aug_judge', '⚡', '심판자'] },
+            '공성전': { delay: 2100, category: '피해', kind: 'damage', noLead: true, win: ['aug_siege', '🏹', '공성 사령관'] },
+            '벼락': { delay: 1300, category: '피해', kind: 'damage', stagger: 140, win: ['aug_thunder', '🌩️', '천둥의 신'] },
+            '독구름': { delay: 1500, category: '피해', kind: 'poison', win: ['aug_poison', '☠️', '독사'] },
+            '암살': { delay: 1300, category: '피해', kind: 'damage', win: ['aug_assassin', '🗡️', '암살자'] },
+            '연계 분쇄': { delay: 1500, category: '피해', kind: 'damage', win: ['aug_chain', '⛓️', '사슬 파괴자'] },
+            '흑사': { delay: 1400, category: '피해', kind: 'damage', stagger: 70, win: ['aug_blackdeath', '♠️', '역병 의사'] },
+            '복수': { delay: 1400, category: '피해', kind: 'damage', win: ['aug_revenge', '🥀', '복수의 화신'] },
+            '신성한 폭발': { category: '피해', kind: 'damage', scale: 1.35, win: ['aug_divine', '💥', '성전 집행자'] },
+            '징집': { delay: 1300, category: '소환', kind: 'summon', win: ['aug_draft', '🪖', '징집관'] },
+            '축복': { delay: 1400, category: '소환', kind: 'summon', win: ['aug_bless', '🕊️', '성직자'] },
+            '숲의 망령': { delay: 1400, category: '소환', kind: 'summon', win: ['aug_forest', '🌲', '숲의 주인'] },
+            '기사 서임': { delay: 1300, category: '유틸', kind: 'upgrade', win: ['aug_knight', '⚔️', '기사단장'] },
+            '프로모션': { delay: 1400, category: '유틸', kind: 'upgrade', win: ['aug_promo', '👑', '대관식의 주인'] },
+            '캐슬링+': { delay: 1300, category: '유틸', kind: 'upgrade', win: ['aug_castle', '🏰', '성주'] },
+            '나이트 클럽': { delay: 1500, category: '유틸', kind: 'upgrade', win: ['aug_club', '🕺', '파티 피플'] },
+            '진군 명령': { category: '이동', kind: 'move', noLead: true, win: ['aug_march', '🚩', '총사령관'] },
+            '그림자 교체': { delay: 1300, category: '이동', kind: 'move', win: ['aug_shadow', '🥷', '그림자 술사'] },
+            '저주': { delay: 1600, category: '유틸', kind: 'curse', win: ['aug_curse', '🐸', '개구리 왕자'] },
+            '혼란': { delay: 1500, category: '이동', kind: 'move', win: ['aug_chaos', '🌀', '혼돈의 지배자'] },
+            '광기': { delay: 1400, category: '이동', risk: '대상 지정', kind: 'curse', win: ['aug_madness', '🤡', '광대'] },
+            '강제 이주': { delay: 1400, category: '이동', kind: 'move', win: ['aug_exile', '🧳', '추방자'] },
+            '파도': { category: '이동', kind: 'move', noLead: true, win: ['aug_wave', '🌊', '포세이돈'] },
+            '덩굴': { category: '유틸', kind: 'bind', win: ['aug_vine', '🌿', '자연인'] },
+            '빛의 수호': { delay: 1400, category: '유틸', kind: 'shield', win: ['aug_light', '🛡️', '수호성인'] },
+            '여신의 가호': { delay: 1600, category: '유틸', kind: 'shield', win: ['aug_goddess', '✨', '여신'] },
+            '마인드 컨트롤': { delay: 1800, category: '유틸', kind: 'curse', win: ['aug_mind', '🧠', '정신 지배자'] },
+            '차원 장벽': { delay: 1300, category: '유틸', risk: '위치 지정', kind: 'summon', win: ['aug_barrier', '🧱', '건축가'] },
+            '자아 분열': { delay: 1500, category: '유틸', kind: 'curse', win: ['aug_split', '😵‍💫', '정신병자'] },
+            '운명의 수레바퀴': { category: '이동', kind: 'move', noLead: true, win: ['aug_wheel', '🎡', '빙글빙글'] },
+            '앙파상+': { category: '이동', kind: 'move', noLead: true, win: ['aug_hop', '🎼', '비행청소년'] },
+            '운명공동체': { delay: 1500, category: '유틸', kind: 'curse', bot: 25, win: ['aug_fate', '🔔', '월하노인'] },
+            '잭팟': { delay: 1700, category: '유틸', kind: 'upgrade' },
+            '아기는 어떻게 태어나?': { delay: 1600, category: '소환', kind: 'summon' },
+            '암전': { delay: 1600, category: '유틸', kind: 'curse', bot: 60 },
+            '수퍼 워너비': { delay: 1500, category: '유틸', risk: '대상 지정', kind: 'upgrade', bot: 25 },
+            '동귀어진': { delay: 1300, category: '유틸', risk: '대상 지정', kind: 'damage', bot: 10 },
+            '지뢰 찾기': { category: '피해', risk: '위치 지정', kind: 'summon', noLead: true, bot: 20 },
+        };
+        const specMap = f => { const o = {}; for (const n in AUGMENT_SPEC) { const v = typeof f === 'function' ? f(AUGMENT_SPEC[n]) : AUGMENT_SPEC[n][f]; if (v !== undefined) o[n] = v; } return o; };
         // ===== 업적 / 칭호 =====
         // 저장: 이 기기(localStorage, 계정별) + 서버(users/{uid}/ach). 서버 규칙이 아직 없어도 기기에는 남는다.
         const ACHIEVEMENTS = [
@@ -2457,19 +2505,7 @@
             { id: 'pvp_win10', icon: '🍄', title: '마스터', desc: '사람을 상대로 10번 이긴다', goal: 10, counter: 'pvpWin' }
         ];
         // 증강으로 마무리: 내가 증강을 쓴 직후 상대가 체크메이트 되거나 킹이 사라지면 그 증강의 칭호를 얻는다 (증강 아이콘 사용)
-        const AUG_WIN_ACH = [
-            ['aug_necro', '네크로맨서', '💀', '죽음의 군주'], ['aug_judge', '신의 심판', '⚡', '심판자'], ['aug_siege', '공성전', '🏹', '공성 사령관'],
-            ['aug_thunder', '벼락', '🌩️', '천둥의 신'], ['aug_poison', '독구름', '☠️', '독사'], ['aug_assassin', '암살', '🗡️', '암살자'],
-            ['aug_chain', '연계 분쇄', '⛓️', '사슬 파괴자'], ['aug_blackdeath', '흑사', '♠️', '역병 의사'], ['aug_revenge', '복수', '🥀', '복수의 화신'],
-            ['aug_divine', '신성한 폭발', '💥', '성전 집행자'], ['aug_draft', '징집', '🪖', '징집관'], ['aug_bless', '축복', '🕊️', '성직자'],
-            ['aug_forest', '숲의 망령', '🌲', '숲의 주인'], ['aug_knight', '기사 서임', '⚔️', '기사단장'], ['aug_promo', '프로모션', '👑', '대관식의 주인'],
-            ['aug_castle', '캐슬링+', '🏰', '성주'], ['aug_club', '나이트 클럽', '🕺', '파티 피플'], ['aug_march', '진군 명령', '🚩', '총사령관'],
-            ['aug_shadow', '그림자 교체', '🥷', '그림자 술사'], ['aug_curse', '저주', '🐸', '개구리 왕자'], ['aug_chaos', '혼란', '🌀', '혼돈의 지배자'],
-            ['aug_madness', '광기', '🤡', '광대'], ['aug_exile', '강제 이주', '🧳', '추방자'], ['aug_wave', '파도', '🌊', '포세이돈'],
-            ['aug_vine', '덩굴', '🌿', '자연인'], ['aug_light', '빛의 수호', '🛡️', '수호성인'], ['aug_goddess', '여신의 가호', '✨', '여신'],
-            ['aug_mind', '마인드 컨트롤', '🧠', '정신 지배자'], ['aug_barrier', '차원 장벽', '🧱', '건축가'], ['aug_split', '자아 분열', '😵‍💫', '정신병자'],
-            ['aug_wheel', '운명의 수레바퀴', '🎡', '빙글빙글'], ['aug_hop', '앙파상+', '🎼', '비행청소년']
-        ];
+        const AUG_WIN_ACH = Object.keys(AUGMENT_SPEC).filter(n => AUGMENT_SPEC[n].win).map(n => { const w = AUGMENT_SPEC[n].win; return [w[0], n, w[1], w[2]]; });
         const hasBatchim = n => { for (let i = n.length - 1; i >= 0; i--) { const c = n.charCodeAt(i); if (c >= 0xAC00 && c <= 0xD7A3) return (c - 0xAC00) % 28; } return 0; };
         AUG_WIN_ACH.forEach(([id, name, icon, title]) => {
             const b = hasBatchim(name), ro = (b === 0 || b === 8) ? '로' : '으로';   // 받침 없음/ㄹ 받침은 '로'
@@ -4130,11 +4166,9 @@
         function serializeGameState() {
             return JSON.stringify({
                 board: game.board(), turn: game.turn(), castling: game.castling, ep_square: game.ep_square,
-                is_game_over: game.is_game_over, moveCount: moveCount, activePoison: activePoison,
-                rootedPieces: rootedPieces, invinciblePieces: invinciblePieces, mines: mines, prospects: prospects, pactPieces: pactPieces, pendingAugments: pendingAugments,
-                activeWalls: activeWalls, reversedPawns: reversedPawns, reversedUids: reversedUids,
+                is_game_over: game.is_game_over, moveCount: moveCount, ...packAugmentState(), pendingAugments: pendingAugments,
                 actionCursor: lastActionKey, gst: gameStartTs,
-                jackpotBonus: jackpotBonus, lastKiller: lastKiller, babyEffect: babyEffect, blackout: blackout, uidCounter: game.pieceUidCounter, castleUids: game.castleUids, keepUids: game.keepUids || {},
+                uidCounter: game.pieceUidCounter, castleUids: game.castleUids, keepUids: game.keepUids || {},
                 activeAugmentOptions: activeAugmentOptions,
                 activeAugmentPlayerColor: activeAugmentPlayerColor,
                 selectedAugmentIdx: selectedAugmentIdx
@@ -4143,15 +4177,9 @@
         function deserializeGameState(stateStr, quiet) {
             const state = JSON.parse(stateStr);
             game._board = state.board; game._turn = state.turn; game.castling = state.castling; game.ep_square = state.ep_square;
-            game.is_game_over = state.is_game_over; moveCount = state.moveCount; activePoison = state.activePoison;
-            rootedPieces = state.rootedPieces || {}; invinciblePieces = state.invinciblePieces || {}; mines = state.mines || []; prospects = state.prospects || {}; pactPieces = state.pactPieces || {}; pendingAugments = state.pendingAugments;
-            activeWalls = state.activeWalls || [];
-            { const rp = state.reversedPawns; reversedPawns = (rp && rp.color !== undefined) ? { w: rp.color === 'w' ? rp.duration : 0, b: rp.color === 'b' ? rp.duration : 0 } : (rp || { w: 0, b: 0 }); }   // 이전 저장 형식 호환
-            reversedUids = state.reversedUids || { w: {}, b: {} };
+            game.is_game_over = state.is_game_over; moveCount = state.moveCount; pendingAugments = state.pendingAugments;
+            unpackAugmentState(state);
             if (!state.reversedUids) ['w', 'b'].forEach(c => { if (reversedPawns[c] > 0) game.board().forEach(row => row.forEach(pc => { if (pc && pc.type === 'p' && pc.color === c) reversedUids[c][pc.uid] = true; })); });   // 구버전 저장본: 현재 폰 전체를 대상으로
-            jackpotBonus = state.jackpotBonus || { w: 0, b: 0 }; lastKiller = state.lastKiller || { w: null, b: null };
-            { const be = state.babyEffect; babyEffect = (be && be.color) ? { w: be.color === 'w' ? be : null, b: be.color === 'b' ? be : null } : (be || { w: null, b: null }); }
-            { const bo = state.blackout; blackout = (bo && bo.target) ? { w: bo.target === 'w' ? bo.duration : 0, b: bo.target === 'b' ? bo.duration : 0 } : (bo || { w: 0, b: 0 }); }
             if (state.castleUids) game.castleUids = state.castleUids; else game.rebuildCastleUids();
             game.keepUids = state.keepUids || {};
             if (state.uidCounter) game.pieceUidCounter = Math.max(game.pieceUidCounter, state.uidCounter);
@@ -4410,9 +4438,34 @@
         let selectedSquare = null; let legalMoves = []; let moveCount = 0;
         let premove = null, premoveTimer = null, premoveReady = 0;   // 수 예약: { from, to, uid }
         const AUGMENT_INTERVAL = 7; let isSystemLocked = false; let pendingAugments = [];
-        let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {}; let mines = []; let prospects = {}; let pactPieces = {};
+        let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {}; let mines = []; let prospects = {}; let pactPieces = {}; let fateLinks = [];   // 운명공동체: [[uidA, uidB], ...]
         let futureAttack = false; let activeWalls = []; let reversedPawns = { w: 0, b: 0 }; let reversedUids = { w: {}, b: {} };   // 자아 분열 발동 당시 존재하던 폰의 uid만 효과를 받는다
         let jackpotBonus = { w: 0, b: 0 }; let lastKiller = { w: null, b: null }; let babyEffect = { w: null, b: null }; let blackout = { w: 0, b: 0 }; let targeting = null; let lastCheckKey = '';
+
+        // ---- 증강 상태 목록 (저장·복원·새 게임·도움말 초기화·봇 스냅샷이 모두 이 표 하나를 쓴다) ----
+        // 새 증강이 판 위에 오래 남는 상태가 필요하면 전역 변수를 만들고 여기에 한 줄만 추가하면 된다.
+        const AUG_STATE_FIELDS = [
+            { key: 'activePoison', init: () => [], get: () => activePoison, set: v => { activePoison = v; } },
+            { key: 'rootedPieces', init: () => ({}), get: () => rootedPieces, set: v => { rootedPieces = v; } },
+            { key: 'invinciblePieces', init: () => ({}), get: () => invinciblePieces, set: v => { invinciblePieces = v; } },
+            { key: 'mines', init: () => [], get: () => mines, set: v => { mines = v; } },
+            { key: 'prospects', init: () => ({}), get: () => prospects, set: v => { prospects = v; } },
+            { key: 'pactPieces', init: () => ({}), get: () => pactPieces, set: v => { pactPieces = v; } },
+            { key: 'fateLinks', init: () => [], get: () => fateLinks, set: v => { fateLinks = v; } },
+            { key: 'activeWalls', init: () => [], get: () => activeWalls, set: v => { activeWalls = v; } },
+            { key: 'reversedPawns', init: () => ({ w: 0, b: 0 }), get: () => reversedPawns, set: v => { reversedPawns = v; },
+              load: rp => (rp && rp.color !== undefined) ? { w: rp.color === 'w' ? rp.duration : 0, b: rp.color === 'b' ? rp.duration : 0 } : (rp || { w: 0, b: 0 }) },   // 이전 저장 형식 호환
+            { key: 'reversedUids', init: () => ({ w: {}, b: {} }), get: () => reversedUids, set: v => { reversedUids = v; } },
+            { key: 'jackpotBonus', init: () => ({ w: 0, b: 0 }), get: () => jackpotBonus, set: v => { jackpotBonus = v; } },
+            { key: 'lastKiller', init: () => ({ w: null, b: null }), get: () => lastKiller, set: v => { lastKiller = v; } },
+            { key: 'babyEffect', init: () => ({ w: null, b: null }), get: () => babyEffect, set: v => { babyEffect = v; },
+              load: be => (be && be.color) ? { w: be.color === 'w' ? be : null, b: be.color === 'b' ? be : null } : (be || { w: null, b: null }) },
+            { key: 'blackout', init: () => ({ w: 0, b: 0 }), get: () => blackout, set: v => { blackout = v; },
+              load: bo => (bo && bo.target) ? { w: bo.target === 'w' ? bo.duration : 0, b: bo.target === 'b' ? bo.duration : 0 } : (bo || { w: 0, b: 0 }) }
+        ];
+        function resetAugmentState() { AUG_STATE_FIELDS.forEach(f => f.set(f.init())); }
+        function packAugmentState() { const o = {}; AUG_STATE_FIELDS.forEach(f => { o[f.key] = f.get(); }); return o; }
+        function unpackAugmentState(o) { o = o || {}; AUG_STATE_FIELDS.forEach(f => { const v = o[f.key]; f.set(f.load ? f.load(v) : ((v === undefined || v === null) ? f.init() : v)); }); }
 
         const squareEls = new Map(); const squareList = []; const pieceEls = new Map();
         const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -4442,8 +4495,8 @@
             try { botHistory = []; BOT.seen = new Map(); } catch (e) {}
             { const cl = document.getElementById('chat-log'); if (cl) cl.innerHTML = ''; chatLogLast = null; augPickCount = 0; }
             if (networkUnsub) { try { networkUnsub(); } catch (e) {} networkUnsub = null; }
-            augKillClaim = null; game.reset(); game.keepUids = {}; moveCount = 0; activePoison = []; rootedPieces = {}; invinciblePieces = {}; mines = []; mineReveal = false; prospects = {}; pactPieces = {}; pendingAugments = [];
-            activeWalls = []; reversedPawns = { w: 0, b: 0 }; reversedUids = { w: {}, b: {} }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = { w: null, b: null }; blackout = { w: 0, b: 0 }; lastCheckKey = '';
+            augKillClaim = null; game.reset(); game.keepUids = {}; moveCount = 0; resetAugmentState(); mineReveal = false; pendingAugments = [];
+            lastCheckKey = '';
             if (targeting) { clearTargetVisuals(); targeting = null; }
             closeAugmentUI();   // 새 게임에 이전 판의 증강 선택창이 넘어오지 않게
             clearTimeout(endRevealTimer);
@@ -4479,6 +4532,7 @@
             if (prospects[uid] > 0) out.push({ cls: 'c-pro', icon: '🎖️', n: prospects[uid] });
             if (isReversed) out.push({ cls: 'c-rev', icon: '😵‍💫', n: reversedPawns[piece.color] });
             if (pactPieces[uid]) out.push({ cls: 'c-pact', icon: '⛓️', n: null });
+            if (fateLinks.some(l => l[0] === uid || l[1] === uid)) out.push({ cls: 'c-fate', icon: '🔔', n: null });
             return out;
         }
 
@@ -4522,6 +4576,7 @@
                 el.classList.toggle('piece-invincible', invinciblePieces[piece.uid] > 0);
                 el.classList.toggle('piece-prospect', prospects[piece.uid] > 0);
                 el.classList.toggle('piece-pact', !!pactPieces[piece.uid]);
+                el.classList.toggle('piece-fate', fateLinks.some(l => l[0] === piece.uid || l[1] === piece.uid));
                 const blessEff = ['w', 'b'].map(c => babyEffect[c]).find(be => be && (piece.uid === be.kUid || piece.uid === be.qUid)), isBlessed = !!blessEff;
                 el.classList.toggle('piece-blessed', isBlessed);
                 el.classList.toggle('piece-reversed', isReversed);
@@ -4589,8 +4644,8 @@
             const canvas = document.getElementById('fx-canvas');
             const ctx = canvas.getContext('2d');
             let W = 0, H = 0, cell = 0, dpr = 1, running = false, last = 0;
-            const parts = [], rings = [], flashes = [], bolts = [], beams = [], slashes = [], rays = [], marks = [], waves = [], dims = [], trails = [], charges = [], wheels = [], vines = [], chains = [], shields = [], halos = [], scorches = [], scopes = [], arrows = [], bows = [];
-            const lists = [parts, rings, flashes, bolts, beams, slashes, rays, marks, waves, dims, trails, charges, wheels, vines, chains, shields, halos, scorches, scopes, arrows, bows];
+            const parts = [], rings = [], flashes = [], bolts = [], beams = [], slashes = [], rays = [], marks = [], waves = [], dims = [], trails = [], charges = [], wheels = [], vines = [], chains = [], threads = [], shields = [], halos = [], scorches = [], scopes = [], arrows = [], bows = [];
+            const lists = [parts, rings, flashes, bolts, beams, slashes, rays, marks, waves, dims, trails, charges, wheels, vines, chains, threads, shields, halos, scorches, scopes, arrows, bows];
             const rnd = (a, b) => a + Math.random() * (b - a);
             const pick = arr => arr[(Math.random() * arr.length) | 0];
             const TAU = Math.PI * 2;
@@ -4620,7 +4675,7 @@
 
             // ---------- 생성기 ----------
             function P(o) {
-                if (parts.length > 520) return;
+                if (parts.length > 900) return;
                 const p = Object.assign({ x: 0, y: 0, vx: 0, vy: 0, g: 0, drag: 0, size: 3, dur: 0.6, t: 0, kind: 'glow',
                     color: C.orange, alpha: 1, grow: 0, tw: false, seed: Math.random() * 10 }, o);
                 p.css = 'rgb(' + rgb(p.color) + ')'; parts.push(p);
@@ -5213,6 +5268,45 @@
                 }
                 ctx.restore();
             }
+            // ---------- 운명의 실: 두 기물 사이를 부드러운 곡선으로 잇는 빛나는 실 ----------
+            function thread(from, to, dur = 1.3, bend = 1) { threads.push({ x0: from.x, y0: from.y, x1: to.x, y1: to.y, dur, bend, t: 0 }); }
+            function drawThread(o) {
+                const ease = u => 1 - Math.pow(1 - u, 3), g = ease(Math.min(1, o.t / (o.dur * 0.38)));
+                const fade = Math.min(1, (o.dur - o.t) / (o.dur * 0.35)), a = Math.max(0, fade); if (a <= 0) return;
+                const dx = o.x1 - o.x0, dy = o.y1 - o.y0, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+                const off = cell * 0.7 * o.bend * (1 + 0.1 * Math.sin(o.t * 2.2)) * (L / (cell * 3) > 1 ? 1 : 0.6 + 0.4 * L / (cell * 3));
+                const cx = (o.x0 + o.x1) / 2 + nx * off, cy = (o.y0 + o.y1) / 2 + ny * off - cell * 0.12;
+                const at = u => { const v = 1 - u; return { x: v * v * o.x0 + 2 * v * u * cx + u * u * o.x1, y: v * v * o.y0 + 2 * v * u * cy + u * u * o.y1 }; };
+                const path = (u0, u1) => { ctx.beginPath(); const N = 36; for (let i = 0; i <= N; i++) { const p = at(u0 + (u1 - u0) * i / N); if (i) ctx.lineTo(p.x, p.y); else ctx.moveTo(p.x, p.y); } ctx.stroke(); };
+                const half = g / 2, pulse = 0.85 + 0.15 * Math.sin(o.t * 3.4);
+                ctx.save(); ctx.globalAlpha = 1; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                [[cell * 0.2, 'rgba(170,90,255,', 0.08], [cell * 0.1, 'rgba(255,120,190,', 0.2], [Math.max(1.4, cell * 0.028), 'rgba(255,225,240,', 0.95]].forEach(([w, col, al]) => {
+                    ctx.lineWidth = w; ctx.strokeStyle = col + (al * a * pulse).toFixed(3) + ')';
+                    if (half > 0.001) { path(0, half); path(1 - half, 1); }
+                });
+                // 실을 따라 천천히 흐르는 빛 알갱이
+                if (g >= 1) for (let k = 0; k < 4; k++) {
+                    const u = ((o.t * 0.5 + k / 4) % 1), p = at(u), tw = 0.5 + 0.5 * Math.sin(o.t * 5 + k * 1.7), r = cell * (0.05 + 0.03 * tw);
+                    const gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 3); gr.addColorStop(0, 'rgba(255,240,250,' + (0.9 * a).toFixed(3) + ')'); gr.addColorStop(1, 'rgba(200,110,255,0)');
+                    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(p.x, p.y, r * 3, 0, TAU); ctx.fill();
+                }
+                // 양 끝의 매듭: 부드러운 빛
+                [[o.x0, o.y0], [o.x1, o.y1]].forEach(([x, y]) => {
+                    const k = Math.min(1, g * 1.4), r = cell * 0.2 * ease(k) * (0.92 + 0.08 * Math.sin(o.t * 3.4));
+                    if (r <= 0) return; const gr = ctx.createRadialGradient(x, y, 0, x, y, r);
+                    gr.addColorStop(0, 'rgba(255,230,245,' + (0.85 * a).toFixed(3) + ')'); gr.addColorStop(0.5, 'rgba(255,120,190,' + (0.35 * a).toFixed(3) + ')'); gr.addColorStop(1, 'rgba(170,90,255,0)');
+                    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+                });
+                ctx.restore();
+            }
+            // 연결이 끊어질 때: 충격 없이 빛이 풀려 위로 흩어진다
+            function fateSever(sq) {
+                const { x, y } = ctr(sq); resize(); if (!W) return;
+                flash(x, y, cell * 1.4, [255, 130, 200], 0.55, 0.6); flash(x, y, cell * 0.8, [255, 235, 245], 0.3, 0.55);
+                ring(x, y, cell * 0.12, cell * 1.3, [225, 140, 255], 0.55, 3, 0.8);
+                for (let i = 0; i < 16; i++) P({ x: x + rnd(-cell * 0.2, cell * 0.2), y: y + rnd(-cell * 0.15, cell * 0.15), vx: rnd(-26, 26), vy: UP() * rnd(25, 120), drag: 1.4, size: rnd(1.8, 3.6), dur: rnd(0.55, 0.95), kind: 'glow', color: pick([[255, 150, 205], [210, 130, 255], [255, 235, 245]]), tw: true });
+                stars(x, y, 6, cell * 0.45, [[255, 225, 240], [225, 170, 255]]); kick();
+            }
             function shieldFx(x, y, r, color, dur, sides = 6) { shields.push({ x, y, r, color, dur, sides, t: 0 }); }
             function drawShield(o) {
                 const ap = Math.min(1, o.t / 0.24), c1 = 1.70158, e = 1 + (c1 + 1) * Math.pow(ap - 1, 3) + c1 * Math.pow(ap - 1, 2);
@@ -5581,6 +5675,14 @@
                         swirl(p.x, p.y, 10, [[255, 70, 60], [255, 160, 90]], cell * 0.55, cell * 0.1, 0.65, 1);   // 붉은 기운이 기물로 모여든다
                         at(620, () => { flash(p.x, p.y, cell * 1.2, [255, 60, 50], 0.45, 0.55); ring(p.x, p.y, cell * 0.1, cell * 0.8, [255, 80, 60], 0.45, 3); }); });
                 },
+                '운명공동체'(t) {
+                    const pts = t.map(ctr); if (pts.length < 2) return;
+                    pts.forEach((p, i) => {
+                        flash(p.x, p.y, cell * 1.2, [200, 120, 255], 0.5, 0.5);
+                        swirl(p.x, p.y, 6, [[255, 170, 215], [215, 150, 255]], cell * 0.45, cell * 0.08, 0.5, i ? -1 : 1);
+                    });
+                    at(120, () => { thread(pts[0], pts[1], 1.3); streak(pts[0], pts[1], 5, [[255, 190, 225], [225, 170, 255]], 0.6, 0.5); streak(pts[1], pts[0], 5, [[255, 190, 225], [225, 170, 255]], 0.6, 0.5); });
+                },
                 '수퍼 워너비'(t) {
                     t.forEach(sq => { const p = ctr(sq); flash(p.x, p.y, cell * 1.4, C.gold, 0.5, 0.6); ring(p.x, p.y, cell * 0.1, cell * 1.0, C.gold, 0.5, 3);
                         at(140, () => ring(p.x, p.y, cell * 0.1, cell * 1.4, C.white, 0.55, 2)); stars(p.x, p.y, 10, cell * 0.4, [C.gold, C.white, C.yellow]); });
@@ -5607,7 +5709,7 @@
                 chains.forEach(drawChain);
                 scopes.forEach(drawScope); bows.forEach(drawBow); arrows.forEach(drawArrow);
                 ctx.globalCompositeOperation = 'lighter';
-                wheels.forEach(drawWheel); beams.forEach(drawBeam); rays.forEach(drawRays); waves.forEach(drawWaveFoam); marks.forEach(drawMark); flashes.forEach(drawFlash); rings.forEach(drawRing); bolts.forEach(drawBolt); slashes.forEach(drawSlash); trails.forEach(drawTrail); charges.forEach(drawCharge); vines.forEach(drawVines); shields.forEach(drawShield); halos.forEach(drawHalo);
+                threads.forEach(drawThread); wheels.forEach(drawWheel); beams.forEach(drawBeam); rays.forEach(drawRays); waves.forEach(drawWaveFoam); marks.forEach(drawMark); flashes.forEach(drawFlash); rings.forEach(drawRing); bolts.forEach(drawBolt); slashes.forEach(drawSlash); trails.forEach(drawTrail); charges.forEach(drawCharge); vines.forEach(drawVines); shields.forEach(drawShield); halos.forEach(drawHalo);
                 for (const p of parts) { if (p.kind === 'glow') drawGlow(p); else if (p.kind === 'spark') drawSpark(p); }
                 ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
                 let alive = 0;
@@ -5617,7 +5719,7 @@
                 }
                 if (alive) requestAnimationFrame(frame); else { running = false; ctx.clearRect(0, 0, W, H); }
             }
-            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx, sig, hasSig: n => !!SIG[n], mineBlast, pactBlast, crown, kickImpact, mateFocus, speed: k => { fxSpeed = k; } };
+            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx, sig, hasSig: n => !!SIG[n], mineBlast, pactBlast, fateSever, crown, kickImpact, mateFocus, speed: k => { fxSpeed = k; } };
         })();
 
         function spawnFloatingText(sq, text) {
@@ -5662,21 +5764,14 @@
         }
 
         // ---- 증강 연출: 대상 락온 → 상태 반영 → 이펙트 → 영향받은 기물 글로우 ----
-        const AUG_KIND = {
-            '암살': 'damage', '연계 분쇄': 'damage', '신의 심판': 'damage', '공성전': 'damage', '신성한 폭발': 'damage', '벼락': 'damage', '흑사': 'damage', '복수': 'damage',
-            '독구름': 'poison', '네크로맨서': 'summon', '축복': 'summon', '징집': 'summon', '숲의 망령': 'summon', '아기는 어떻게 태어나?': 'summon', '차원 장벽': 'summon',
-            '저주': 'curse', '마인드 컨트롤': 'curse', '광기': 'curse', '자아 분열': 'curse', '암전': 'curse',
-            '빛의 수호': 'shield', '여신의 가호': 'shield', '덩굴': 'bind',
-            '지뢰 찾기': 'summon', '동귀어진': 'damage', '앙파상+': 'move', '수퍼 워너비': 'upgrade', '혼란': 'move', '강제 이주': 'move', '그림자 교체': 'move', '파도': 'move', '진군 명령': 'move', '운명의 수레바퀴': 'move',
-            '기사 서임': 'upgrade', '프로모션': 'upgrade', '캐슬링+': 'upgrade', '나이트 클럽': 'upgrade', '잭팟': 'upgrade'
-        };
+        const AUG_KIND = specMap('kind');
         const KIND_COLOR = {
             damage: [255, 80, 70], poison: [110, 230, 120], summon: [110, 255, 170], curse: [190, 110, 255],
             shield: [255, 215, 100], bind: [150, 220, 70], move: [90, 210, 255], upgrade: [255, 240, 170]
         };
-        const AUG_STAGGER = { '신의 심판': 60, '벼락': 140, '흑사': 70 };
-        const AUG_SCALE = { '신성한 폭발': 1.35 };
-        const AUG_NO_LEAD = new Set(['공성전', '파도', '진군 명령', '운명의 수레바퀴', '지뢰 찾기', '앙파상+']);
+        const AUG_STAGGER = specMap('stagger');
+        const AUG_SCALE = specMap('scale');
+        const AUG_NO_LEAD = new Set(Object.keys(AUGMENT_SPEC).filter(n => AUGMENT_SPEC[n].noLead));
         // 고유 연출에서 기물 변화(파괴·소환·변이)가 화면에 반영되는 시점(ms)
         const AUG_REVEAL = { '네크로맨서': 850, '신의 심판': 420, '공성전': 1100, '벼락': 280, '독구름': 450, '암살': 260, '연계 분쇄': 480, '흑사': 350, '복수': 350, '징집': 160, '축복': 250, '숲의 망령': 220, '기사 서임': 220, '프로모션': 280, '캐슬링+': 220, '나이트 클럽': 260, '그림자 교체': 220, '저주': 420, '혼란': 350, '광기': 300, '강제 이주': 350, '마인드 컨트롤': 650, '차원 장벽': 250 };
         const WAVE_TRAVEL_SEC = 1.15; // FX 엔진의 WAVE_TRAVEL과 같은 값
@@ -6327,7 +6422,7 @@
             v.ru = o.reversedUids || { w: {}, b: {} };
             const be = o.babyEffect; v.baby = (be && be.color) ? { w: be.color === 'w' ? be : null, b: be.color === 'b' ? be : null } : (be || { w: null, b: null });
             const bo = o.blackout; v.dark = (bo && bo.target) ? { w: bo.target === 'w' ? bo.duration : 0, b: bo.target === 'b' ? bo.duration : 0 } : (bo || { w: 0, b: 0 });
-            v.walls = o.activeWalls || []; v.poison = o.activePoison || []; v.mines = o.mines || []; v.inv = o.invinciblePieces || {}; v.root = o.rootedPieces || {}; v.pros = o.prospects || {}; v.pact = o.pactPieces || {};
+            v.walls = o.activeWalls || []; v.poison = o.activePoison || []; v.mines = o.mines || []; v.inv = o.invinciblePieces || {}; v.root = o.rootedPieces || {}; v.pros = o.prospects || {}; v.pact = o.pactPieces || {}; v.fate = o.fateLinks || [];
             for (let r = 0; r < 8; r++) for (let cc = 0; cc < 8; cc++) { const q = o.board[r][cc]; if (!q || q.type === 'wall' || q.uid === undefined) continue; const e = { sq: rvSqOf(r, cc), color: q.color, type: q.type, uid: q.uid }; v.byUid[q.uid] = e; v.bySq[e.sq] = e; }
             return v;
         }
@@ -6457,21 +6552,23 @@
             { const pc = Object.keys(P.pact).filter(u => P.pact[u] && P.byUid[u] && P.byUid[u].type !== 'k');
               if (pc.length) rows.push(['동귀어진', pc.slice(0, 4).map(u => `${who(P.byUid[u].color)} ${N(P.byUid[u].type)} ${P.byUid[u].sq}`).join(', ') + ' — 잡히면 잡은 기물도 함께 사라져요 (영구, 킹 제외).']); }
 
+            (P.fate || []).forEach(l => { const a = P.byUid[l[0]], b = P.byUid[l[1]]; if (a && b) rows.push(['운명공동체', `${who(a.color)} ${N(a.type)} ${a.sq} ↔ ${N(b.type)} ${b.sq} — 한쪽이 잡히면 다른 쪽도 함께 사라져요 (영구, 킹 제외).`]); });
             out.rows = head.concat(rows).slice(0, 9);
         }
         function rvAugNotes(c) {   // v3.83: 증강(덩굴·무적(여신의 가호·빛의 수호)·수퍼 워너비·독구름·동귀어진·장벽·자아 분열·지뢰)이 이 수의 평가에 끼친 영향을 말로 풀어 준다. 반환: { played: 둔 수의 장점, warn: 둔 수의 문제, rec: 추천 수의 장점, status: 그 판에 걸려 있던 증강 요약 }
             const { prev, f, m, pl, mover, opp, N, V } = c, out = { played: [], warn: [], rec: [], status: [], rows: [], cause: '' };
             deserializeGameState(prev.s, true);
-            const pros0 = {}, root0 = {}, inv0 = {}, pact0 = {}, B0 = game._board;   // 수를 두기 전의 효과가 걸린 기물: uid → { sq, color, type, rem }
+            const pros0 = {}, root0 = {}, inv0 = {}, pact0 = {}, fate0 = {}, allU = {}, B0 = game._board;   // 수를 두기 전의 효과가 걸린 기물: uid → { sq, color, type, rem }
             const who = col => col === mover ? '내' : '상대', stat = [];
             for (let r = 0; r < 8; r++) for (let cc = 0; cc < 8; cc++) {
                 const q = B0[r][cc]; if (!q || q.uid === undefined || q.type === 'wall') continue;
-                const sq = rvSqOf(r, cc);
+                const sq = rvSqOf(r, cc); allU[q.uid] = { sq, color: q.color, type: q.type };
                 if (q.type === 'p' && prospects[q.uid] > 0) { pros0[q.uid] = { sq, color: q.color, type: 'p', rem: prospects[q.uid] }; stat.push(`${who(q.color)} 수퍼 워너비 폰 ${sq}(${prospects[q.uid]}수 뒤 퀸)`); }
                 if (rootedPieces[q.uid] > 0) { root0[q.uid] = { sq, color: q.color, type: q.type, rem: rootedPieces[q.uid] }; stat.push(`${who(q.color)} ${N(q.type)} ${sq} 덩굴(${rootedPieces[q.uid]}수)`); }
                 if (invinciblePieces[q.uid] > 0) inv0[q.uid] = { sq, color: q.color, type: q.type, rem: invinciblePieces[q.uid] };
                 if (pactPieces[q.uid] && q.type !== 'k') { pact0[q.uid] = { sq, color: q.color, type: q.type }; stat.push(`${who(q.color)} ${N(q.type)} ${sq} 동귀어진`); }
             }
+            fateLinks.forEach(l => { const a = allU[l[0]], b = allU[l[1]]; if (a && b && a.type !== 'k' && b.type !== 'k') { fate0[l[0]] = Object.assign({ p: b }, a); fate0[l[1]] = Object.assign({ p: a }, b); stat.push(`${who(a.color)} ${N(a.type)} ${a.sq} ↔ ${N(b.type)} ${b.sq} 운명공동체`); } });
             // 무적은 폰이 여러 개일 수 있어 색·기간별로 묶어서 적는다 (빛의 수호/여신의 가호)
             const invGroups = {};
             for (const u in inv0) { const e = inv0[u], k = e.color + '|' + e.rem; (invGroups[k] || (invGroups[k] = { color: e.color, rem: e.rem, list: [] })).list.push(e); }
@@ -6483,7 +6580,7 @@
             out.status = stat.slice(0, 7);
             try { rvAugExtra(c, out); } catch (e) { out.err = String(e && e.message || e); } finally { deserializeGameState(prev.s, true); }   // v3.90: 자아 분열·아기·장벽·독구름·암전·지뢰와 직전 증강 해설
             const poison0 = (activePoison || []).map(x => ({ squares: x.squares.slice(), owner: x.owner, duration: x.duration }));
-            if (!Object.keys(pros0).length && !Object.keys(root0).length && !Object.keys(inv0).length && !Object.keys(pact0).length && !poison0.length) return out;
+            if (!Object.keys(pros0).length && !Object.keys(root0).length && !Object.keys(inv0).length && !Object.keys(pact0).length && !Object.keys(fate0).length && !poison0.length) return out;
             const S0 = cloneGameState(game), mvPc = (S0.get(f.from) || {}).type, mvUid = (S0.get(f.from) || {}).uid;
             const tp = S0.get(f.to), capPlayed = tp && tp.color === opp ? tp : null, tr = m ? S0.get(m.to) : null, capRec = tr && tr.color === opp ? tr : null;
             // ① 잡기: 곧 퀸이 될 상대 폰 / 덩굴에 묶여 도망칠 수 없는 상대 기물 / 동귀어진이 걸린 기물
@@ -6493,6 +6590,10 @@
             if (capRec && m && pros0[capRec.uid]) { const v = pros0[capRec.uid]; out.rec.push(V('k3', `곧 퀸이 될 상대 수퍼 워너비 폰(${RVI.pro} ${v.sq}, ${v.rem}수 남음)을 ${N(m.pc)}로 잡아 견제해요.`, `${N(m.pc)}로 ${v.sq}의 수퍼 워너비 폰(${RVI.pro} ${v.rem}수 뒤 퀸)을 잡아 견제할 수 있어요.`)); if (!(capPlayed && pros0[capPlayed.uid])) out.warn.push(`${v.rem}수 뒤 퀸이 되는 상대 수퍼 워너비 폰(${v.sq})을 잡을 수 있었는데 놓쳤어요.`); }
             if (capRec && m && root0[capRec.uid]) { const v = root0[capRec.uid]; out.rec.push(V('k4', `덩굴에 묶여 도망칠 수 없는 상대 ${v.sq}의 ${N(v.type)}을 ${N(m.pc)}로 잡을 수 있어요.`, `${v.sq}의 ${N(v.type)}은 덩굴에 묶여 도망칠 수 없어서, ${N(m.pc)}로 잡을 기회예요.`)); if (!(capPlayed && root0[capPlayed.uid])) out.warn.push(`덩굴에 묶여 도망칠 수 없는 상대 ${v.sq}의 ${N(v.type)}을 잡을 기회를 놓쳤어요.`); }
             if (capRec && m && pact0[capRec.uid] && m.pc !== 'k') out.rec.push(`동귀어진이 걸린 상대 ${N(capRec.type)}과 맞바꾸는 수예요.`);
+            const fateMate = (mv, psq) => { try { const S = rvAfterMove(S0, { from: mv.from, to: mv.to, p: null }); if (!S || S.turn() !== opp || S.in_checkmate()) return false; S.remove(psq); return S.in_checkmate(); } catch (e) { return false; } };
+            const fateBig = t => t === 'q' ? '퀸을 공짜로 얻는 큰 이득이에요' : t === 'r' ? '룩을 공짜로 얻는 큰 이득이에요' : '';
+            if (capPlayed && fate0[capPlayed.uid]) { const e = fate0[capPlayed.uid], big = fateBig(e.p.type), mate = fateMate(f, e.p.sq); out.played.push(`운명공동체로 묶인 상대 ${N(capPlayed.type)}을 잡아서, 연결된 ${e.p.sq}의 ${N(e.p.type)}도 함께 사라져요. ` + (big ? `한 수로 ${big}.` : '한 수로 두 기물을 얻어요.') + (mate ? ' 연결된 기물이 사라지면서 체크메이트까지 만들어져요.' : '')); }
+            if (capRec && m && fate0[capRec.uid]) { const e = fate0[capRec.uid], big = fateBig(e.p.type), mate = fateMate(m, e.p.sq); out.rec.push(`${m.to}의 상대 ${N(capRec.type)}을 ${N(m.pc)}로 잡으면 운명공동체로 연결된 ${e.p.sq}의 ${N(e.p.type)}도 함께 사라져요.` + (big ? ` ${big}.` : '') + (mate ? ' 연결된 기물이 사라지면서 체크메이트가 돼요.' : '')); if (!(capPlayed && fate0[capPlayed.uid])) out.warn.push(`운명공동체로 묶인 상대 ${m.to}의 ${N(capRec.type)}을 잡으면 연결된 ${e.p.sq}의 ${N(e.p.type)}까지 함께 얻을 수 있었는데 놓쳤어요.` + (mate ? ' 체크메이트가 될 수 있는 수였어요.' : (big ? ` ${big}.` : ''))); }
             // ② 독구름: 상대가 만든 독 지대에 들어가면 기물이 사라진다
             if (mvPc && mvPc !== 'k' && !inv0[mvUid] && poison0.some(x => x.owner !== mover && x.squares.includes(f.to))) out.warn.push(V('k5', `독구름 지대(${f.to})에 들어가서 ${N(mvPc)}이 사라져요.`, `${f.to}는 독구름 지대라서, 들어간 ${N(mvPc)}이 그대로 사라져요.`));
             // ③ 새로 생긴 위협(견제): 곧 퀸이 될 폰 / 한동안 묶여 있을 기물을 노린다
@@ -6560,6 +6661,7 @@
                 for (const u in root0) { const e = root0[u]; if (e.color === mover && e.sq !== f.from && reply.to === e.sq) { out.warn.push(V('k10', `덩굴에 묶여 움직일 수 없는 내 ${e.sq}의 ${N(e.type)}이 잡혀요.`, `덩굴에 묶여 꼼짝 못 하는 내 ${e.sq}의 ${N(e.type)}이 표적이 돼요.`)); done = true; break; } }
                 if (!done) for (const u in inv0) { const e = inv0[u]; if (e.color === mover && e.rem <= 1 && e.sq !== f.from && reply.to === e.sq) { out.warn.push(`${e.sq}의 ${N(e.type)}을 지키던 무적이 이 수 뒤에 끝나서 바로 잡혀요.`); done = true; break; } }
                 if (!done) for (const u in pros0) { const e = pros0[u], sq = e.sq === f.from ? f.to : e.sq; if (e.color === mover && reply.to === sq) { out.warn.push(V('k8', `곧 퀸이 될 내 수퍼 워너비 폰(${sq})이 잡혀요.`, `곧 퀸이 될 내 수퍼 워너비 폰(${sq})을 잃게 돼요.`)); break; } }
+                for (const u in fate0) { const e = fate0[u], sq = e.sq === f.from ? f.to : e.sq; if (e.color === mover && reply.to === sq) { const ps = e.p.sq === f.from ? f.to : e.p.sq; out.warn.push(`운명공동체로 묶인 내 ${N(e.type)}이 잡히면, 연결된 ${ps}의 ${N(e.p.type)}도 함께 사라져요.` + ((e.p.type === 'q' || e.p.type === 'r') ? ` ${N(e.p.type)}을 공짜로 내주는 큰 손해예요.` : '')); break; } }
                 for (const u in pact0) { const e = pact0[u], sq = e.sq === f.from ? f.to : e.sq; if (e.color === mover && reply.to === sq) { out.played.push(V('k7', `동귀어진이 걸린 내 ${N(e.type)}이 잡혀도 상대 기물이 함께 사라져요.`, `동귀어진 덕분에 내 ${N(e.type)}이 잡혀도 상대 기물이 같이 쓰러져요.`)); break; } }
             }
             return out;
@@ -7498,7 +7600,7 @@
             if (f.kind === 'move' && f.pact) { const pe = pieceEls.get(f.pact); if (pe) pe.dataset.square = f.to; }
             if (animate && f.kind === 'move') [].concat(f.mk || [], (f.post && f.post.mk) || []).forEach(k => elToSq(k.uid, k.sq));   // 지뢰로 죽은 기물은 지뢰 칸에서 사라진다
             if (animate && f.kind === 'move') {
-                try { FX.land(f.to, f.by); if (f.captured) FX.capture(f.to, f.captured); if (f.pact) FX.pactBlast(f.to); } catch (e) {}
+                try { FX.land(f.to, f.by); if (f.captured) FX.capture(f.to, f.captured); if (f.pact) FX.pactBlast(f.to); if (f.fate) f.fate.forEach(q => FX.fateSever(q)); } catch (e) {}
             }
             muteShatter = !animate; drawPieces(animate); muteShatter = false;
             if (animate && f.kind === 'move') { const fxMs = replayMoveFx(f, token, kSpd); if (fxMs > replayStepMs) replayStepMs = fxMs; }
@@ -8271,10 +8373,11 @@
                 activePoison.forEach(p => { if (p.squares.includes(to) && p.owner !== pieceNow.color) poisoned = true; });
                 if (poisoned && pieceNow.type !== 'k' && pieceNow.type !== 'wall' && !invinciblePieces[pieceNow.uid]) { poisonAtMove = to; game.remove(to); spawnFloatingText(to, '☠️'); triggerVFX([to], 'vfx-explosion'); }
             }
-            const moveBlasts = resolveMines(), moveMk = mineKills.slice(); moveMk.forEach(k => elToSq(k.uid, k.sq));   // v3.80: 지뢰로 죽은 기물은 지뢰 칸에서 사라지고, 리플레이용으로 함께 기록한다
+            const { blasts: moveBlasts, mk: moveMk, fated: fateAtMove } = settleBoard();
+            if (fateAtMove.length) { fateAtMove.forEach(q => FX.fateSever(q)); showToast('🔔 운명공동체! 연결된 기물도 함께 사라졌습니다', '#b06cff', 2200); }   // v3.80: 지뢰로 죽은 기물은 지뢰 칸에서 사라지고, 리플레이용으로 함께 기록한다
 
             previousMove = { from, to, color: moveResult.color };
-            recordFrame('move', { from, to, by: moveResult.color, captured: moveResult.captured || null, pact: pactDeath, blasts: moveBlasts.length ? moveBlasts : undefined, mk: moveMk.length ? moveMk : undefined, pz: poisonAtMove || undefined });
+            recordFrame('move', { from, to, by: moveResult.color, captured: moveResult.captured || null, pact: pactDeath, fate: fateAtMove.length ? fateAtMove : undefined, blasts: moveBlasts.length ? moveBlasts : undefined, mk: moveMk.length ? moveMk : undefined, pz: poisonAtMove || undefined });
             try { botReactMove(moveResult); } catch (e) {}
             if (augPickCount > 0) addLogDivider();
             let kingKick = null;   // 킹을 잡는 수: 잡은 기물이 포물선으로 뛰어올라 킹을 걷어찬다
@@ -8316,7 +8419,7 @@
             const poisonKilled = enforcePoison();
             const babyBorn = processBaby();
             const promotedSq = promoteProspects();
-            const postBlasts = resolveMines(), postMk = mineKills.slice(); postMk.forEach(k => elToSq(k.uid, k.sq));
+            const { blasts: postBlasts, mk: postMk, fated: fateKilled } = settleBoard();
             
             ['w', 'b'].forEach(c => { if (reversedPawns[c] > 0) { reversedPawns[c]--; if (reversedPawns[c] <= 0) reversedUids[c] = {}; } });
 
@@ -8330,6 +8433,7 @@
             drawPieces(babyBorn.length > 0 || promotedSq.length > 0);
             if (promotedSq.length) { promotedSq.forEach(sq => FX.crown(sq)); highlightAffected(promotedSq, KIND_COLOR.upgrade); updateCheckStatus(); }
             if (poisonKilled.length) triggerVFX(poisonKilled, 'vfx-void');
+            if (fateKilled.length) { fateKilled.forEach(q => FX.fateSever(q)); updateCheckStatus(); }
             if (babyBorn.length) { triggerVFX(babyBorn, 'vfx-heal'); highlightAffected(babyBorn, KIND_COLOR.summon); updateCheckStatus(); }
             activePoison.forEach(p => p.duration--); activePoison = activePoison.filter(p => p.duration > 0); updateBoardVisuals(); updateProgressBar();
             updateCheckStatus();   // 벽 소멸/독구름/탄생 등으로 생긴 체크·체크메이트도 반영
@@ -8408,6 +8512,38 @@
                     game.remove(sq); killed.push(sq); spawnFloatingText(sq, '☠️');
                 }
             }));
+            return killed;
+        }
+        // 수·증강이 끝난 뒤 판 정리: 독구름 → 특수 상태 정리 → 지뢰 → 운명공동체 순서로 한 번에 처리한다.
+        // 새로 기물을 지우는 효과는 여기에 한 줄만 넣으면 수 두기·증강 적용·봇 시뮬레이션이 모두 따라간다.
+        function settleBoard({ fx = true, poison = false, sanitize = false, fateFx } = {}) {
+            const poisoned = poison ? enforcePoison() : [];
+            if (sanitize) game.sanitizeSpecialStates();
+            const blasts = resolveMines(fx), mk = mineKills.slice();
+            if (fx) mk.forEach(k => elToSq(k.uid, k.sq));
+            const fated = enforceFate(fateFx !== undefined ? fateFx : fx);
+            return { poisoned, blasts, mk, fated };
+        }
+        // 운명공동체: 연결된 두 기물 중 하나가 사라졌으면(잡힘·독구름·지뢰·증강 등 원인 불문) 나머지 하나도 파괴한다. 무적 기물은 살아남고 연결만 끊긴다.
+        function enforceFate(fx = true) {
+            const killed = [];
+            if (!fateLinks.length) return killed;
+            for (let guard = 0; guard < 8; guard++) {
+                let changed = false;
+                fateLinks = fateLinks.filter(l => {
+                    const a = findSqByUid(l[0]), b = findSqByUid(l[1]);
+                    if (a && b) return true;
+                    changed = true;
+                    const sq = a || b; if (!sq) return false;
+                    const pc = game.get(sq);
+                    if (pc && pc.type !== 'k' && pc.type !== 'wall' && !(invinciblePieces[pc.uid] > 0)) {
+                        if (fx) { try { elToSq(pc.uid, sq); } catch (e) {} spawnFloatingText(sq, '🔔'); }
+                        game.remove(sq); killed.push(sq);
+                    }
+                    return false;
+                });
+                if (!changed) break;
+            }
             return killed;
         }
         const augmentOptionCount = color => 3 + ((jackpotBonus && jackpotBonus[color]) || 0);
@@ -8719,10 +8855,21 @@
             activeWalls = fx.aw.map(e => { e.w.duration = e.d; return e.w; });
             activePoison = fx.ap.map(e => { e.x.duration = e.d; return e.x; });
         }
-        // 두었다가 되돌리기 (castling/ep/승급/동귀어진 포함)
+        // 운명공동체: 이번 수로 사라진 기물(rem)과 연결된 기물을 판에서 찾아 지운다 (되돌릴 수 있게 u.fate에 기록)
+        function botFateKill(B, rem, u) {
+            const out = [];
+            for (const pc of rem) {
+                if (!pc || pc.type === 'k') continue;
+                const l = fateLinks.find(x => x[0] === pc.uid || x[1] === pc.uid); if (!l) continue;
+                const other = l[0] === pc.uid ? l[1] : l[0]; if (invinciblePieces[other] > 0) continue;
+                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const q = B[r][c]; if (q && q.uid === other && q.type !== 'k') { out.push({ r, c, pc: q }); B[r][c] = null; } }
+            }
+            if (out.length) u.fate = out;
+        }
+        // 두었다가 되돌리기 (castling/ep/승급/동귀어진/운명공동체 포함)
         function botMake(S, m) {
             const B = S._board, fc = m.from.charCodeAt(0) - 97, fr = 56 - m.from.charCodeAt(1), tc = m.to.charCodeAt(0) - 97, tr = 56 - m.to.charCodeAt(1);
-            const piece = B[fr][fc], cap = B[tr][tc], cs = S.castling, u = { fr, fc, tr, tc, piece, cap, epPc: null, rook: 0, cw: [cs.w.k, cs.w.q, cs.b.k, cs.b.q], ep: S.ep_square, pact: null, mine: null, mined: null };
+            const piece = B[fr][fc], cap = B[tr][tc], cs = S.castling, u = { fr, fc, tr, tc, piece, cap, epPc: null, rook: 0, cw: [cs.w.k, cs.w.q, cs.b.k, cs.b.q], ep: S.ep_square, pact: null, mine: null, mined: null, fate: null };
             if (piece.type === 'p' && fc !== tc && !cap) { u.epPc = B[fr][tc]; B[fr][tc] = null; }
             if (m.flags === 'k') { B[fr][5] = B[fr][7]; B[fr][7] = null; u.rook = 1; } else if (m.flags === 'q') { B[fr][3] = B[fr][0]; B[fr][0] = null; u.rook = 2; }
             B[tr][tc] = m.promotion ? { type: 'q', color: piece.color, uid: piece.uid } : piece; B[fr][fc] = null;
@@ -8736,14 +8883,16 @@
             if (BOT.mineSet.size) { const key = String.fromCharCode(97 + tc) + (8 - tr); if (BOT.mineSet.has(key) && B[tr][tc]) { BOT.mineSet.delete(key); u.mine = key; if (B[tr][tc].type !== 'k') { u.mined = B[tr][tc]; B[tr][tc] = null; } } }   // 지뢰: 밟은 기물 파괴(킹은 폭발만), 지뢰도 사라진다
             if (BOT.ana && activePoison.length) {   // v3.83: 독구름 — 상대가 만든 독 지대에 들어간 기물은 사라진다 (킹·무적 제외)
                 const pc = B[tr][tc];
-                if (pc && pc.type !== 'k' && pc.type !== 'wall' && !invinciblePieces[pc.uid]) { const key = String.fromCharCode(97 + tc) + (8 - tr); if (activePoison.some(x => x.owner !== pc.color && x.squares.includes(key))) B[tr][tc] = null; }
+                if (pc && pc.type !== 'k' && pc.type !== 'wall' && !invinciblePieces[pc.uid]) { const key = String.fromCharCode(97 + tc) + (8 - tr); if (activePoison.some(x => x.owner !== pc.color && x.squares.includes(key))) { B[tr][tc] = null; u.pois = pc; } }
             }
+            if (fateLinks.length) botFateKill(B, [vic, u.pact, u.mined, u.pois], u);   // 운명공동체: 사라진 기물과 연결된 기물도 함께 사라진다
             if (BOT.ana) botFxTick(S, u);
             return u;
         }
         function botUnmake(S, u) {
             const B = S._board, cs = S.castling;
             if (u.fx) botFxUndo(S, u.fx);
+            if (u.fate) for (let i = u.fate.length - 1; i >= 0; i--) B[u.fate[i].r][u.fate[i].c] = u.fate[i].pc;
             if (u.mine) BOT.mineSet.add(u.mine);
             if (u.pact) B[u.tr][u.tc] = u.pact;
             B[u.fr][u.fc] = u.piece; B[u.tr][u.tc] = u.cap;
@@ -8913,6 +9062,9 @@
             return botBookMove() || botFindMove({ timeMs: 300, maxDepth: 3, noise: 25 });
         }
 
+        // 운명공동체 후보: 킹·벽·무적·이미 연결된 기물을 제외한 적 기물
+        let demoFateFixed = null;   // 도움말 미리보기 전용: 한 기물을 고정하고 나머지 하나만 무작위로 고른다
+        function fatePool(e) { return findPieces(e).filter(sq => { const p = game.get(sq); return p && p.type !== 'k' && p.type !== 'wall' && !(invinciblePieces[p.uid] > 0) && !fateLinks.some(l => l[0] === p.uid || l[1] === p.uid); }); }
         const AUGMENT_POOL = [
             { name: '네크로맨서', icon: '💀', desc: '아군 폰의 {절반}을 제물로 바쳐, 폰이 있던 자리 중 한 곳에 [퀸]을 [소환]합니다.', globalVfx: 'vfx-global-void', isKillType: false,
               condition: (m) => !!planNecromancer(m),
@@ -9087,6 +9239,14 @@
                   if (!sq) return { t: [], vfx: '', msg: '동귀어진을 걸 기물이 없습니다.' };
                   pactPieces[game.get(sq).uid] = true; spawnFloatingText(sq, '⛓️');
                   return { t: [sq], vfx: 'vfx-void', msg: '⛓️ 동귀어진이 걸렸습니다!' }; } },
+            { name: '운명공동체', icon: '🔔', desc: '킹을 제외한 {무작위} 적 기물 {둘}이 [운명공동체]로 연결됩니다. 둘 중 하나가 [처치]되면 {나머지 하나도 파괴}됩니다.', globalVfx: 'vfx-global-void', isKillType: false,
+              condition: (m, e) => fatePool(e).length >= 2,
+              apply: (m, e) => {
+                  const pool = shuffle(fatePool(e)); if (pool.length < 2) return { t: [], vfx: '', msg: '연결할 적 기물이 부족해 실패했습니다.' };
+                  if (demoFateFixed && pool.includes(demoFateFixed)) pool.splice(pool.indexOf(demoFateFixed), 1), pool.unshift(demoFateFixed);
+                  const a = pool[0], b = pool[1], pa = game.get(a), pb = game.get(b);
+                  fateLinks.push([pa.uid, pb.uid]); spawnFloatingText(a, '🔔'); spawnFloatingText(b, '🔔');
+                  return { t: [a, b], vfx: 'vfx-void', msg: '🔔 적 기물 둘이 운명공동체로 묶였습니다!' }; } },
             { name: '수퍼 워너비', icon: '🎖️', desc: '아군 폰 {하나}를 [유망주]로 키웁니다. {9수} 뒤 이 폰은 [퀸]으로 [프로모션]합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
               target: { mode: 'piece', prompt: '유망주로 만들 아군 폰을 선택하세요', valid: (m) => findPieces(m, 'p').filter(sq => !(prospects[game.get(sq).uid] > 0)) },
               condition: (m) => findPieces(m, 'p').some(sq => !(prospects[game.get(sq).uid] > 0)),
@@ -9110,7 +9270,7 @@
             });
         }
 
-        const AUG_DELAY = { '네크로맨서': 1900, '신의 심판': 1500, '공성전': 2100, '벼락': 1300, '독구름': 1500, '암살': 1300, '연계 분쇄': 1500, '흑사': 1400, '복수': 1400, '징집': 1300, '축복': 1400, '숲의 망령': 1400, '기사 서임': 1300, '프로모션': 1400, '캐슬링+': 1300, '나이트 클럽': 1500, '그림자 교체': 1300, '저주': 1600, '혼란': 1500, '광기': 1400, '강제 이주': 1400, '마인드 컨트롤': 1800, '차원 장벽': 1300, '잭팟': 1700, '아기는 어떻게 태어나?': 1600, '암전': 1600, '자아 분열': 1500, '빛의 수호': 1400, '여신의 가호': 1600, '수퍼 워너비': 1500, '동귀어진': 1300 };
+        const AUG_DELAY = specMap('delay');
         AUGMENT_POOL.forEach(ag => { if (!ag.delay && AUG_DELAY[ag.name]) ag.delay = AUG_DELAY[ag.name]; });
 
         // 가장자리 28칸을 시계방향(a8→h8→h1→a1→a8) 순서로 반환
@@ -9123,15 +9283,7 @@
             return ring;
         }
 
-        const AUGMENT_META = {
-            '네크로맨서': { category: '소환', risk: '자기 희생' }, '신의 심판': { category: '피해', risk: '비숍 희생' }, '공성전': { category: '피해' }, '벼락': { category: '피해' },
-            '독구름': { category: '피해' }, '연계 분쇄': { category: '피해' }, '암살': { category: '피해' }, '흑사': { category: '피해' }, '복수': { category: '피해' }, '신성한 폭발': { category: '피해' },
-            '징집': { category: '소환' }, '축복': { category: '소환' }, '숲의 망령': { category: '소환' }, '아기는 어떻게 태어나?': { category: '소환' },
-            '기사 서임': { category: '유틸' }, '프로모션': { category: '유틸' }, '캐슬링+': { category: '유틸' }, '진군 명령': { category: '이동' }, '그림자 교체': { category: '이동' },
-            '저주': { category: '유틸' }, '혼란': { category: '이동' }, '광기': { category: '이동', risk: '대상 지정' }, '강제 이주': { category: '이동' }, '파도': { category: '이동' }, '운명의 수레바퀴': { category: '이동' }, '앙파상+': { category: '이동' }, '동귀어진': { category: '유틸', risk: '대상 지정' },
-            '덩굴': { category: '유틸' }, '빛의 수호': { category: '유틸' }, '여신의 가호': { category: '유틸' }, '마인드 컨트롤': { category: '유틸' },
-            '차원 장벽': { category: '유틸', risk: '위치 지정' }, '지뢰 찾기': { category: '피해', risk: '위치 지정' }, '수퍼 워너비': { category: '유틸', risk: '대상 지정' }, '자아 분열': { category: '유틸' }, '나이트 클럽': { category: '유틸' }, '잭팟': { category: '유틸' }, '암전': { category: '유틸' }
-        };
+        const AUGMENT_META = specMap(sp => (sp.category || sp.risk) ? { category: sp.category, risk: sp.risk } : undefined);
 
         function getAugmentCategoryLabel(aug) {
             return AUGMENT_META[aug.name]?.category || '기타';
@@ -9186,6 +9338,8 @@
                 after: async h => { h.cap('상대는 지뢰를 볼 수 없습니다. 그 칸에 들어가면…'); await h.wait(700); await h.move('e5', 'e4'); } },
             '동귀어진': { w: 'Ke1 Qd1 Ra1 Rh1 Bc1 Bf1 Nb1 Pa2 Pb2 Pc2 Pd2 Pf2 Pg2 Ph2 Ne4', b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Ng8 Rh8 Pa7 Pb7 Pc7 Pe7 Pf7 Pg7 Ph7 Pd5', target: 'e4', turn: 'b',
                 after: async h => { h.cap('동귀어진이 걸린 기물을 상대가 잡으면…'); await h.wait(700); await h.move('d5', 'e4'); } },
+            '운명공동체': { w: 'Ra1 Nb1 Bc1 Qd1 Ke1 Bf1 Rh1 Pa2 Pb2 Pc2 Pd2 Pe2 Pf2 Pg2 Ph2 Nf3', b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Ng8 Rh8 Pa7 Pb7 Pc7 Pd7 Pf7 Pg7 Ph7 Pe5', pre: () => { demoFateFixed = 'e5'; },
+                after: async h => { h.cap('연결된 둘 중 하나(e5 폰)를 잡으면…'); await h.wait(900); await h.move('f3', 'e5', 2200); h.cap('연결된 나머지 기물도 함께 파괴됩니다'); await h.wait(1200); } },
             '독구름': { turn: 'b',
                 after: async h => {
                     const zone = activePoison.length ? activePoison[0].squares : [], mv = h.find(m => zone.includes(m.to) && !m.captured && game.get(m.from).type !== 'k');
@@ -9219,8 +9373,7 @@
         };
         function helpResetState() {
             game.reset(); game.keepUids = {};
-            activePoison = []; rootedPieces = {}; invinciblePieces = {}; mines = []; prospects = {}; pactPieces = {}; activeWalls = [];
-            reversedPawns = { w: 0, b: 0 }; reversedUids = { w: {}, b: {} }; jackpotBonus = { w: 0, b: 0 }; lastKiller = { w: null, b: null }; babyEffect = { w: null, b: null }; blackout = { w: 0, b: 0 };
+            resetAugmentState();
             for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const sq = game.rcToSq(r, c); if (game.get(sq)) game.remove(sq); }
         }
         function helpPlace(spec, color) { spec.split(/\s+/).filter(Boolean).forEach(t => game.put({ type: t[0].toLowerCase(), color }, t.slice(1))); }
@@ -9452,17 +9605,14 @@
         }
 
         // ---- 봇 증강: 선택지를 시뮬레이션으로 훑어 보고 가장 이득인 증강과 배치를 고른다 ----
-        const BOT_AUG_BONUS = { '암전': 60, '지뢰 찾기': 20, '동귀어진': 10, '수퍼 워너비': 25 };   // 판 평가로는 드러나지 않는 효과에 주는 가산점
+        const BOT_AUG_BONUS = specMap('bot');   // 판 평가로는 드러나지 않는 효과에 주는 가산점
         function botSnapshot() {
             const J = x => JSON.parse(JSON.stringify(x === undefined ? null : x));
-            return { board: cloneBoard(game.board()), turn: game.turn(), castling: J(game.castling), ep: game.ep_square, over: game.is_game_over, uidc: game.pieceUidCounter, castleUids: J(game.castleUids), keepUids: J(game.keepUids || {}),
-                rooted: J(rootedPieces), invinc: J(invinciblePieces), mines: J(mines), prospects: J(prospects), pact: J(pactPieces), walls: J(activeWalls), rev: J(reversedPawns), revU: J(reversedUids),
-                jack: J(jackpotBonus), lk: J(lastKiller), baby: J(babyEffect), blackout: J(blackout), poison: J(activePoison) };
+            return { board: cloneBoard(game.board()), turn: game.turn(), castling: J(game.castling), ep: game.ep_square, over: game.is_game_over, uidc: game.pieceUidCounter, castleUids: J(game.castleUids), keepUids: J(game.keepUids || {}), aug: J(packAugmentState()) };
         }
         function botRestore(n) {
             game._board = n.board; game._turn = n.turn; game.castling = n.castling; game.ep_square = n.ep; game.is_game_over = n.over; game.pieceUidCounter = n.uidc; game.castleUids = n.castleUids; game.keepUids = n.keepUids;
-            rootedPieces = n.rooted; invinciblePieces = n.invinc; mines = n.mines; prospects = n.prospects; pactPieces = n.pact; activeWalls = n.walls; reversedPawns = n.rev; reversedUids = n.revU;
-            jackpotBonus = n.jack; lastKiller = n.lk; babyEffect = n.baby; blackout = n.blackout; activePoison = n.poison;
+            unpackAugmentState(n.aug);
         }
         // 증강을 가상으로 적용해 보고 (실제 판은 곧바로 되돌린다) 그 국면을 봇 기준 점수로 돌려준다
         // 지뢰: 상대가 밟을 만한 칸일수록 가치가 크다 (상대는 보지 못한다). 내 기물이 밟을 칸은 감점.
@@ -9486,7 +9636,7 @@
             try {
                 floatLog = [];
                 const res = aug.apply(color, enemy, target) || {};
-                enforcePoison(); game.sanitizeSpecialStates(); resolveMines(false);
+                settleBoard({ fx: false, poison: true, sanitize: true });
                 (res.promos || []).forEach(sq => { const p = game.get(sq); if (p && p.type === 'p') { game.remove(sq); game.put({ ...p, type: 'q' }, sq); } });
                 const S = cloneGameState(game), turn = S._turn;
                 if (S.moves().length === 0) return S.in_check(turn) ? (turn === color ? -BOT_MATE : BOT_MATE) : 0;
@@ -9555,7 +9705,7 @@
             const hidden = mines; mines = mines.filter(x => x.owner === color);
             try {
                 floatLog = []; const res = aug.apply(color, enemy, target) || {};
-                enforcePoison(); game.sanitizeSpecialStates(); resolveMines(false);
+                settleBoard({ fx: false, poison: true, sanitize: true });
                 (res.promos || []).forEach(sq => { const p = game.get(sq); if (p && p.type === 'p') { game.remove(sq); game.put({ ...p, type: 'q' }, sq); } });
                 if (game.moves().length === 0) return 0;
                 return botHumanAugRisk(color, enemy, budgetMs);
@@ -9849,7 +9999,7 @@
                 floatLog = [];
                 let res, capBefore = false;
                 try { if (pColor === myColor && !isSpectating) capBefore = canCaptureKing(pColor); } catch (e) {}   // 증강 전부터 킹을 잡을 수 있었다면 증강 덕이 아니다
-                try { res = selectedAug.apply(pColor, eColor, target); const poisoned = enforcePoison(); game.sanitizeSpecialStates(); if (poisoned.length) res.t = [...new Set([...(res.t || []), ...poisoned])]; const blasts = resolveMines(false); res.blasts = [...new Set([...(res.blasts || []), ...blasts])]; if (res.blasts.length) res.t = [...new Set([...(res.t || []), ...res.blasts])]; }
+                try { res = selectedAug.apply(pColor, eColor, target); const { poisoned, blasts, fated } = settleBoard({ fx: false, poison: true, sanitize: true, fateFx: true }); if (poisoned.length) res.t = [...new Set([...(res.t || []), ...poisoned])]; if (fated.length) res.t = [...new Set([...(res.t || []), ...fated])]; res.blasts = [...new Set([...(res.blasts || []), ...blasts])]; if (res.blasts.length) res.t = [...new Set([...(res.t || []), ...res.blasts])]; }
                 finally { var floats = floatLog; floatLog = null; }
                 const augWinCheck = () => {   // 내가 쓴 증강으로 상대가 체크메이트 되거나 킹이 사라졌으면 업적 (관전·상대·봇의 증강은 제외)
                     try {
