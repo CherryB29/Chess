@@ -184,6 +184,7 @@
         .augment-card.augment-type-summon { border-color: #27ae60; box-shadow: 0 5px 15px rgba(39, 174, 96, 0.15); }
         .augment-card.augment-type-utility { border-color: #3498db; box-shadow: 0 5px 15px rgba(52, 152, 219, 0.15); }
         .augment-card.augment-type-other { border-color: #9b59b6; box-shadow: 0 5px 15px rgba(155, 89, 182, 0.15); }
+        .augment-card.augment-type-aug { border-color: #ff6fae; box-shadow: 0 5px 15px rgba(255, 111, 174, 0.15); }
         .augment-card.augment-type-move { border-color: #e67e22; box-shadow: 0 5px 15px rgba(230, 126, 34, 0.15); }
         .augment-card.dimmed { filter: brightness(0.68); opacity: 0.85; cursor: default; pointer-events: none; }
         .augment-card.dimmed .augment-title, .augment-card.dimmed .augment-subtitle, .augment-card.dimmed .augment-desc { color: #ddd; }
@@ -374,6 +375,7 @@
         .augment-card.augment-type-summon { border-color: var(--panel-border); border-top-color: #27ae60; }
         .augment-card.augment-type-utility { border-color: var(--panel-border); border-top-color: #3498db; }
         .augment-card.augment-type-other { border-color: var(--panel-border); border-top-color: #9b59b6; }
+        .augment-card.augment-type-aug { border-color: var(--panel-border); border-top-color: #ff6fae; }
         .augment-card.augment-type-move { border-color: var(--panel-border); border-top-color: #e67e22; }
         .augment-card.selected { border-color: var(--primary); background: #272732; transform: translateY(-3px); box-shadow: 0 6px 18px rgba(243,156,18,0.22) !important; }
         .augment-icon { font-size: 1.9rem !important; margin-bottom: 6px !important; }
@@ -434,6 +436,7 @@
         .augment-card.augment-type-summon  { --acc: 61,220,151;  --acc-soft: 176,244,212; }
         .augment-card.augment-type-utility { --acc: 90,169,255;  --acc-soft: 190,220,255; }
         .augment-card.augment-type-other   { --acc: 176,124,255; --acc-soft: 222,200,255; }
+        .augment-card.augment-type-aug   { --acc: 255,120,176; --acc-soft: 255,205,228; }
         .augment-card.augment-type-move    { --acc: 255,170,80;  --acc-soft: 255,215,170; }
         .cards-container .augment-card {
             position: relative; overflow: hidden; border: 1px solid rgba(var(--acc), 0.42); border-radius: 16px; padding: 12px 7px 10px;
@@ -531,6 +534,7 @@
         .help-aug.augment-type-summon { --acc: 61,220,151; --acc-soft: 176,244,212; }
         .help-aug.augment-type-utility { --acc: 90,169,255; --acc-soft: 190,220,255; }
         .help-aug.augment-type-other { --acc: 176,124,255; --acc-soft: 222,200,255; }
+        .help-aug.augment-type-aug { --acc: 255,120,176; --acc-soft: 255,205,228; }
         .help-aug.augment-type-move { --acc: 255,170,80; --acc-soft: 255,215,170; }
         .help-aug-ic { flex: 0 0 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; border-radius: 50%; background: radial-gradient(circle at 50% 38%, rgba(var(--acc), 0.32), rgba(var(--acc), 0.06) 70%); box-shadow: 0 0 0 1px rgba(var(--acc), 0.4); }
         .help-aug-tx { flex: 1; min-width: 0; }
@@ -554,6 +558,7 @@
         .help-detail.augment-type-summon { --acc: 61,220,151; --acc-soft: 176,244,212; }
         .help-detail.augment-type-utility { --acc: 90,169,255; --acc-soft: 190,220,255; }
         .help-detail.augment-type-other { --acc: 176,124,255; --acc-soft: 222,200,255; }
+        .help-detail.augment-type-aug { --acc: 255,120,176; --acc-soft: 255,205,228; }
         .help-detail.augment-type-move { --acc: 255,170,80; --acc-soft: 255,215,170; }
         .hd-inner { overflow: hidden; min-height: 0; }
         .hd-stage { position: relative; width: 100%; max-width: 340px; aspect-ratio: 1 / 1; margin: 4px auto 0; border-radius: 10px; overflow: hidden; background: rgba(0,0,0,0.25); box-shadow: 0 0 0 1px rgba(var(--acc), 0.4); }
@@ -687,7 +692,7 @@
         .s-val { font-size: 0.9rem; color: #aaa; }
         .s-row .switch { flex-shrink: 0; }
         .piece-pact { filter: drop-shadow(0 0 5px rgba(255,60,50,0.9)); }
-        .piece-fate { filter: drop-shadow(0 0 5px rgba(190,110,255,0.95)); }
+        .piece-fate { filter: drop-shadow(0 0 5px rgba(120,125,255,0.95)); }
 
         /* 감정표현: ❓ 갸웃거리며 튀어나옴 / ☠️ 덜덜 떨다 초록 기운을 내뿜음 / 💩 떨어져 납작해졌다 튀어 오름 */
         @keyframes animQuestion { 0% { transform: scale(0.4) rotate(-25deg); opacity: 0; } 25% { transform: scale(1.3) rotate(14deg); opacity: 1; } 50% { transform: scale(1.05) rotate(-12deg); } 75% { transform: scale(1.15) rotate(8deg); } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
@@ -709,7 +714,7 @@
         .fx-chip.c-pro { background: #d4a017; color: #222; }
         .fx-chip.c-rev { background: rgba(115,60,170,0.94); }
         .fx-chip.c-pact { background: rgba(170,35,35,0.94); }
-        .fx-chip.c-fate { background: rgba(125,60,190,0.94); }
+        .fx-chip.c-fate { background: rgba(78,74,205,0.94); }
         @keyframes pieceSpawn { 0% { transform: scale(0.35); opacity: 0; filter: brightness(2.2); } 55% { transform: scale(1.12); opacity: 1; filter: brightness(1.45); } 100% { transform: scale(1); opacity: 1; filter: none; } }
         @keyframes pieceMorph { 0% { transform: scale(1); filter: brightness(1); } 28% { transform: scale(0.62) rotate(-8deg); filter: brightness(2.4); } 60% { transform: scale(1.2) rotate(4deg); filter: brightness(1.6); } 100% { transform: scale(1) rotate(0); filter: none; } }
         .piece-spawn { animation: pieceSpawn 0.45s cubic-bezier(.2, .9, .3, 1.2); }
@@ -947,6 +952,12 @@
         /* 상대(봇)가 고른 카드: 한 번 누르면 올라오고, 확정하면 빛난다 */
         .augment-card.dimmed.picked { filter: none; opacity: 1; transform: translateY(-4px) scale(1.02); border-color: var(--primary); box-shadow: 0 8px 22px rgba(243,156,18,0.35) !important; transition: transform .25s, filter .25s, box-shadow .25s; }
         .augment-card.dimmed.picked .augment-title, .augment-card.dimmed.picked .augment-desc, .augment-card.dimmed.picked .augment-subtitle { color: var(--text-color); }
+        .gavel-fx { position: fixed; inset: 0; overflow: hidden; z-index: 400; pointer-events: none; }
+        .gavel-fx canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; filter: drop-shadow(-12px 20px 14px rgba(0,0,0,.5)); }
+        .gavel-fx .gv-ring { position: absolute; border-radius: 50%; border: 3px solid rgba(255,225,160,.95); opacity: 0; animation: gvRing .55s ease-out both; }
+        @keyframes gvRing { 0% { opacity: 0; transform: scale(.3); } 8% { opacity: .9; } 100% { opacity: 0; transform: scale(3.2); } }
+        .augment-card.gavel-hit { animation: gvHit .26s ease-out both !important; }
+        @keyframes gvHit { 0% { transform: translateY(-4px) scale(1.03); } 35% { transform: translateY(7px) scale(.93); } 100% { transform: translateY(-4px) scale(1.03); } }
         .augment-card.dimmed.confirmed { animation: augConfirm .45s ease-out both; box-shadow: 0 0 0 3px var(--primary), 0 10px 28px rgba(243,156,18,0.55) !important; }
         .augment-card.dimmed { position: relative; }
         @keyframes augConfirm { 0% { transform: translateY(-4px) scale(1.02); } 45% { transform: translateY(-6px) scale(1.07); } 100% { transform: translateY(-4px) scale(1.03); } }
@@ -960,6 +971,7 @@
         .aug-info-box.augment-type-summon { --acc: 61,220,151; --acc-soft: 176,244,212; }
         .aug-info-box.augment-type-utility { --acc: 90,169,255; --acc-soft: 190,220,255; }
         .aug-info-box.augment-type-other { --acc: 176,124,255; --acc-soft: 222,200,255; }
+        .aug-info-box.augment-type-aug { --acc: 255,120,176; --acc-soft: 255,205,228; }
         .aug-info-box.augment-type-move { --acc: 255,170,80; --acc-soft: 255,215,170; }
         .ai-body { padding: 2px 20px 14px; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1 1 auto; min-height: 0; }
         .ai-meta { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 8px; }
@@ -972,6 +984,49 @@
         body.demo-cards #augment-overlay .augment-card .augment-desc { font-size: 0.56rem !important; line-height: 1.3 !important; }
         body.demo-cards #augment-overlay .augment-card .augment-icon { width: 26px !important; height: 26px !important; font-size: 1rem !important; margin-bottom: 3px !important; }
         body.demo-cards #augment-overlay .augment-card .augment-title { font-size: 0.7rem !important; }
+
+        /* ===== 증강 유형 전용 아이콘: 카드 색(분홍)과 별개로 증강마다 자기 색 ===== */
+        .ag-ic { width: 64%; height: 64%; overflow: visible; display: block; }
+        .ag-hg { --ic: #bfe9ff; --sand: #f0c36a; }
+        .ag-sc { --ic: #ecd9a0; --sand: #ecd9a0; }
+        .ag-ic .ag-line { fill: none; stroke: var(--ic); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+        .ag-ic .ag-fill { fill: var(--sand); stroke: none; }
+        .ag-ic .ag-glass { fill: rgba(255,255,255,0.08); stroke: var(--ic); stroke-width: 1.5; stroke-linejoin: round; }
+        .ag-ic .ag-cap { fill: var(--ic); }
+        .ai-ic { display: inline-flex; width: 1.3em; height: 1.3em; vertical-align: -0.28em; align-items: center; justify-content: center; }
+        .ai-ic .ag-ic { width: 100%; height: 100%; }
+        .turn-badge.proxy { display: inline-flex; align-items: center; gap: 6px; background: #2a2433; color: #f4e6b8; border: 1px solid #ecd9a0; text-transform: none; }
+        .turn-badge .ag-ic { width: 1.15em; height: 1.15em; }
+        .ag-hg .hg-body { transform-origin: 16px 16px; animation: hgFlip 3.6s ease-in-out infinite; }
+        .ag-hg .hg-top { transform-origin: 16px 16px; animation: hgTop 3.6s linear infinite; }
+        .ag-hg .hg-bot { transform-origin: 16px 25.4px; animation: hgBot 3.6s linear infinite; }
+        .ag-hg .hg-flow { stroke: var(--sand); stroke-width: 1; stroke-dasharray: 1.2 1.8; animation: hgFlow .5s linear infinite, hgFlowVis 3.6s linear infinite; }
+        @keyframes hgFlip { 0%, 86% { transform: rotate(0deg); } 100% { transform: rotate(180deg); } }
+        @keyframes hgTop { 0% { transform: scaleY(1); } 84%, 100% { transform: scaleY(0.04); } }
+        @keyframes hgBot { 0% { transform: scaleY(0.04); } 84%, 100% { transform: scaleY(1); } }
+        @keyframes hgFlow { to { stroke-dashoffset: -3; } }
+        @keyframes hgFlowVis { 0%, 80% { opacity: 1; } 84%, 100% { opacity: 0; } }
+        .ag-sc .sc-beam { transform-origin: 16px 8px; animation: scBeam 2.6s ease-in-out infinite alternate; }
+        .ag-sc .sc-pl { animation: scPl 2.6s ease-in-out infinite alternate; }
+        .ag-sc .sc-pr { animation: scPr 2.6s ease-in-out infinite alternate; }
+        @keyframes scBeam { from { transform: rotate(-9deg); } to { transform: rotate(9deg); } }
+        @keyframes scPl { from { transform: translateY(1.7px); } to { transform: translateY(-1.7px); } }
+        @keyframes scPr { from { transform: translateY(-1.7px); } to { transform: translateY(1.7px); } }
+        .aug-timer.cut:not(.low) i { background: #f0c36a; }
+        .aug-timer.cut .at-sec { color: #f0c36a; }
+        .aug-timer.cut .at-sec::before { content: '⏳'; margin-right: 3px; font-size: 0.78rem; }
+        body.demo-cards #augment-overlay .aug-timer.demo-t { display: flex !important; width: 86%; margin: 0 auto 12px; gap: 10px; }
+        .demo-t .at-track { height: 8px; border-radius: 6px; }
+        .demo-t i { right: auto; width: 100%; transform-origin: left center; background: #f0c36a !important; transition: width .7s cubic-bezier(.3,.8,.3,1), transform 2s linear; }
+        .demo-t.low i { background: var(--danger) !important; }
+        .demo-t .dt-lost { position: absolute; top: 0; bottom: 0; right: 0; width: 0; background: repeating-linear-gradient(135deg, rgba(150,215,245,0.5) 0 4px, rgba(150,215,245,0.1) 4px 8px); transition: width .7s cubic-bezier(.3,.8,.3,1); }
+        .demo-t .at-sec { font-size: 1.05rem; min-width: 2.4em; color: #f4e6b8; }
+        body.demo-cards #augment-overlay .demo-ban { display: flex; align-items: center; gap: 6px; margin: 0 auto 9px; padding: 4px 13px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; color: #ddd; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.2); transition: background .4s, color .4s, border-color .4s; }
+        body.demo-cards #augment-overlay .demo-ban.proxy { background: rgba(236,217,160,0.14); color: #f4e6b8; border-color: #ecd9a0; }
+        .demo-ban .ag-ic { width: 17px; height: 17px; }
+        .demo-stamp { position: absolute; left: 50%; top: 52%; z-index: 5; padding: 5px 14px; border: 2px solid #ecd9a0; border-radius: 6px; color: #ecd9a0; background: rgba(20,16,30,0.7); font-size: 1rem; font-weight: 800; letter-spacing: 2px; white-space: nowrap; transform: translate(-50%, -50%) rotate(-7deg); animation: stampIn .4s cubic-bezier(.2,1.5,.4,1) both; }
+        @keyframes stampIn { from { transform: translate(-50%, -50%) rotate(-7deg) scale(2.2); opacity: 0; } to { transform: translate(-50%, -50%) rotate(-7deg) scale(1); opacity: 1; } }
+        @media (prefers-reduced-motion: reduce) { .ag-hg .hg-body, .ag-hg .hg-top, .ag-hg .hg-bot, .ag-hg .hg-flow, .ag-sc .sc-beam, .ag-sc .sc-pl, .ag-sc .sc-pr { animation: none !important; } }
 
         /* v3.38: 수 예약 — 내 기물의 붉은 잔상 */
         #premove-layer { z-index: 2; }
@@ -1414,7 +1469,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.92';
+      var VERSION = 'v3.93';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -2502,7 +2557,9 @@
             '운명의 수레바퀴': { category: '이동', kind: 'move', noLead: true, win: ['aug_wheel', '🎡', '빙글빙글'] },
             '앙파상+': { category: '이동', kind: 'move', noLead: true, win: ['aug_hop', '🎼', '비행청소년'] },
             '운명공동체': { delay: 1500, category: '유틸', kind: 'curse', bot: 25, win: ['aug_fate', '🔔', '월하노인'] },
-            '잭팟': { delay: 1700, category: '유틸', kind: 'upgrade' },
+            '잭팟': { delay: 1700, category: '증강', kind: 'upgrade' },
+            '시간 도둑': { delay: 2200, category: '증강', kind: 'meta', bot: 20 },
+            '법정 대리인': { delay: 60, category: '증강', kind: 'meta', noLead: true, bot: 40 },
             '아기는 어떻게 태어나?': { delay: 1600, category: '소환', kind: 'summon' },
             '암전': { delay: 1600, category: '유틸', kind: 'curse', bot: 60 },
             '수퍼 워너비': { delay: 1500, category: '유틸', risk: '대상 지정', kind: 'upgrade', bot: 25 },
@@ -3659,7 +3716,7 @@
             if (a.type === 'move') executeMoveLocal(a.from, a.to, a.promotion);
             else if (a.type === 'augment_sync') { specCasting = true; specPreview = null; specSelect = null; handleRemoteAction(a); }
             else if (a.type === 'augment_preview') {
-                specPreview = { color: a.playerColor, preview: a.preview }; specSelect = null; oppAugDeadline = Date.now() + AUG_LIMIT_MS;
+                specPreview = { color: a.playerColor, preview: a.preview }; specSelect = null; oppAugDeadline = Date.now() + augLimitMs(proxyPick[a.playerColor] || a.playerColor);
                 if (!specCasting) {
                     if (!specAugOpen) { specAugOpen = true; isSystemLocked = true; }   // 중간에 들어왔거나 처리가 조금 늦은 경우에도 선택지를 보여 준다
                     specPickColor = a.playerColor; specShowPick();
@@ -3688,7 +3745,7 @@
                 ov.innerHTML = `<div class="turn-badge ${c === 'w' ? 'white' : 'black'}">선택 중...</div><h2>증강 선택</h2><p style="color:#ccc; margin-bottom:12px; font-size:0.95rem;">선택지를 불러오는 중입니다...</p>`;
                 ov.style.display = 'flex';
             }
-            const b = ov.querySelector('.turn-badge'); if (b) b.textContent = `${specNames[c]} 선택 중...`;
+            const b = ov.querySelector('.turn-badge'); if (b) b.textContent = proxyPick[c] ? `${specNames[proxyPick[c]]} 대리 선택 중...` : `${specNames[c]} 선택 중...`;
             const h = ov.querySelector('h2'); if (h) h.textContent = '증강 선택';
             const p = ov.querySelector('p'); if (p && pv) p.textContent = '고르고 있는 선택지입니다.';
         }
@@ -3733,7 +3790,7 @@
             if (action.type === 'move') {
                 executeMoveLocal(action.from, action.to, action.promotion);
             } else if (action.type === 'augment_preview') {
-                opponentAugmentPreview = action.preview; oppAugDeadline = Date.now() + AUG_LIMIT_MS;   // 상대가 카드를 보기 시작한 시점부터 30초
+                opponentAugmentPreview = action.preview; oppAugDeadline = Date.now() + augLimitMs(proxyPick[action.playerColor] || action.playerColor);   // 상대가 카드를 보기 시작한 시점부터 30초
                 opponentAugmentPreviewColor = action.playerColor;
                 if (augmentOverlay.style.display === 'flex') {
                     renderOpponentPreviewCards(opponentAugmentPreview, opponentAugmentPreviewColor, augmentOverlay);
@@ -4287,6 +4344,7 @@
                     let nr = r + dr, nc = c + dc;
                     while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
                         const p = B[nr][nc];
+                        if (p && future && p.type === 'wall') { const ew = activeWalls.find(x => x.sq === this.rcToSq(nr, nc)); if (ew && ew.duration <= 1) { nr += dr; nc += dc; continue; } }   // 내 수 직후 사라질 장벽은 가로막지 못한다
                         if (p) {
                             if (p.type !== 'wall' && p.color === attackerColor && (p.type === 'q' || (future && p.type === 'p' && prospects[p.uid] === 1) || p.type === (diag ? 'b' : 'r')) && !(rootedPieces[p.uid] > keep)) return true;   // 유망주 폰은 내 수 직후 퀸이 되므로 퀸처럼 공격한다
                             break;
@@ -4442,7 +4500,7 @@
         const squaresLayer = document.getElementById('squares-layer'); const piecesLayer = document.getElementById('pieces-layer');
         const dotsLayer = document.getElementById('dots-layer'); const vfxGlobalLayer = document.getElementById('vfx-global-layer');
         const boardEl = document.getElementById('board'); const turnDisplayEl = document.getElementById('turn-display');
-        const AUG_LIMIT_MS = 30000; let augDeadline = 0, augKeepDeadline = false, augCtx = null, oppAugDeadline = 0;
+        const AUG_LIMIT_MS = 30000; const augLimitMs = c => [30000, 20000, 10000][Math.min(2, (augTimeCut && augTimeCut[c]) || 0)]; let augDeadline = 0, augKeepDeadline = false, augCtx = null, oppAugDeadline = 0;
         let gameStartTs = 0, gameEndTs = 0;   // 경기 시간(mm:ss): 시작 시각은 상태에 저장되어 재접속·관전 때도 이어진다
         function clockText() {
             if (!isGameStarted || (replayActive && replayMode !== 'live')) return '';
@@ -4462,7 +4520,7 @@
         const AUGMENT_INTERVAL = 7; let isSystemLocked = false; let pendingAugments = [];
         let pendingMove = null; let activePoison = []; let rootedPieces = {}; let invinciblePieces = {}; let mines = []; let prospects = {}; let pactPieces = {}; let fateLinks = [];   // 운명공동체: [[uidA, uidB], ...]
         let futureAttack = false; let activeWalls = []; let reversedPawns = { w: 0, b: 0 }; let reversedUids = { w: {}, b: {} };   // 자아 분열 발동 당시 존재하던 폰의 uid만 효과를 받는다
-        let jackpotBonus = { w: 0, b: 0 }; let lastKiller = { w: null, b: null }; let babyEffect = { w: null, b: null }; let blackout = { w: 0, b: 0 }; let targeting = null; let lastCheckKey = '';
+        let jackpotBonus = { w: 0, b: 0 }; let augTimeCut = { w: 0, b: 0 }; let proxyPick = { w: null, b: null }; let lastKiller = { w: null, b: null }; let babyEffect = { w: null, b: null }; let blackout = { w: 0, b: 0 }; let targeting = null; let lastCheckKey = '';
 
         // ---- 증강 상태 목록 (저장·복원·새 게임·도움말 초기화·봇 스냅샷이 모두 이 표 하나를 쓴다) ----
         // 새 증강이 판 위에 오래 남는 상태가 필요하면 전역 변수를 만들고 여기에 한 줄만 추가하면 된다.
@@ -4479,6 +4537,8 @@
               load: rp => (rp && rp.color !== undefined) ? { w: rp.color === 'w' ? rp.duration : 0, b: rp.color === 'b' ? rp.duration : 0 } : (rp || { w: 0, b: 0 }) },   // 이전 저장 형식 호환
             { key: 'reversedUids', init: () => ({ w: {}, b: {} }), get: () => reversedUids, set: v => { reversedUids = v; } },
             { key: 'jackpotBonus', init: () => ({ w: 0, b: 0 }), get: () => jackpotBonus, set: v => { jackpotBonus = v; } },
+            { key: 'augTimeCut', init: () => ({ w: 0, b: 0 }), get: () => augTimeCut, set: v => { augTimeCut = v; } },   // 시간 도둑: 색별로 줄어든 증강 선택 시간 단계(0=30초, 1=20초, 2=10초)
+            { key: 'proxyPick', init: () => ({ w: null, b: null }), get: () => proxyPick, set: v => { proxyPick = v; } },   // 법정 대리인: proxyPick[c] = c의 다음 증강을 대신 고르는 색
             { key: 'lastKiller', init: () => ({ w: null, b: null }), get: () => lastKiller, set: v => { lastKiller = v; } },
             { key: 'babyEffect', init: () => ({ w: null, b: null }), get: () => babyEffect, set: v => { babyEffect = v; },
               load: be => (be && be.color) ? { w: be.color === 'w' ? be : null, b: be.color === 'b' ? be : null } : (be || { w: null, b: null }) },
@@ -4667,7 +4727,8 @@
             const ctx = canvas.getContext('2d');
             let W = 0, H = 0, cell = 0, dpr = 1, running = false, last = 0;
             const parts = [], rings = [], flashes = [], bolts = [], beams = [], slashes = [], rays = [], marks = [], waves = [], dims = [], trails = [], charges = [], wheels = [], vines = [], chains = [], threads = [], shields = [], halos = [], scorches = [], scopes = [], arrows = [], bows = [];
-            const lists = [parts, rings, flashes, bolts, beams, slashes, rays, marks, waves, dims, trails, charges, wheels, vines, chains, threads, shields, halos, scorches, scopes, arrows, bows];
+            const bhearts = [], clocks = [], seals = [], scales = [];
+            const lists = [parts, rings, flashes, bolts, beams, slashes, rays, marks, waves, dims, trails, charges, wheels, vines, chains, threads, shields, halos, scorches, scopes, arrows, bows, bhearts, clocks, seals, scales];
             const rnd = (a, b) => a + Math.random() * (b - a);
             const pick = arr => arr[(Math.random() * arr.length) | 0];
             const TAU = Math.PI * 2;
@@ -4811,6 +4872,10 @@
                     case 'divine':
                         flash(mx, my, cell * 3, C.white, 0.55, 0.4); beam(mx, cell * 1.4, C.gold, 0.75); rayBurst(mx, my, C.gold, 0.75, cell * 3.4);
                         ring(mx, my, cell * 0.3, cell * 2.8, C.gold, 0.65, 4); rising(mx, my, cell * 1.2, 14, [C.gold, C.white, C.yellow], 50, 140); break;
+                    case 'meta':
+                        flash(mx, my, cell * 2.4, [255, 120, 180], 0.55, 0.4); ring(mx, my, cell * 0.25, cell * 2.1, [255, 160, 205], 0.55, 3, 0.7); ring(mx, my, cell * 0.1, cell * 1.3, [255, 225, 238], 0.45, 2, 0.6);
+                        for (let i = 0; i < 16; i++) P({ x: mx + rnd(-cell * 1.6, cell * 1.6), y: my + rnd(-cell * 1.2, cell * 1.2), vx: rnd(-14, 14), vy: UP() * rnd(20, 90), drag: 0.4, size: rnd(1.6, 3.2), dur: rnd(0.8, 1.3), kind: 'glow', color: pick([[255, 130, 185], [255, 200, 225], [255, 255, 255]]), tw: true });
+                        break;
                     case 'wave': wave(arg === 'b' ? 8 : 1); break;
                     case 'blackout': dims.push({ a: 0.55, dur: 0.9, t: 0 }); break;
                     default: flash(mx, my, cell * 2, C.white, 0.4, 0.2);
@@ -5232,6 +5297,90 @@
                 if (w > p.size * 0.5) { ctx.fillStyle = 'rgba(255,245,170,0.8)'; ctx.beginPath(); ctx.ellipse(-w * 0.25, -p.size * 0.25, w * 0.28, p.size * 0.28, 0, 0, TAU); ctx.fill(); }
                 ctx.restore();
             }
+            // ---------- 시간 도둑: 회중시계가 상대 킹 위로 떨어져 '땅' 하고 박힌 뒤, 시간이 빠져나가듯 위로 떠올라 사라진다 (내가 가져가는 게 아니다) ----------
+            function clockPos(o, t) {
+                const U = UP(), d = Math.min(1, t / 0.4), drop = (1 - d * d) * cell * 2.1;   // 위에서 가속하며 낙하
+                const bounce = t > 0.4 && t < 0.68 ? Math.sin((t - 0.4) / 0.28 * Math.PI) * cell * 0.14 : 0;   // 땅! 하고 살짝 튕김
+                const r = Math.min(1, Math.max(0, (t - 1.15) / 0.95)), e = r * r * (3 - 2 * r), rise = e * cell * 1.9;
+                return { x: o.x, y: o.y + U * (cell * 0.55 + drop + bounce + rise), e, fly: r, d };
+            }
+            function drawClock(o) {
+                const t = o.t, U = UP(), fin = Math.min(1, t / 0.12), fout = t > 1.45 ? Math.min(1, Math.max(0, (o.dur - t) / (o.dur - 1.45))) : 1, a = fin * fout; if (a <= 0) return;
+                const q = clockPos(o, t), sq = t > 0.4 && t < 0.58 ? 1 + 0.18 * (1 - (t - 0.4) / 0.18) : 1, r = cell * 0.4 * sq * (1 - 0.15 * q.e);
+                ctx.save(); ctx.globalAlpha = a; ctx.lineCap = 'round';
+                if (t < 0.4) { ctx.strokeStyle = 'rgba(190,235,255,0.5)'; ctx.lineWidth = r * 0.18;   // 낙하 궤적
+                    for (let i = -1; i <= 1; i++) { ctx.beginPath(); ctx.moveTo(q.x + i * r * 0.5, q.y); ctx.lineTo(q.x + i * r * 0.5, q.y + U * -r * (1.6 + 2 * (1 - q.d))); ctx.stroke(); } }
+                ctx.translate(q.x, q.y); if (U > 0) ctx.rotate(Math.PI);
+                ctx.fillStyle = 'rgb(214,170,80)'; ctx.fillRect(-r * 0.14, -r * 1.3, r * 0.28, r * 0.3); ctx.strokeStyle = 'rgb(214,170,80)'; ctx.lineWidth = r * 0.1; ctx.beginPath(); ctx.arc(0, -r * 1.42, r * 0.16, 0, TAU); ctx.stroke();
+                if (t < 0.7 || q.fly > 0) { ctx.shadowColor = 'rgba(150,215,245,0.9)'; ctx.shadowBlur = cell * 0.25; }
+                ctx.fillStyle = 'rgb(250,243,222)'; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill(); ctx.shadowBlur = 0;
+                ctx.strokeStyle = 'rgb(214,170,80)'; ctx.lineWidth = r * 0.16; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.stroke();
+                ctx.strokeStyle = 'rgba(60,45,30,0.8)'; ctx.lineWidth = r * 0.06;
+                for (let i = 0; i < 12; i++) { const an = i / 12 * TAU; ctx.beginPath(); ctx.moveTo(Math.cos(an) * r * 0.74, Math.sin(an) * r * 0.74); ctx.lineTo(Math.cos(an) * r * 0.88, Math.sin(an) * r * 0.88); ctx.stroke(); }
+                const m = -Math.PI / 2 - Math.min(Math.max(0, t - 0.4), 1.1) * 11, h = -Math.PI / 2 + (m + Math.PI / 2) / 12;   // 땅 한 뒤 바늘이 거꾸로 돈다
+                ctx.strokeStyle = 'rgb(40,30,24)'; ctx.lineWidth = r * 0.1; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(m) * r * 0.66, Math.sin(m) * r * 0.66); ctx.stroke();
+                ctx.lineWidth = r * 0.14; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(h) * r * 0.44, Math.sin(h) * r * 0.44); ctx.stroke();
+                ctx.fillStyle = 'rgb(214,170,80)'; ctx.beginPath(); ctx.arc(0, 0, r * 0.1, 0, TAU); ctx.fill();
+                ctx.restore();
+            }
+            // ---------- 법정 대리인: 필드 한가운데에 저울이 떠올라 균형을 잡는다 ----------
+            function drawScales(o) {
+                const t = o.t, fin = Math.min(1, t / 0.45), pop = 1 + 2.70158 * Math.pow(fin - 1, 3) + 1.70158 * Math.pow(fin - 1, 2), fout = Math.min(1, Math.max(0, (o.dur - t) / 0.4)), a = Math.min(1, t / 0.2) * fout; if (a <= 0) return;
+                const R = cell * 1.25, ang = 0.34 * Math.exp(-t * 2.3) * Math.cos(t * 8.5), ty = -R * 0.62, ex = R * 0.86 * Math.cos(ang), ey = R * 0.86 * Math.sin(ang);
+                ctx.save(); ctx.globalAlpha = a; ctx.translate(o.x, o.y); if (UP() > 0) ctx.rotate(Math.PI); ctx.scale(pop, pop);
+                const g = ctx.createRadialGradient(0, 0, 0, 0, 0, R * 1.5); g.addColorStop(0, 'rgba(255,240,200,0.3)'); g.addColorStop(1, 'rgba(255,240,200,0)');
+                ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, R * 1.5, 0, TAU); ctx.fill();
+                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                ctx.strokeStyle = 'rgba(236,217,160,0.35)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(0, ty * 0.15, R * 1.12, 0, TAU); ctx.stroke();   // 얇은 후광 고리 + 눈금
+                ctx.lineWidth = 2; for (let i = 0; i < 36; i++) { const an = i / 36 * TAU + t * 0.25, r1 = R * 1.12, r2 = r1 + (i % 3 ? R * 0.03 : R * 0.07); ctx.beginPath(); ctx.moveTo(Math.cos(an) * r1, ty * 0.15 + Math.sin(an) * r1); ctx.lineTo(Math.cos(an) * r2, ty * 0.15 + Math.sin(an) * r2); ctx.stroke(); }
+                const gold = ctx.createLinearGradient(0, ty - R * 0.2, 0, R * 0.9); gold.addColorStop(0, 'rgb(255,244,200)'); gold.addColorStop(0.55, 'rgb(226,190,110)'); gold.addColorStop(1, 'rgb(176,134,60)');
+                const body = outline => {   // 테두리(어두운 외곽선) → 본체(밝은 금색) 두 번 그린다
+                    const add = outline ? cell * 0.07 : 0, col = outline ? 'rgba(40,26,8,0.95)' : gold;
+                    ctx.strokeStyle = col; ctx.fillStyle = col;
+                    ctx.lineWidth = cell * 0.07 + add; ctx.beginPath(); ctx.moveTo(0, ty); ctx.lineTo(0, R * 0.78); ctx.moveTo(-R * 0.38, R * 0.82); ctx.lineTo(R * 0.38, R * 0.82); ctx.stroke();
+                    ctx.lineWidth = cell * 0.085 + add; ctx.beginPath(); ctx.moveTo(-ex, ty - ey); ctx.lineTo(ex, ty + ey); ctx.stroke();
+                    ctx.beginPath(); ctx.arc(0, ty, cell * 0.08 + add / 2, 0, TAU); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(0, ty - cell * 0.2 - add / 2); ctx.lineTo(cell * 0.07 + add / 2, ty - cell * 0.1); ctx.lineTo(0, ty - cell * 0.02); ctx.lineTo(-cell * 0.07 - add / 2, ty - cell * 0.1); ctx.closePath(); ctx.fill();   // 꼭대기 장식
+                    ctx.fillRect(-R * 0.3 - add / 2, R * 0.84 - add / 2, R * 0.6 + add, cell * 0.06 + add); ctx.fillRect(-R * 0.2 - add / 2, R * 0.78 - add / 2, R * 0.4 + add, cell * 0.06 + add);   // 계단형 받침
+                    for (const sgn of [-1, 1]) {
+                        const px = sgn * ex, py = ty + sgn * ey, pw = R * 0.36, pyb = py + R * 0.62;
+                        ctx.lineWidth = cell * 0.03 + add; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px - pw, pyb); ctx.moveTo(px, py); ctx.lineTo(px + pw, pyb); ctx.stroke();
+                        ctx.lineWidth = cell * 0.05 + add; ctx.beginPath(); ctx.moveTo(px - pw - cell * 0.04, pyb); ctx.quadraticCurveTo(px, pyb + R * 0.42, px + pw + cell * 0.04, pyb); ctx.closePath();
+                        if (!outline) { ctx.fillStyle = 'rgba(120,88,30,0.85)'; ctx.fill(); } ctx.strokeStyle = col; ctx.stroke(); ctx.fillStyle = col;
+                        if (!outline) { ctx.strokeStyle = 'rgba(255,244,200,0.8)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(px - pw - cell * 0.04, pyb); ctx.lineTo(px + pw + cell * 0.04, pyb); ctx.stroke(); ctx.strokeStyle = col; }
+                    }
+                };
+                body(true); body(false);
+                ctx.restore();
+            }
+            // ---------- 법정 대리인: 판사의 망치가 상대 킹 앞 받침대를 내리친다 ----------
+            function drawSeal(o) {
+                const t = o.t, fout = Math.min(1, Math.max(0, (o.dur - t) / 0.4)), a = Math.min(1, t / 0.2) * fout; if (a <= 0) return;
+                const L = cell * 0.95, phS = 2.2, phR = 3.75, k = t < 0.25 ? 0 : t < 0.55 ? (t - 0.25) / 0.3 : 1;
+                let ph = t < 0.25 ? phR : t < 0.55 ? phR + 0.18 * Math.sin(k * Math.PI) : phS;   // 치켜들었다가 → 내리친다
+                const hit = t > 0.55, st = hit ? Math.max(0, 1 - (t - 0.55) / 0.35) : 0;
+                if (t >= 0.25 && t < 0.55) ph = phR + (phS - phR) * Math.pow(k, 2.4) - 0.14 * Math.sin(k * Math.PI);
+                if (hit) ph = phS + 0.1 * st * Math.sin((t - 0.55) * 30);
+                const px = o.x - Math.cos(phS) * L, py = o.y - Math.sin(phS) * L;
+                ctx.save(); ctx.globalAlpha = a;
+                ctx.fillStyle = 'rgba(236,217,160,' + (0.75 + 0.25 * st) + ')'; ctx.beginPath(); ctx.ellipse(o.x, o.y + cell * 0.32, cell * 0.5, cell * 0.13, 0, 0, TAU); ctx.fill();   // 받침대
+                ctx.strokeStyle = 'rgba(120,90,40,0.9)'; ctx.lineWidth = cell * 0.02; ctx.stroke();
+                ctx.translate(px, py); ctx.rotate(ph);
+                ctx.strokeStyle = 'rgb(150,102,62)'; ctx.lineWidth = cell * 0.075; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(L, 0); ctx.stroke();
+                const w = cell * 0.22, hh = cell * 0.52;
+                ctx.fillStyle = 'rgb(104,64,38)'; ctx.fillRect(L - w / 2, -hh / 2, w, hh);
+                ctx.fillStyle = 'rgb(236,217,160)'; ctx.fillRect(L - w / 2, -hh / 2, w * 0.18, hh); ctx.fillRect(L + w / 2 - w * 0.18, -hh / 2, w * 0.18, hh);
+                ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fillRect(L - w * 0.3, -hh / 2, w * 0.2, hh);
+                ctx.restore();
+            }
+            function drawCard(p) {   // 날아가는 선택지 카드
+                const k = p.t / p.dur, a = p.alpha * (k < 0.85 ? 1 : 1 - (k - 0.85) / 0.15); if (a <= 0) return;
+                const w = p.size, h = p.size * 1.45;
+                ctx.save(); ctx.globalAlpha = a; ctx.translate(p.x, p.y); ctx.rotate(p.rot || 0);
+                ctx.fillStyle = 'rgb(44,12,36)'; ctx.strokeStyle = p.css; ctx.lineWidth = Math.max(1.4, p.size * 0.14);
+                ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(-w / 2, -h / 2, w, h, w * 0.2); else ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = p.css; ctx.beginPath(); ctx.arc(0, 0, w * 0.17, 0, TAU); ctx.fill(); ctx.restore();
+            }
             function drawMineBody(p) {
                 const t = p.t, fall = Math.max(0, 1 - t / 0.34), sink = Math.min(1, Math.max(0, (t - 0.52) / 0.4));
                 const y = p.y + UP() * cell * 0.9 * fall * fall, sz = p.size * (1 - 0.85 * sink), a = Math.min(1, t / 0.08) * (1 - sink * 0.6); if (a <= 0 || sz <= 0.4) return;
@@ -5239,7 +5388,7 @@
                 ctx.beginPath(); ctx.ellipse(0, 0, sz, sz * 0.72, 0, 0, TAU); ctx.fill(); ctx.stroke();
                 ctx.fillStyle = (Math.floor(t * 8) % 2) ? 'rgb(255,70,60)' : 'rgb(120,30,30)'; ctx.beginPath(); ctx.arc(0, -sz * 0.1, sz * 0.22, 0, TAU); ctx.fill(); ctx.restore();
             }
-            const DRAWK = { smoke: drawSmoke, shard: drawShard, petal: drawPetal, feather: drawFeather, heart: drawHeart, star: drawStar, coin: drawCoin, minebody: drawMineBody };
+            const DRAWK = { smoke: drawSmoke, shard: drawShard, petal: drawPetal, feather: drawFeather, heart: drawHeart, star: drawStar, coin: drawCoin, minebody: drawMineBody, card: drawCard };
 
             // ---------- 입자 생성 도우미 ----------
             function petals(x, y, n, spread, colors, h = 1.4) {
@@ -5328,6 +5477,42 @@
                 ring(x, y, cell * 0.12, cell * 1.3, [225, 140, 255], 0.55, 3, 0.8);
                 for (let i = 0; i < 16; i++) P({ x: x + rnd(-cell * 0.2, cell * 0.2), y: y + rnd(-cell * 0.15, cell * 0.15), vx: rnd(-26, 26), vy: UP() * rnd(25, 120), drag: 1.4, size: rnd(1.8, 3.6), dur: rnd(0.55, 0.95), kind: 'glow', color: pick([[255, 150, 205], [210, 130, 255], [255, 235, 245]]), tw: true });
                 stars(x, y, 6, cell * 0.45, [[255, 225, 240], [225, 170, 255]]); kick();
+            }
+            // 깨지는 하트: 기물 위에 하트가 솟아 두근거리다 금이 가고, 두 쪽으로 갈라져 떨어진다 (아기 축복이 체크로 사라질 때)
+            function heartBreak(sq, delay = 0) {
+                const { x, y } = ctr(sq); resize(); if (!W) return;
+                bhearts.push({ x, y, dur: 1.7, t: -delay, shards: false });
+                kick();
+            }
+            function drawBrokenHeart(o) {
+                if (o.t < 0) return;
+                const T = o.t, BR = 0.62, s = cell * 0.22, ease = u => 1 - Math.pow(1 - u, 3);
+                const zig = [[0, -1.3], [-0.2, -0.5], [0.17, -0.12], [-0.15, 0.3], [0.13, 0.64], [0, 1.15]];
+                if (T >= BR && !o.shards) {
+                    o.shards = true;
+                    for (let i = 0; i < 10; i++) P({ x: o.x + rnd(-cell * 0.08, cell * 0.08), y: o.y + rnd(-cell * 0.12, cell * 0.1), vx: rnd(-70, 70), vy: UP() * rnd(-30, 90), drag: 1.2, size: rnd(1.6, 3.2), dur: rnd(0.5, 0.95), kind: 'glow', color: pick([[255, 110, 150], [255, 200, 215], [255, 255, 255]]) });
+                    flash(o.x, o.y, cell * 0.9, [255, 90, 130], 0.35, 0.45); kick();
+                }
+                const path = () => { ctx.beginPath(); ctx.moveTo(0, s * 0.95); ctx.bezierCurveTo(-s * 1.55, -s * 0.05, -s * 0.85, -s * 1.15, 0, -s * 0.4); ctx.bezierCurveTo(s * 0.85, -s * 1.15, s * 1.55, -s * 0.05, 0, s * 0.95); ctx.closePath(); };
+                const half = (side, dx, dy, rot, alpha) => {
+                    ctx.save(); ctx.translate(dx, dy); ctx.rotate(rot); ctx.globalAlpha = alpha;
+                    ctx.beginPath(); zig.forEach((p, i) => { if (i) ctx.lineTo(p[0] * s, p[1] * s); else ctx.moveTo(p[0] * s, p[1] * s); });
+                    ctx.lineTo(side * s * 3, s * 1.15); ctx.lineTo(side * s * 3, -s * 1.3); ctx.closePath(); ctx.clip();
+                    path(); ctx.fillStyle = 'rgb(255,82,120)'; ctx.fill(); ctx.lineWidth = Math.max(1.2, s * 0.14); ctx.strokeStyle = 'rgba(255,226,235,0.95)'; ctx.stroke();
+                    ctx.restore();
+                };
+                ctx.save(); ctx.translate(o.x, o.y - cell * 0.1); if (UP() === 1) ctx.rotate(Math.PI);
+                if (T < BR) {
+                    const u = Math.min(1, T / 0.28), pop = ease(u) * (1 + 0.5 * Math.sin(Math.min(1, u) * Math.PI) * (1 - u)), beat = 1 + 0.08 * Math.sin(T * 26) * Math.min(1, Math.max(0, (T - 0.28) / 0.1));
+                    ctx.scale(pop * beat, pop * beat); ctx.globalAlpha = Math.min(1, T / 0.12);
+                    path(); ctx.fillStyle = 'rgb(255,82,120)'; ctx.fill(); ctx.lineWidth = Math.max(1.2, s * 0.14); ctx.strokeStyle = 'rgba(255,226,235,0.95)'; ctx.stroke();
+                    const cu = Math.max(0, (T - 0.3) / (BR - 0.3));   // 금이 위에서 아래로 자란다
+                    if (cu > 0) { const n = Math.max(2, Math.ceil(zig.length * cu)); ctx.beginPath(); for (let i = 0; i < n; i++) { const p = zig[i]; if (i) ctx.lineTo(p[0] * s, p[1] * s); else ctx.moveTo(p[0] * s, p[1] * s); } ctx.lineWidth = Math.max(1.2, s * 0.16); ctx.strokeStyle = 'rgba(70,10,35,0.9)'; ctx.stroke(); }
+                } else {
+                    const u = Math.min(1, (T - BR) / 1.0), e = ease(u), a = Math.max(0, 1 - Math.pow(u, 1.6));
+                    if (a > 0) { half(-1, -cell * 0.2 * e, cell * (0.5 * u * u + 0.04 * e), -0.9 * e, a); half(1, cell * 0.2 * e, cell * (0.5 * u * u + 0.04 * e), 0.9 * e, a); }
+                }
+                ctx.restore(); ctx.globalAlpha = 1;
             }
             function shieldFx(x, y, r, color, dur, sides = 6) { shields.push({ x, y, r, color, dur, sides, t: 0 }); }
             function drawShield(o) {
@@ -5664,6 +5849,20 @@
                     flash(k.x, k.y, cell * 1.6, C.gold, 0.6, 0.6); ring(k.x, k.y, cell * 0.1, cell * 1.5, C.gold, 0.6, 4);
                     for (let i = 0; i < 26; i++) at(i * 28, () => P({ x: rnd(0, W), y: UP() < 0 ? -cell * 0.2 : H + cell * 0.2, vx: rnd(-20, 20), vy: DOWN() * rnd(110, 200), g: DOWN() * 520, drag: 0.15, size: rnd(cell * 0.07, cell * 0.1), rot: rnd(0, TAU), vr: rnd(9, 16), dur: 1.5, kind: 'coin', color: C.gold }));
                 },
+                '시간 도둑'(t, a) {
+                    const f = t[0] ? ctr(t[0]) : { x: W / 2, y: H / 2 }, U = UP(), o = { x: f.x, y: f.y };
+                    clocks.push({ x: f.x, y: f.y, dur: 2.1, t: 0 });
+                    for (let i = 0; i < 8; i++) at(i * 45, () => { const q = clockPos(o, i * 0.045);   // 떨어지는 시계 뒤로 푸른 잔상
+                        P({ x: q.x, y: q.y, vx: rnd(-20, 20), vy: U * rnd(-40, -10), drag: 1.5, size: rnd(1.6, 3), dur: 0.4, kind: 'glow', color: [170, 225, 250] }); });
+                    at(400, () => { shake(5, 220); flash(f.x, f.y, cell * 1.3, [255, 235, 180], 0.5, 0.35); ring(f.x, f.y + U * cell * 0.3, cell * 0.2, cell * 1.2, [255, 225, 160], 0.45, 4, 0.85); ring(f.x, f.y + U * cell * 0.3, cell * 0.1, cell * 0.7, [255, 255, 255], 0.3, 2, 0.6);   // 땅!
+                        puffs(f.x, f.y + U * cell * 0.3, 4, [190, 190, 200], 0.5); embers(f.x, f.y + U * cell * 0.3, 10, 60, 200, [[255, 225, 160], [255, 255, 255]], 120); });
+                    at(700, () => swirl(f.x, f.y + U * cell * 0.55, 10, [[150, 215, 245], [255, 255, 255]], cell * 0.9, cell * 0.25, 0.5, -1));   // 시간이 거꾸로 감긴다
+                    for (let i = 0; i < 16; i++) at(1150 + i * 55, () => { const q = clockPos(o, 1.15 + i * 0.055);   // 시계가 떠오르며 모래가 위로 흩날린다
+                        P({ x: q.x + rnd(-cell * 0.2, cell * 0.2), y: q.y, vx: rnd(-15, 15), vy: U * rnd(40, 90), drag: 1.2, size: rnd(1.6, 3), dur: 0.8, kind: 'glow', color: pick([[255, 215, 140], [255, 240, 200]]) }); });
+                },
+                '법정 대리인'(t, a) {
+                    // 저울 연출 없음: 발동 멘트(showCastText)만 보이고 곧바로 상대의 선택지로 넘어간다
+                },
                 '아기는 어떻게 태어나?'(t) {
                     if (t.length < 2) return; const A = ctr(t[0]), B = ctr(t[1]);
                     [A, B].forEach(p => { flash(p.x, p.y, cell * 1.5, SC.pink, 0.8, 0.4); hearts(p.x, p.y, 5, cell * 0.35); });
@@ -5726,9 +5925,11 @@
                 for (let i = 0; i < parts.length; i++) moveP(parts[i], dt);
                 ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
                 waves.forEach(drawWaveBody);
+                clocks.forEach(drawClock); seals.forEach(drawSeal); scales.forEach(drawScales);
                 scorches.forEach(drawScorch);
                 for (const p of parts) { const d = DRAWK[p.kind]; if (d) d(p); }
                 chains.forEach(drawChain);
+                bhearts.forEach(drawBrokenHeart);
                 scopes.forEach(drawScope); bows.forEach(drawBow); arrows.forEach(drawArrow);
                 ctx.globalCompositeOperation = 'lighter';
                 threads.forEach(drawThread); wheels.forEach(drawWheel); beams.forEach(drawBeam); rays.forEach(drawRays); waves.forEach(drawWaveFoam); marks.forEach(drawMark); flashes.forEach(drawFlash); rings.forEach(drawRing); bolts.forEach(drawBolt); slashes.forEach(drawSlash); trails.forEach(drawTrail); charges.forEach(drawCharge); vines.forEach(drawVines); shields.forEach(drawShield); halos.forEach(drawHalo);
@@ -5741,7 +5942,7 @@
                 }
                 if (alive) requestAnimationFrame(frame); else { running = false; ctx.clearRect(0, 0, W, H); }
             }
-            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx, sig, hasSig: n => !!SIG[n], mineBlast, pactBlast, fateSever, crown, kickImpact, mateFocus, speed: k => { fxSpeed = k; } };
+            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx, sig, hasSig: n => !!SIG[n], mineBlast, pactBlast, fateSever, heartBreak, crown, kickImpact, mateFocus, speed: k => { fxSpeed = k; } };
         })();
 
         function spawnFloatingText(sq, text) {
@@ -5789,7 +5990,7 @@
         const AUG_KIND = specMap('kind');
         const KIND_COLOR = {
             damage: [255, 80, 70], poison: [110, 230, 120], summon: [110, 255, 170], curse: [190, 110, 255],
-            shield: [255, 215, 100], bind: [150, 220, 70], move: [90, 210, 255], upgrade: [255, 240, 170]
+            shield: [255, 215, 100], bind: [150, 220, 70], move: [90, 210, 255], upgrade: [255, 240, 170], meta: [255, 130, 185]
         };
         const AUG_STAGGER = specMap('stagger');
         const AUG_SCALE = specMap('scale');
@@ -6301,7 +6502,45 @@
         // ---- v3.86: 분석 문장 다듬기 — 같은 뜻을 여러 문장으로 돌려 쓰고, 포지션 요인·형세·배울 점을 사람이 읽기 좋은 말로 풀어 준다 ----
         //      문구는 (수 번호 + 문구 이름)으로 고정해서 뽑는다: 같은 수를 다시 열어도 같은 문장이 나오고, 수마다는 다르게 읽힌다.
         const rvHash = s => { s = String(s); let h = 2166136261; for (let k = 0; k < s.length; k++) { h ^= s.charCodeAt(k); h = Math.imul(h, 16777619); } return h >>> 0; };
-        const rvVarOf = seed => (key, ...opts) => opts[rvHash(seed + '|' + key) % opts.length];
+        const rvVarOf = seed => (key, ...opts) => { const ex = RV_EXTRA[key]; if (ex) opts = opts.concat(ex); return opts[rvHash(seed + '|' + key) % opts.length]; };
+        const RV_EXTRA = {   // v3.94: 같은 키의 문구 후보를 더 늘린다 (V가 원래 후보 뒤에 이어 붙여 고른다). 변수가 들어가지 않는 문구만 둔다
+            upst: ['기물들이 더 좋은 칸에서 제 몫을 해요', '말들의 짜임새가 한 단계 올라가요', '기물이 힘을 쓸 수 있는 자리로 모여요'],
+            dpst: ['기물들이 제 힘을 못 내는 자리에 놓여요', '말들의 짜임새가 느슨해져요', '기물 사이 호흡이 어긋나요'],
+            uking: ['킹이 안심할 수 있는 자리에 놓여요', '킹을 노릴 만한 길이 줄어들어요', '킹 주변 수비가 탄탄해져요'],
+            dking: ['킹이 공격에 노출되기 쉬워져요', '킹 곁의 빈틈이 커져요', '킹이 안전지대에서 벗어나요'],
+            upair: ['두 비숍이 함께 판을 가로지르는 힘을 지켜요', '비숍 쌍이 만드는 넓은 사정권이 유지돼요'],
+            dpair: ['비숍 한 쌍이 만들던 사정권이 줄어요', '두 비숍이 함께 쓰던 대각선 장악력이 약해져요'],
+            urook: ['룩이 막힘없는 줄을 타고 나갈 수 있어요', '룩에게 열린 길이 생겨요'],
+            drook: ['룩이 폰에 막혀 답답해져요', '룩이 쓸 수 있는 줄이 줄어들어요'],
+            upawn: ['폰들이 사슬처럼 서로를 받쳐 줘요', '약점이 되던 폰 모양이 정리돼요', '폰 사이가 촘촘해져 쉽게 공략당하지 않아요'],
+            dpawn: ['고립·겹친 폰이 생겨 공략받기 쉬워져요', '폰 사이가 벌어져 약점이 생겨요', '폰들이 서로를 도와주지 못해요'],
+            upassed: ['통과폰이 앞길을 열어 가요', '승급을 노릴 수 있는 폰이 힘을 얻어요'],
+            dpassed: ['통과폰의 앞길이 좁아져요', '승급 위협이 사라져 가요'],
+            ushield: ['킹을 가려 주는 폰 방패가 그대로 남아요', '킹 앞 방어막이 온전히 유지돼요'],
+            dshield: ['킹 앞 방어막에 구멍이 나요', '킹을 가려 주던 폰이 사라지거나 흩어져요'],
+            udev: ['개발이 끝난 기물이 하나 더 늘어요', '움직임이 막혀 있던 기물이 풀려나요'],
+            ddev: ['제자리 기물이 계속 남아 템포를 뺏겨요', '개발이 밀려 기물 연결이 늦어져요'],
+            umop: ['상대 킹의 도망칠 칸이 점점 줄어들어요', '킹 몰이가 한 단계 진전돼요'],
+            dmop: ['킹 몰이가 다시 멀어져요', '상대 킹이 숨 쉴 공간을 되찾아요'],
+            sa0: ['점수 면에서는 팽팽한 승부예요', '재료 싸움은 거의 비겨 있어요'],
+            thr: [' 겨냥', ' 위협'],
+            t_h: ['한 수 둘 때마다 \"공짜로 잡힐 말이 있나?\"를 습관처럼 확인하세요. 대부분의 큰 실수는 여기서 나와요.', '움직이기 전에 내 말들의 보호 상태를 훑어보면 갑작스런 손해를 크게 줄일 수 있어요.'],
+            t_m: ['체크메이트 위협은 킹 주변 칸 수를 세는 것에서 시작해요. 상대와 내 킹 모두 한 번씩 확인하세요.', '메이트가 보이지 않으면, 상대가 노릴 메이트부터 막아 두는 쪽이 안전해요.'],
+            t_tr: ['교환 전에는 \"끝난 뒤 판이 내게 더 편한가\"를 물어보세요. 숫자가 같아도 구조가 다를 수 있어요.', '비싼 말을 싼 말과 바꾸는 건 되도록 피하고, 반대로 이득 보는 교환은 놓치지 마세요.'],
+            t_g: ['지키던 말이 움직이면 그 뒤에 숨은 약점이 드러나요. 수를 두기 전 \"누가 누구를 지키고 있었지?\"를 떠올려 보세요.', '빈틈은 내가 말을 옮긴 바로 그 자리 근처에서 생기는 경우가 많아요.'],
+            t_k: ['킹을 일찍 움직이면 상대가 그 뒤를 파고들어요. 캐슬링으로 안전을 먼저 확보하세요.', '킹이 중앙에 오래 머물수록 공격 목표가 돼요. 언제 캐슬링할지 미리 계획해 두세요.'],
+            t_q: ['퀸을 너무 일찍 꺼내면 쫓겨 다니기 쉬워요. 작은 말 개발을 먼저 마치는 걸 목표로 하세요.', '퀸은 가장 값진 말이라 쫓기는 순간 템포를 잃어요. 서두르지 않는 편이 좋아요.'],
+            t_ms: ['메이트 가능성을 점검할 땐 \"체크 → 잡기 → 위협\" 순서로 후보를 훑으면 놓치기 어려워요.', '이길 수 있을 때 가장 흔한 실수는 서두르는 것이에요. 체크가 되는 수를 모두 나열해 보세요.'],
+            t_l: ['눈앞의 안전과 몇 수 뒤의 안전은 달라요. 상대의 가장 아픈 응수를 한 번만 더 따라가 보세요.', '지금 괜찮아 보이는 수도 두 수 뒤에 약점이 될 수 있어요. 상대 입장에서 다음 수를 생각해 보세요.'],
+            t_a: ['앞서 있을 땐 복잡한 판보다 단순한 판이 이득이에요. 교환으로 상대 반격 수단을 줄여 보세요.', '이득을 굳히려면 상대의 역전 수단(증강 포함)부터 하나씩 지워 가세요.'],
+            t_b: ['불리할 땐 한 번에 만회하려 하지 말고, 상대 위협을 지우며 기회를 기다리세요.', '밀리는 판에서는 상대가 방심하기 쉬운 순간을 노려 변수를 만들어 보세요.'],
+            t_d: ['작은 손해가 모이면 큰 차이가 돼요. 마음에 드는 수를 찾았다면 다른 후보와 한 번만 견줘 보세요.', '전술이 없는 조용한 수일수록 기물 활동성·킹 안전·폰 구조를 함께 비교해 보세요.'],
+            t_rv: ['자아 분열 효과가 끝나기까지 몇 수 남았는지 세어 두면 폰의 방향 착각을 막을 수 있어요.'],
+            t_by: ['탄생 효과가 남아 있다면 킹과 퀸의 거리를 먼저 점검하세요. 붙어 있는 한 매 수가 이득이에요.'],
+            t_ps: ['독구름이 걸린 칸은 한 수만 머물러도 말을 잃어요. 이동하기 전에 칸부터 확인하세요.'],
+            t_wl: ['장벽이 사라지는 순간 공격선이 열려요. 남은 수가 1이 되기 전에 킹의 안전을 점검하세요.']
+        };
+
         const RV_TERM_UP = {   // 평가 요소가 좋아질 때 (앞에 '예상 진행에서'·'추천 수는' 등이 붙어도 어색하지 않은 서술)
             pst: ['기물이 더 활동적인 칸으로 옮겨가요', '기물들의 배치가 한결 좋아져요', '기물이 중심 쪽에서 힘을 받아요'],
             king: ['킹이 더 안전한 자리를 잡아요', '킹 주변이 한결 든든해져요'],
@@ -6505,7 +6744,7 @@
                 return (k && q) ? { be, rem: be.remaining, k, q, adj: cheb(k.sq, q.sq) <= 1 } : null; };
             const bM = babyInfo(P, mover), bO = babyInfo(P, opp), bn = n => n > 0 ? `최대 ${n}번 더 탄생` : '더는 태어나지 않음';
             const born = Object.keys(A.byUid).filter(u => !P.byUid[u]).map(u => A.byUid[u]).filter(e => e.color === mover);
-            if (bM) rows.push(['증강', `${RVI.baby}<b>아기는 어떻게 태어나?</b> · 내 킹·퀸 (${bM.rem}수 남음 · ${bn(Math.ceil(bM.rem / 2))}) — ` + (bM.adj ? `킹(${bM.k.sq})과 퀸(${bM.q.sq})이 붙어 있어 내가 수를 둘 때마다 빈칸에 폰이 태어나요.` : `킹(${bM.k.sq})과 퀸(${bM.q.sq})이 떨어져 있어 탄생이 멈춰 있어요. 다시 붙여야 태어나요.`) + '<small>약 12%의 확률로 폰 대신 나이트·비숍·룩·퀸이 태어나요.</small>']);
+            if (bM) rows.push(['증강', `${RVI.baby}<b>아기는 어떻게 태어나?</b> · 내 킹·퀸 (${bM.rem}수 남음 · ${bn(Math.ceil(bM.rem / 2))}) — ` + (bM.adj ? `킹(${bM.k.sq})과 퀸(${bM.q.sq})이 붙어 있어 내가 수를 둘 때마다 빈칸에 폰이 태어나요.` : `킹(${bM.k.sq})과 퀸(${bM.q.sq})이 떨어져 있어 탄생이 멈춰 있어요. 다시 붙여야 태어나요.`) + '<small>약 12%의 확률로 폰 대신 나이트·비숍·룩·퀸이 태어나요. 킹이 체크를 당하면 축복이 사라져요.</small>']);
             if (bO) rows.push(['증강', `${RVI.baby}<b>아기는 어떻게 태어나?</b> · 상대 킹·퀸 (${bO.rem}수 남음 · ${bn(Math.floor(bO.rem / 2))}) — ` + (bO.adj ? '킹과 퀸이 붙어 있어 상대가 수를 둘 때마다 폰이 늘어나요. 퀸을 노리거나 둘 사이를 갈라놓으면 탄생을 끊을 수 있어요.' : '킹과 퀸이 떨어져 있어 지금은 탄생이 멈춰 있어요.')]);
             if (bM || P.baby[mover]) {
                 const kA = bM && A.byUid[bM.k.uid], qA = bM && A.byUid[bM.q.uid], adjA = !!(kA && qA && cheb(kA.sq, qA.sq) <= 1);
@@ -7219,7 +7458,8 @@
             for (const row of game.board()) for (const p of row) if (p && p.type !== 'k' && p.type !== 'wall') mat += (p.color === color ? 1 : -1) * (BOT_VAL[p.type] || 0);
             let mob = 0, eChk = false, mChk = false;
             try { const S = cloneGameState(game); S._turn = color; mob += S.moves().length; eChk = S.in_check(enemy); S._turn = enemy; mob -= S.moves().length; mChk = S.in_check(color); } catch (e) {}
-            return { mat, mob, eChk, mChk };
+            let T = null, pw = 0; try { T = rvTerms(cloneGameState(game)); } catch (e) {} for (const row of game.board()) for (const p of row) if (p && p.type === 'p' && p.color === color) pw++;
+            return { mat, mob, eChk, mChk, T, pw };
         }
         function rvAugSample(aug, color, enemy, target, depth) {   // 한 번 써 본 결과: 탐색 점수 + 판의 특징
             const sc = botSimAugment(aug, color, enemy, target, depth); if (sc === null) return null;
@@ -7377,19 +7617,19 @@
                 const first = []; for (const t of cands) { if (over() && first.length) break; const r = rvAugRun(aug, color, enemy, t, null, 1, {}); if (r) first.push({ t, r }); }
                 first.sort((x, y) => y.r.sc - x.r.sc);
                 for (const x of first.slice(0, 3)) { const r = over() ? x.r : rvAugRun(aug, color, enemy, x.t, null, FD, {}); if (r && (!best || r.sc > best.sc)) best = { sc: r.sc, f: r.f, target: x.t }; }
-                if (best && aug.name === '수퍼 워너비' && actual && actual.tg && cands.includes(actual.tg)) {   // 실제로 고른 폰이 얼마나 좋은 자리였는가
+                if (best && aug.target && aug.name !== '광기' && actual && actual.tg && cands.includes(actual.tg)) {   // 실제로 고른 폰이 얼마나 좋은 자리였는가
                     const ar = actual.tg === best.target ? { sc: best.sc } : rvAugRun(aug, color, enemy, actual.tg, null, FD, { light: true });
                     if (ar) best.act = { tg: actual.tg, sc: ar.sc };
                 }
             } else if (!best) {   // 무작위 요소가 있을 수 있는 증강은 여러 번 써 보고 평균 (결과가 정해진 증강은 한 번만)
                 const det = RV_AUG_DET.has(aug.name), rs = [];
                 for (let i = 0; i < (det ? 1 : 6) && !(over() && rs.length); i++) { const r = rvAugRun(aug, color, enemy, null, null, FD, {}); if (r) rs.push(r); }
-                if (rs.length) { const av = k => rs.reduce((x, r) => x + (r.f ? r.f[k] : before[k]), 0) / rs.length; best = { sc: rvMean(rs.map(r => r.sc)), f: { mat: av('mat'), mob: av('mob'), eChk: rs.some(r => r.f && r.f.eChk), mChk: rs.some(r => r.f && r.f.mChk) }, target: null }; }
+                if (rs.length) { const av = k => rs.reduce((x, r) => x + (r.f ? r.f[k] : before[k]), 0) / rs.length; best = { sc: rvMean(rs.map(r => Math.max(-4000, Math.min(4000, r.sc)))), mateLoss: rs.filter(r => r.sc <= -(BOT_MATE - 1000)).length / rs.length, f: { mat: av('mat'), mob: av('mob'), eChk: rs.some(r => r.f && r.f.eChk), mChk: rs.some(r => r.f && r.f.mChk), T: (rs[0].f && rs[0].f.T) || before.T, pw: av('pw') }, target: null }; }
             }
             if (!best) return null;
             if (!best.f) best.f = before;
             let rk = null; if (nextEnemy) { try { rk = botAugRiskAfterAug(aug, color, enemy, best.target, 250, best.forced ? () => rvForcedApply(best.forced, enemy) : null); } catch (e) { rk = null; } }   // 이어서 상대가 받을 증강의 기대 피해(음수일수록 위험)
-            const lt = rvAugLong(aug, color, enemy, best.target); return { name: aug.name, aug, sc: best.sc, f: best.f, rk, lt, bonus: (BOT_AUG_BONUS[aug.name] || 0) + lt.v, rand: (!aug.target && !RV_AUG_DET.has(aug.name)) || !!best.mad, det: RV_AUG_DET.has(aug.name), target: best.target, forced: best.forced || null, mad: best.mad || null, act: best.act || null };
+            const lt = rvAugLong(aug, color, enemy, best.target); return { name: aug.name, aug, sc: best.sc, f: best.f, rk, lt, bonus: (BOT_AUG_BONUS[aug.name] || 0) + lt.v, rand: (!aug.target && !RV_AUG_DET.has(aug.name)) || !!best.mad, det: RV_AUG_DET.has(aug.name), mateLoss: best.mateLoss || 0, target: best.target, forced: best.forced || null, mad: best.mad || null, act: best.act || null };
         }
         // v3.93: 판 평가에 안 잡히는 장기 효과(아기는 어떻게 태어나? 등)와 '어디에 쓰는가'를 말로 풀어 준다
         function rvAugLong(aug, color, enemy, target) {
@@ -7400,34 +7640,105 @@
                     const adj = Math.max(Math.abs(k.charCodeAt(0) - q.charCodeAt(0)), Math.abs(+k[1] - +q[1])) <= 1, n = adj ? 4 : 2;
                     return { v: Math.round(n * 136 * 0.8) + 60, t: `8수 동안 킹·퀸이 ${adj ? '붙어 있어서' : '모이면'} 새 기물이 약 ${n}번 태어나요 (폰 약 ${(n * 1.36 * 0.8).toFixed(1)}개 가치) + 축복으로 킹·퀸이 보호돼요` };
                 }
+                if (aug.name === '잭팟') {
+                    let n = 0; game.board().forEach(r => r.forEach(q => { if (q && q.type !== 'wall') n++; }));
+                    const early = Math.max(0, Math.min(1, (n - 14) / 18)), calm = !game.in_check(color);   // 말이 많을수록(초반) 선택지 +1이 오래 쓰인다
+                    const v = Math.round((calm ? 1 : 0.4) * (90 + 300 * early));
+                    return { v, t: `이후 증강 선택지가 계속 1개 늘어 더 좋은 증강을 고를 수 있어요${early > 0.5 ? ' (아직 초반이라 오래 쓰여요)' : ''}${calm ? '' : ' — 다만 지금은 체크 상태라 급한 불부터 꺼야 해요'}` };
+                }
+                if (aug.name === '시간 도둑') {
+                    const lv = (augTimeCut && augTimeCut[enemy]) || 0, T = [30, 20, 10], nx = Math.min(2, lv + 1);
+                    return { v: lv ? 60 : 90, t: `상대의 증강 선택 시간이 ${T[lv]}초에서 ${T[nx]}초로 줄어요. 선택이 급해지는 효과가 이후 증강 단계마다 이어져요` };
+                }
+                if (aug.name === '법정 대리인') return { v: 130, t: '이어지는 상대의 증강 선택권을 가져와, 상대 선택지 중 가장 덜 위험한 증강을 대신 고를 수 있어요' };
                 if (aug.name === '수퍼 워너비' && typeof target === 'string') {
                     const S = cloneGameState(game), hit = botMoveReach(S, enemy, target) > 0, pr = hit ? 0.45 : 0.8, gain = BOT_VAL.q - BOT_VAL.p;
-                    const v = Math.round(gain * pr) - botProspectBonus(9);   // 탐색 평가가 이미 반영한 유망주 보너스는 뺀다
-                    return { v: Math.max(0, v), t: `9수 뒤 ${target} 폰이 퀸으로 승급해요 (폰 약 ${(gain / 100).toFixed(1)}개 가치 상승, ${hit ? '지금은 상대가 잡을 수 있어 생존 가능성은 절반 정도' : '상대가 잡을 수 없어 생존 가능성이 높아요'})` };
+                    const v = Math.round(gain * pr) - botProspectBonus(11);   // 탐색 평가가 이미 반영한 유망주 보너스는 뺀다
+                    return { v: Math.max(0, v), t: `11수 뒤 ${target} 폰이 퀸으로 승급해요 (폰 약 ${(gain / 100).toFixed(1)}개 가치 상승, ${hit ? '지금은 상대가 잡을 수 있어 생존 가능성은 절반 정도' : '상대가 잡을 수 없어 생존 가능성이 높아요'})` };
                 }
             } catch (e) {}
             return { v: 0, t: '' };
+        }
+        function rvActualMine(prev, f, color) {   // 기록된 판 상태에서 이번에 새로 묻힌 내 지뢰 칸을 찾는다
+            try { const g = x => { const o = typeof x === 'string' ? JSON.parse(x) : x; return o ? (o.mines || (o.aug && o.aug.mines) || []) : []; }; const a = g(prev.s), b = g(f.s);
+                const n = b.find(x => x.owner === color && !a.some(y => y.sq === x.sq && y.owner === color)); return n ? { tg: n.sq } : null; } catch (e) { return null; }
+        }
+        // 위치·대상 증강의 근거: 어떤 기물이 어디로 움직일 가능성이 큰지, 막히는 길·잡힐 위험을 현재 배치에서 읽는다
+        function rvPlaceBits(name, sq, color, enemy) {
+            const pnm = t => RV_PN[t] || '기물', S0 = cloneGameState(game), bits = [];
+            const jo = (x, a, b) => '13678'.includes(x[1]) ? a : b;
+            const dist = (a, b) => (a && b) ? Math.max(Math.abs(a.charCodeAt(0) - b.charCodeAt(0)), Math.abs(+a[1] - +b[1])) : 9;
+            const movesOf = (S, who) => { const keep = S._turn; S._turn = who; try { return S.moves(); } finally { S._turn = keep; } };
+            const ek = findPieces(enemy, 'k')[0], mk = findPieces(color, 'k')[0], cen = 'cdef'.includes(sq[0]) && '3456'.includes(sq[1]);
+            if (name === '지뢰 찾기') {
+                const em = movesOf(S0, enemy).filter(m => m.to === sq && m.piece !== 'k'), mm = movesOf(S0, color).filter(m => m.to === sq && m.piece !== 'k');
+                const home = m => (m.piece === 'n' || m.piece === 'b') && m.from[1] === (enemy === 'w' ? '1' : '8');
+                const w = m => (m.piece === 'p' ? 1.5 : m.piece === 'q' ? .4 : m.piece === 'r' ? .6 : 1) * (home(m) ? 2 : 1) * (cen ? 1.4 : 1);
+                if (em.length) {
+                    // '밟을 만한가'는 상대 입장에서 그 수를 실제로 평가해 순위로 보여 준다 (1수 앞 정적 평가)
+                    const sgE = enemy === 'w' ? 1 : -1, after = m => { const S = cloneGameState(game); S._turn = enemy; botMake(S, m); return { S, ev: sgE * botEvaluate(S) }; };
+                    let all = [], ev0 = 0; try { ev0 = sgE * botEvaluate(S0); all = movesOf(S0, enemy).map(m => ({ m, ev: after(m).ev })).sort((x, y) => y.ev - x.ev); } catch (e) {}
+                    const ranked = em.map(m => ({ m, k: all.length ? all.findIndex(a => a.m.from === m.from && a.m.to === m.to) + 1 : 0 })).sort((x, y) => (x.k || 99) - (y.k || 99)), r0 = ranked[0], t = r0.m;
+                    const top = em.reduce((x, y) => (BOT_VAL[y.piece] > BOT_VAL[x.piece] ? y : x));
+                    bits.push(`상대 ${pnm(t.piece)} ${t.from}${em.length > 1 ? ` 등 ${em.length}기` : ''}${jo(t.from, '이', '가')} ${sq}로 움직일 수 있어요. 밟으면 그 기물이 파괴돼요 (가장 값진 ${pnm(top.piece)} ${top.from}은 폰 ${(BOT_VAL[top.piece] / 100).toFixed(1)}개 가치)`);
+                    if (all.length && r0.k) {
+                        const rs = []; try {
+                            const A = after(t), mv = A.S;
+                            if (mv.in_check(color)) rs.push('체크를 걸 수 있어요');
+                            mv._turn = enemy; let best = null; for (const x of mv.moves({ square: t.to })) { const q = mv.get(x.to); if (q && q.color === color && q.type !== 'wall' && (!best || BOT_VAL[q.type] > BOT_VAL[best.type])) best = { type: q.type, sq: x.to }; }
+                            if (best && BOT_VAL[best.type] >= 300) rs.push(`내 ${pnm(best.type)} ${best.sq}(폰 ${(BOT_VAL[best.type] / 100).toFixed(1)}개 가치)를 노려요`);
+                            if (botMoveReach(S0, color, t.from) > 0) rs.push(`지금 ${t.from}의 ${pnm(t.piece)}이 내 기물에게 공격받고 있어 피할 자리가 필요해요`);
+                            if (home(t)) rs.push(`제자리 ${pnm(t.piece)}이 개발돼요`);
+                            if (cen) rs.push('중앙으로 나와요');
+                            if (A.ev - ev0 >= 30 && !rs.length) rs.push('기물 위치 점수가 올라요');
+                        } catch (e) {}
+                        const good = r0.k <= Math.max(3, Math.ceil(all.length * 0.25));
+                        bits.push(`${good ? '상대가 둘 만한 수예요' : '상대가 굳이 둘 이유는 적어요'}: 가능한 ${all.length}수 중 ${r0.k}위${rs.length ? ' — ' + rs.slice(0, 2).join(' · ') : ''}`);
+                    }
+                } else bits.push(`지금은 상대가 닿지 않는 칸이라, 앞으로 기물이 ${sq}로 들어올 길목을 미리 막아 두는 자리예요`);
+                if (ek && dist(ek, sq) <= 2) bits.push(`상대 킹 ${ek} 근처라 킹의 도망길을 줄여요`);
+                if (mm.length) bits.push(`내 ${pnm(mm[0].piece)} ${mm[0].from}도 ${sq}로 갈 수 있어서 직접 밟지 않게 주의해야 해요`); else bits.push('내 기물은 닿지 않아 내가 밟을 일이 없어요');
+            } else if (name === '차원 장벽') {
+                const cnt = (S, who) => { const o = {}; movesOf(S, who).forEach(m => { o[m.from] = (o[m.from] || 0) + 1; }); return o; };
+                const S1 = cloneGameState(game); S1.put({ type: 'wall', color: 'none' }, sq);
+                const e0 = cnt(S0, enemy), e1 = cnt(S1, enemy), m0 = cnt(S0, color), m1 = cnt(S1, color), sum = o => Object.values(o).reduce((x, y) => x + y, 0);
+                const loss = (o0, o1) => Object.keys(o0).map(k => ({ k, d: o0[k] - (o1[k] || 0), a: o0[k], b: o1[k] || 0 })).filter(x => x.d > 0).sort((x, y) => y.d - x.d);
+                const el = loss(e0, e1), ml = loss(m0, m1);
+                el.slice(0, 2).forEach(x => bits.push(`상대 ${pnm(S0.get(x.k).type)} ${x.k}의 이동 가능 칸이 ${x.a}→${x.b}개로 줄어요`));
+                bits.push(`상대 전체 이동 가능 수 ${sum(e0)}→${sum(e1)}개 · 내 이동 가능 수 ${sum(m0)}→${sum(m1)}개`);
+                if (ml.length) bits.push(`내 ${pnm(S0.get(ml[0].k).type)} ${ml[0].k}도 ${ml[0].a}→${ml[0].b}개로 줄어 부담이에요`);
+                if (!el.length) bits.push('상대 기물의 길을 거의 막지 못해요');
+            } else if (name === '동귀어진') {
+                const pc = S0.get(sq);
+                if (pc) {
+                    const v = BOT_VAL[pc.type] / 100, eul = w => hasBatchim(w) ? '을' : '를', em = movesOf(S0, enemy).filter(m => m.to === sq).sort((x, y) => BOT_VAL[x.piece] - BOT_VAL[y.piece]);
+                    if (em.length) {
+                        const lo = em[0];
+                        bits.push(`상대 ${pnm(lo.piece)} ${lo.from}${jo(lo.from, '이', '가')} 지금 ${sq} ${pnm(pc.type)}${eul(pnm(pc.type))} 잡을 수 있지만, 잡는 순간 그 말도 함께 사라져요`);
+                        bits.push(BOT_VAL[lo.piece] >= BOT_VAL[pc.type] ? `잡는 쪽이 같거나 더 큰 값을 내줘야 해서 사실상 건드리기 어려운 말이 돼요` : `값싼 말이 대신 희생해 줄 수 있어 완전한 보호는 아니에요`);
+                    } else bits.push(`지금은 ${sq} ${pnm(pc.type)}${eul(pnm(pc.type))} 노리는 상대 기물이 없지만, 앞으로 이 말을 잡으려면 같이 사라질 각오를 해야 해요`);
+                    if (v >= 5) bits.push(`폰 ${v.toFixed(0)}개 가치의 큰 말이라 걸어 둘 때 보험 효과가 가장 커요`);
+                    if (mk && dist(mk, sq) <= 2) bits.push(`내 킹 ${mk} 곁이라 킹을 노리는 상대 기물을 견제해요`);
+                }
+            } else if (name === '수퍼 워너비') {
+                const em = movesOf(S0, enemy).filter(m => m.to === sq);
+                if (em.length) bits.push(`상대 ${pnm(em[0].piece)} ${em[0].from}${em.length > 1 ? ` 등 ${em.length}기` : ''}가 지금 ${sq} 폰을 잡을 수 있어서 11수 동안 지키기 어려워요`);
+                else bits.push(`지금은 상대가 ${sq} 폰을 잡을 수 없어서 11수 동안 지키기 쉬워요`);
+                if (cen) bits.push('중앙 줄이라 퀸이 되면 판 한가운데에서 시작해요');
+                if (mk && dist(mk, sq) <= 2) bits.push(`내 킹 ${mk} 곁이라 승급한 퀸이 킹을 바로 지켜 줘요`);
+                else if (ek && dist(ek, sq) <= 3) bits.push(`상대 킹 ${ek}과 가까워서 퀸이 되면 바로 압박해요`);
+            }
+            return bits;
         }
         function rvTgtText(row, color, enemy) {   // 위치·대상을 정하는 증강: 짧은 이름, '~하는 것' 문장, 근거 문장들
             const sq = row.target; if (!sq || typeof sq !== 'string') return null;
             const ob = hasBatchim(row.name) ? '을' : '를';
             try {
-                if (row.name === '지뢰 찾기') {
-                    const S = cloneGameState(game), er = botMoveReach(S, enemy, sq), mr = botMoveReach(S, color, sq);
-                    return { short: `${sq} 설치`, phrase: `${row.name}${ob} ${sq}에 설치하는 것`, bits: [
-                        er > 0 ? `상대 기물이 ${sq}로 이동할 수 있어서 밟으면 파괴돼요 (닿는 기물 가치 폰 ${er.toFixed(1)}개)` : `상대가 닿지 않는 ${sq} 길목에 묻어 이동을 막아요`,
-                        mr > 0 ? `내 기물도 ${sq}에 닿으니 조심해야 해요` : `내 기물은 ${sq}에 닿지 않아 안전해요`] };
-                }
-                if (row.name === '수퍼 워너비') {
-                    const hit = botMoveReach(cloneGameState(game), enemy, sq) > 0;
-                    return { short: `${sq} 폰`, phrase: `${row.name}${ob} ${sq} 폰에 붙이는 것`, bits: [
-                        `${sq} 폰이 9수 뒤 그 자리에서 바로 퀸이 돼요 (폰 → 퀸, 폰 약 ${((BOT_VAL.q - BOT_VAL.p) / 100).toFixed(1)}개 가치 상승)`,
-                        hit ? `다만 ${sq} 폰을 지금 상대 기물이 잡을 수 있어서 지켜야 해요` : `지금은 상대가 ${sq} 폰을 잡을 수 없어서 9수 동안 지키기 쉬워요`] };
-                }
-                if (row.name === '차원 장벽') {
-                    const d = Math.round(row.f.mob - 0);
-                    return { short: `${sq} 설치`, phrase: `${row.name}${ob} ${sq}에 세우는 것`, bits: [`${sq}에 세워 내 기동력은 지키고 상대 이동 범위를 좁혀요`] };
-                }
+                const bits = rvPlaceBits(row.name, sq, color, enemy);
+                if (row.name === '지뢰 찾기') return { short: `${sq} 설치`, phrase: `${row.name}${ob} ${sq}에 설치하는 것`, bits };
+                if (row.name === '수퍼 워너비') return { short: `${sq} 폰`, phrase: `${row.name}${ob} ${sq} 폰에 붙이는 것`, bits: [`${sq} 폰이 11수 뒤 그 자리에서 바로 퀸이 돼요 (폰 → 퀸, 폰 약 ${((BOT_VAL.q - BOT_VAL.p) / 100).toFixed(1)}개 가치 상승)`].concat(bits) };
+                if (row.name === '동귀어진') { const pc = game.get(sq); return { short: `${sq} ${pc ? (RV_PN[pc.type] || '') : ''}`, phrase: `${row.name}${ob} ${sq} ${pc ? (RV_PN[pc.type] || '말') : '말'}에 거는 것`, bits }; }
+                if (row.name === '차원 장벽') return { short: `${sq} 설치`, phrase: `${row.name}${ob} ${sq}에 세우는 것`, bits };
             } catch (e) {}
             return null;
         }
@@ -7443,20 +7754,27 @@
                 const tAll = Date.now(), TOTAL = 4200, offered = f.offered.map(nm => AUGMENT_POOL.find(a => a.name === nm)).filter(Boolean);
                 const wOf = a => a.name === '광기' ? 2.4 : (a.target ? 1.3 : 1); let wLeft = offered.reduce((s, a) => s + wOf(a), 0);
                 let t0f = null; try { t0f = rvAugTacFacts(color, enemy); } catch (e) {}
-                const actual = (f.name === '광기' && Array.isArray(f.t) && f.t.length >= 2) ? { tg: f.t[0], dest: f.t[1] } : (f.name === '수퍼 워너비' && Array.isArray(f.t) && f.t.length) ? { tg: f.t[0] } : null;
+                const actual = (f.name === '광기' && Array.isArray(f.t) && f.t.length >= 2) ? { tg: f.t[0], dest: f.t[1] } : (f.name === '수퍼 워너비' && Array.isArray(f.t) && f.t.length) ? { tg: f.t[0] } : (f.name === '차원 장벽' && Array.isArray(f.t) && typeof f.t[0] === 'string') ? { tg: f.t[0] } : (f.name === '지뢰 찾기' ? rvActualMine(prev, f, color) : (f.name === '동귀어진' && Array.isArray(f.t) && typeof f.t[0] === 'string') ? { tg: f.t[0] } : null);
                 for (const aug of offered) {
                     const remain = Math.max(500, TOTAL - (Date.now() - tAll)), budget = Math.max(380, remain * wOf(aug) / Math.max(1, wLeft)); wLeft -= wOf(aug);
                     const r = rvAugOption(aug, color, enemy, nextEnemy, before, budget, aug.name === f.name ? actual : null); if (r) rows.push(r);
                 }
                 const me = rows.find(r => r.name === f.name); if (!me || rows.length < 2) return null;
-                const rks = rows.filter(r => r.rk !== null).map(r => r.rk), avgRk = rks.length ? rks.reduce((x, y) => x + y, 0) / rks.length : 0;
-                rows.forEach(r => { r.rkv = r.rk === null ? avgRk : r.rk; r.total = r.sc + r.bonus + (nextEnemy ? 0.6 * r.rkv : 0); });
+                const cnt = B => { const o = { w: {}, b: {} }; B.forEach(row => row.forEach(p => { if (p && p.type !== 'wall' && o[p.color]) o[p.color][p.type] = (o[p.color][p.type] || 0) + 1; })); return o; };
+                let realized = null;   // 무작위 증강: 운이 모두 정해진 '실제 결과' 판을 직접 평가한다
+                if (me.rand && f.s) {
+                    const C0 = cnt(game.board()), sn2 = botSnapshot();
+                    try { deserializeGameState(f.s, true); botSyncMines(); realized = { sc: rvAugScore(color, enemy, 2), f: rvAugFeat(color, enemy), tac: rvAugTacFacts(color, enemy), C1: cnt(game.board()), C0 }; } catch (e) { realized = null; } finally { botRestore(sn2); }
+                    if (realized) { me.expSc = me.mad ? me.mad.mean : me.sc; me.sc = realized.sc; if (realized.f) me.f = realized.f; me.realized = realized; }
+                }
+                const rks = rows.filter(r => r.rk !== null).map(r => Math.max(-1500, Math.min(300, r.rk))), avgRk = rks.length ? rks.reduce((x, y) => x + y, 0) / rks.length : 0;
+                rows.forEach(r => { r.raw = r.sc; if (Math.abs(r.sc) >= BOT_MATE - 1000) r.sc = (r.sc > 0 ? 1 : -1) * 4000; r.rkv = Math.max(-1500, Math.min(300, r.rk === null ? avgRk : r.rk)); r.total = r.sc + r.bonus + (nextEnemy ? 0.6 * r.rkv : 0); });
                 rows.sort((x, y) => y.total - x.total);
                 // 대상을 잘못 골랐다면 그만큼 깎는다 (광기: 대상별 평균 차이, 수퍼 워너비: 실제로 고른 폰과 최선 폰의 점수 차이)
                 const penalty = me.mad ? (me.mad.actGap || 0) : (me.act ? Math.max(0, me.sc - me.act.sc) : 0), meTotal = me.total - penalty;
                 const top = rows[0], diff = top.total - meTotal, gain = me.total - base;
                 const jp = (w, a, b) => hasBatchim(w) ? a : b, ro = w => { const k = hasBatchim(w); return (k === 0 || k === 8) ? '로' : '으로'; }, nm = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'), pn = t => RV_PN[t] || '기물';   // v3.92: esc는 이 범위에 정의돼 있지 않아 ReferenceError가 났다 → 로컬 이스케이프 함수
-                const rel = v => { const d = v - base; return (d >= 0 ? '+' : '−') + rvPawns(d); };
+                const rel = v => { const d = v - base; return (d >= 0 ? '+' : '−') + rvPawns(d); }, relR = (r, tot) => Math.abs(r.raw) >= BOT_MATE - 1000 ? (r.raw > 0 ? '체크메이트 승' : '체크메이트 패') : rel(tot);
                 // 직후 전술 사실(고른 증강·최선 증강): 결과가 정해진 증강, 광기·강제 이주(평균에 가까운 예), 수퍼 워너비만 읽는다
                 const needTac = row => {
                     if (row.tacDone) return row.tac; row.tacDone = true; row.tac = null;
@@ -7464,88 +7782,127 @@
                         if (!t0f || !(row.det || row.forced || row.target || row.name === '수퍼 워너비')) return null;
                         const r = row.forced ? rvAugRun(row.aug, color, enemy, null, row.forced, 0, { light: true, facts: true }) : rvAugRun(row.aug, color, enemy, row.target || null, null, 0, { light: true, facts: true });
                         if (r && r.tac) row.tac = rvAugTacText(r.tac, t0f, color, enemy);
+                        if (row.tac && row.name === '동귀어진') row.tac = { good: row.tac.good, bad: [] };   // 잡히면 잡은 말도 사라지므로 '그냥 잡힌다'는 손해 문구는 쓰지 않는다
                     } catch (e) {}
                     return row.tac;
                 };
                 const tacMe = needTac(me), tacTop = top !== me ? needTac(top) : null;
-                const tgOf = r => { if (!r.tgDone) { r.tgDone = true; r.tgv = rvTgtText(r, color, enemy); } return r.tgv; }, tgMe = tgOf(me), tgTop = top !== me ? tgOf(top) : null;
-                const actName = r => { const t = tgOf(r); return t ? t.phrase : nm(r.name); }, subj = r => { const t = tgOf(r); return t ? t.phrase + '이' : nm(r.name) + jp(r.name, '이', '가'); };
+                const tgOf = r => { if (!r.tgDone) { r.tgDone = true; r.tgv = rvTgtText(r, color, enemy); } return r.tgv; }, tgMe = (me.aug.target && me.name !== '광기' && !me.act) ? null : (me.act && me.act.tg !== me.target ? rvTgtText({ name: me.name, target: me.act.tg, f: me.f }, color, enemy) : tgOf(me)), tgTop = top !== me ? tgOf(top) : null;
+                const actName = r => { const t = r === me ? tgMe : tgOf(r); return t ? t.phrase : nm(r.name); }, subj = r => { const t = tgOf(r); return t ? t.phrase + '이' : nm(r.name) + jp(r.name, '이', '가'); };
                 const others = rows.filter(r => r !== me), othRk = others.length ? others.reduce((x, r) => x + r.rkv, 0) / others.length : 0, st = [];
+                const V = rvVarOf('aug|' + i + '|' + f.name), cpT = d => (d > 0 ? '+' : '−') + (Math.abs(d) / 100).toFixed(1), sgC = color === 'w' ? 1 : -1;
+                const termTxt = (Ta, Tb, minCp, onlyUp) => (Ta && Tb) ? rvTermDiff(Ta, Tb, color, minCp).filter(x => !onlyUp || x.d > 0).map(x => `${rvTermSay(V, x.d > 0 ? 'u' : 'd', x.k, x.d > 0)} (${cpT(x.d)})`) : [];
+                const pawnLoss = Math.round(before.pw - me.f.pw);
                 // 고른 증강의 장점 (선택 전 판 대비)
-                if (me.f.mat - before.mat >= 120) st.push(`기물 가치를 폰 ${rvPawns(me.f.mat - before.mat)}개만큼 늘려요`);
-                if (me.f.eChk && !before.eChk) st.push('상대 킹에 체크를 걸어 압박해요');
-                if (me.f.mob - before.mob >= 6) st.push('내 기동력을 늘리고 상대 기동력은 줄여요');
-                if (me.mad) { const dm = me.mad.mean - base; if (Math.abs(dm) >= 100) st.push(`무작위 이동의 평균 결과가 폰 ${rvPawns(dm)}개 ${dm > 0 ? '이득' : '손해'}예요`); }
-                else if (tacMe) tacMe.good.slice(0, 2).forEach(s => st.push(s));
-                if (nextEnemy && me.rkv - othRk >= 80) st.push('이어서 상대가 받을 증강의 피해를 줄여 줘요');
+                if (me.f.mat - before.mat >= 120) st.push(V('s1', `기물 가치를 폰 ${rvPawns(me.f.mat - before.mat)}개만큼 늘려요`, `기물 점수가 폰 ${rvPawns(me.f.mat - before.mat)}개 가치만큼 좋아져요`, `재료에서 폰 ${rvPawns(me.f.mat - before.mat)}개 가치를 벌어요`));
+                if (me.f.eChk && !before.eChk) st.push(V('s2', '상대 킹에 체크를 걸어 압박해요', '체크로 상대 킹을 곧바로 몰아붙여요', '상대가 킹부터 지켜야 하는 상황을 만들어요'));
+                if (me.f.mob - before.mob >= 6) st.push(V('s3', '내 기동력을 늘리고 상대 기동력은 줄여요', '내 말은 움직일 곳이 늘고 상대는 줄어요', '이동 가능한 수 싸움에서 앞서가요'));
+                if (nextEnemy && me.rkv - othRk >= 80) st.push(V('s4', '이어서 상대가 받을 증강의 피해를 줄여 줘요', '상대의 다음 증강이 터져도 덜 아프게 판을 만들어 둬요', '뒤따르는 상대 증강에 대한 대비가 돼요'));
                 if (me.lt && me.lt.v >= 100) st.push(me.lt.t);
                 if (tgMe) tgMe.bits.slice(0, 2).forEach(x => st.push(x));
-                if (me.bonus - (me.lt ? me.lt.v : 0) >= 40) st.push('시간이 지날수록 이득이 커지는 장기 효과가 있어요');
-                if (me.f.mChk && !before.mChk) st.push('다만 내 킹이 체크에 놓여 위험해져요');
-                if (tacMe && !me.mad) tacMe.bad.slice(0, 1).forEach(s => st.push(s));
+                if (me.bonus - (me.lt ? me.lt.v : 0) >= 40) st.push(V('s5', '시간이 지날수록 이득이 커지는 장기 효과가 있어요', '몇 수 뒤에 진가가 드러나는 증강이에요', '당장은 티가 안 나도 시간이 갈수록 힘이 붙어요'));
+                if (me.f.mChk && !before.mChk) st.push(V('s6', '다만 내 킹이 체크에 놓여 위험해져요', '다만 바로 내 킹이 체크를 받는 게 부담이에요', '킹이 체크에 놓여 급한 불부터 꺼야 해요'));
+                if (pawnLoss >= 1 && before.T && me.f.T) { const pp = sgC * ['pawn', 'shield', 'passed'].reduce((x, k) => x + ((me.f.T[k] || 0) - (before.T[k] || 0)), 0); st.push(`폰 ${pawnLoss}개를 잃어요 — ${pp <= -25 ? `지금 잘 짜인 폰 배치(구조·킹 방패·통과폰)가 흐트러져 기물 가치 밖의 손해도 있어요 (${cpT(pp)})` : '폰 배치는 크게 해치지 않아요'}`); }
+                termTxt(before.T, me.f.T, 30).slice(0, 2).forEach(x => st.push('배치 변화: ' + x));
                 // 최선과의 차이를 만든 요인들: 직후 전술 · 장기 효과 · 대상 · 기물/기동력 · 상대 증강 순으로 근거를 모은다
                 const bn = r => r.bonus - (r.lt ? r.lt.v : 0);
                 const gaps = [
                     { v: top.f.mat - me.f.mat, t: `기물 손익에서 폰 ${rvPawns(top.f.mat - me.f.mat)}개 가치만큼 앞서요` },
-                    { v: (top.f.mob - me.f.mob) * 5, t: '내 기동력은 늘리고 상대 기동력은 더 줄여요' },
-                    { v: (top.f.eChk && !me.f.eChk) ? 80 : 0, t: '상대 킹을 바로 압박해요' },
-                    { v: nextEnemy ? 0.6 * (top.rkv - me.rkv) : 0, t: '이어서 상대가 받는 증강의 피해를 더 줄여요' },
-                    { v: bn(top) - bn(me), t: '시간이 지날수록 커지는 장기 효과가 더 커요' }
+                    { v: (top.f.mob - me.f.mob) * 5, t: V('g1', '내 기동력은 늘리고 상대 기동력은 더 줄여요', '움직일 수 있는 수 싸움에서 더 앞서요', '내 말은 더 자유롭고 상대는 더 답답해져요') },
+                    { v: (top.f.eChk && !me.f.eChk) ? 80 : 0, t: V('g2', '상대 킹을 바로 압박해요', '체크로 곧바로 템포를 가져와요') },
+                    { v: nextEnemy ? 0.6 * (top.rkv - me.rkv) : 0, t: V('g3', '이어서 상대가 받는 증강의 피해를 더 줄여요', '뒤따르는 상대 증강에 대한 대비가 더 좋아요') },
+                    { v: bn(top) - bn(me), t: V('g4', '시간이 지날수록 커지는 장기 효과가 더 커요', '길게 볼수록 얻는 이득이 더 커요') }
                 ].filter(g => g.v >= 40).sort((x, y) => y.v - x.v);
                 const whyAll = [];
                 if (top !== me) {
+                    if (top.mad) whyAll.push(`평균 결과가 ${rel(top.mad.mean)}로 더 높아요 (최선 ${rel(top.mad.max)} · 최악 ${rel(top.mad.min)})`);
                     if (tacTop && tacTop.good.length) whyAll.push(tacTop.good[0]);
                     if (top.lt && top.lt.v - (me.lt ? me.lt.v : 0) >= 80) whyAll.push(top.lt.t);
                     if (tgTop && tgTop.bits.length) whyAll.push(tgTop.bits[0]);
+                    const posUp = termTxt(me.f.T, top.f.T, 30, true); if (posUp.length) whyAll.push('기물 가치 말고 배치도 더 좋아요: ' + posUp.slice(0, 2).join(' · '));
+                    if (top.f.pw - me.f.pw >= 1) whyAll.push(`폰을 ${Math.round(top.f.pw - me.f.pw)}개 덜 잃어서 지금의 폰 배치를 지켜요`);
                 }
                 gaps.slice(0, 2).forEach(g => whyAll.push(g.t));
                 if (!whyAll.length) whyAll.push(`2수 앞까지 계산한 판세가 폰 ${rvPawns(diff)}개 가치만큼 더 높아요`);
-                const why3 = whyAll.slice(0, 3), topWhy = why3[0];
+                const why3 = whyAll.slice(0, 4), topWhy = why3[0];
 
                 // 대상 고르기 설명 (광기·수퍼 워너비)
                 let tNote = '';
                 if (me.mad && me.mad.actGap >= 40 && me.mad.actTg) tNote = `상대 ${pn(me.mad.actType)} ${me.mad.actTg} 대신 ${pn(me.mad.type)} ${me.mad.tg}${rvEulR(pn(me.mad.type))} 골랐다면 평균 폰 ${rvPawns(me.mad.actGap)}개 더 좋았어요`;
-                else if (me.act && penalty >= 40 && me.target) tNote = `${me.act.tg} 칸의 폰 대신 ${me.target} 칸의 폰을 골랐다면 폰 ${rvPawns(penalty)}개 가치만큼 더 좋았어요`;
+                else if (me.act && penalty >= 40 && me.target) tNote = me.name === '수퍼 워너비' ? `${me.act.tg} 칸의 폰 대신 ${me.target} 칸의 폰을 골랐다면 폰 ${rvPawns(penalty)}개 가치만큼 더 좋았어요` : `${me.act.tg}보다 ${me.target}${me.name === '지뢰 찾기' ? '에 묻는' : '에 세우는'} 쪽이 폰 ${rvPawns(penalty)}개 가치만큼 더 좋았어요`;
                 let c, head;
-                if (top.sc >= BOT_MATE - 500 && me.sc < BOT_MATE - 500) { c = 'miss'; head = `${nm(top.name)}${ro(top.name)} 체크메이트를 낼 수 있었어요.`; }
-                else if (diff <= 30) { c = 'best'; head = st.length ? st.slice(0, 2).join(', ') + '. 선택지 중 가장 좋았어요.' : '눈에 띄는 즉시 효과는 작지만 선택지 중에서는 가장 나아요.'; }
+                if (top.raw >= BOT_MATE - 500 && me.raw < BOT_MATE - 500) { c = 'miss'; head = V('hm', `${nm(top.name)}${ro(top.name)} 체크메이트를 낼 수 있었어요.`, `${nm(top.name)}${ro(top.name)} 곧바로 게임을 끝낼 수 있었어요.`, `놓친 승리예요: ${nm(top.name)}${ro(top.name)} 체크메이트가 가능했어요.`); }
+                else if (diff <= 30) { c = 'best'; head = V('hb', '선택지 중 가장 좋았어요', '이 후보들 중에서는 최선이에요', '가장 알찬 선택이었어요', '흠잡을 데가 없는 선택이에요') + ` (${me.realized ? '실제 결과 기준 ' : '예상 '}판세 ${relR(me, meTotal)}).`; }
                 else if (top === me) {   // 증강 선택은 맞았지만 대상이 아쉬웠다
                     c = diff <= 150 ? 'good' : diff <= 350 ? 'inaccuracy' : 'mistake';
-                    head = `${nm(me.name)} 자체는 좋은 선택이었지만 대상 고르기가 ${c === 'good' ? '조금 ' : ''}아쉬웠어요${tNote ? ': ' + tNote : ''}.`;
+                    head = V('ht', `${nm(me.name)} 자체는 좋은 선택이었지만 대상 고르기가 ${c === 'good' ? '조금 ' : ''}아쉬웠어요`, `증강은 잘 골랐는데 ${c === 'good' ? '쓸 자리가 살짝' : '쓸 자리가'} 아쉬웠어요`, `${nm(me.name)}${jp(me.name, '은', '는')} 맞는 선택이었어요. 다만 ${c === 'good' ? '조금 ' : ''}더 좋은 자리가 있었어요`) + (tNote ? ': ' + tNote : '') + '.';
                 }
-                else if (diff <= 150) { c = 'good'; head = `${nm(me.name)}보다 ${subj(top)} 조금 더 좋았지만 이 증강도 충분해요.`; }
-                else if (diff <= 350) { c = 'inaccuracy'; head = `${nm(me.name)}보다 ${subj(top)} 더 좋았어요: ${topWhy}.`; }
-                else { c = 'mistake'; head = `${nm(me.name)}보다 ${subj(top)} 훨씬 좋았어요: ${topWhy}.`; }
+                else if (diff <= 150) { c = 'good'; head = V('hg1', `${nm(me.name)}보다 ${subj(top)} 조금 더 좋았지만 이 증강도 충분해요`, `${subj(top)} 근소하게 앞서지만 ${nm(me.name)}도 나쁘지 않은 선택이에요`, `차이는 작아요. ${subj(top)} 한 끗 더 좋았을 뿐이에요`) + ` (폰 ${rvPawns(diff)}개 차이).`; }
+                else if (diff <= 350) { c = 'inaccuracy'; head = V('hi', `${nm(me.name)}보다 ${subj(top)} 더 좋았어요`, `${subj(top)} 더 어울렸어요`, `${nm(me.name)} 대신 ${subj(top)} 나았어요`) + ` (폰 ${rvPawns(diff)}개 차이).`; }
+                else { c = 'mistake'; head = V('hx', `${nm(me.name)}보다 ${subj(top)} 훨씬 좋았어요`, `${subj(top)} 확실히 더 나은 답이었어요`, `격차가 컸어요. ${subj(top)} 훨씬 앞서요`) + ` (폰 ${rvPawns(diff)}개 차이).`; }
                 // 상세 분석 줄
-                const ctx = base >= 300 ? `내가 폰 ${rvPawns(base)}개 가치만큼 앞선 상태` : base <= -300 ? `내가 폰 ${rvPawns(base)}개 가치만큼 뒤진 상태` : '비슷한 판세';
-                const lines = [`<b>증강 전 판세</b> ${ctx}`];
-                lines.push(`<b>고른 증강: ${actName(me)}</b>` + (st.length ? `<ul class="rv-ul">${st.map(x => `<li>${x}</li>`).join('')}</ul>` : '눈에 띄는 즉시 효과는 작아요'));
-                // 무작위 이동 증강: 가능한 결과의 분포와 실제 결과
-                const madLine = row => {
-                    const R = row.mad; if (!R) return ''; let s;
-                    if (row.name === '광기') s = `최적 대상은 상대 ${pn(R.type)} ${R.tg} — 도착 가능 ${R.n}곳 평균 ${rel(R.mean)} (최선 ${R.bestD} ${rel(R.max)} · 최악 ${R.worstD} ${rel(R.min)})`;
-                    else s = `상대 킹이 갈 수 있는 ${R.n}곳 평균 ${rel(R.mean)} (최선 ${R.bestD} ${rel(R.max)} · 최악 ${R.worstD} ${rel(R.min)})`;
-                    try { const pf = rvMadProfile(row, color, enemy, t0f, 450); if (pf) s += `<small>도착 칸 ${pf.n}곳 중 내게 곧바로 이득 잡기가 생기는 곳 ${pf.goodMe}곳 · 상대에게 생기는 곳 ${pf.badMe}곳</small>`; } catch (e) {}
-                    return s;
+                const ctx = base >= 300 ? V('x1', `내가 폰 ${rvPawns(base)}개 가치만큼 앞선 상태`, `기물 점수가 내 쪽으로 폰 ${rvPawns(base)}개 기울어 있는 상태`) : base <= -300 ? V('x2', `내가 폰 ${rvPawns(base)}개 가치만큼 뒤진 상태`, `기물 점수가 폰 ${rvPawns(Math.abs(base))}개 가치 밀리는 상태`) : V('x3', '비슷한 판세', '팽팽한 판세', '승부를 알 수 없는 판세');
+                const lines = [`<b>증강 전 판세</b> ${ctx}`], li = a => `<ul class="rv-ul">${a.map(x => `<li>${x}</li>`).join('')}</ul>`;
+                const madLine = row => {   // 무작위 이동 증강: 가능한 결과의 분포
+                    const R = row.mad; if (!R) return ''; let t;
+                    if (row.name === '광기') t = `최적 대상은 상대 ${pn(R.type)} ${R.tg} — 도착 가능 ${R.n}곳 평균 ${rel(R.mean)} (최선 ${R.bestD} ${rel(R.max)} · 최악 ${R.worstD} ${rel(R.min)})`;
+                    else t = `상대 킹이 갈 수 있는 ${R.n}곳 평균 ${rel(R.mean)} (최선 ${R.bestD} ${rel(R.max)} · 최악 ${R.worstD} ${rel(R.min)})`;
+                    try { const pf = rvMadProfile(row, color, enemy, t0f, 450); if (pf) t += `<small>도착 칸 ${pf.n}곳 중 내게 곧바로 이득이 생기는 곳 ${pf.goodMe}곳 · 상대에게 생기는 곳 ${pf.badMe}곳</small>`; } catch (e) {}
+                    return t;
                 };
-                if (me.mad) { const t = madLine(me); if (t) lines.push(`<b>${nm(me.name)} 분석</b> ${t}`); }
-                if (me.mad && me.mad.actDest) {
-                    const R = me.mad, lk = R.luck, lt = lk === undefined ? '' : lk >= 80 ? ` · 평균보다 폰 ${rvPawns(lk)}개 좋은 결과였어요 (운이 따랐어요)` : lk <= -80 ? ` · 평균보다 폰 ${rvPawns(lk)}개 나쁜 결과였어요 (운이 아쉬웠어요)` : ' · 평균과 비슷한 결과였어요';
-                    lines.push(`<b>실제 결과</b> 상대 ${pn(R.actType)} ${R.actTg}→${R.actDest}${lt}`);
+                // 선택: 이 증강(과 대상)을 고른 근거 → 결과: 실제로 일어난 일
+                const pick = []; if (me.mad) { const t = madLine(me); if (t) pick.push(t); } st.forEach(x => pick.push(x));
+                if (me.mateLoss >= 0.15) pick.push(`무작위 결과 중 약 ${Math.round(me.mateLoss * 100)}%에서 상대가 곧바로 체크메이트를 낼 수 있는 위험이 있었어요`);
+                lines.push(`<b>고른 증강: ${actName(me)}</b>` + (pick.length ? li(pick.slice(0, 4)) : '눈에 띄는 즉시 효과는 작아요'));
+                const res = [];
+                if (me.realized) {
+                    const RZ = me.realized, cl = v => Math.max(-4000, Math.min(4000, v));
+                    if (me.mad && me.mad.actDest) res.push(`상대 ${pn(me.mad.actType)} ${me.mad.actTg}→${me.mad.actDest}`);
+                    else if (me.name === '독구름' && Array.isArray(f.t) && f.t.length) res.push(`맹독 지대가 ${f.t.join('·')}에 생겼어요`);
+                    const lostTxt = who => { const a = [], v0 = RZ.C0[who], v1 = RZ.C1[who]; let val = 0; ['q', 'r', 'b', 'n', 'p'].forEach(t => { const d = (v0[t] || 0) - (v1[t] || 0); if (d > 0) { a.push(`${pn(t)} ${d}개`); val += d * BOT_VAL[t] / 100; } }); return a.length ? `${a.join(' · ')} (폰 ${val.toFixed(1)}개 가치)` : ''; };
+                    const el = lostTxt(enemy), ml = lostTxt(color);
+                    if (el) res.push(`상대 기물이 사라졌어요: ${el}`);
+                    if (ml) res.push(`내 기물이 사라졌어요: ${ml}`);
+                    if (!el && !ml && !me.mad) res.push('이번에는 사라진 기물이 없어요');
+                    try { const ta = rvAugTacText(RZ.tac, t0f, color, enemy); ta.good.concat(ta.bad).slice(0, 2).forEach(x => res.push(x)); if (RZ.sc <= -(BOT_MATE - 1000) && !ta.bad.some(x => /메이트/.test(x))) res.push('이 결과 뒤 상대가 체크메이트를 낼 수 있어요'); } catch (e) {}
+                    const lk = cl(RZ.sc) - cl(me.expSc);
+                    res.push(lk >= 80 ? `기대한 평균(${rel(cl(me.expSc))})보다 폰 ${rvPawns(lk)}개 좋은 결과 (운이 따랐어요)` : lk <= -80 ? `기대한 평균(${rel(cl(me.expSc))})보다 폰 ${rvPawns(Math.abs(lk))}개 나쁜 결과 (운이 아쉬웠어요)` : `기대한 평균(${rel(cl(me.expSc))})과 비슷한 결과`);
+                } else if (!me.mad && tacMe) tacMe.good.concat(tacMe.bad).slice(0, 3).forEach(x => res.push(x));
+                if (me.rand && !me.realized) res.push('실제 결과 기록이 없어 평균 기준으로 평가했어요');
+                if (res.length) lines.push('<b>결과</b>' + li(res));
+                {   // 대상 선택: 결론 한 줄 + 근거(더 나았던 자리의 이유 · 고른 자리와의 차이)
+                    const lst = a => `<ul class="rv-ul">${a.map(x => `<li>${x}</li>`).join('')}</ul>`;
+                    if (me.target && typeof me.target === 'string' && me.aug.target && me.name !== '광기') {
+                        const bt = tgOf(me);
+                        if (me.act && me.act.tg !== me.target && me.sc - me.act.sc >= 30) {
+                            const ct = rvTgtText({ name: me.name, target: me.act.tg, f: me.f }, color, enemy), items = [];
+                            if (bt) bt.bits.slice(0, 3).forEach(x => items.push(x));
+                            if (ct && ct.bits.length) items.push(`고른 ${me.act.tg}는 이렇게 아쉬워요: ${ct.bits.slice(0, 2).join(' · ')}`);
+                            lines.push(`<b>대상 선택: ${me.act.tg} → ${me.target}</b>${tNote ? `<div>${tNote}</div>` : ''}${lst(items)}`);
+                        } else if (!me.act && bt) lines.push(`<b>추천 위치: ${me.target}</b>${lst(bt.bits.slice(0, 3))}`);
+                        else if (me.act && me.act.tg === me.target && tgMe) lines.push(`<b>대상 선택: ${me.target}</b>${lst(['가장 좋은 자리를 골랐어요'].concat(tgMe.bits.slice(0, 2)))}`);
+                    } else if (me.mad && me.mad.actTg) {
+                        const R = me.mad, items = [];
+                        if (R.actGap >= 40) { items.push(`가장 좋은 대상: 상대 ${pn(R.type)} ${R.tg} — 도착 가능 ${R.n}곳 평균 ${rel(R.mean)}`); items.push(`고른 대상: 상대 ${pn(R.actType)} ${R.actTg} — 평균 ${rel(R.mean - R.actGap)} (폰 ${rvPawns(R.actGap)}개 낮아요)`); }
+                        else items.push(`고른 상대 ${pn(R.actType)} ${R.actTg}의 평균 ${rel(R.mean - R.actGap)} — 가장 좋은 대상과 거의 같아요`);
+                        lines.push(`<b>대상 선택</b>${R.actGap >= 40 && tNote ? `<div>${tNote}</div>` : '<div>대상도 가장 좋은 쪽으로 골랐어요</div>'}${lst(items)}`);
+                    }
                 }
-                if (tNote) { if (top !== me) lines.push(`<b>대상 선택</b> ${tNote}`); }
-                else if (me.mad && me.mad.actTg && me.mad.actGap < 40) lines.push('<b>대상 선택</b> 대상도 가장 좋은 쪽으로 골랐어요');
-                if (tacMe && (tacMe.good.length || tacMe.bad.length) && me.mad) lines.push(`<b>평균에 가까운 예(${me.mad.tg}→${me.mad.rep})</b> ${tacMe.good.concat(tacMe.bad).slice(0, 3).join(' · ')}`);
-                else if (tacMe && (tacMe.good.length || tacMe.bad.length)) lines.push(`<b>증강 직후 상황</b> ${tacMe.good.concat(tacMe.bad).slice(0, 3).join(' · ')}`);
-                if (c !== 'best') {
-                    lines.push(`<b>더 좋았던 선택: ${actName(top)}</b><ul class="rv-ul">${why3.map(x => `<li>${x}</li>`).join('')}</ul><small>2수 앞까지 계산한 판세 ${rel(top.total)} (고른 증강 ${rel(meTotal)})</small>`);
-                    if (top !== me && top.mad) { const t = madLine(top); if (t) lines.push(`<b>${nm(top.name)} 분석</b> ${t}`); }
-                    if (top !== me && tacTop && (tacTop.good.length || tacTop.bad.length)) lines.push(`<b>${nm(top.name)} 직후 상황</b> ${tacTop.good.concat(tacTop.bad).slice(0, 3).join(' · ')}`);
+                if (c !== 'best') lines.push(`<b>더 좋았던 선택: ${actName(top)}</b>${li(why3)}<small>2수 앞까지 계산한 판세 ${relR(top, top.total)} (고른 증강 ${me.realized ? '실제 결과 ' : ''}${relR(me, meTotal)})</small>`);
+                {   // 배울 점: 증강 고르기에 쓸 수 있는 습관 한 줄
+                    const tk = c === 'miss' ? 'm' : (pawnLoss >= 1 && c !== 'best' && c !== 'good') ? 'p' : (tNote ? 't' : (c === 'best' || c === 'good') ? 'g' : base >= 300 ? 'a' : base <= -300 ? 'b' : 'd');
+                    const TIP = {
+                        m: V('at_m', '증강 선택지를 볼 때 먼저 \"곧바로 체크메이트가 되는 증강이 있나?\"를 확인하세요. 있다면 그게 정답이에요.', '이길 수 있는 증강이 선택지에 있으면 다른 장점은 볼 필요가 없어요. 메이트 가능성부터 훑으세요.'),
+                        p: V('at_p', '폰을 잃는 증강은 기물 점수만 보지 말고 지금 폰 구조와 킹 앞 방패가 얼마나 좋은지 함께 보세요. 잘 짜인 폰일수록 잃는 값이 커요.', '폰은 점수보다 위치가 중요해요. 킹을 가려 주거나 통과폰이 된 폰을 바치는 증강은 숫자보다 훨씬 비싸요.'),
+                        t: V('at_t', '위치를 정하는 증강은 \"어느 말이 거기로 움직이기 쉬운가\"를 먼저 생각하세요. 상대의 다음 수가 가장 몰릴 길목이 좋은 자리예요.', '지뢰·장벽 같은 증강은 상대의 다음 한두 수를 예상해서 놓을 때 가치가 커져요.'),
+                        g: V('at_g', '좋은 증강 선택은 \"당장의 점수\"와 \"앞으로 몇 수 동안 바뀔 배치\"를 함께 본 결과예요. 이번 선택이 바로 그랬어요.', '선택지 중 오래 쓰이는 증강은 초반일수록 값어치가 커요. 이런 판단을 계속 이어 가세요.'),
+                        a: V('at_a', '앞선 판에서는 상대가 판을 뒤집을 수 있는 변수부터 줄이세요. 증강도 이득을 굳히는 쪽이 안전해요.', '이기고 있을 때는 화려한 증강보다 상대 역전 수단을 막아 주는 증강이 더 값져요.'),
+                        b: V('at_b', '뒤진 판에서는 안전한 선택만으로 따라잡기 어려워요. 변수가 큰 증강을 선택지에서 먼저 찾아보세요.', '밀릴 때는 한 방으로 판을 흔들 수 있는 증강을 우선순위에 두세요.'),
+                        d: V('at_d', '선택지가 모두 비슷해 보여도 배치·킹 안전·상대의 다음 증강까지 비교해 보면 차이가 보여요.', '눈에 띄는 차이가 없어도 시간이 지나며 커지는 효과와 상대 증강에 대한 대비를 함께 따져 보세요.')
+                    };
+                    if (c === 'miss' || c === 'inaccuracy' || c === 'mistake') lines.push('<b>배울 점</b> ' + TIP[tk]);
                 }
-                if (base >= 300) lines.push('<b>상황</b> 앞서 있을 때는 상대의 역전 증강을 막고 이득을 굳히는 선택이 유리해요.');
-                else if (base <= -300) lines.push('<b>상황</b> 불리할 때는 변수가 큰 증강으로 판을 흔드는 선택이 필요해요.');
-                if (me.rand) lines.push('<b>참고</b> 무작위 효과가 있는 증강이라 실제 결과는 분석과 다를 수 있어요.');
-                lines.push('<b>선택지 순위</b>' + rows.map((r, k) => { const t = tgOf(r); return `<div class="rv-rk${r === me ? ' me' : ''}">${k + 1}위 ${nm(r.name)}${t ? ' · ' + t.short : ''}${r.rand ? '*' : ''} <i>${rel(r.total)}</i>${r === me ? ' ← 선택' : ''}</div>`; }).join('') + (rows.some(r => r.rand) ? ' <small>(*는 무작위 결과의 평균)</small>' : ''));
+                lines.push('<b>선택지 순위</b>' + rows.map((r, k) => { const t = r === me ? tgMe : tgOf(r); return `<div class="rv-rk${r === me ? ' me' : ''}">${k + 1}위 ${nm(r.name)}${t ? ' · ' + t.short : ''}${r.rand ? '*' : ''} <i>${relR(r, r.total)}</i>${r === me ? ' ← 선택' : ''}</div>`; }).join('') + (rows.some(r => r.rand) ? ' <small>(*는 무작위 결과의 평균)</small>' : ''));
                 return { c, head, lines };
             } finally { BOT.ana = svBot.ana; BOT.mineOwner = svBot.owner; BOT.seen = svBot.seen; botRestore(snap); moveCount = sv.mc; pendingAugments = sv.pa; activeAugmentOptions = sv.ao; activeAugmentPlayerColor = sv.ap; selectedAugmentIdx = sv.si; mines = hidden; }
         }
@@ -7989,7 +8346,7 @@
             if (f.kind === 'move' && f.pact) { const pe = pieceEls.get(f.pact); if (pe) pe.dataset.square = f.to; }
             if (animate && f.kind === 'move') [].concat(f.mk || [], (f.post && f.post.mk) || []).forEach(k => elToSq(k.uid, k.sq));   // 지뢰로 죽은 기물은 지뢰 칸에서 사라진다
             if (animate && f.kind === 'move') {
-                try { FX.land(f.to, f.by); if (f.captured) FX.capture(f.to, f.captured); if (f.pact) FX.pactBlast(f.to); if (f.fate) f.fate.forEach(q => FX.fateSever(q)); } catch (e) {}
+                try { FX.land(f.to, f.by); if (f.captured) FX.capture(f.to, f.captured); if (f.pact) FX.pactBlast(f.to); if (f.fate) f.fate.forEach(q => FX.fateSever(q)); if (f.bb) f.bb.forEach((q, i) => FX.heartBreak(q, (i % 2) * 0.12)); } catch (e) {}
             }
             muteShatter = !animate; drawPieces(animate); muteShatter = false;
             if (animate && f.kind === 'move') { const fxMs = replayMoveFx(f, token, kSpd); if (fxMs > replayStepMs) replayStepMs = fxMs; }
@@ -8629,6 +8986,36 @@
         // ==========================================
         // 플레이어 액션 및 AI
         // ==========================================
+        // 장벽이 곧 사라져 킹이 공격받게 되는지(체크가 아닌데도 무언가 해야 하는 상황) 알아낸다
+        function wallForcedInfo(color) {   // 장벽 소멸 · 수퍼 워너비 승급 · 덩굴 풀림 때문에 내 수 직후 킹이 공격받게 되는지
+            try {
+                if (game.in_check(color)) return null;
+                const enemy = color === 'w' ? 'b' : 'w', kSq = findPieces(color, 'k')[0]; if (!kSq) return null;
+                const kr = 8 - parseInt(kSq[1]), kc = kSq.charCodeAt(0) - 97, B = game.board();
+                if (!game.isSquareAttacked(kr, kc, enemy, B, true)) return null;
+                const attackers = [], walls = [], cause = {};
+                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+                    const q = B[r][c]; if (!q || q.color !== enemy || q.type === 'wall') continue;
+                    const test = B.map((row, ri) => row.map((z, ci) => (z && z.color === enemy && !(ri === r && ci === c)) ? { type: 'wall', color: 'none', uid: -1 } : z));
+                    if (!game.isSquareAttacked(kr, kc, enemy, test, true)) continue;
+                    const aSq = game.rcToSq(r, c); attackers.push(aSq);
+                    cause[aSq] = (q.type === 'p' && prospects[q.uid] === 1) ? 'promo' : (rootedPieces[q.uid] === 1 ? 'vine' : 'wall');
+                    const dr = Math.sign(kr - r), dc = Math.sign(kc - c);
+                    for (let rr = r + dr, cc = c + dc; (rr !== kr || cc !== kc) && rr >= 0 && rr < 8 && cc >= 0 && cc < 8; rr += dr, cc += dc) { const sq = game.rcToSq(rr, cc); if (activeWalls.some(w => w.sq === sq && w.duration <= 1) && !walls.includes(sq)) walls.push(sq); }
+                }
+                return attackers.length ? { king: kSq, attackers, walls, cause } : null;
+            } catch (e) { return null; }
+        }
+        function showWallForced(info) {   // 칸 이름을 눌렀을 때처럼: 관련 칸만 밝히고 나머지는 어둡게
+            const L = document.getElementById('sug-layer'); if (!L || !info) return;
+            L.querySelectorAll('.sq-dim, .sq-hl').forEach(e => e.remove());
+            const NS = 'http://www.w3.org/2000/svg', added = [], items = [{ sq: info.king, col: '#ff6b6b' }, ...info.attackers.map(sq => ({ sq, col: info.cause && info.cause[sq] === 'promo' ? '#ffa94d' : info.cause && info.cause[sq] === 'vine' ? '#69db7c' : '#ff6b6b' })), ...info.walls.map(sq => ({ sq, col: '#4dabf7' }))];
+            const dim = document.createElementNS(NS, 'path'); dim.setAttribute('class', 'sq-dim'); dim.setAttribute('fill-rule', 'evenodd'); dim.setAttribute('fill', 'rgba(0,0,0,.45)');
+            dim.setAttribute('d', 'M0 0H100V100H0Z' + items.map(i => { const c = getCoords(i.sq); return ` M${c.x} ${c.y}h12.5v12.5h-12.5Z`; }).join('')); L.appendChild(dim); added.push(dim);
+            items.forEach(i => { const c = getCoords(i.sq), sw = .5, r = document.createElementNS(NS, 'rect'); r.setAttribute('class', 'sq-hl'); r.setAttribute('x', c.x + sw / 2); r.setAttribute('y', c.y + sw / 2); r.setAttribute('width', 12.5 - sw); r.setAttribute('height', 12.5 - sw); r.setAttribute('fill', 'none'); r.setAttribute('stroke', i.col); r.setAttribute('stroke-width', sw); L.appendChild(r); added.push(r); });
+            setTimeout(() => added.forEach(e => { if (e.parentNode) e.remove(); }), 2200);
+            [info.king, ...info.attackers].forEach(sq => { const el = Array.from(pieceEls.values()).find(e => e.dataset.square === sq && e.dataset.type !== 'wall'); if (el) { el.classList.remove('piece-sqhl'); void el.offsetWidth; el.classList.add('piece-sqhl'); setTimeout(() => el.classList.remove('piece-sqhl'), 900); } });
+        }
         function onSquareClick(sq) {
             if (isSpectating) return;   // 관전 중에는 조작할 수 없다
             if (replayActive) { if (replayMode !== 'live') document.getElementById('rp-play').click(); return; }
@@ -8638,7 +9025,7 @@
 
             if (!selectedSquare) {
                 const piece = game.get(sq);
-                if (piece && piece.color === game.turn()) { selectedSquare = sq; legalMoves = game.moves({ square: sq }); drawDots(); notifyRooted(piece); }
+                if (piece && piece.color === game.turn()) { selectedSquare = sq; legalMoves = game.moves({ square: sq }); drawDots(); notifyRooted(piece); if (!legalMoves.length && piece.type !== 'k') { const wi = wallForcedInfo(game.turn()); if (wi) showWallForced(wi); } }
             } else {
                 if (selectedSquare === sq) { selectedSquare = null; legalMoves = []; drawDots(); return; }
                 const moveObj = legalMoves.find(m => m.to === sq);
@@ -8650,7 +9037,7 @@
                     }
                 } else {
                     const piece = game.get(sq);
-                    if (piece && piece.color === game.turn()) { selectedSquare = sq; legalMoves = game.moves({ square: sq }); drawDots(); notifyRooted(piece); }
+                    if (piece && piece.color === game.turn()) { selectedSquare = sq; legalMoves = game.moves({ square: sq }); drawDots(); notifyRooted(piece); if (!legalMoves.length && piece.type !== 'k') { const wi = wallForcedInfo(game.turn()); if (wi) showWallForced(wi); } }
                     else { selectedSquare = null; legalMoves = []; drawDots(); }
                 }
             }
@@ -8762,11 +9149,11 @@
                 activePoison.forEach(p => { if (p.squares.includes(to) && p.owner !== pieceNow.color) poisoned = true; });
                 if (poisoned && pieceNow.type !== 'k' && pieceNow.type !== 'wall' && !invinciblePieces[pieceNow.uid]) { poisonAtMove = to; game.remove(to); spawnFloatingText(to, '☠️'); triggerVFX([to], 'vfx-explosion'); }
             }
-            const { blasts: moveBlasts, mk: moveMk, fated: fateAtMove } = settleBoard();
-            if (fateAtMove.length) { fateAtMove.forEach(q => FX.fateSever(q)); showToast('🔔 운명공동체! 연결된 기물도 함께 사라졌습니다', '#b06cff', 2200); }   // v3.80: 지뢰로 죽은 기물은 지뢰 칸에서 사라지고, 리플레이용으로 함께 기록한다
+            const { blasts: moveBlasts, mk: moveMk, fated: fateAtMove, babyBroken: moveBaby } = settleBoard();
+            if (fateAtMove.length) { fateAtMove.forEach(q => FX.fateSever(q)); showToast('🔔 운명공동체! 연결된 기물도 함께 사라졌습니다', '#7c82ff', 2200); }   // v3.80: 지뢰로 죽은 기물은 지뢰 칸에서 사라지고, 리플레이용으로 함께 기록한다
 
             previousMove = { from, to, color: moveResult.color };
-            recordFrame('move', { from, to, by: moveResult.color, captured: moveResult.captured || null, pact: pactDeath, fate: fateAtMove.length ? fateAtMove : undefined, blasts: moveBlasts.length ? moveBlasts : undefined, mk: moveMk.length ? moveMk : undefined, pz: poisonAtMove || undefined });
+            recordFrame('move', { from, to, by: moveResult.color, captured: moveResult.captured || null, pact: pactDeath, fate: fateAtMove.length ? fateAtMove : undefined, bb: moveBaby.length ? moveBaby : undefined, blasts: moveBlasts.length ? moveBlasts : undefined, mk: moveMk.length ? moveMk : undefined, pz: poisonAtMove || undefined });
             try { botReactMove(moveResult); } catch (e) {}
             if (augPickCount > 0) addLogDivider();
             let kingKick = null;   // 킹을 잡는 수: 잡은 기물이 포물선으로 뛰어올라 킹을 걷어찬다
@@ -8911,7 +9298,21 @@
             const blasts = resolveMines(fx), mk = mineKills.slice();
             if (fx) mk.forEach(k => elToSq(k.uid, k.sq));
             const fated = enforceFate(fateFx !== undefined ? fateFx : fx);
-            return { poisoned, blasts, mk, fated };
+            const babyBroken = breakBabyOnCheck(fx || fateFx === true);   // 킹이 체크를 당한 쪽의 '아기는 어떻게 태어나?' 축복(킹·퀸)은 사라진다
+            return { poisoned, blasts, mk, fated, babyBroken };
+        }
+        function breakBabyOnCheck(play = true) {   // 체크를 당한 쪽의 축복(킹·퀸)을 지우고, 하트가 깨지는 연출을 킹·퀸 칸에 보여 준다. 반환: 연출 칸 목록
+            const sqs = [];
+            for (const c of ['w', 'b']) {
+                const eff = babyEffect[c]; if (!eff) continue;
+                let chk = false; try { chk = game.in_check(c); } catch (e) {}
+                if (!chk) continue;
+                const k = eff.kUid ? findSqByUid(eff.kUid) : findPieces(c, 'k')[0], q = eff.qUid ? findSqByUid(eff.qUid) : findPieces(c, 'q')[0];
+                [k, q].forEach(sq => { if (sq) sqs.push(sq); });
+                babyEffect[c] = null;
+            }
+            if (play && sqs.length) { try { sqs.forEach((sq, i) => FX.heartBreak(sq, (i % 2) * 0.12)); } catch (e) {} }
+            return sqs;
         }
         // 운명공동체: 연결된 두 기물 중 하나가 사라졌으면(잡힘·독구름·지뢰·증강 등 원인 불문) 나머지 하나도 파괴한다. 무적 기물은 살아남고 연결만 끊긴다.
         function enforceFate(fx = true) {
@@ -9586,8 +9987,8 @@
               apply: (m, e) => { reversedPawns[e] = 6; reversedUids[e] = {}; findPieces(e, 'p').forEach(sq => { reversedUids[e][game.get(sq).uid] = true; }); return { t: findPieces(e, 'p'), vfx: 'vfx-void', msg: '😵‍💫 적 폰들이 방향 감각을 잃었습니다!' }; } },
             { name: '잭팟', icon: '🎰', desc: '이제부터 자신에게 나오는 증강 선택지가 {1개} [늘어납니다].', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => jackpotBonus[m] < 1,
               apply: (m, e) => { jackpotBonus[m] = (jackpotBonus[m] || 0) + 1; const k = findPieces(m, 'k')[0]; if (k) spawnFloatingText(k, '🎰'); return { t: [], vfx: '', origin: k || null, msg: '🎰 잭팟! 앞으로 증강 선택지가 하나 더 늘어납니다.' }; } },
-            { name: '아기는 어떻게 태어나?', icon: '🦢', desc: '{8수} 동안 아군 킹과 퀸에게 [축복]이 깃듭니다. 두 기물이 서로 인접해 있으면 {2수마다} 무작위 빈칸에 새 폰이 [태어납니다]. 낮은 확률로 가치가 높은 기물이 태어나기도 합니다.', detail: '새로 태어나는 기물은 폰 88%, 나이트 약 4%, 비숍 약 4%, 룩 약 2.6%, 퀸 약 1%입니다.', globalVfx: 'vfx-global-heal', isKillType: false,
-              condition: (m) => !babyEffect[m] && findPieces(m, 'k').length > 0 && findPieces(m, 'q').length > 0,
+            { name: '아기는 어떻게 태어나?', icon: '🦢', desc: '{8수} 동안 아군 킹과 퀸에게 [축복]이 깃듭니다. 두 기물이 서로 인접해 있으면 {2수마다} 무작위 빈칸에 새 폰이 [태어납니다]. 낮은 확률로 가치가 높은 기물이 태어나기도 합니다. {체크를 당하면} [축복]이 사라집니다.', detail: '새로 태어나는 기물은 폰 88%, 나이트 약 4%, 비숍 약 4%, 룩 약 2.6%, 퀸 약 1%입니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+              condition: (m) => !babyEffect[m] && !game.in_check(m) && findPieces(m, 'k').length > 0 && findPieces(m, 'q').length > 0,
               apply: (m, e) => { const k = findPieces(m, 'k')[0], q = findPieces(m, 'q')[0];
                   babyEffect[m] = { color: m, remaining: 8, seed: Math.floor(Math.random() * 1e9), kUid: game.get(k).uid, qUid: game.get(q).uid };
                   [k, q].forEach(sq => spawnFloatingText(sq, '🦢'));
@@ -9631,23 +10032,31 @@
                   if (!sq) return { t: [], vfx: '', msg: '동귀어진을 걸 기물이 없습니다.' };
                   pactPieces[game.get(sq).uid] = true; spawnFloatingText(sq, '⛓️');
                   return { t: [sq], vfx: 'vfx-void', msg: '⛓️ 동귀어진이 걸렸습니다!' }; } },
-            { name: '운명공동체', icon: '🔔', desc: '킹을 제외한 {무작위} 적 기물 {둘}이 [운명공동체]로 연결됩니다. 둘 중 하나가 [처치]되면 {나머지 하나도 파괴}됩니다.', globalVfx: 'vfx-global-void', isKillType: false,
-              condition: (m, e) => fatePool(e).length >= 2,
+            { name: '운명공동체', icon: '🔔', desc: '킹을 제외한 {무작위} 적 기물 {둘}이 [운명공동체]로 연결됩니다. 둘 중 하나가 [처치]되면 {나머지 하나도 파괴}됩니다.', detail: '필드에 운명공동체로 묶인 기물이 남아 있는 동안에는 이 증강이 나오지 않습니다.', globalVfx: 'vfx-global-void', isKillType: false,
+              condition: (m, e) => fateLinks.length === 0 && fatePool(e).length >= 2,
               apply: (m, e) => {
                   const pool = shuffle(fatePool(e)); if (pool.length < 2) return { t: [], vfx: '', msg: '연결할 적 기물이 부족해 실패했습니다.' };
                   if (demoFateFixed && pool.includes(demoFateFixed)) pool.splice(pool.indexOf(demoFateFixed), 1), pool.unshift(demoFateFixed);
                   const a = pool[0], b = pool[1], pa = game.get(a), pb = game.get(b);
                   fateLinks.push([pa.uid, pb.uid]); spawnFloatingText(a, '🔔'); spawnFloatingText(b, '🔔');
                   return { t: [a, b], vfx: 'vfx-void', msg: '🔔 적 기물 둘이 운명공동체로 묶였습니다!' }; } },
-            { name: '수퍼 워너비', icon: '🎖️', desc: '아군 폰 {하나}를 [유망주]로 키웁니다. {9수} 뒤 이 폰은 [퀸]으로 [프로모션]합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+            { name: '수퍼 워너비', icon: '🎖️', desc: '아군 폰 {하나}를 [유망주]로 키웁니다. {11수} 뒤 이 폰은 [퀸]으로 [프로모션]합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
               target: { mode: 'piece', prompt: '유망주로 만들 아군 폰을 선택하세요', valid: (m) => findPieces(m, 'p').filter(sq => !(prospects[game.get(sq).uid] > 0)) },
               condition: (m) => findPieces(m, 'p').some(sq => !(prospects[game.get(sq).uid] > 0)),
               apply: (m, e, target) => {
                   const cands = findPieces(m, 'p').filter(sq => !(prospects[game.get(sq).uid] > 0));
                   const sq = (target && cands.includes(target)) ? target : shuffle(cands)[0];
                   if (!sq) return { t: [], vfx: '', msg: '' };
-                  prospects[game.get(sq).uid] = 9; spawnFloatingText(sq, '🎖️');
-                  return { t: [sq], vfx: 'vfx-heal', msg: '🎖️ 유망주가 탄생했습니다! 9수 뒤 퀸으로 승급합니다.' }; } }
+                  prospects[game.get(sq).uid] = 11; spawnFloatingText(sq, '🎖️');
+                  return { t: [sq], vfx: 'vfx-heal', msg: '🎖️ 유망주가 탄생했습니다! 11수 뒤 퀸으로 승급합니다.' }; } },
+            { name: '시간 도둑', icon: '⏳', weight: 1.35, desc: '상대의 [증강 선택 시간]을 {영구적으로} 훔칩니다. 처음에는 {30초 → 20초}, 두 번째에는 {20초 → 10초}가 됩니다.', detail: '같은 상대에게 최대 2번까지만 걸 수 있고, 이미 10초가 된 상대에게는 나오지 않습니다. 나올 확률이 낮은 증강입니다.', globalVfx: 'vfx-global-meta', isKillType: false,
+              condition: (m, e) => ((augTimeCut && augTimeCut[e]) || 0) < 2,
+              apply: (m, e) => { const lv = (augTimeCut[e] || 0), T = [30, 20, 10], nx = Math.min(2, lv + 1); augTimeCut[e] = nx; const k = findPieces(m, 'k')[0];
+                  const ek = findPieces(e, 'k')[0]; return { t: ek ? [ek] : [], vfx: '', origin: k || null, fxArg: lv + 1, msg: `⏳ 시간 도둑! 상대의 증강 선택 시간이 ${T[lv]}초에서 ${T[nx]}초로 줄었습니다.` }; } },
+            { name: '법정 대리인', icon: '⚖️', weight: 1.35, desc: '증강을 {먼저 고를 때} 나옵니다. 이어지는 [상대의 증강 선택권]을 {한 번} 가져와, 상대의 선택지 중 하나를 {대신 고릅니다}.', detail: '고른 증강은 상대가 쓴 것으로 발동됩니다. 대상이나 위치를 정해야 하는 증강은 무작위로 정해집니다. 나올 확률이 낮은 증강입니다.', globalVfx: 'vfx-global-meta', isKillType: false,
+              condition: (m, e) => Array.isArray(pendingAugments) && pendingAugments[0] === e && !proxyPick[e],
+              apply: (m, e) => { proxyPick[e] = m; const k = findPieces(m, 'k')[0];
+                  const ek = findPieces(e, 'k')[0]; return { t: ek ? [ek] : [], vfx: '', origin: k || null, msg: '⚖️ 법정 대리인! 상대의 다음 증강을 내가 대신 고릅니다.' }; } }
         ];
 
         // 고유 연출이 끝난 뒤 다음 단계로 넘어가도록 증강별 대기 시간(ms)을 늘린다 (이미 지정된 delay는 유지)
@@ -9681,6 +10090,13 @@
             return ring;
         }
 
+        // ---- '증강' 유형 전용 아이콘 (이모지 대신 움직이는 SVG). 쓰는 곳: 카드·도움말 목록·정보 팝업 ----
+        const AUG_ICON_SVG = {
+            '시간 도둑': '<svg class="ag-ic ag-hg" viewBox="0 0 32 32" aria-hidden="true"><g class="hg-body"><path class="ag-glass" d="M10 5H22C22 11 18.5 13.5 16 16C18.5 18.5 22 21 22 27H10C10 21 13.5 18.5 16 16C13.5 13.5 10 11 10 5Z"/><path class="ag-fill hg-top" d="M11.3 6.6H20.7C20.5 10 18 12.5 16 16C14 12.5 11.5 10 11.3 6.6Z"/><path class="ag-fill hg-bot" d="M11.3 25.4H20.7C20.5 22 18 19.5 16 16C14 19.5 11.5 22 11.3 25.4Z"/><path class="ag-line hg-flow" d="M16 16V24"/><rect class="ag-cap" x="7.5" y="2.6" width="17" height="2.6" rx="1.3"/><rect class="ag-cap" x="7.5" y="26.8" width="17" height="2.6" rx="1.3"/></g></svg>',
+            '법정 대리인': '<svg class="ag-ic ag-sc" viewBox="0 0 32 32" aria-hidden="true"><path class="ag-line" d="M16 9V25M10.5 27H21.5"/><g class="sc-pl"><path class="ag-line" d="M5 8L1.7 17.3M5 8L8.3 17.3"/><path class="ag-glass" d="M1.5 17.5H8.5C8.25 20.7 6.7 21.9 5 21.9S1.75 20.7 1.5 17.5Z"/></g><g class="sc-pr"><path class="ag-line" d="M27 8L23.7 17.3M27 8L30.3 17.3"/><path class="ag-glass" d="M23.5 17.5H30.5C30.25 20.7 28.7 21.9 27 21.9S23.75 20.7 23.5 17.5Z"/></g><g class="sc-beam"><path class="ag-line" d="M5 8H27"/><circle class="ag-cap" cx="16" cy="8" r="2"/></g></svg>'
+        };
+        function augIconHtml(name, fallback) { return AUG_ICON_SVG[name] || fallback; }
+
         const AUGMENT_META = specMap(sp => (sp.category || sp.risk) ? { category: sp.category, risk: sp.risk } : undefined);
 
         function getAugmentCategoryLabel(aug) {
@@ -9692,6 +10108,7 @@
             if (category === '피해') return 'augment-type-damage';
             if (category === '소환') return 'augment-type-summon';
             if (category === '유틸') return 'augment-type-utility';
+            if (category === '증강') return 'augment-type-aug';
             if (category === '이동') return 'augment-type-move';
             return 'augment-type-other';
         }
@@ -9705,6 +10122,23 @@
         // 판 위치 지정(대상 선택) → "OO 발동!" → 실제 효과 연출 → (필요하면) 이어지는 상황까지, 진행 중인 경기와 완전히 분리되어 돌아간다.
         const HELP_START_W = 'Ra1 Nb1 Bc1 Qd1 Ke1 Bf1 Ng1 Rh1 Pa2 Pb2 Pc2 Pd2 Pe2 Pf2 Pg2 Ph2';
         const HELP_START_B = 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Ng8 Rh8 Pa7 Pb7 Pc7 Pd7 Pe7 Pf7 Pg7 Ph7';
+        // ---- 증강 미리보기: 증강 선택 화면을 판 위에 그대로 띄우는 도우미 ----
+        function demoAugOpts(n) {
+            const skip = new Set(['시간 도둑', '법정 대리인', '잭팟']);
+            let avail = []; try { avail = AUGMENT_POOL.filter(a => !skip.has(a.name) && a.condition('b', 'w')); } catch (e) {}
+            if (avail.length < n) avail = AUGMENT_POOL.filter(a => !skip.has(a.name));
+            return weightedSample(avail, n);
+        }
+        function demoCardHtml(aug) {
+            const risk = getAugmentRiskLabel(aug);
+            return `<div class="augment-card ${getAugmentCategoryClass(aug)}"><div class="augment-icon">${augIconHtml(aug.name, aug.icon)}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${getAugmentCategoryLabel(aug)}</span>${risk ? `<span class="aug-risk">${risk}</span>` : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
+        }
+        function demoShowCards(opts, top) {
+            const ov = document.getElementById('augment-overlay');
+            ov.innerHTML = top + `<div class="cards-container cards-n${opts.length}">${opts.map(demoCardHtml).join('')}</div>`;
+            document.body.classList.add('demo-cards'); ov.style.display = 'flex'; return ov;
+        }
+        function demoHideCards() { const ov = document.getElementById('augment-overlay'); ov.style.display = 'none'; ov.innerHTML = ''; document.body.classList.remove('demo-cards'); }
         const HELP_DEMOS = {   // 증강 이름 → { w, b: 배치, turn: 증강 뒤 먼저 둘 쪽, target: 대상 칸(없으면 무작위), pre, after: 이어지는 상황 }
             '신의 심판': { w: 'Ra1 Nb1 Qd1 Ke1 Ng1 Rh1 Bc4 Pa2 Pb2 Pd2 Pe2 Pf2 Pg2 Ph2', b: HELP_START_B + ' Nc6', target: 'c4' },
             '연계 분쇄': { w: 'Ke1 Qd1 Ra1 Rh1 Bc1 Nb1 Ng1 Pa2 Pb2 Pc2 Pd2 Pf2 Pg2 Ph2', b: 'Ke8 Qd8 Ra8 Rh8 Re4 Bc8 Bf8 Nb8 Ng8 Pa7 Pb7 Pc7 Pd7 Pf7 Pg7 Ph7' },
@@ -9752,16 +10186,46 @@
                     const mv = h.find(m => game.get(m.from).type === 'p' && parseInt(m.to[1]) > parseInt(m.from[1]));
                     if (mv) { h.cap('방향을 잃은 폰은 뒤로 걷습니다'); await h.wait(700); await h.move(mv.from, mv.to); }
                 } },
-            '아기는 어떻게 태어나?': { turn: 'w',
+            '아기는 어떻게 태어나?': { turn: 'w', b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Ne5 Rh8 Pa7 Pb7 Pc7 Pd7 Pe7 Pf7 Pg7 Ph7',
                 after: async h => {
                     h.cap('왕과 왕비가 붙어 있으면 2수마다 새 기물이 태어납니다'); await h.wait(900);
-                    await h.quiet({ avoid: ['k', 'q'] }); await h.wait(500); await h.quiet(); await h.wait(300); await h.quiet({ avoid: ['k', 'q'] });
+                    await h.quiet({ avoid: ['k', 'q'] }); await h.wait(500);
+                    await h.move('a7', 'a6', 900);
+                    await h.quiet({ avoid: ['k', 'q'] }); await h.wait(700);
+                    h.cap('왕이 체크를 당하면 축복이 사라집니다'); await h.wait(900);
+                    const mv = h.find(m => m.from === 'e5' && (m.to === 'f3' || m.to === 'd3'));
+                    if (mv) await h.move(mv.from, mv.to, 2600);
+                } },
+            '시간 도둑': { cap: '상대의 증강 선택 시간을 영구적으로 훔칩니다',
+                after: async h => {
+                    const ov = demoShowCards(demoAugOpts(3), `<div class="demo-ban">${augIconHtml('시간 도둑', '⏳')} 상대의 증강 선택</div><div class="aug-timer opp demo-t"><div class="at-track"><b class="dt-lost"></b><i></i></div><span class="at-sec">30s</span></div>`);
+                    const bar = ov.querySelector('.demo-t'), fill = bar.querySelector('i'), lost = bar.querySelector('.dt-lost'), sec = bar.querySelector('.at-sec');
+                    const setLv = s => { fill.style.width = (s / 30 * 100) + '%'; lost.style.width = (100 - s / 30 * 100) + '%'; };
+                    const tween = (a, b, ms) => new Promise(res => { const t0 = performance.now(), tick = () => { const k = Math.min(1, (performance.now() - t0) / ms), v = a + (b - a) * k; sec.textContent = Math.round(v) + 's'; bar.classList.toggle('low', v <= 5); if (k < 1) requestAnimationFrame(tick); else res(); }; tick(); });
+                    h.cap('상대의 증강 선택 시간은 원래 30초예요'); await h.wait(1500);
+                    h.cap('시간 도둑에 한 번 걸리면 20초로 줄어요'); setLv(20); await tween(30, 20, 700); await h.wait(1400);
+                    h.cap('두 번째에는 20초에서 10초까지 줄어요 (최대 2번)'); setLv(10); await tween(20, 10, 700); await h.wait(1400);
+                    h.cap('고민할 틈이 사라진 상대는 서둘러 고르게 돼요'); fill.style.transform = 'scaleX(0)'; await tween(10, 0, 2500); await h.wait(500);
+                    demoHideCards();
+                } },
+            '법정 대리인': { cap: '증강을 먼저 고를 때, 이어지는 상대의 증강 선택권을 가져옵니다',
+                after: async h => {
+                    const opts = demoAugOpts(3), banner = () => document.querySelector('#augment-overlay .demo-ban');
+                    const ov = demoShowCards(opts, `<div class="demo-ban">상대의 증강 선택지</div>`);
+                    h.cap('이어서 상대가 증강을 고를 차례예요'); await h.wait(1600);
+                    const b = banner(); b.classList.add('proxy'); b.innerHTML = augIconHtml('법정 대리인', '⚖️') + ' 내가 대신 고르는 중';
+                    h.cap('하지만 그 선택권은 법정 대리인 덕분에 내 손에 있어요'); await h.wait(1700);
+                    const cards = ov.querySelectorAll('.augment-card'), k = Math.max(0, opts.findIndex(a => getAugmentCategoryLabel(a) !== '피해'));
+                    h.cap('상대의 선택지 중 하나를 눌러서…'); if (cards[k]) cards[k].classList.add('selected'); await h.wait(1500);
+                    h.cap('한 번 더 누르면 판사봉이 땅! 내리쳐 확정돼요'); await h.wait(900); if (cards[k]) gavelConfirm(cards[k], () => {}); await h.wait(1700);
+                    h.cap('고른 증강은 상대가 쓴 것으로 발동돼요. 선택권만 내 몫이에요'); await h.wait(2300);
+                    demoHideCards();
                 } },
             '수퍼 워너비': { target: 'e2', turn: 'w',
                 after: async h => {
-                    h.cap('9수가 지나면 유망주 폰이 퀸으로 승급합니다'); await h.wait(900);
+                    h.cap('11수가 지나면 유망주 폰이 퀸으로 승급합니다'); await h.wait(900);
                     const prot = Object.keys(prospects);
-                    for (let i = 0; i < 9; i++) await h.quiet({ protect: prot, fast: true });
+                    for (let i = 0; i < 11; i++) await h.quiet({ protect: prot, fast: true });
                 } },
             '암전': { caster: 'b', turn: 'b',
                 after: async h => {
@@ -9848,12 +10312,12 @@
             }
             function buildAugList() {
                 if (built) return; built = true;
-                const order = ['피해', '소환', '이동', '유틸', '기타'];
+                const order = ['피해', '소환', '이동', '유틸', '증강', '기타'];
                 const items = AUGMENT_POOL.map((a, i) => ({ a, i, o: Math.max(0, order.indexOf(getAugmentCategoryLabel(a))) })).sort((x, y) => x.o - y.o || x.i - y.i);
                 const list = $('help-aug-list');
                 list.innerHTML = items.map(({ a, i }) => {
                     const risk = getAugmentRiskLabel(a);
-                    return `<div class="help-item" data-i="${i}"><div class="help-aug pv-clickable ${getAugmentCategoryClass(a)}"><div class="help-aug-ic">${esc(a.icon)}</div><div class="help-aug-tx"><div class="help-aug-nm">${esc(a.name)}<span class="help-aug-tag">${esc(getAugmentCategoryLabel(a))}</span>${risk ? `<span class="help-aug-tag risk">${esc(risk)}</span>` : ''}</div><div class="help-aug-ds">${renderAugDesc(a.desc)}${a.detail ? " " + renderAugDesc(a.detail) : ""}</div></div></div>` +
+                    return `<div class="help-item" data-i="${i}"><div class="help-aug pv-clickable ${getAugmentCategoryClass(a)}"><div class="help-aug-ic">${augIconHtml(a.name, esc(a.icon))}</div><div class="help-aug-tx"><div class="help-aug-nm">${esc(a.name)}<span class="help-aug-tag">${esc(getAugmentCategoryLabel(a))}</span>${risk ? `<span class="help-aug-tag risk">${esc(risk)}</span>` : ''}</div><div class="help-aug-ds">${renderAugDesc(a.desc)}${a.detail ? " " + renderAugDesc(a.detail) : ""}</div></div></div>` +
                         `<div class="help-detail ${getAugmentCategoryClass(a)}"><div class="hd-inner"><div class="hd-stage"><div class="hd-loading">불러오는 중…</div></div><div class="hd-cap"></div><div class="hd-actions"><button type="button" class="s-btn hd-replay">↻ 다시 보기</button></div></div></div></div>`;
                 }).join('');
                 list.addEventListener('click', e => {
@@ -9907,7 +10371,7 @@
                 const aug = AUGMENT_POOL.find(a => a.name === name); if (!aug) return;
                 curName = name; const risk = getAugmentRiskLabel(aug);
                 box.className = 'lobby-box help-box aug-info-box ' + getAugmentCategoryClass(aug);
-                document.getElementById('ai-title').textContent = aug.icon + ' ' + aug.name;
+                document.getElementById('ai-title').innerHTML = '<span class="ai-ic">' + augIconHtml(aug.name, esc(aug.icon)) + '</span> ' + esc(aug.name);
                 document.getElementById('ai-meta').innerHTML = `<span class="help-aug-tag">${esc(getAugmentCategoryLabel(aug))}</span>` + (risk ? `<span class="help-aug-tag risk">${esc(risk)}</span>` : '');
                 document.getElementById('ai-desc').innerHTML = renderAugDesc(aug.desc);
                 ov.style.display = 'flex'; play();
@@ -9958,17 +10422,24 @@
         let opponentAugmentSelection = null;   // { idx, confirmed }: 상대(또는 봇)가 고른 카드
         function applyOpponentSelection() {
             const cards = document.querySelectorAll('#augment-overlay .augment-card.dimmed'), sel = opponentAugmentSelection;
-            cards.forEach((c, i) => { c.classList.toggle('picked', !!sel && i === sel.idx); c.classList.toggle('confirmed', !!sel && !!sel.confirmed && i === sel.idx); });
+            const ovp = document.getElementById('augment-overlay');
+            cards.forEach((c, i) => {
+                const wasConfirmed = c.classList.contains('confirmed'), nowConfirmed = !!sel && !!sel.confirmed && i === sel.idx;
+                c.classList.toggle('picked', !!sel && i === sel.idx); c.classList.toggle('confirmed', nowConfirmed);
+                if (nowConfirmed && !wasConfirmed && ovp && ovp.dataset.proxy === '1') { try { gavelConfirm(c, null); } catch (e) {} }   // 법정 대리인: 상대에게도 망치가 보인다
+            });
         }
         function renderOpponentPreviewCards(previewOptions, playerColor, overlay) {
             const showT = !isBotMode && (currentRoomId || isSpectating);
-            if (showT && !oppAugDeadline) oppAugDeadline = Date.now() + AUG_LIMIT_MS;
-            let html = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방 선택 중...</div><h2>적 선택 중</h2>${showT ? '<div id="opp-aug-timer" class="aug-timer opp"><div class="at-track"><i></i></div><span class="at-sec">30s</span></div>' : ''}<p style="color:#ccc; margin-bottom:12px; font-size:0.95rem;">상대가 볼 수 있는 선택지입니다.</p><div class="cards-container cards-n${previewOptions.length}">`;
+            const pxC = proxyPick[playerColor], chooserC = pxC || playerColor, myCast = !!pxC && playerColor === myColor;
+            if (showT && !oppAugDeadline) oppAugDeadline = Date.now() + augLimitMs(chooserC);
+            let html = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방 선택 중...</div><h2>${myCast ? '상대가 내 증강을 대신 고르는 중' : '적 선택 중'}</h2>${showT ? `<div id="opp-aug-timer" class="aug-timer opp${(augTimeCut && augTimeCut[chooserC]) ? ' cut' : ''}"><div class="at-track"><i></i></div><span class="at-sec">${Math.round(augLimitMs(chooserC) / 1000)}s</span></div>` : ''}<p style="color:#ccc; margin-bottom:12px; font-size:0.95rem;">${myCast ? '법정 대리인 효과로 상대가 아래 선택지 중 하나를 대신 고릅니다. 고른 증강은 내가 쓴 것으로 발동돼요.' : '상대가 볼 수 있는 선택지입니다.'}</p><div class="cards-container cards-n${previewOptions.length}">`;
             previewOptions.forEach((aug) => {
-                html += `<div class="augment-card ${aug.typeClass} dimmed"><button type="button" class="aug-info" data-aug="${aug.name}" aria-label="${aug.name} 정보">i</button><div class="augment-icon">${aug.icon}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${aug.category}</span>${aug.risk ? `<span class="aug-risk">${aug.risk}</span>` : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
+                html += `<div class="augment-card ${aug.typeClass} dimmed"><button type="button" class="aug-info" data-aug="${aug.name}" aria-label="${aug.name} 정보">i</button><div class="augment-icon">${augIconHtml(aug.name, aug.icon)}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${aug.category}</span>${aug.risk ? `<span class="aug-risk">${aug.risk}</span>` : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
             });
             html += `</div>`;
             overlay.innerHTML = html;
+            overlay.dataset.proxy = pxC ? '1' : '';
             overlay.style.display = 'flex';
             bindAugInfo(overlay);
             applyOpponentSelection();
@@ -9981,7 +10452,7 @@
             opponentAugmentSelection = null;
             opponentAugmentPreview = null;
             opponentAugmentPreviewColor = null;
-            if (pendingAugments.length === 0) { 
+            if (pendingAugments.length === 0) { proxyPick = { w: null, b: null }; 
                 try { if (augKillClaim && !canCaptureKing(augKillClaim.color)) augKillClaim = null; } catch (e) {}   // 상대의 증강으로 킹을 잡을 각이 막혔다면 기록을 지운다
                 isSystemLocked = false; updateCheckStatus(); updateProgressBar(); 
                 if(isBotMode && game.turn() === 'b' && !game.game_over()) setTimeout(makeBotMove, 800);
@@ -10049,6 +10520,11 @@
             finally { floatLog = null; updateBoardVisuals = ubv; botRestore(snap); }
         }
 
+        function botProxyPick(opts, casterC, chooserC) {   // 법정 대리인: 선택지를 하나씩 가상으로 써 보고 쓰는 쪽(사람)에게 가장 덜 이로운 증강을 고른다
+            let worst = null, wv = Infinity;
+            opts.forEach(a => { const v = botSimAugment(a, casterC, chooserC, null, 0); if (v !== null && v < wv) { wv = v; worst = a; } });
+            return worst ? { aug: worst, target: null } : null;
+        }
         // ---- 상급 봇: 증강 위험 계산 ----
         // 증강 단계는 7수마다 열린다. 사람이 받을 증강 선택지는 가중치대로 무작위로 뽑히고, 사람은 그중 봇에게 가장 아픈 걸 고를 수 있다.
         // 그래서 (1) 증강 단계를 여는 수는 후보 몇 개를 가상으로 두어 본 뒤 '상대가 받을 증강의 기대 피해'를 따져 고르고,
@@ -10196,7 +10672,7 @@
         function paintAugBar(bar, left) {
             const fill = bar.querySelector('i'), sec = Math.ceil(left / 1000);
             if (fill && !fill.dataset.run) { fill.dataset.run = '1'; fill.style.animation = `augShrink ${Math.max(0, left)}ms linear forwards`; }   // 남은 시간에 맞춰 한 번 시작하면 브라우저가 부드럽게 줄인다
-            bar.classList.toggle('low', sec <= 10); bar.querySelector('.at-sec').textContent = sec + 's';
+            if (!bar.dataset.tot) bar.dataset.tot = sec; bar.classList.toggle('low', sec <= Math.min(10, Math.ceil(Number(bar.dataset.tot) / 3))); bar.querySelector('.at-sec').textContent = sec + 's';
         }
         function updateAugTimerUI() {
             if (oppAugDeadline) { const ob = document.getElementById('opp-aug-timer'); if (ob) paintAugBar(ob, Math.max(0, oppAugDeadline - Date.now())); }   // 상대(또는 관전 중인 선수)의 남은 시간
@@ -10232,7 +10708,8 @@
             if (!options && isRestore) {
                 options = activeAugmentOptions;
             }
-            if (playerColor !== myColor) {
+            const chooser = proxyPick[playerColor] || playerColor;   // 법정 대리인: 이 증강을 대신 고르는 쪽
+            if (chooser !== myColor) {
                 if (isBotMode) {
                     // 사람과 대전할 때와 같은 화면: 사람과 같은 개수의 선택지를 뽑아 '상대 선택 중' 카드로 보여 준다
                     const enemyColor = playerColor === 'w' ? 'b' : 'w';
@@ -10244,7 +10721,8 @@
                     const t0 = Date.now(), smart = botDifficulty === '상', gs = gameEpoch;
                     setTimeout(() => { if (gs !== gameEpoch) return;   // 화면이 그려진 뒤 생각한다: 상급은 증강과 놓을 자리를 시뮬레이션으로 고르고, 나머지는 무작위
                         let plan = null;
-                        if (smart) { try { plan = botPlanAugment(botOptions, playerColor, enemyColor); } catch (e) { plan = null; } }
+                        if (chooser !== playerColor) { if (smart) { try { plan = botProxyPick(botOptions, playerColor, enemyColor); } catch (e) { plan = null; } } }   // 봇이 사람의 증강을 대신 고른다: 사람에게 가장 덜 이로운 것
+                        else if (smart) { try { plan = botPlanAugment(botOptions, playerColor, enemyColor); } catch (e) { plan = null; } }
                         if (!plan) plan = { aug: botOptions[Math.floor(Math.random() * botOptions.length)], target: null };
                         const think = (smart ? 1700 : 1100) + Math.random() * 800, wait = Math.max(500, think - (Date.now() - t0)), idx = Math.max(0, botOptions.indexOf(plan.aug));
                         setTimeout(() => { if (gs !== gameEpoch) return;
@@ -10292,7 +10770,8 @@
             augOfferedNow = { color: playerColor, names: options.map(o => o.name) };
 
             const colorName = playerColor === 'w' ? '백' : '흑'; const badgeClass = playerColor === 'w' ? 'white' : 'black';
-            let html = `<div class="turn-badge ${badgeClass}">${colorName} 차례</div><h2>증강 선택</h2><div class="cards-container cards-n${options.length}">`;
+            const isProxy = playerColor !== myColor, h2Txt = isProxy ? '상대 증강 대신 선택' : '증강 선택';   // 법정 대리인으로 상대의 증강을 내가 고르는 중
+            let html = `<div class="turn-badge ${badgeClass}${isProxy ? ' proxy' : ''}">${isProxy ? augIconHtml('법정 대리인', '⚖️') + '법정 대리인' : colorName + ' 차례'}</div><h2>${h2Txt}</h2><div class="cards-container cards-n${options.length}">`;
             const previewPayload = buildAugmentPreviewPayload(options);
             if (currentRoomId && !isBotMode && !isRestore) {
                 pushGameAction({ type: 'augment_preview', playerColor: playerColor, preview: previewPayload });
@@ -10310,22 +10789,24 @@
                 const typeLabel = getAugmentCategoryLabel(aug);
                 const riskLabel = getAugmentRiskLabel(aug);
                 const typeClass = getAugmentCategoryClass(aug);
-                html += `<div class="augment-card ${typeClass}" data-idx="${idx}"><button type="button" class="aug-info" data-aug="${aug.name}" aria-label="${aug.name} 정보">i</button><div class="augment-icon">${aug.icon}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${typeLabel}</span>${riskLabel ? `<span class="aug-risk">${riskLabel}</span>` : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
+                html += `<div class="augment-card ${typeClass}" data-idx="${idx}"><button type="button" class="aug-info" data-aug="${aug.name}" aria-label="${aug.name} 정보">i</button><div class="augment-icon">${augIconHtml(aug.name, aug.icon)}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${typeLabel}</span>${riskLabel ? `<span class="aug-risk">${riskLabel}</span>` : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
             });
-            html += `</div><div class="augment-hint">카드 바깥쪽을 눌러 필드를 확인하세요.</div>`;
+            html += `</div><div class="augment-hint">카드 바깥쪽을 눌러 필드를 확인하세요.${isProxy ? '<br>고른 증강은 상대가 쓴 것으로 발동돼요. 대상이나 위치를 정해야 하면 무작위로 정해져요.' : ''}</div>`;
             if (!__AUG_DEMO && !document.body.classList.contains('demo-cards')) {
-                if (!(augKeepDeadline && augDeadline)) augDeadline = Date.now() + AUG_LIMIT_MS;
+                if (!(augKeepDeadline && augDeadline)) augDeadline = Date.now() + augLimitMs(myColor);
                 augKeepDeadline = false; augCtx = { playerColor, enemyColor, options };
-                html = html.replace('<h2>증강 선택</h2>', '<h2>증강 선택</h2><div id="aug-timer" class="aug-timer"><div class="at-track"><i></i></div><span class="at-sec">30s</span></div>');
+                html = html.replace(`<h2>${h2Txt}</h2>`, `<h2>${h2Txt}</h2><div id="aug-timer" class="aug-timer${(augTimeCut && augTimeCut[myColor]) ? ' cut' : ''}"><div class="at-track"><i></i></div><span class="at-sec">${Math.round(augLimitMs(myColor) / 1000)}s</span></div>`);
             }
             overlay.innerHTML = html; overlay.style.display = 'flex'; bindAugInfo(overlay);
 
             document.querySelectorAll('.augment-card').forEach((card, idx) => {
                 card.onclick = () => {
                     if (selectedAugmentIdx === idx) {
+                        if (overlay.dataset.gavel === '1') return;   // 판사봉이 내려치는 중
                         if (currentRoomId && !isBotMode) pushGameAction({ type: 'augment_select', idx: idx, confirmed: true });   // 상대 화면에 '확정'을 보여 준다
-                        overlay.style.display = 'none';
-                        applySelectedAugment(resolveAugmentOptions(options)[idx], playerColor, enemyColor, () => { augKeepDeadline = true; showAugmentCards(playerColor, options); });
+                        const go = () => { overlay.dataset.gavel = ''; overlay.style.display = 'none';
+                            applySelectedAugment(resolveAugmentOptions(options)[idx], playerColor, enemyColor, () => { augKeepDeadline = true; showAugmentCards(playerColor, options); }); };
+                        if (isProxy) { overlay.dataset.gavel = '1'; gavelConfirm(card, go); } else go();
                     } else {
                         selectedAugmentIdx = idx;
                         if (currentRoomId && !isBotMode) pushGameAction({ type: 'augment_select', idx: idx, confirmed: false });   // 상대 화면에 '선택'을 보여 준다
@@ -10342,6 +10823,83 @@
                     selectedCard.classList.add('selected');
                 }
             }
+        }
+
+        // 법정 대리인: 증강을 확정할 때 실제 3D(WebGL) 판사봉이 오른쪽 아래에서 치켜올려졌다가 카드를 '땅' 내리친다.
+        // 고르는 쪽·보는 쪽(상대) 화면 모두에서 같은 연출을 쓴다. three.js를 못 불러오면 연출만 생략하고 바로 진행한다.
+        let __threeP = null;
+        function loadThree() { return __threeP || (__threeP = import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js').catch(() => { __threeP = null; return null; })); }
+        setTimeout(loadThree, 2500);   // 미리 받아 두어 첫 연출이 늦지 않게
+        function gavelWoodTex(THREE) {
+            const c = document.createElement('canvas'); c.width = 512; c.height = 256; const g = c.getContext('2d');
+            const bg = g.createLinearGradient(0, 0, 512, 0); bg.addColorStop(0, '#6e4122'); bg.addColorStop(.5, '#8a5630'); bg.addColorStop(1, '#6a3d20'); g.fillStyle = bg; g.fillRect(0, 0, 512, 256);
+            for (let i = 0; i < 140; i++) { const x = Math.random() * 512, w = .6 + Math.random() * 3.2; g.fillStyle = Math.random() < .55 ? `rgba(40,20,8,${.08 + Math.random() * .22})` : `rgba(210,150,90,${.05 + Math.random() * .12})`; g.fillRect(x, 0, w, 256); }
+            const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.anisotropy = 4; return t;
+        }
+        function gavelConfirm(card, done) {
+            done = done || function () {};
+            const r = card.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+            const cx = r.left + r.width * 0.92, cy = r.top + r.height * 0.93, cw = Math.max(110, Math.min(r.width, 300));   // 타격 지점: 카드의 오른쪽 아래
+            const el = document.createElement('div'); el.className = 'gavel-fx'; document.body.appendChild(el);
+            let finished = false;
+            const finish = () => { if (finished) return; finished = true; el.remove(); card.classList.remove('gavel-hit'); done(); };
+            loadThree().then(THREE => {
+                if (!THREE) { setTimeout(finish, 450); return; }
+                let renderer;
+                try {
+                    // ---- 장면: 1 world unit = 1 css px, 원점은 화면 중앙(y 위쪽) ----
+                    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true }); renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); renderer.setSize(vw, vh); renderer.setClearColor(0x000000, 0);
+                    const cv = renderer.domElement; cv.style.opacity = '0'; el.appendChild(cv);
+                    const scene = new THREE.Scene(), fov = 30, camZ = (vh / 2) / Math.tan(fov * Math.PI / 360);
+                    const cam = new THREE.PerspectiveCamera(fov, vw / vh, 10, camZ * 5); cam.position.set(0, 0, camZ);
+                    scene.add(new THREE.HemisphereLight(0xdfe6ff, 0x20150c, 0.85));
+                    const key = new THREE.DirectionalLight(0xfff0d8, 2.2); key.position.set(-420, 520, 600); scene.add(key);
+                    const rim = new THREE.DirectionalLight(0x8fa4ff, 0.7); rim.position.set(520, -120, 260); scene.add(rim);
+                    const C = { x: cx - vw / 2, y: vh / 2 - cy }, L = cw * 0.98, hit = 0.42;   // 손잡이를 짧게: 끝이 카드 오른쪽 아래에 보인다
+                    const P = { x: C.x + L * Math.sin(hit), y: C.y - L * Math.cos(hit) };   // 손잡이 끝(회전 축)
+                    const HW = cw * 0.78, HD = cw * 0.5, R = HD / 2, h = HW / 2, ec = R * 0.26;   // 짧고 통통한 머리
+                    const gm = new THREE.DataTexture(new Uint8Array([85, 165, 255]), 3, 1, THREE.RedFormat); gm.minFilter = gm.magFilter = THREE.NearestFilter; gm.needsUpdate = true;   // 3단 명암(툰)
+                    const body = new THREE.MeshToonMaterial({ color: 0x2d3350, gradientMap: gm, side: THREE.DoubleSide });
+                    const stripe = new THREE.MeshToonMaterial({ color: 0xe0b441, gradientMap: gm });
+                    const grip = new THREE.MeshToonMaterial({ color: 0x4a5278, gradientMap: gm, side: THREE.DoubleSide });
+                    const V = (a, b) => new THREE.Vector2(a, b);
+                    // 머리: 양끝이 크게 둥근 알약(캡슐) 모양
+                    const hp = [V(0, -h)];
+                    for (let i = 0; i <= 10; i++) { const t = i / 10 * Math.PI / 2; hp.push(V(R - ec + ec * Math.sin(t), -h + ec - ec * Math.cos(t))); }
+                    for (let i = 0; i <= 10; i++) { const t = i / 10 * Math.PI / 2; hp.push(V(R - ec + ec * Math.cos(t), h - ec + ec * Math.sin(t))); }
+                    hp.push(V(0, h));
+                    const headGeo = new THREE.LatheGeometry(hp, 72); headGeo.rotateZ(-Math.PI / 2);
+                    const headM = new THREE.Mesh(headGeo, body); headM.position.y = L;
+                    const inner = new THREE.Group(), pivot = new THREE.Group();
+                    inner.add(headM);
+                    // 황동색 줄무늬 두 개
+                    [-1, 1].forEach(sg => { const tg = new THREE.TorusGeometry(R * 1.0, R * 0.07, 16, 64); tg.rotateY(Math.PI / 2); const tr = new THREE.Mesh(tg, stripe); tr.position.set(sg * h * 0.55, L, 0); inner.add(tr); });
+                    // 손잡이: 짧고 굵은 막대 + 둥근 손잡이 끝
+                    const rg = cw * 0.1, hdp = [];
+                    for (let i = 0; i <= 12; i++) { const u = i / 12; hdp.push(V(rg * (1.0 - .12 * u), (L - R * 0.5) * u)); }
+                    const handle = new THREE.Mesh(new THREE.LatheGeometry(hdp, 40), grip); inner.add(handle);
+                    const knob = new THREE.Mesh(new THREE.SphereGeometry(rg * 1.3, 32, 24), grip); inner.add(knob);
+                    const neck = new THREE.Mesh(new THREE.TorusGeometry(rg * 1.0, rg * 0.28, 16, 40), stripe); neck.rotateX(Math.PI / 2); neck.position.y = L - R - rg * 0.1; inner.add(neck);
+                    inner.rotation.y = -0.5;   // 머리 오른쪽 끝이 살짝 보이도록 돌린다
+                    pivot.add(inner); pivot.position.set(P.x, P.y, 0); scene.add(pivot);
+                    // ---- 링·카드 반응 ----
+                    const rs = cw * 0.55, ring = document.createElement('div'); ring.className = 'gv-ring'; ring.style.cssText = `left:${cx - rs / 2}px;top:${cy - rs / 2}px;width:${rs}px;height:${rs}px;animation-delay:.42s`; el.insertBefore(ring, cv);
+                    setTimeout(() => { card.classList.add('gavel-hit'); try { FX.shake(5, 220); } catch (e) {} }, 480);
+                    // ---- 타임라인 (치켜듦 → 내리침 → 반동 → 사라짐) ----
+                    const D = 1050, deg = Math.PI / 180, lerp = (a, b, p) => a + (b - a) * p;
+                    const seg = (t) => t < .22 ? lerp(58, 36, 1 - Math.pow(1 - t / .22, 3)) : t < .34 ? lerp(36, 40, (t - .22) / .12) : t < .46 ? lerp(40, 0, Math.pow((t - .34) / .12, 2.2)) : t < .55 ? lerp(0, 7, 1 - Math.pow(1 - (t - .46) / .09, 2)) : t < .62 ? lerp(7, 0, Math.pow((t - .55) / .07, 2)) : t < .86 ? 0 : lerp(0, 20, (t - .86) / .14);
+                    const t0 = performance.now();
+                    const frame = now => {
+                        const t = Math.min(1, (now - t0) / D);
+                        pivot.rotation.z = hit - seg(t) * deg;
+                        cv.style.opacity = String(Math.min(1, t / .1, (1 - t) / .14));
+                        renderer.render(scene, cam);
+                        if (t < 1) requestAnimationFrame(frame);
+                        else { try { renderer.dispose(); scene.traverse(o => { if (o.geometry) o.geometry.dispose(); }); } catch (e) {} finish(); }
+                    };
+                    requestAnimationFrame(frame);
+                } catch (e) { try { renderer && renderer.dispose(); } catch (_) {} setTimeout(finish, 300); }
+            });
         }
 
         function applySelectedAugment(selectedAug, pColor, eColor, onCancel) {
@@ -10403,6 +10961,7 @@
                 try { if (pColor === myColor && !isSpectating) capBefore = canCaptureKing(pColor); } catch (e) {}   // 증강 전부터 킹을 잡을 수 있었다면 증강 덕이 아니다
                 try { res = selectedAug.apply(pColor, eColor, target); const { poisoned, blasts, fated } = settleBoard({ fx: false, poison: true, sanitize: true, fateFx: true }); if (poisoned.length) res.t = [...new Set([...(res.t || []), ...poisoned])]; if (fated.length) res.t = [...new Set([...(res.t || []), ...fated])]; res.blasts = [...new Set([...(res.blasts || []), ...blasts])]; if (res.blasts.length) res.t = [...new Set([...(res.t || []), ...res.blasts])]; }
                 finally { var floats = floatLog; floatLog = null; }
+                try { if (proxyPick[pColor] && selectedAug.name !== '법정 대리인') proxyPick[pColor] = null; } catch (e) {}   // 법정 대리인으로 고른 증강이 적용되면 대리 선택은 끝
                 const augWinCheck = () => {   // 내가 쓴 증강으로 상대가 체크메이트 되거나 킹이 사라졌으면 업적 (관전·상대·봇의 증강은 제외)
                     try {
                         if (pColor !== myColor || isSpectating || augWinReported) return;
