@@ -1259,6 +1259,18 @@
         .rp-sug-why .pv-in { overflow: hidden; min-height: 0; }
         .rp-sug-why .pv-in > .pv-row { padding: 2px 0 3px; }
         .rv-sub { margin-left: 6px; font-size: .68rem; font-weight: 700; opacity: .62; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .rp-sug-why .rv-ul { margin: 4px 0 0; padding-left: 18px; } .rp-sug-why .rv-ul li { margin: 3px 0; }
+        .rp-sug-why .deep .tx small { display: block; white-space: normal; margin: 5px 0 0; }
+        .rp-sug-why .rv-rk { padding: 1px 0; } .rp-sug-why .rv-rk.me { color: #fff; font-weight: 600; } .rp-sug-why .rv-rk i { font-style: normal; color: #e8b923; margin-left: 4px; }
+        #rp-aug-detail { display: none !important; }
+        .rp-aug-detail { margin: 6px 2px 0; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,.05); font-size: .74rem; line-height: 1.55; color: #b8b8c4; text-align: left; }
+        .rp-aug-detail { font-size: .8rem; line-height: 1.6; }
+        .rp-aug-detail > div { padding: 7px 0; border-top: 1px solid rgba(255,255,255,.08); }
+        .rp-aug-detail > div:first-child { border-top: 0; padding-top: 0; }
+        .rp-aug-detail b { display: block; color: #f1c40f; margin: 0 0 3px; font-size: .78rem; }
+        .rp-aug-detail .rv-ul { margin: 0; padding-left: 16px; } .rp-aug-detail .rv-ul li { margin: 2px 0; color: #d6d6e0; }
+        .rp-aug-detail small { display: block; margin-top: 3px; color: #8d8da0; }
+        .rp-aug-detail .rv-rk { padding: 1px 0; } .rp-aug-detail .rv-rk.me { color: #fff; font-weight: 700; } .rp-aug-detail .rv-rk i { font-style: normal; color: #e8b923; margin-left: 4px; }
         .rv-sub.rv-why { display: block; margin-top: 2px; white-space: normal; line-height: 1.4; }
         .rp-rv-cur:has(.rv-why) { flex-wrap: wrap; row-gap: 2px; }
         .rp-rv-cur .rv-why { flex-basis: 100%; margin-left: 0; opacity: .8; }
@@ -1402,7 +1414,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.87';
+      var VERSION = 'v3.92';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -1771,6 +1783,7 @@
         </div>
         <div class="rp-review" id="rp-review" style="display:none"><span id="rp-rv-cur" class="rp-rv-cur"></span><span class="rp-rv-btns"><button type="button" id="rp-sug-btn" class="rp-rv-btn sug" style="display:none">추천 수</button><button type="button" id="rp-rv-btn" class="rp-rv-btn">수 평가</button></span></div>
         <div id="rp-sug-why" class="rp-sug-why" style="display:none"></div>
+        <div id="rp-aug-detail" class="rp-aug-detail" style="display:none"></div>
         <div class="rp-seek" id="rp-seek">
             <div class="rp-track"><div class="rp-fill"></div></div>
             <div id="rp-marks"></div>
@@ -4352,13 +4365,19 @@
                         if (piece.type === 'p' && m.c !== c && !tgtPc) epCapture = true;
                         if (options.captures && !tgtPc && !epCapture && !(piece.type === 'p' && m.r === (piece.color === 'w' ? 0 : 7))) continue;   // v3.74: 분석 탐색의 정지 탐색용 — 잡기·승급만 합법 판정
                         let ok = !!(tgtPc && tgtPc.type === 'k' && tgtPc.color !== color);   // 상대 킹을 잡을 수 있으면 내 킹이 체크 상태여도 잡을 수 있다
-                        if (!ok && !kAtt && !epCapture && piece.type !== 'k' && kr >= 0 && r !== kr && c !== kc && Math.abs(r - kr) !== Math.abs(c - kc)) ok = true;
+                        // 운명공동체가 걸린 기물을 잡으면 연결된 짝도 함께 사라진다. 그 짝이 내 킹을 막고 있었다면 이 수는 둘 수 없다(내 킹이 체크가 되므로)
+                        let fP = null;
+                        if (!ok && fateLinks.length) {
+                            const vic = epCapture ? B[r][m.c] : tgtPc, fl = vic && fateLinks.find(x => x[0] === vic.uid || x[1] === vic.uid);
+                            if (fl) { const pu = fl[0] === vic.uid ? fl[1] : fl[0]; for (let pr = 0; pr < 8 && !fP; pr++) for (let pc2 = 0; pc2 < 8; pc2++) { const q = B[pr][pc2]; if (q && q.uid === pu) { if (q.type !== 'k' && q.type !== 'wall' && !(invinciblePieces[q.uid] > 0)) fP = { r: pr, c: pc2, p: q }; break; } } }
+                        }
+                        if (!ok && !fP && !kAtt && !epCapture && piece.type !== 'k' && kr >= 0 && r !== kr && c !== kc && Math.abs(r - kr) !== Math.abs(c - kc)) ok = true;
                         if (!ok) {
                             const epPc = epCapture ? B[r][m.c] : null;
-                            B[m.r][m.c] = piece; B[r][c] = null; if (epCapture) B[r][m.c] = null;   // 임시로 둔다
+                            B[m.r][m.c] = piece; B[r][c] = null; if (epCapture) B[r][m.c] = null; if (fP) B[fP.r][fP.c] = null;   // 임시로 둔다 (운명공동체의 짝도 함께 치운다)
                             const kR = piece.type === 'k' ? m.r : kr, kC = piece.type === 'k' ? m.c : kc;
                             ok = kR === -1 ? true : !this.isSquareAttacked(kR, kC, enemy, B, true);   // 내 수를 둔 뒤의 상태로 합법 여부를 판단한다
-                            B[r][c] = piece; B[m.r][m.c] = tgtPc; if (epCapture) B[r][m.c] = epPc;   // 되돌린다
+                            B[r][c] = piece; B[m.r][m.c] = tgtPc; if (epCapture) B[r][m.c] = epPc; if (fP) B[fP.r][fP.c] = fP.p;   // 되돌린다
                         }
                         if (ok) {
                             const promoRank = piece.color === 'w' ? 0 : 7;
@@ -7192,41 +7211,358 @@
             } else rvSugShow(i);
         }
         { const b = document.getElementById('rp-sug-btn'); if (b) b.onclick = rvSugToggle; }
-        // ---- 증강 선택 평가: 받은 선택지를 각각 가상으로 써 보고, 고른 증강이 얼마나 좋은 선택이었는지 등급과 이유를 보여 준다 ----
-        function rvAugValue(aug, color, enemy) {   // 이 증강을 썼을 때의 판세 점수(color 기준, 대상 지정형은 최선의 대상, 무작위형은 평균)
-            let cands = [null];
-            if (aug.target) { try { cands = aug.target.valid(color, enemy) || []; } catch (e) { cands = []; } if (!cands.length) cands = [null]; cands = shuffle(cands).slice(0, 4); }
-            let best = null, sum = 0, n = 0;
-            for (const t of cands) for (let k = 0; k < (aug.target ? 1 : 2); k++) {
-                const sc = botSimAugment(aug, color, enemy, t, 1); if (sc === null) continue;
-                if (aug.target) { if (best === null || sc > best) best = sc; } else { sum += sc; n++; }
+        // ---- 증강 선택 평가: 상급 봇이 증강을 고를 때와 같은 방식(깊은 시뮬레이션 + 상대의 다음 증강 위험)에 더해,
+        //      기물 손익·기동력·체크·장기 효과를 따로 뽑아 '왜 좋은/나쁜 선택이었는지'를 여러 면에서 설명한다 ----
+        const rvPawns = cp => (Math.abs(cp) / 100).toFixed(1).replace(/\.0$/, '');
+        function rvAugFeat(color, enemy) {   // 지금 판의 특징: 기물 가치 차, 기동력 차, 체크 여부
+            let mat = 0;
+            for (const row of game.board()) for (const p of row) if (p && p.type !== 'k' && p.type !== 'wall') mat += (p.color === color ? 1 : -1) * (BOT_VAL[p.type] || 0);
+            let mob = 0, eChk = false, mChk = false;
+            try { const S = cloneGameState(game); S._turn = color; mob += S.moves().length; eChk = S.in_check(enemy); S._turn = enemy; mob -= S.moves().length; mChk = S.in_check(color); } catch (e) {}
+            return { mat, mob, eChk, mChk };
+        }
+        function rvAugSample(aug, color, enemy, target, depth) {   // 한 번 써 본 결과: 탐색 점수 + 판의 특징
+            const sc = botSimAugment(aug, color, enemy, target, depth); if (sc === null) return null;
+            const snap = botSnapshot(), ubv = updateBoardVisuals; updateBoardVisuals = () => {}; let f = null;
+            try { floatLog = []; const res = aug.apply(color, enemy, target) || {}; settleBoard({ fx: false, poison: true, sanitize: true }); (res.promos || []).forEach(sq => { const p = game.get(sq); if (p && p.type === 'p') { game.remove(sq); game.put({ ...p, type: 'q' }, sq); } }); f = rvAugFeat(color, enemy); }
+            catch (e) {} finally { floatLog = null; updateBoardVisuals = ubv; botRestore(snap); }
+            return { sc, f };
+        }
+        // ---- v3.92: 증강 선택 분석 고도화 ----
+        // ① 분석 모드(BOT.ana)로 돌려 유망주(수퍼 워너비)·덩굴·무적 같은 지속 효과가 평가와 탐색에 들어가게 한다.
+        // ② 광기·강제 이주처럼 '고른 뒤 무작위 칸으로 가는' 증강은 가능한 도착 칸을 하나씩 모두 두어 보고 기댓값·최선·최악을 구한다 (한 번 굴려 본 운에 휘둘리지 않는다).
+        //    광기는 대상(상대 기물)도 전부 훑어 가장 유리한 대상을 찾고, 실제로 고른 대상·실제로 나온 칸을 평균과 견준다 (대상 선택의 질 / 운).
+        // ③ 증강 직후 판에서 곧바로 생기는 잡기·체크메이트·유망주 위협을 읽어 문장으로 풀어 준다 (파도·수레바퀴·광기로 기물이 옮겨진 뒤의 상황 포함).
+        const RV_AUG_DET = new Set(['파도', '운명의 수레바퀴', '진군 명령']);   // 결과가 정해진 증강: 한 번만 두어 본다
+        const rvEulR = w => hasBatchim(w) ? '을' : '를';
+        const rvMean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
+        const rvNewCaps = (list, baseList) => { const had = new Set((baseList || []).map(c => c.from + c.to)); return (list || []).filter(c => !had.has(c.from + c.to)); };
+        function rvAugScore(color, enemy, depth) {   // 증강을 쓴 직후 판(game)을 고르는 쪽(color) 기준 점수로 (botSimAugment의 마지막 단계와 같다)
+            const S = cloneGameState(game), turn = S._turn;
+            if (S.moves().length === 0) return S.in_check(turn) ? (turn === color ? -BOT_MATE : BOT_MATE) : 0;
+            BOT.noise = 0; botSyncMines(); BOT.tt.clear(); BOT.killers = []; BOT.hist = {}; BOT.path = new Set(); BOT.nodes = 0; BOT.abort = false; BOT.deadline = Date.now() + 1500;
+            const v = botSearch(S, depth, -BOT_MATE - 1, BOT_MATE + 1, 0), sc = BOT.abort ? botEvaluate(S) : v;
+            return turn === color ? sc : -sc;
+        }
+        function rvForcedApply(forced, enemy) {   // 광기·강제 이주의 '무작위 도착 칸'을 정해 두고 그대로 적용한다 (aug.apply와 같은 결과)
+            if (forced.tg) { const pc = game.get(forced.tg); if (!pc) throw new Error('no piece'); game.remove(forced.tg); game.put(pc, forced.dest); return { t: [forced.tg, forced.dest] }; }
+            const ks = findPieces(enemy, 'k')[0], kp = ks && game.get(ks); if (!kp) throw new Error('no king');
+            game.remove(ks); game.put(kp, forced.dest); return { t: [ks, forced.dest] };
+        }
+        // 증강(또는 정해 둔 결과)을 가상으로 쓰고 점수·특징·(원하면) 직후 전술 사실을 돌려준다. 판은 곧바로 되돌린다.
+        function rvAugRun(aug, color, enemy, target, forced, depth, opts) {
+            opts = opts || {}; const snap = botSnapshot(), ubv = updateBoardVisuals; updateBoardVisuals = () => {}; let out = null;
+            try {
+                floatLog = [];
+                const res = (forced ? rvForcedApply(forced, enemy) : aug.apply(color, enemy, target)) || {};
+                settleBoard({ fx: false, poison: true, sanitize: true });
+                (res.promos || []).forEach(sq => { const p = game.get(sq); if (p && p.type === 'p') { game.remove(sq); game.put({ ...p, type: 'q' }, sq); } });
+                let sc = rvAugScore(color, enemy, depth);
+                const nm = aug ? aug.name : '';
+                if (nm === '지뢰 찾기' && res.mineSq) sc += botMineValue(cloneGameState(game), res.mineSq, color, enemy);
+                else if (nm === '차원 장벽' && target) sc += botWallValue(cloneGameState(game), color, enemy);
+                out = { sc, res };
+                if (!opts.light) out.f = rvAugFeat(color, enemy);
+                if (opts.facts) out.tac = rvAugTacFacts(color, enemy);
+            } catch (e) { out = null; }
+            finally { floatLog = null; updateBoardVisuals = ubv; botRestore(snap); }
+            return out;
+        }
+        function rvAugForcedScore(color, enemy, forced, depth) { const r = rvAugRun(null, color, enemy, null, forced, depth, { light: true }); return r ? r.sc : null; }
+        function rvAugTacFacts(color, enemy) {   // game = 증강 직후(또는 직전) 판. 곧바로 생기는 이득 잡기·체크메이트·유망주 위협을 읽는다
+            const S = cloneGameState(game), turn = S._turn, T = rvNullTurn(S), mine = turn === color ? S : T, theirs = turn === color ? T : S;
+            const o = { turn, meCaps: [], opCaps: [], meMate: null, opMate: null, pros: [] };
+            try { o.meCaps = rvCapsFor(mine, 150).slice(0, 4); } catch (e) {}
+            try { o.opCaps = rvCapsFor(theirs, 150).slice(0, 4); } catch (e) {}
+            try { o.meMate = rvMateIn1(mine); } catch (e) {}
+            try { o.opMate = rvMateIn1(theirs); } catch (e) {}
+            try {
+                const B = S._board;
+                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+                    const p = B[r][c]; if (!p || p.type !== 'p' || !(prospects[p.uid] > 0)) continue; const sq = rvSqOf(r, c);
+                    const take = X => { try { return X.moves().some(m => m.to === sq && m.captured); } catch (e) { return false; } };
+                    o.pros.push({ sq, color: p.color, rem: prospects[p.uid], mineTake: take(mine), oppTake: take(theirs) });
+                }
+            } catch (e) {}
+            return o;
+        }
+        function rvAugTacText(t1, t0, color, enemy) {   // t1: 증강 뒤, t0: 증강 전 → 증강이 새로 만든 기회와 위협 (문장 끝에 마침표 없음)
+            const PN = RV_PN, fp = g => (g / 100).toFixed(1).replace(/\.0$/, ''), out = { good: [], bad: [] };
+            const meWhen = t1.turn === color ? '곧바로' : '상대가 대응하지 않으면', opWhen = t1.turn === enemy ? '상대가 곧바로' : '내가 대응하지 않으면 상대가';
+            const newMe = rvNewCaps(t1.meCaps, t0.meCaps), newOp = rvNewCaps(t1.opCaps, t0.opCaps), goneOp = rvNewCaps(t0.opCaps, t1.opCaps);
+            if (t1.meMate && !t0.meMate) out.good.push(`${meWhen} ${PN[t1.meMate.pc] || '기물'} ${t1.meMate.from}→${t1.meMate.to}로 체크메이트를 낼 수 있어요`);
+            newMe.slice(0, 2).forEach(c => out.good.push(`${meWhen} 내 ${PN[c.pc]} ${c.from}→${c.to}로 상대 ${PN[c.cap]}${rvEulR(PN[c.cap])} 잡을 수 있어요 (폰 ${fp(c.gain)}개 이득)`));
+            const p0 = new Map((t0.pros || []).map(p => [p.sq, p]));
+            (t1.pros || []).forEach(p => {
+                const b = p0.get(p.sq);
+                if (p.color === enemy && p.mineTake && !(b && b.mineTake)) out.good.push(`상대 유망주 폰(${p.sq}, ${p.rem}수 뒤 퀸)${rvEulR('폰')} ${meWhen} 잡아 승급을 막을 수 있어요`);
+                if (p.color === color && p.oppTake && !(b && b.oppTake)) out.bad.push(`내 유망주 폰(${p.sq})이 잡힐 위험이 생겨요`);
+                if (p.color === color && b && b.oppTake && !p.oppTake) out.good.push(`내 유망주 폰(${p.sq})의 위험이 사라져요`);
+            });
+            if (goneOp.length) out.good.push(`상대의 ${PN[goneOp[0].pc]} ${goneOp[0].from}→${goneOp[0].to} 노림이 사라져요`);
+            if (t1.opMate && !t0.opMate) out.bad.push(`다만 ${opWhen} ${PN[t1.opMate.pc] || '기물'} ${t1.opMate.from}→${t1.opMate.to}로 체크메이트를 낼 수 있어요`);
+            newOp.slice(0, 2).forEach(c => out.bad.push(`다만 ${opWhen} ${PN[c.pc]} ${c.from}→${c.to}로 내 ${PN[c.cap]}${rvEulR(PN[c.cap])} 잡을 수 있어요 (폰 ${fp(c.gain)}개 손해)`));
+            return out;
+        }
+        function rvDistStats(vals) {   // vals: [{ d(도착 칸), raw(점수), v(±1500으로 자른 점수) }] → 기댓값·최선·최악·평균에 가장 가까운 결과
+            const mean = rvMean(vals.map(x => x.v)), sure = vals.every(x => x.raw >= BOT_MATE - 500) ? 1 : vals.every(x => x.raw <= -(BOT_MATE - 500)) ? -1 : 0;
+            let rep = vals[0], bd = vals[0], wd = vals[0];
+            for (const x of vals) { if (Math.abs(x.v - mean) < Math.abs(rep.v - mean)) rep = x; if (x.v > bd.v) bd = x; if (x.v < wd.v) wd = x; }
+            return { n: vals.length, mean: sure ? sure * BOT_MATE : mean, min: wd.v, max: bd.v, rep: rep.d, bestD: bd.d, worstD: wd.d };
+        }
+        // 광기: 대상(적 기물)마다, 도착할 수 있는 모든 빈칸(실제 증강과 같은 '안전한 빈칸')을 하나씩 두어 보고 평균을 낸다.
+        //  1단계 모든 (대상, 칸) 쌍을 얕게 → 2단계 상위 대상과 실제로 고른 대상을 1수 깊이로 → 3단계 최선 대상(과 실제 대상)을 2수 깊이로.
+        function rvMadnessEval(aug, color, enemy, budget, actual) {
+            const tS = Date.now(), el = () => Date.now() - tS, cl = v => botClampV(v);
+            let cands = []; try { cands = aug.target.valid(color, enemy) || []; } catch (e) {} if (!cands.length) return null;
+            cands = cands.slice().sort((a, b) => (BOT_VAL[game.get(b).type] || 0) - (BOT_VAL[game.get(a).type] || 0));   // 값비싼 기물부터 (시간이 모자라도 큰 기물은 본다)
+            const T = [];
+            for (const tg of cands) {
+                if (el() > budget * 0.35 && T.length >= 3 && !(actual && actual.tg === tg)) continue;
+                const pc = game.get(tg); if (!pc) continue;
+                let dests = []; try { dests = getSafeEmptySquares(pc.color, pc.type) || []; } catch (e) {}
+                const vals = []; for (const d of dests) { const raw = rvAugForcedScore(color, enemy, { tg, dest: d }, 0); if (raw !== null) vals.push({ d, raw, v: cl(raw) }); }
+                if (vals.length) { const m = rvMean(vals.map(x => x.v)); T.push({ tg, type: pc.type, vals, mean: m, mean0: m }); }
             }
-            const v = aug.target ? best : (n ? sum / n : null);
-            return v === null ? null : botClampV(v) + (BOT_AUG_BONUS[aug.name] || 0);
+            if (!T.length) return null;
+            T.sort((a, b) => b.mean - a.mean);
+            const deepen = (x, depth, lim) => {   // 모든 도착 칸을 depth로 다시 본다 (시간이 모자라면 바꾸지 않는다)
+                const nv = [];
+                for (const v of x.vals) { if (el() > lim) return false; const raw = rvAugForcedScore(color, enemy, { tg: x.tg, dest: v.d }, depth); nv.push(raw === null ? v : { d: v.d, raw, v: cl(raw) }); }
+                x.vals = nv; x.mean = rvMean(nv.map(z => z.v)); x['mean' + depth] = x.mean; x.depth = depth; return true;
+            };
+            const ax = actual ? T.find(x => x.tg === actual.tg) : null, set = T.slice(0, 3); if (ax && !set.includes(ax)) set.push(ax);
+            for (const x of set) deepen(x, 1, budget * 0.7);
+            const deep = T.filter(x => x.depth >= 1).sort((a, b) => b.mean - a.mean), best = deep[0] || T[0];
+            if (deep.length) { const ok = deepen(best, 2, budget * 0.95); if (ok && ax && ax !== best) deepen(ax, 2, budget); }
+            const res = Object.assign({ tg: best.tg, type: best.type, dests: best.vals.map(v => v.d), all: T.slice(0, 4).map(x => ({ tg: x.tg, type: x.type, mean: x.mean })) }, rvDistStats(best.vals));
+            if (ax) {
+                const d = (best.mean2 !== undefined && ax.mean2 !== undefined) ? 2 : (best.mean1 !== undefined && ax.mean1 !== undefined) ? 1 : 0;
+                res.actTg = ax.tg; res.actType = ax.type; res.actGap = ax === best ? 0 : Math.max(0, best['mean' + d] - ax['mean' + d]);
+                if (actual.dest) { const av = ax.vals.find(v => v.d === actual.dest); if (av) { res.actDest = actual.dest; res.luck = av.v - ax.mean; } }
+            }
+            return res;
+        }
+        function rvKingJumpEval(aug, color, enemy, budget) {   // 강제 이주: 적 킹이 갈 수 있는 인접 빈칸을 모두 두어 본다
+            const ks = findPieces(enemy, 'k')[0]; if (!ks) return null;
+            let dests = []; try { dests = getAdjEmptySquares(ks) || []; } catch (e) {} if (!dests.length) return null;
+            const tS = Date.now(), vals = [];
+            for (const d of dests) { if (vals.length >= 2 && Date.now() - tS > budget) break; const raw = rvAugForcedScore(color, enemy, { king: true, dest: d }, 2); if (raw !== null) vals.push({ d, raw, v: botClampV(raw) }); }
+            return vals.length ? Object.assign({ tg: ks, type: 'k', dests: vals.map(v => v.d) }, rvDistStats(vals)) : null;
+        }
+        function rvMadProfile(row, color, enemy, t0f, budget) {   // 가장 유리한 대상의 도착 칸마다 '곧바로 생기는 이득 잡기'를 세어, 칸 수로 말해 준다
+            if (!row.mad || !t0f) return null;
+            const tS = Date.now(); let n = 0, goodMe = 0, badMe = 0;
+            for (const d of row.mad.dests) {
+                if (Date.now() - tS > budget) break;
+                const forced = row.mad.tg && row.name === '광기' ? { tg: row.mad.tg, dest: d } : { king: true, dest: d };
+                const r = rvAugRun(row.aug, color, enemy, null, forced, 0, { light: true, facts: true }); if (!r || !r.tac) continue; n++;
+                if ((r.tac.meMate && !t0f.meMate) || rvNewCaps(r.tac.meCaps, t0f.meCaps).length) goodMe++;
+                if ((r.tac.opMate && !t0f.opMate) || rvNewCaps(r.tac.opCaps, t0f.opCaps).length) badMe++;
+            }
+            return n >= 3 ? { n, goodMe, badMe } : null;
+        }
+        function rvAugOption(aug, color, enemy, nextEnemy, before, budget, actual) {
+            const tS = Date.now(), over = () => Date.now() - tS > budget, FD = 2; let best = null;   // FD: 선택지끼리 견주는 기본 탐색 깊이
+            if (aug.name === '광기' && aug.target) {
+                const R = rvMadnessEval(aug, color, enemy, budget, actual);
+                if (R) { const rep = rvAugRun(aug, color, enemy, null, { tg: R.tg, dest: R.rep }, 0, {}); best = { sc: R.mean, f: rep ? rep.f : before, target: R.tg, mad: R, forced: { tg: R.tg, dest: R.rep } }; }
+            } else if (aug.name === '강제 이주') {
+                const R = rvKingJumpEval(aug, color, enemy, budget);
+                if (R) { const rep = rvAugRun(aug, color, enemy, null, { king: true, dest: R.rep }, 0, {}); best = { sc: R.mean, f: rep ? rep.f : before, target: null, mad: R, forced: { king: true, dest: R.rep } }; }
+            }
+            if (!best && aug.target) {   // 놓을 자리가 필요한 증강: 후보를 얕게 훑고 상위 몇 곳을 깊이 본다 (상급 봇과 같은 순서)
+                let cands = []; try { cands = aug.target.valid(color, enemy) || []; } catch (e) {} if (!cands.length) cands = [null];
+                if (cands.length > 24) { const at = actual && actual.tg, keep = at && cands.includes(at) ? [at] : []; cands = keep.concat(shuffle(cands).filter(x => x !== at)).slice(0, 24); }
+                const first = []; for (const t of cands) { if (over() && first.length) break; const r = rvAugRun(aug, color, enemy, t, null, 1, {}); if (r) first.push({ t, r }); }
+                first.sort((x, y) => y.r.sc - x.r.sc);
+                for (const x of first.slice(0, 3)) { const r = over() ? x.r : rvAugRun(aug, color, enemy, x.t, null, FD, {}); if (r && (!best || r.sc > best.sc)) best = { sc: r.sc, f: r.f, target: x.t }; }
+                if (best && aug.name === '수퍼 워너비' && actual && actual.tg && cands.includes(actual.tg)) {   // 실제로 고른 폰이 얼마나 좋은 자리였는가
+                    const ar = actual.tg === best.target ? { sc: best.sc } : rvAugRun(aug, color, enemy, actual.tg, null, FD, { light: true });
+                    if (ar) best.act = { tg: actual.tg, sc: ar.sc };
+                }
+            } else if (!best) {   // 무작위 요소가 있을 수 있는 증강은 여러 번 써 보고 평균 (결과가 정해진 증강은 한 번만)
+                const det = RV_AUG_DET.has(aug.name), rs = [];
+                for (let i = 0; i < (det ? 1 : 6) && !(over() && rs.length); i++) { const r = rvAugRun(aug, color, enemy, null, null, FD, {}); if (r) rs.push(r); }
+                if (rs.length) { const av = k => rs.reduce((x, r) => x + (r.f ? r.f[k] : before[k]), 0) / rs.length; best = { sc: rvMean(rs.map(r => r.sc)), f: { mat: av('mat'), mob: av('mob'), eChk: rs.some(r => r.f && r.f.eChk), mChk: rs.some(r => r.f && r.f.mChk) }, target: null }; }
+            }
+            if (!best) return null;
+            if (!best.f) best.f = before;
+            let rk = null; if (nextEnemy) { try { rk = botAugRiskAfterAug(aug, color, enemy, best.target, 250, best.forced ? () => rvForcedApply(best.forced, enemy) : null); } catch (e) { rk = null; } }   // 이어서 상대가 받을 증강의 기대 피해(음수일수록 위험)
+            const lt = rvAugLong(aug, color, enemy, best.target); return { name: aug.name, aug, sc: best.sc, f: best.f, rk, lt, bonus: (BOT_AUG_BONUS[aug.name] || 0) + lt.v, rand: (!aug.target && !RV_AUG_DET.has(aug.name)) || !!best.mad, det: RV_AUG_DET.has(aug.name), target: best.target, forced: best.forced || null, mad: best.mad || null, act: best.act || null };
+        }
+        // v3.93: 판 평가에 안 잡히는 장기 효과(아기는 어떻게 태어나? 등)와 '어디에 쓰는가'를 말로 풀어 준다
+        function rvAugLong(aug, color, enemy, target) {
+            try {
+                if (aug.name === '아기는 어떻게 태어나?') {
+                    const k = findPieces(color, 'k')[0], q = findPieces(color, 'q')[0];
+                    if (!k || !q) return { v: -150, t: '킹이나 퀸이 없어서 탄생 효과가 거의 없어요' };
+                    const adj = Math.max(Math.abs(k.charCodeAt(0) - q.charCodeAt(0)), Math.abs(+k[1] - +q[1])) <= 1, n = adj ? 4 : 2;
+                    return { v: Math.round(n * 136 * 0.8) + 60, t: `8수 동안 킹·퀸이 ${adj ? '붙어 있어서' : '모이면'} 새 기물이 약 ${n}번 태어나요 (폰 약 ${(n * 1.36 * 0.8).toFixed(1)}개 가치) + 축복으로 킹·퀸이 보호돼요` };
+                }
+                if (aug.name === '수퍼 워너비' && typeof target === 'string') {
+                    const S = cloneGameState(game), hit = botMoveReach(S, enemy, target) > 0, pr = hit ? 0.45 : 0.8, gain = BOT_VAL.q - BOT_VAL.p;
+                    const v = Math.round(gain * pr) - botProspectBonus(9);   // 탐색 평가가 이미 반영한 유망주 보너스는 뺀다
+                    return { v: Math.max(0, v), t: `9수 뒤 ${target} 폰이 퀸으로 승급해요 (폰 약 ${(gain / 100).toFixed(1)}개 가치 상승, ${hit ? '지금은 상대가 잡을 수 있어 생존 가능성은 절반 정도' : '상대가 잡을 수 없어 생존 가능성이 높아요'})` };
+                }
+            } catch (e) {}
+            return { v: 0, t: '' };
+        }
+        function rvTgtText(row, color, enemy) {   // 위치·대상을 정하는 증강: 짧은 이름, '~하는 것' 문장, 근거 문장들
+            const sq = row.target; if (!sq || typeof sq !== 'string') return null;
+            const ob = hasBatchim(row.name) ? '을' : '를';
+            try {
+                if (row.name === '지뢰 찾기') {
+                    const S = cloneGameState(game), er = botMoveReach(S, enemy, sq), mr = botMoveReach(S, color, sq);
+                    return { short: `${sq} 설치`, phrase: `${row.name}${ob} ${sq}에 설치하는 것`, bits: [
+                        er > 0 ? `상대 기물이 ${sq}로 이동할 수 있어서 밟으면 파괴돼요 (닿는 기물 가치 폰 ${er.toFixed(1)}개)` : `상대가 닿지 않는 ${sq} 길목에 묻어 이동을 막아요`,
+                        mr > 0 ? `내 기물도 ${sq}에 닿으니 조심해야 해요` : `내 기물은 ${sq}에 닿지 않아 안전해요`] };
+                }
+                if (row.name === '수퍼 워너비') {
+                    const hit = botMoveReach(cloneGameState(game), enemy, sq) > 0;
+                    return { short: `${sq} 폰`, phrase: `${row.name}${ob} ${sq} 폰에 붙이는 것`, bits: [
+                        `${sq} 폰이 9수 뒤 그 자리에서 바로 퀸이 돼요 (폰 → 퀸, 폰 약 ${((BOT_VAL.q - BOT_VAL.p) / 100).toFixed(1)}개 가치 상승)`,
+                        hit ? `다만 ${sq} 폰을 지금 상대 기물이 잡을 수 있어서 지켜야 해요` : `지금은 상대가 ${sq} 폰을 잡을 수 없어서 9수 동안 지키기 쉬워요`] };
+                }
+                if (row.name === '차원 장벽') {
+                    const d = Math.round(row.f.mob - 0);
+                    return { short: `${sq} 설치`, phrase: `${row.name}${ob} ${sq}에 세우는 것`, bits: [`${sq}에 세워 내 기동력은 지키고 상대 이동 범위를 좁혀요`] };
+                }
+            } catch (e) {}
+            return null;
         }
         function rvAugEval(f, i) {
             const prev = replayFrames[i - 1]; if (!prev || !prev.s || !f.offered || f.offered.length < 2 || !f.by) return null;
-            const color = f.by, enemy = color === 'w' ? 'b' : 'w', snap = botSnapshot(), sv = { mc: moveCount, pa: pendingAugments, ao: activeAugmentOptions, ap: activeAugmentPlayerColor, si: selectedAugmentIdx };
+            const color = f.by, enemy = color === 'w' ? 'b' : 'w', nx = replayFrames[i + 1], nextEnemy = !!(nx && nx.kind === 'augment' && nx.by === enemy);
+            const snap = botSnapshot(), sv = { mc: moveCount, pa: pendingAugments, ao: activeAugmentOptions, ap: activeAugmentPlayerColor, si: selectedAugmentIdx }, hidden = mines;
+            const svBot = { ana: BOT.ana, owner: BOT.mineOwner, seen: BOT.seen };
             try {
-                deserializeGameState(prev.s, true);
-                const rows = [];
-                for (const nm of f.offered) { const aug = AUGMENT_POOL.find(a => a.name === nm); if (!aug) continue; const v = rvAugValue(aug, color, enemy); if (v !== null) rows.push({ name: nm, v }); }
+                BOT.ana = true; BOT.mineOwner = color; BOT.seen = new Map();   // 분석 모드(유망주·덩굴 평가), 고르는 쪽이 아는 지뢰, 실전 기록과 무관한 반복 판정
+                deserializeGameState(prev.s, true); botSyncMines();
+                const before = rvAugFeat(color, enemy), base = botStaticValue(color), rows = [];
+                const tAll = Date.now(), TOTAL = 4200, offered = f.offered.map(nm => AUGMENT_POOL.find(a => a.name === nm)).filter(Boolean);
+                const wOf = a => a.name === '광기' ? 2.4 : (a.target ? 1.3 : 1); let wLeft = offered.reduce((s, a) => s + wOf(a), 0);
+                let t0f = null; try { t0f = rvAugTacFacts(color, enemy); } catch (e) {}
+                const actual = (f.name === '광기' && Array.isArray(f.t) && f.t.length >= 2) ? { tg: f.t[0], dest: f.t[1] } : (f.name === '수퍼 워너비' && Array.isArray(f.t) && f.t.length) ? { tg: f.t[0] } : null;
+                for (const aug of offered) {
+                    const remain = Math.max(500, TOTAL - (Date.now() - tAll)), budget = Math.max(380, remain * wOf(aug) / Math.max(1, wLeft)); wLeft -= wOf(aug);
+                    const r = rvAugOption(aug, color, enemy, nextEnemy, before, budget, aug.name === f.name ? actual : null); if (r) rows.push(r);
+                }
                 const me = rows.find(r => r.name === f.name); if (!me || rows.length < 2) return null;
-                const top = rows.reduce((a, b) => b.v > a.v ? b : a), diff = top.v - me.v, base = botStaticValue(color), gain = me.v - base;
-                const jp = (w, a, b) => hasBatchim(w) ? a : b, ro = w => { const b = hasBatchim(w); return (b === 0 || b === 8) ? '로' : '으로'; }, pw = Math.max(1, Math.round(diff / 100));
-                let c, why;
-                if (top.v >= BOT_MATE - 500 && me.v < BOT_MATE - 500) { c = 'miss'; why = `${top.name}${ro(top.name)} 체크메이트를 낼 수 있었어요.`; }
-                else if (diff <= 30) { c = 'best'; why = gain >= 150 ? `판세를 폰 ${Math.max(1, Math.round(gain / 100))}개 가치만큼 끌어올리는, 선택지 중 가장 좋은 증강이에요.` : gain <= -50 ? '모든 선택지가 불리했지만 가장 덜 나쁜 증강이에요.' : '이번 선택지 중 가장 효과가 큰 증강이에요.'; }
-                else if (diff <= 150) { c = 'good'; why = `${top.name}${jp(top.name, '이', '가')} 폰 ${pw}개 가치만큼 더 유리했지만, 이 증강도 충분히 좋은 선택이에요.`; }
-                else if (diff <= 350) { c = 'inaccuracy'; why = `${top.name}${jp(top.name, '을', '를')} 골랐다면 판세가 폰 ${pw}개 가치만큼 더 좋아졌어요.`; }
-                else { c = 'mistake'; why = `${top.name}${jp(top.name, '이', '가')} 폰 ${pw}개 가치만큼 더 유리했어요. 이 증강은 지금 판에서 ${gain <= 0 ? '오히려 불리해지거나 효과가 거의 없어요' : '얻는 이득이 작아요'}.`; }
-                return { c, why };
-            } finally { botRestore(snap); moveCount = sv.mc; pendingAugments = sv.pa; activeAugmentOptions = sv.ao; activeAugmentPlayerColor = sv.ap; selectedAugmentIdx = sv.si; }
+                const rks = rows.filter(r => r.rk !== null).map(r => r.rk), avgRk = rks.length ? rks.reduce((x, y) => x + y, 0) / rks.length : 0;
+                rows.forEach(r => { r.rkv = r.rk === null ? avgRk : r.rk; r.total = r.sc + r.bonus + (nextEnemy ? 0.6 * r.rkv : 0); });
+                rows.sort((x, y) => y.total - x.total);
+                // 대상을 잘못 골랐다면 그만큼 깎는다 (광기: 대상별 평균 차이, 수퍼 워너비: 실제로 고른 폰과 최선 폰의 점수 차이)
+                const penalty = me.mad ? (me.mad.actGap || 0) : (me.act ? Math.max(0, me.sc - me.act.sc) : 0), meTotal = me.total - penalty;
+                const top = rows[0], diff = top.total - meTotal, gain = me.total - base;
+                const jp = (w, a, b) => hasBatchim(w) ? a : b, ro = w => { const k = hasBatchim(w); return (k === 0 || k === 8) ? '로' : '으로'; }, nm = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'), pn = t => RV_PN[t] || '기물';   // v3.92: esc는 이 범위에 정의돼 있지 않아 ReferenceError가 났다 → 로컬 이스케이프 함수
+                const rel = v => { const d = v - base; return (d >= 0 ? '+' : '−') + rvPawns(d); };
+                // 직후 전술 사실(고른 증강·최선 증강): 결과가 정해진 증강, 광기·강제 이주(평균에 가까운 예), 수퍼 워너비만 읽는다
+                const needTac = row => {
+                    if (row.tacDone) return row.tac; row.tacDone = true; row.tac = null;
+                    try {
+                        if (!t0f || !(row.det || row.forced || row.target || row.name === '수퍼 워너비')) return null;
+                        const r = row.forced ? rvAugRun(row.aug, color, enemy, null, row.forced, 0, { light: true, facts: true }) : rvAugRun(row.aug, color, enemy, row.target || null, null, 0, { light: true, facts: true });
+                        if (r && r.tac) row.tac = rvAugTacText(r.tac, t0f, color, enemy);
+                    } catch (e) {}
+                    return row.tac;
+                };
+                const tacMe = needTac(me), tacTop = top !== me ? needTac(top) : null;
+                const tgOf = r => { if (!r.tgDone) { r.tgDone = true; r.tgv = rvTgtText(r, color, enemy); } return r.tgv; }, tgMe = tgOf(me), tgTop = top !== me ? tgOf(top) : null;
+                const actName = r => { const t = tgOf(r); return t ? t.phrase : nm(r.name); }, subj = r => { const t = tgOf(r); return t ? t.phrase + '이' : nm(r.name) + jp(r.name, '이', '가'); };
+                const others = rows.filter(r => r !== me), othRk = others.length ? others.reduce((x, r) => x + r.rkv, 0) / others.length : 0, st = [];
+                // 고른 증강의 장점 (선택 전 판 대비)
+                if (me.f.mat - before.mat >= 120) st.push(`기물 가치를 폰 ${rvPawns(me.f.mat - before.mat)}개만큼 늘려요`);
+                if (me.f.eChk && !before.eChk) st.push('상대 킹에 체크를 걸어 압박해요');
+                if (me.f.mob - before.mob >= 6) st.push('내 기동력을 늘리고 상대 기동력은 줄여요');
+                if (me.mad) { const dm = me.mad.mean - base; if (Math.abs(dm) >= 100) st.push(`무작위 이동의 평균 결과가 폰 ${rvPawns(dm)}개 ${dm > 0 ? '이득' : '손해'}예요`); }
+                else if (tacMe) tacMe.good.slice(0, 2).forEach(s => st.push(s));
+                if (nextEnemy && me.rkv - othRk >= 80) st.push('이어서 상대가 받을 증강의 피해를 줄여 줘요');
+                if (me.lt && me.lt.v >= 100) st.push(me.lt.t);
+                if (tgMe) tgMe.bits.slice(0, 2).forEach(x => st.push(x));
+                if (me.bonus - (me.lt ? me.lt.v : 0) >= 40) st.push('시간이 지날수록 이득이 커지는 장기 효과가 있어요');
+                if (me.f.mChk && !before.mChk) st.push('다만 내 킹이 체크에 놓여 위험해져요');
+                if (tacMe && !me.mad) tacMe.bad.slice(0, 1).forEach(s => st.push(s));
+                // 최선과의 차이를 만든 요인들: 직후 전술 · 장기 효과 · 대상 · 기물/기동력 · 상대 증강 순으로 근거를 모은다
+                const bn = r => r.bonus - (r.lt ? r.lt.v : 0);
+                const gaps = [
+                    { v: top.f.mat - me.f.mat, t: `기물 손익에서 폰 ${rvPawns(top.f.mat - me.f.mat)}개 가치만큼 앞서요` },
+                    { v: (top.f.mob - me.f.mob) * 5, t: '내 기동력은 늘리고 상대 기동력은 더 줄여요' },
+                    { v: (top.f.eChk && !me.f.eChk) ? 80 : 0, t: '상대 킹을 바로 압박해요' },
+                    { v: nextEnemy ? 0.6 * (top.rkv - me.rkv) : 0, t: '이어서 상대가 받는 증강의 피해를 더 줄여요' },
+                    { v: bn(top) - bn(me), t: '시간이 지날수록 커지는 장기 효과가 더 커요' }
+                ].filter(g => g.v >= 40).sort((x, y) => y.v - x.v);
+                const whyAll = [];
+                if (top !== me) {
+                    if (tacTop && tacTop.good.length) whyAll.push(tacTop.good[0]);
+                    if (top.lt && top.lt.v - (me.lt ? me.lt.v : 0) >= 80) whyAll.push(top.lt.t);
+                    if (tgTop && tgTop.bits.length) whyAll.push(tgTop.bits[0]);
+                }
+                gaps.slice(0, 2).forEach(g => whyAll.push(g.t));
+                if (!whyAll.length) whyAll.push(`2수 앞까지 계산한 판세가 폰 ${rvPawns(diff)}개 가치만큼 더 높아요`);
+                const why3 = whyAll.slice(0, 3), topWhy = why3[0];
+
+                // 대상 고르기 설명 (광기·수퍼 워너비)
+                let tNote = '';
+                if (me.mad && me.mad.actGap >= 40 && me.mad.actTg) tNote = `상대 ${pn(me.mad.actType)} ${me.mad.actTg} 대신 ${pn(me.mad.type)} ${me.mad.tg}${rvEulR(pn(me.mad.type))} 골랐다면 평균 폰 ${rvPawns(me.mad.actGap)}개 더 좋았어요`;
+                else if (me.act && penalty >= 40 && me.target) tNote = `${me.act.tg} 칸의 폰 대신 ${me.target} 칸의 폰을 골랐다면 폰 ${rvPawns(penalty)}개 가치만큼 더 좋았어요`;
+                let c, head;
+                if (top.sc >= BOT_MATE - 500 && me.sc < BOT_MATE - 500) { c = 'miss'; head = `${nm(top.name)}${ro(top.name)} 체크메이트를 낼 수 있었어요.`; }
+                else if (diff <= 30) { c = 'best'; head = st.length ? st.slice(0, 2).join(', ') + '. 선택지 중 가장 좋았어요.' : '눈에 띄는 즉시 효과는 작지만 선택지 중에서는 가장 나아요.'; }
+                else if (top === me) {   // 증강 선택은 맞았지만 대상이 아쉬웠다
+                    c = diff <= 150 ? 'good' : diff <= 350 ? 'inaccuracy' : 'mistake';
+                    head = `${nm(me.name)} 자체는 좋은 선택이었지만 대상 고르기가 ${c === 'good' ? '조금 ' : ''}아쉬웠어요${tNote ? ': ' + tNote : ''}.`;
+                }
+                else if (diff <= 150) { c = 'good'; head = `${nm(me.name)}보다 ${subj(top)} 조금 더 좋았지만 이 증강도 충분해요.`; }
+                else if (diff <= 350) { c = 'inaccuracy'; head = `${nm(me.name)}보다 ${subj(top)} 더 좋았어요: ${topWhy}.`; }
+                else { c = 'mistake'; head = `${nm(me.name)}보다 ${subj(top)} 훨씬 좋았어요: ${topWhy}.`; }
+                // 상세 분석 줄
+                const ctx = base >= 300 ? `내가 폰 ${rvPawns(base)}개 가치만큼 앞선 상태` : base <= -300 ? `내가 폰 ${rvPawns(base)}개 가치만큼 뒤진 상태` : '비슷한 판세';
+                const lines = [`<b>증강 전 판세</b> ${ctx}`];
+                lines.push(`<b>고른 증강: ${actName(me)}</b>` + (st.length ? `<ul class="rv-ul">${st.map(x => `<li>${x}</li>`).join('')}</ul>` : '눈에 띄는 즉시 효과는 작아요'));
+                // 무작위 이동 증강: 가능한 결과의 분포와 실제 결과
+                const madLine = row => {
+                    const R = row.mad; if (!R) return ''; let s;
+                    if (row.name === '광기') s = `최적 대상은 상대 ${pn(R.type)} ${R.tg} — 도착 가능 ${R.n}곳 평균 ${rel(R.mean)} (최선 ${R.bestD} ${rel(R.max)} · 최악 ${R.worstD} ${rel(R.min)})`;
+                    else s = `상대 킹이 갈 수 있는 ${R.n}곳 평균 ${rel(R.mean)} (최선 ${R.bestD} ${rel(R.max)} · 최악 ${R.worstD} ${rel(R.min)})`;
+                    try { const pf = rvMadProfile(row, color, enemy, t0f, 450); if (pf) s += `<small>도착 칸 ${pf.n}곳 중 내게 곧바로 이득 잡기가 생기는 곳 ${pf.goodMe}곳 · 상대에게 생기는 곳 ${pf.badMe}곳</small>`; } catch (e) {}
+                    return s;
+                };
+                if (me.mad) { const t = madLine(me); if (t) lines.push(`<b>${nm(me.name)} 분석</b> ${t}`); }
+                if (me.mad && me.mad.actDest) {
+                    const R = me.mad, lk = R.luck, lt = lk === undefined ? '' : lk >= 80 ? ` · 평균보다 폰 ${rvPawns(lk)}개 좋은 결과였어요 (운이 따랐어요)` : lk <= -80 ? ` · 평균보다 폰 ${rvPawns(lk)}개 나쁜 결과였어요 (운이 아쉬웠어요)` : ' · 평균과 비슷한 결과였어요';
+                    lines.push(`<b>실제 결과</b> 상대 ${pn(R.actType)} ${R.actTg}→${R.actDest}${lt}`);
+                }
+                if (tNote) { if (top !== me) lines.push(`<b>대상 선택</b> ${tNote}`); }
+                else if (me.mad && me.mad.actTg && me.mad.actGap < 40) lines.push('<b>대상 선택</b> 대상도 가장 좋은 쪽으로 골랐어요');
+                if (tacMe && (tacMe.good.length || tacMe.bad.length) && me.mad) lines.push(`<b>평균에 가까운 예(${me.mad.tg}→${me.mad.rep})</b> ${tacMe.good.concat(tacMe.bad).slice(0, 3).join(' · ')}`);
+                else if (tacMe && (tacMe.good.length || tacMe.bad.length)) lines.push(`<b>증강 직후 상황</b> ${tacMe.good.concat(tacMe.bad).slice(0, 3).join(' · ')}`);
+                if (c !== 'best') {
+                    lines.push(`<b>더 좋았던 선택: ${actName(top)}</b><ul class="rv-ul">${why3.map(x => `<li>${x}</li>`).join('')}</ul><small>2수 앞까지 계산한 판세 ${rel(top.total)} (고른 증강 ${rel(meTotal)})</small>`);
+                    if (top !== me && top.mad) { const t = madLine(top); if (t) lines.push(`<b>${nm(top.name)} 분석</b> ${t}`); }
+                    if (top !== me && tacTop && (tacTop.good.length || tacTop.bad.length)) lines.push(`<b>${nm(top.name)} 직후 상황</b> ${tacTop.good.concat(tacTop.bad).slice(0, 3).join(' · ')}`);
+                }
+                if (base >= 300) lines.push('<b>상황</b> 앞서 있을 때는 상대의 역전 증강을 막고 이득을 굳히는 선택이 유리해요.');
+                else if (base <= -300) lines.push('<b>상황</b> 불리할 때는 변수가 큰 증강으로 판을 흔드는 선택이 필요해요.');
+                if (me.rand) lines.push('<b>참고</b> 무작위 효과가 있는 증강이라 실제 결과는 분석과 다를 수 있어요.');
+                lines.push('<b>선택지 순위</b>' + rows.map((r, k) => { const t = tgOf(r); return `<div class="rv-rk${r === me ? ' me' : ''}">${k + 1}위 ${nm(r.name)}${t ? ' · ' + t.short : ''}${r.rand ? '*' : ''} <i>${rel(r.total)}</i>${r === me ? ' ← 선택' : ''}</div>`; }).join('') + (rows.some(r => r.rand) ? ' <small>(*는 무작위 결과의 평균)</small>' : ''));
+                return { c, head, lines };
+            } finally { BOT.ana = svBot.ana; BOT.mineOwner = svBot.owner; BOT.seen = svBot.seen; botRestore(snap); moveCount = sv.mc; pendingAugments = sv.pa; activeAugmentOptions = sv.ao; activeAugmentPlayerColor = sv.ap; selectedAugmentIdx = sv.si; mines = hidden; }
         }
         const RV_AUG_LABEL = { best: '최고의 선택', good: '좋은 선택', inaccuracy: '아쉬운 선택', mistake: '나쁜 선택', miss: '놓친 승리' };
-        function rvPaintAug(cur, av) {
-            const info = av && RV[av.c]; if (!info) { cur.textContent = ''; return; }
-            cur.innerHTML = `<span class="rv-ic">${info.svg}</span><b style="color:${info.color}">${RV_AUG_LABEL[av.c] || info.label}</b><span class="rv-sub rv-why">${av.why}</span>`;
+        function rvAugWhyHide() { const w = document.getElementById('rp-sug-why'); if (w && w.dataset.aug) { delete w.dataset.aug; w.style.display = 'none'; w.innerHTML = ''; w.classList.remove('more'); } }
+        function rvPaintAug(cur, av) {   // v3.93: 수 분석과 같은 틀 — 위 줄은 아이콘+평가, 설명은 같은 패널(#rp-sug-why)의 .blk 블록으로
+            const why = document.getElementById('rp-sug-why'), info = av && RV[av.c];
+            if (!info) { cur.textContent = ''; rvAugWhyHide(); return; }
+            cur.innerHTML = `<span class="rv-ic">${info.svg}</span><b style="color:${info.color}">${RV_AUG_LABEL[av.c] || info.label}</b>`;
+            if (!why) return;
+            const good = av.c === 'best' || av.c === 'good';
+            let h = `<div class="blk ${good ? 'good' : 'bad'}"><b>평가 요약</b><div>${av.head}</div></div>`;
+            av.lines.forEach(l => { const m = /^<b>(.*?)<\/b>([\s\S]*)$/.exec(l); h += m ? `<div class="blk"><b>${m[1]}</b><div class="deep"><span class="tx">${m[2].trim()}</span></div></div>` : `<div class="blk"><div class="deep"><span class="tx">${l}</span></div></div>`; });
+            why.innerHTML = h; why.dataset.aug = '1'; why.scrollTop = 0; why.style.display = '';
+            try { rvWhyLink(why); } catch (e) {}   // 칸 이름은 파랗게, 누르면 판에서 강조
+            why.onclick = e => { const q = e.target && e.target.closest ? e.target.closest('.sq-ref') : null; if (q) rvSqHl(q.dataset.sq, q.dataset.kind); };
+            try { window.dispatchEvent(new Event('resize')); } catch (e) {}
         }
         function rvShowAugBadge(f, cur) {
             if (!f.offered || f.offered.length < 2) { cur.textContent = ''; return; }
@@ -7240,6 +7576,7 @@
         }
         function replayShowBadge(f) {   // 지금 장면이 '수'라면 그 수의 평가를 보드(도착 칸)와 아래 줄에 표시
             rvClearBadges();
+            rvAugWhyHide();
             const cur = document.getElementById('rp-rv-cur'); if (!cur) return;
             const info = f && f.kind === 'move' && f.rv && RV[f.rv.c] ? RV[f.rv.c] : null;
             rvSugUpdateBtn(f);
@@ -9047,7 +9384,8 @@
         }
 
         // 지금 둘 차례의 최선 수를 찾는다. opts: { timeMs, maxDepth, spread(센티폰: 최선과 이 차이 안의 수 중 무작위), fixedDepth }
-        function botSyncMines() { const bc = BOT.ana ? game.turn() : (myColor === 'w' ? 'b' : 'w');   // v3.83: 분석에서는 수를 둘 차례인 쪽(복기 대상)이 아는 지뢰 = 자기가 묻은 지뢰
+        function botSyncMines() { const bc = BOT.mineOwner || (BOT.ana ? game.turn() : (myColor === 'w' ? 'b' : 'w'));   // v3.92: BOT.mineOwner가 있으면 그 쪽이 아는 지뢰(증강 선택 분석용)
+               // v3.83: 분석에서는 수를 둘 차례인 쪽(복기 대상)이 아는 지뢰 = 자기가 묻은 지뢰
              BOT.mineSet = new Set(mines.filter(x => x.owner === bc).map(x => x.sq)); }   // 봇은 자기가 묻은 지뢰만 안다 (상대 지뢰는 보지 못한다)
         function botFindMove(opts) {   // v3.74: opts.ana(분석 전용 탐색: 가지치기·빠른 합법 판정), opts.stopFrac(다음 깊이를 시작하는 시간 한도 비율)
             if (opts.ana === undefined) return botFindMoveRaw(opts);
@@ -9761,11 +10099,11 @@
             finally { botRestore(snap); botSyncMines(); mines = hidden; }
         }
         // 봇이 증강(대상 target)을 쓴 직후 사람의 증강 기대 피해
-        function botAugRiskAfterAug(aug, color, enemy, target, budgetMs) {
+        function botAugRiskAfterAug(aug, color, enemy, target, budgetMs, custom) {
             const snap = botSnapshot(), ubv = updateBoardVisuals; updateBoardVisuals = () => {};
             const hidden = mines; mines = mines.filter(x => x.owner === color);
             try {
-                floatLog = []; const res = aug.apply(color, enemy, target) || {};
+                floatLog = []; const res = (custom ? custom() : aug.apply(color, enemy, target)) || {};
                 settleBoard({ fx: false, poison: true, sanitize: true });
                 (res.promos || []).forEach(sq => { const p = game.get(sq); if (p && p.type === 'p') { game.remove(sq); game.put({ ...p, type: 'q' }, sq); } });
                 if (game.moves().length === 0) return 0;
