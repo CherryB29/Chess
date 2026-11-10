@@ -134,6 +134,8 @@
         .piece-struggle svg { animation: pieceStruggle 0.4s ease; }
         @keyframes pieceStruggle { 0%, 100% { translate: 0 0; } 20% { translate: -4px 0; } 40% { translate: 4px 0; } 60% { translate: -3px 0; } 80% { translate: 2px 0; } }
         @media (prefers-reduced-motion: reduce) { .piece-rooted::after { animation: none; } }
+        .piece-wrapper.balloon-nudge { animation: balloonNudge 1s ease-out; }
+        @keyframes balloonNudge { 0%, 100% { filter: drop-shadow(0 0 0 rgba(255,200,60,0)); } 30% { filter: drop-shadow(0 0 7px rgba(255,200,60,.95)) drop-shadow(0 0 14px rgba(255,160,40,.7)); } 65% { filter: drop-shadow(0 0 4px rgba(255,200,60,.6)); } }
         .piece-invincible { filter: drop-shadow(0 0 10px gold) brightness(1.2) !important; }
 
         .dot { position: absolute; width: 12.5%; height: 12.5%; display: flex; justify-content: center; align-items: center; pointer-events: none; }
@@ -743,6 +745,7 @@
         .balloon-fly, .balloon-dust { position: absolute; left: 0; top: 0; width: 12.5%; height: 12.5%; pointer-events: none; z-index: 9; }
         .balloon-fly .bf { position: absolute; left: 11%; width: 78%; height: 65.5%; top: var(--bt); transform-origin: 50% 97%; animation: balloonFly var(--dur) cubic-bezier(.4, 0, .75, .9) var(--dl) both; }
         .balloon-fly .bf svg { display: block; width: 100%; height: 100%; overflow: visible; filter: none; }
+        .black-pov .balloon-fly, .black-pov .balloon-dust { rotate: 180deg; }   /* 검은 시점: 판이 뒤집혀 있어도 풍선은 화면 위로, 먼지도 위로 */
         @keyframes balloonFly { 0% { transform: translate(0, 0) rotate(0deg); opacity: 1; } 14% { transform: translate(0, 5%) rotate(0deg); opacity: 1; } 70% { opacity: 1; } 100% { transform: translate(var(--dx), -760%) rotate(var(--rt)); opacity: 0; } }
         .balloon-dust i { position: absolute; left: 50%; bottom: 6%; width: 36%; height: 36%; margin-left: -18%; border-radius: 50%; opacity: 0; background: radial-gradient(circle at 38% 34%, rgba(255,255,255,.96) 0%, rgba(233,226,212,.92) 50%, rgba(200,190,170,0) 74%); animation: balloonDust var(--dur) ease-out var(--dl) forwards; }
         @keyframes balloonDust { 0% { transform: translate(0, 0) scale(.25); opacity: 0; } 14% { opacity: .95; } 100% { transform: translate(var(--tx), var(--ty)) scale(var(--s)); opacity: 0; } }
@@ -1086,6 +1089,62 @@
         /* v3.39: PLAY 탭(매치메이킹 / 실시간 전투) + 관전 */
         #ms-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
         #ms-tabs button { flex: 1; padding: 9px; border: 1px solid var(--panel-border); border-radius: 10px; background: transparent; color: var(--text-color); font-weight: 700; font-size: 0.9rem; cursor: pointer; }
+        .pr-card { margin: 0 0 14px; padding-bottom: 14px; border-bottom: 1px solid var(--panel-border); } .pr-card:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
+        .pr-desc { font-size: .8rem; color: #999; line-height: 1.5; margin-top: -4px; padding: 0 4px; text-align: left; }
+        #practice-tools { display: none; flex: 1 1 auto; min-width: 0; flex-direction: column; gap: 6px; }
+        body.practice-mode #game-controls > :not(#practice-tools) { display: none !important; }
+        body.practice-mode #practice-tools { display: flex; }
+        body.practice-mode .progress-container { display: none; }
+        .pt-status { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; min-height: 32px; }
+        .pt-chip { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; height: 32px; border-radius: 999px; border: 1px solid var(--panel-border); background: rgba(128,128,128,.14); color: var(--text-color); font-weight: 700; font-size: .72rem; cursor: pointer; white-space: nowrap; }
+        .pt-chip i { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid #888; display: inline-block; } .pt-chip i.w { background: #fff; border-color: #000; } .pt-chip i.b { background: #222; border-color: #eee; }
+        .pt-chip.fog { background: rgba(255,200,40,.16); border-color: rgba(230,170,0,.65); color: #c58a00; }
+        .pt-chip.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .pt-chip.exit { color: var(--danger); width: 32px; padding: 0; justify-content: center; font-size: .9rem; }
+        .pt-chip .x { margin-left: 2px; padding: 0 2px; opacity: .75; }
+        .pt-sp { flex: 1 1 0; }
+        .pt-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 3px; border-radius: 12px; background: rgba(128,128,128,.16); }
+        .pt-seg button { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 0; border: 0; border-radius: 9px; background: transparent; color: var(--text-color); font-weight: 800; font-size: .84rem; cursor: pointer; }
+        .pt-seg button .ico { width: 15px; height: 15px; }
+        .pt-seg button.on { background: var(--primary); color: #fff; }
+        .pt-play { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+        .pt-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 54px; padding: 7px 2px 6px; border-radius: 12px; border: 1px solid var(--panel-border); background: transparent; color: var(--text-color); font-weight: 700; font-size: .68rem; cursor: pointer; white-space: nowrap; }
+        .pt-btn .ico { width: 20px; height: 20px; }
+        .pt-btn.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .pt-btn.hot { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .pt-btn.danger { color: var(--danger); }
+        .pt-btn:disabled { opacity: .35; cursor: default; }
+        .pt-btn:not(:disabled):active { transform: scale(.96); }
+        .pt-edit { display: none; flex-direction: column; gap: 6px; }
+        body.practice-editing .pt-edit { display: flex; } body.practice-editing .pt-play { display: none; }
+        .pt-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+        .pt-btn.mini { min-height: 46px; padding: 5px 0 4px; font-size: .62rem; gap: 2px; border-radius: 10px; }
+        .pt-btn.mini .ico { width: 17px; height: 17px; }
+        .pt-pal { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+        .pt-pal button { aspect-ratio: 1; padding: 3px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(128,128,128,.16); cursor: pointer; }
+        .pt-pal button svg { width: 100%; height: 100%; display: block; }
+        .pt-pal button.sel { outline: 2px solid var(--primary); background: rgba(243,156,18,.28); }
+        .pt-hint { font-size: .72rem; color: #999; text-align: center; min-height: 1.1em; }
+        body.practice-editing #board .square { cursor: crosshair; }
+        #board .square.pt-sel { box-shadow: inset 0 0 0 3px var(--primary); }
+        #practice-aug-overlay .pa-box, #practice-set-overlay .pa-box { width: min(400px, calc(100% - 20px)); }
+        .pa-side { display: flex; gap: 6px; margin-bottom: 8px; }
+        .pa-side button { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--panel-border); background: transparent; color: var(--text-color); font-weight: 700; cursor: pointer; }
+        .pa-side button.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+        #pa-search { margin: 0 0 8px; }
+        .pa-cats { display: flex; gap: 6px; overflow-x: auto; padding: 0 0 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .pa-cats::-webkit-scrollbar { display: none; }
+        .pa-cats button { flex: 0 0 auto; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--panel-border); background: transparent; color: var(--text-color); font-weight: 700; font-size: .78rem; cursor: pointer; }
+        .pa-cats button.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .pa-count { font-size: .72rem; color: #999; margin: 0 2px 6px; text-align: right; }
+        .pa-list { max-height: min(44vh, 380px); overflow-y: auto; display: flex; flex-direction: column; gap: 6px; text-align: left; padding-right: 2px; }
+        .pa-row { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--panel-border); background: rgba(128,128,128,.1); color: var(--text-color); cursor: pointer; text-align: left; }
+        .pa-row.off { opacity: .4; }
+        .pa-ic { flex: 0 0 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .pa-ic svg { width: 100%; height: 100%; }
+        .pa-tx { min-width: 0; display: flex; flex-direction: column; gap: 2px; } .pa-tx b { font-size: .92rem; } .pa-tx small { font-size: .72rem; color: #999; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        #practice-set-overlay .s-row { text-align: left; }
+        .pa-empty { padding: 24px 0; color: #999; font-size: .85rem; text-align: center; }
         #ms-tabs button.active { background: var(--primary); border-color: var(--primary); color: #fff; }
         .ms-pane { max-height: min(56vh, 440px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 0 4px 2px 0; box-sizing: border-box; }
         #live-head { display: flex; align-items: center; justify-content: space-between; margin: 2px 2px 10px; font-size: 0.85rem; color: #999; }
@@ -1839,6 +1898,7 @@
                 <div id="dots-layer" class="layer"></div>
                 <div id="premove-layer" class="layer"></div>
                 <div id="pieces-layer" class="layer" style="pointer-events: none;"></div>
+                <div id="dots-top" class="layer" aria-hidden="true"></div>
                 <div id="coord-layer" class="layer" aria-hidden="true"></div>
                 <canvas id="fx-canvas" class="layer"></canvas>
                 <div id="vfx-global-layer"></div>
@@ -1858,6 +1918,33 @@
     <div id="chat-log" aria-label="채팅 기록"></div>
     <div id="chat-spacer"></div>
     <div id="game-controls">
+        <div id="practice-tools">
+            <div class="pt-status" id="pt-status"></div>
+            <div class="pt-seg">
+                <button type="button" id="pt-tab-play" class="on"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg>플레이</button>
+                <button type="button" id="pt-tab-edit"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>배치 편집</button>
+            </div>
+            <div class="pt-play">
+                <button type="button" class="pt-btn" id="pt-undo" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>되돌리기</button>
+                <button type="button" class="pt-btn" id="pt-redo" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/></svg>다시</button>
+                <button type="button" class="pt-btn hot" id="pt-aug"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>증강 사용</button>
+                <button type="button" class="pt-btn" id="pt-pass"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>턴 넘기기</button>
+                <button type="button" class="pt-btn" id="pt-set"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>설정</button>
+            </div>
+            <div class="pt-edit">
+                <div class="pt-row">
+                    <button type="button" class="pt-btn mini on" id="pt-tool-move"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>이동</button>
+                    <button type="button" class="pt-btn mini" id="pt-erase"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>지우개</button>
+                    <button type="button" class="pt-btn mini" id="pt-undo2" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>되돌리기</button>
+                    <button type="button" class="pt-btn mini" id="pt-redo2" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/></svg>다시</button>
+                    <button type="button" class="pt-btn mini" id="pt-std"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a9 9 0 1 0 2.1-9.4L1 10"/></svg>기본 배치</button>
+                    <button type="button" class="pt-btn mini danger" id="pt-clear"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>모두 비움</button>
+                </div>
+                <div class="pt-pal" id="pt-pal-w"></div>
+                <div class="pt-pal" id="pt-pal-b"></div>
+                <div class="pt-hint" id="pt-hint"></div>
+            </div>
+        </div>
         <div id="emote-popup">
             <span class="emote-btn">👍</span>
             <span class="emote-btn">👎</span>
@@ -1947,10 +2034,48 @@
         </div>
     </div>
 
+    <div id="practice-aug-overlay" class="overlay" style="display: none; z-index: 160;">
+        <div class="lobby-box pa-box">
+            <h2>증강 사용</h2>
+            <div class="pa-side"><button type="button" id="pa-side-w">백이 사용</button><button type="button" id="pa-side-b">흑이 사용</button></div>
+            <input type="text" id="pa-search" class="lobby-input" placeholder="이름·설명으로 검색" autocomplete="off">
+            <div class="pa-cats" id="pa-cats"></div>
+            <div class="pa-count" id="pa-count"></div>
+            <div class="pa-list" id="pa-list"></div>
+            <button type="button" id="pa-close" class="lobby-btn secondary" style="margin-top: 12px;">닫기</button>
+        </div>
+    </div>
+
+    <div id="practice-set-overlay" class="overlay" style="display: none; z-index: 160;">
+        <div class="lobby-box pa-box">
+            <h2>연습 설정</h2>
+            <div class="s-row">
+                <div class="s-txt"><b>전지적 시점</b><small>암전이 걸려도 안개 없이 모든 기물을 봅니다</small></div>
+                <label class="switch"><input type="checkbox" id="ps-omni"><span class="slider round"></span></label>
+            </div>
+            <div class="s-row">
+                <div class="s-txt"><b>자동 시점</b><small>차례가 바뀌면 그 차례인 쪽 시점으로 보드를 돌립니다</small></div>
+                <label class="switch"><input type="checkbox" id="ps-auto"><span class="slider round"></span></label>
+            </div>
+            <button type="button" id="ps-clearfx" class="lobby-btn secondary" style="margin-top: 12px;">남은 증강 효과 모두 해제</button>
+            <button type="button" id="ps-close" class="lobby-btn" style="margin-top: 8px;">닫기</button>
+        </div>
+    </div>
+
     <div id="mode-select-overlay" class="overlay" style="display: none; z-index: 150;">
         <div class="lobby-box ms-box">
             <h2>PLAY</h2>
-            <div id="ms-tabs"><button id="ms-tab-match" type="button" class="active">매치메이킹</button><button id="ms-tab-live" type="button">실시간 전투</button></div>
+            <div id="ms-tabs"><button id="ms-tab-practice" type="button">연습</button><button id="ms-tab-match" type="button" class="active">매치메이킹</button><button id="ms-tab-live" type="button">실시간 전투</button></div>
+            <div id="ms-pane-practice" class="ms-pane" style="display: none;">
+                <div class="pr-card">
+                    <button id="btn-show-bot-diff" class="lobby-btn secondary"><svg class="ico-sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 13h.01M15 13h.01M9 17h6"/></svg> 컴퓨터 대전</button>
+                    <div class="pr-desc">난이도를 골라 컴퓨터와 한 판 겨뤄요. 증강도 정상적으로 나와요.</div>
+                </div>
+                <div class="pr-card">
+                    <button id="btn-practice-mode" class="lobby-btn"><svg class="ico-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 연습 모드</button>
+                    <div class="pr-desc">기물을 자유롭게 배치·이동하고, 원하는 증강을 골라 써 볼 수 있어요. 시점을 바꾸면 암전 같은 시야 효과도 그대로 보여요. 되돌리기 · 다시하기 · 턴 넘기기 지원.</div>
+                </div>
+            </div>
             <div id="ms-pane-match" class="ms-pane">
                 <div id="online-count" style="color: var(--primary); font-size: 1rem; font-weight: bold; margin-bottom: 6px; min-height: 1.2rem;">접속자: 0명</div>
                 <div id="queue-status" style="font-size: 0.85rem; color: #999; margin-bottom: 14px; min-height: 1.1rem;"></div>
@@ -1972,9 +2097,6 @@
                         <div style="font-size: 0.85rem; color: #999;">친구가 입장하면 바로 시작돼요 · 기다리는 중…</div>
                         <button id="btn-close-room" style="margin-top: 8px; background: none; border: none; color: #888; text-decoration: underline; cursor: pointer; font-size: 0.9rem;">방 닫기</button>
                     </div>
-                </div>
-                <div style="margin-top: 20px; border-top: 1px solid var(--panel-border); padding-top: 20px;">
-                    <button id="btn-show-bot-diff" class="lobby-btn secondary"><svg class="ico-sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 13h.01M15 13h.01M9 17h6"/></svg> 컴퓨터와 연습</button>
                 </div>
             </div>
             <div id="ms-pane-live" class="ms-pane" style="display: none;">
@@ -2313,7 +2435,7 @@
         const db = getDatabase(app);
 
         let myUid = null; let myColor = null; let currentRoomId = null; let isGameStarted = false;
-        let isBotMode = false; let botDifficulty = '하';
+        let isBotMode = false; let botDifficulty = '하'; let isPracticeMode = false;   // 연습 모드: 자유 배치·증강 체험 (증강 단계·게임 종료 없음)
         let statsRecorded = false; 
         let rankCtx = null, lastRank = null;   // 랭킹: 대전 시작 시점의 두 사람 점수 / 마지막 판의 점수 변동
         let userProfile = { name: "Guest", icon: "👤", stats: { w:0, l:0, d:0 }, score: 0 };
@@ -2954,12 +3076,13 @@
 
         // ---- PLAY 탭: 매치메이킹 / 실시간 전투 ----
         function selectMsTab(name) {
-            document.getElementById('ms-tab-match').classList.toggle('active', name === 'match');
-            document.getElementById('ms-tab-live').classList.toggle('active', name === 'live');
-            document.getElementById('ms-pane-match').style.display = name === 'match' ? '' : 'none';
-            document.getElementById('ms-pane-live').style.display = name === 'live' ? '' : 'none';
+            ['practice', 'match', 'live'].forEach(n => {
+                document.getElementById('ms-tab-' + n).classList.toggle('active', n === name);
+                document.getElementById('ms-pane-' + n).style.display = n === name ? '' : 'none';
+            });
             if (name === 'live') startLiveList(); else stopLiveList();
         }
+        document.getElementById('ms-tab-practice').addEventListener('click', () => selectMsTab('practice'));
         document.getElementById('ms-tab-match').addEventListener('click', () => selectMsTab('match'));
         document.getElementById('ms-tab-live').addEventListener('click', () => selectMsTab('live'));
         function stopLiveList() {
@@ -3158,14 +3281,14 @@
         function openSettings() { selectSettingsTab(settingsTab); try { renderAccount(auth.currentUser); markSelectedEmoji(); } catch (e) {} settingsOverlay.style.display = 'flex'; }
         document.querySelectorAll('#settings-overlay .stab').forEach(b => b.addEventListener('click', () => selectSettingsTab(b.dataset.tab)));
         const openMenu = () => document.body.classList.add('menu-open'), closeMenu = () => document.body.classList.remove('menu-open');
-        const syncLeaveItem = () => { const b = document.getElementById('btn-menu-leave'); if (b) b.style.display = (isBotMode && isGameStarted && !isSpectating) ? '' : 'none'; };   // 컴퓨터 대국 중에만 보인다
+        const syncLeaveItem = () => { const b = document.getElementById('btn-menu-leave'); if (b) b.style.display = ((isBotMode || isPracticeMode) && isGameStarted && !isSpectating) ? '' : 'none'; };   // 컴퓨터 대국 중에만 보인다
         document.getElementById('btn-settings').addEventListener('click', () => { syncLeaveItem(); openMenu(); });
         document.getElementById('btn-settings-game').addEventListener('click', () => { syncLeaveItem(); openMenu(); });
         document.getElementById('btn-menu-leave').addEventListener('click', async () => {
             closeMenu();
-            if (!isBotMode || !isGameStarted) return;
-            if (!(await askConfirm('컴퓨터 대국에서 나가시겠어요? 이 판은 기록되지 않습니다.', { ok: '나가기', danger: true }))) return;
-            if (!isBotMode || !isGameStarted) return;
+            if (!(isBotMode || isPracticeMode) || !isGameStarted) return;
+            if (!(await askConfirm(isPracticeMode ? '연습 모드에서 나가시겠어요?' : '컴퓨터 대국에서 나가시겠어요? 이 판은 기록되지 않습니다.', { ok: '나가기', danger: true }))) return;
+            if (!(isBotMode || isPracticeMode) || !isGameStarted) return;
             specSession++;   // 진행 중이던 수 처리·연출이 나간 뒤에 이어지지 않게 끊는다
             document.getElementById('augment-overlay').style.display = 'none';
             document.getElementById('btn-return-lobby').onclick();
@@ -4277,6 +4400,7 @@
             await cancelMatchmaking(); // 안전 장치
             mainLobbyOverlay.style.display = 'flex'; 
             setLobbyMsg(""); isGameStarted = false; currentRoomId = null; isBotMode = false;
+            if (isPracticeMode) { isPracticeMode = false; practiceEditing = false; practiceTool = null; practiceHist = []; document.body.classList.remove('practice-mode', 'practice-editing'); document.getElementById('practice-aug-overlay').style.display = 'none'; if (targeting) { clearTargetVisuals(); targeting = null; } }
             activeAugmentOptions = null;
             activeAugmentPlayerColor = null;
             clearRoomSession();
@@ -4404,7 +4528,22 @@
             in_check(color = this._turn) {
                 let kr = -1, kc = -1;
                 for (let r=0; r<8; r++) for (let c=0; c<8; c++) { const p = this._board[r][c]; if (p && p.type === 'k' && p.color === color) { kr = r; kc = c; break; } }
-                if (kr === -1) return false; return this.isSquareAttacked(kr, kc, color === 'w' ? 'b' : 'w');
+                if (kr === -1) { const h = this.hiddenKing(color); if (h && h.cnt <= 1) return this.isSquareAttacked(h.r, h.c, color === 'w' ? 'b' : 'w'); return false; }   // 업: 풍선이 이번 수 끝에 내려오면 숨은 킹이 드러난다
+                return this.isSquareAttacked(kr, kc, color === 'w' ? 'b' : 'w');
+            }
+            // 업: 내 풍선 기물 아래에 깔려 숨어 있는 킹 (없으면 null). cnt = 풍선이 내려오기까지 남은 수 (1이면 이번 수 직후, 2면 상대 수 직후)
+            hiddenKing(color) {
+                for (const sq in balloonUnder) { const en = balloonUnder[sq]; if (en && en.piece && en.piece.type === 'k' && en.piece.color === color && balloons[en.uid] > 0) { const rc = this.sqToRC(sq); return { r: rc.r, c: rc.c, sq, fuid: en.uid, cnt: balloons[en.uid], king: en.piece }; } }
+                return null;
+            }
+            // 업: 풍선 기물이 내 킹 위로 올라가면, 풍선이 내려올 때 풍선 기물은 사라지고 킹이 다시 드러난다. 그때 킹이 잡히거나(1수 남음) 체크메이트(2수 남음)면 그 수는 둘 수 없다
+            balloonLandSafe(r, c, m, king, enemy, cnt) {
+                const B = this._board, orig = B[r][c], at = B[m.r][m.c]; let safe = true;
+                B[r][c] = null; B[m.r][m.c] = king;
+                try {
+                    if (this.isSquareAttacked(m.r, m.c, enemy, B, true)) safe = cnt <= 1 ? false : this.moves().length > 0;
+                } finally { B[r][c] = orig; B[m.r][m.c] = at; }
+                return safe;
             }
 
             getPseudoLegalMoves(r, c, piece, boardState, attackOnly = false) {
@@ -4465,6 +4604,7 @@
             moves(options = {}) {
                 let legalMoves = []; const color = this._turn, enemy = color === 'w' ? 'b' : 'w', B = this._board; let squaresToCheck = [];
                 let kr = -1, kc = -1; for (let rr = 0; rr < 8 && kr < 0; rr++) for (let cc = 0; cc < 8; cc++) { const q = B[rr][cc]; if (q && q.type === 'k' && q.color === color) { kr = rr; kc = cc; break; } }
+                const hidK = kr < 0 ? this.hiddenKing(color) : null;   // 업: 풍선 기물 아래 숨은 내 킹
                 const kAtt = (options.fast && kr >= 0) ? this.isSquareAttacked(kr, kc, enemy, B, true) : true;   // v3.74: 분석 전용 빠른 합법 판정 — 킹이 공격받지 않고 킹과 일직선이 아닌 기물의 수는 검사를 건너뛴다
                 if (options.square) squaresToCheck.push(Object.assign(this.sqToRC(options.square), { under: !!options.under }));
                 else for (let r=0; r<8; r++) for(let c=0; c<8; c++) if(this._board[r][c] && this._board[r][c].color === color) squaresToCheck.push({r, c});
@@ -4482,6 +4622,7 @@
                             if (rights.q && this.castleOk(color, 'q') && (!this._board[r][3] || this._board[r][3].type !== 'wall') && (!this._board[r][2] || this._board[r][2].type !== 'wall') && !this._board[r][3] && !this._board[r][2] && !this._board[r][1] && !this.isSquareAttacked(r, 3, color==='w'?'b':'w', undefined, true) && !this.isSquareAttacked(r, 2, color==='w'?'b':'w', undefined, true)) pseudoMoves.push({ r: r, c: 2, flags: 'q' });
                         }
                     }
+                    let kr2 = kr, kc2 = kc; if (hidK && !um && (piece.uid === hidK.fuid || hidK.cnt <= 1)) { kr2 = hidK.r; kc2 = hidK.c; }   // 풍선 기물이 킹 위에서 움직이면 킹이 드러나고, 1수 남았다면 어떤 수든 직후에 드러난다
                     for (let pi = 0; pi < pseudoMoves.length; pi++) {
                         const m = pseudoMoves[pi], tgtPc = B[m.r][m.c];
                         let epCapture = false; const fl = balloons[piece.uid] > 0;   // 풍선 기물은 잡지 못한다(올라설 뿐)
@@ -4494,14 +4635,21 @@
                             const vic = epCapture ? B[r][m.c] : tgtPc, fl = vic && fateLinks.find(x => x[0] === vic.uid || x[1] === vic.uid);
                             if (fl) { const pu = fl[0] === vic.uid ? fl[1] : fl[0]; for (let pr = 0; pr < 8 && !fP; pr++) for (let pc2 = 0; pc2 < 8; pc2++) { const q = B[pr][pc2]; if (q && q.uid === pu) { if (q.type !== 'k' && q.type !== 'wall' && !(invinciblePieces[q.uid] > 0)) fP = { r: pr, c: pc2, p: q }; break; } } }
                         }
-                        if (!ok && !fP && !kAtt && !epCapture && piece.type !== 'k' && kr >= 0 && r !== kr && c !== kc && Math.abs(r - kr) !== Math.abs(c - kc)) ok = true;
+                        if (!ok && !fP && !kAtt && !epCapture && piece.type !== 'k' && kr2 >= 0 && r !== kr2 && c !== kc2 && Math.abs(r - kr2) !== Math.abs(c - kc2)) ok = true;
                         if (!ok) {
                             const epPc = epCapture ? B[r][m.c] : null;
                             B[m.r][m.c] = piece; B[r][c] = um ? origAt : null; if (epCapture) B[r][m.c] = null; if (fP) B[fP.r][fP.c] = null;   // 임시로 둔다 (운명공동체의 짝도 함께 치운다)
-                            const kR = piece.type === 'k' ? m.r : kr, kC = piece.type === 'k' ? m.c : kc;
+                            const kR = piece.type === 'k' ? m.r : kr2, kC = piece.type === 'k' ? m.c : kc2;
                             ok = kR === -1 ? true : !this.isSquareAttacked(kR, kC, enemy, B, true);   // 내 수를 둔 뒤의 상태로 합법 여부를 판단한다
                             B[r][c] = origAt; B[m.r][m.c] = tgtPc; if (epCapture) B[r][m.c] = epPc; if (fP) B[fP.r][fP.c] = fP.p;   // 되돌린다
                         }
+                        if (ok && hidK && !um && hidK.cnt === 2 && piece.uid !== hidK.fuid) {   // 풍선이 상대 수 직후 내려와 킹이 드러난다: 그때 체크메이트가 되는 수는 둘 수 없다
+                            const sv = [B[m.r][m.c], B[r][c], B[hidK.r][hidK.c]];
+                            B[m.r][m.c] = piece; B[r][c] = null; B[hidK.r][hidK.c] = hidK.king;
+                            try { if (this.isSquareAttacked(hidK.r, hidK.c, enemy, B, true) && this.moves().length === 0) ok = false; }
+                            finally { B[m.r][m.c] = sv[0]; B[r][c] = sv[1]; B[hidK.r][hidK.c] = sv[2]; }
+                        }
+                        if (ok && fl && !um && tgtPc && tgtPc.type === 'k' && tgtPc.color === color && balloons[piece.uid] <= 2) ok = this.balloonLandSafe(r, c, m, tgtPc, enemy, balloons[piece.uid]);
                         if (ok) {
                             const promoRank = piece.color === 'w' ? 0 : 7;
                             const isPromo = piece.type === 'p' && m.r === promoRank;
@@ -4546,7 +4694,7 @@
             }
             in_checkmate() { return this.in_check() && this.moves({ withUnder: true }).length === 0; }
             in_draw() { return !this.in_check() && this.moves({ withUnder: true }).length === 0; }
-            game_over() { return this.in_checkmate() || this.in_draw() || this.is_game_over; }
+            game_over() { return this.is_game_over || (!isPracticeMode && (this.in_checkmate() || this.in_draw())); }   // 연습 모드는 메이트여도 끝나지 않는다
             set_game_over() { this.is_game_over = true; }
         }
 
@@ -4569,7 +4717,7 @@
         const squaresLayer = document.getElementById('squares-layer'); const piecesLayer = document.getElementById('pieces-layer');
         const dotsLayer = document.getElementById('dots-layer'); const vfxGlobalLayer = document.getElementById('vfx-global-layer');
         const boardEl = document.getElementById('board'); const turnDisplayEl = document.getElementById('turn-display');
-        const AUG_LIMIT_MS = 30000; const augLimitMs = c => [30000, 20000, 10000][Math.min(2, (augTimeCut && augTimeCut[c]) || 0)]; let augDeadline = 0, augKeepDeadline = false, augCtx = null, oppAugDeadline = 0;
+        const AUG_LIMIT_MS = 30000; const augLimitMs = c => [30000, 15000, 8000][Math.min(2, (augTimeCut && augTimeCut[c]) || 0)]; let augDeadline = 0, augKeepDeadline = false, augCtx = null, oppAugDeadline = 0;
         let gameStartTs = 0, gameEndTs = 0;   // 경기 시간(mm:ss): 시작 시각은 상태에 저장되어 재접속·관전 때도 이어진다
         function clockText() {
             if (!isGameStarted || (replayActive && replayMode !== 'live')) return '';
@@ -4608,7 +4756,7 @@
               load: rp => (rp && rp.color !== undefined) ? { w: rp.color === 'w' ? rp.duration : 0, b: rp.color === 'b' ? rp.duration : 0 } : (rp || { w: 0, b: 0 }) },   // 이전 저장 형식 호환
             { key: 'reversedUids', init: () => ({ w: {}, b: {} }), get: () => reversedUids, set: v => { reversedUids = v; } },
             { key: 'jackpotBonus', init: () => ({ w: 0, b: 0 }), get: () => jackpotBonus, set: v => { jackpotBonus = v; } },
-            { key: 'augTimeCut', init: () => ({ w: 0, b: 0 }), get: () => augTimeCut, set: v => { augTimeCut = v; } },   // 시간 도둑: 색별로 줄어든 증강 선택 시간 단계(0=30초, 1=20초, 2=10초)
+            { key: 'augTimeCut', init: () => ({ w: 0, b: 0 }), get: () => augTimeCut, set: v => { augTimeCut = v; } },   // 시간 도둑: 색별로 줄어든 증강 선택 시간 단계(0=30초, 1=15초, 2=8초)
             { key: 'proxyPick', init: () => ({ w: null, b: null }), get: () => proxyPick, set: v => { proxyPick = v; } },   // 법정 대리인: proxyPick[c] = c의 다음 증강을 대신 고르는 색
             { key: 'lastKiller', init: () => ({ w: null, b: null }), get: () => lastKiller, set: v => { lastKiller = v; } },
             { key: 'babyEffect', init: () => ({ w: null, b: null }), get: () => babyEffect, set: v => { babyEffect = v; },
@@ -4661,11 +4809,13 @@
 
         function updateTurnIndicator() {
             if (replayActive && replayMode === 'live') return;   // 이전 수를 보는 동안에도 현재 턴 표시는 그대로
+            if (isPracticeMode && !targeting && !augBusy) myColor = game.turn();   // 연습 모드: 차례인 쪽이 곧 '나'
             const wt = game.turn() === 'w';
             turnDisplayEl.className = 'turn-indicator ' + (wt ? 'white-turn' : 'black-turn');
-            const mine = !isSpectating && game.turn() === myColor;
-            turnDisplayEl.innerHTML = `<span class="ti-side">${isSpectating ? (wt ? '백' : '흑') : (mine ? '내 차례' : '상대 차례')}</span><span class="ti-time">${clockText()}</span>`;   // 차례 색은 테두리(흰/검)로 보인다
+            const mine = !isSpectating && !isPracticeMode && game.turn() === myColor;
+            turnDisplayEl.innerHTML = `<span class="ti-side">${(isSpectating || isPracticeMode) ? (wt ? '백' : '흑') : (mine ? '내 차례' : '상대 차례')}</span><span class="ti-time">${clockText()}</span>`;   // 차례 색은 테두리(흰/검)로 보인다
             turnDisplayEl.classList.toggle('my-turn', mine);
+            if (isPracticeMode) { try { practiceStatus(); if (practiceAuto && !practiceEditing) practiceAutoPov(); } catch (e) {} }
         }
 
         // v3.84: 벽의 주인(만든 쪽). 새 벽은 기록돼 있고, 예전 기록은 리플레이에서 '차원 장벽' 증강 장면을 거슬러 찾는다
@@ -4770,12 +4920,15 @@
         }
 
         function drawDots() {
+            const dotsTop = document.getElementById('dots-top'); if (dotsTop) dotsTop.innerHTML = '';   // 기물 위에 그려야 하는 점(풍선 기물이 올라설 수 있는 칸)
             dotsLayer.innerHTML = ''; dotsLayer.style.zIndex = isFogOn() ? '2' : '';   // 암전 안개(z-index 1) 위로 점을 올린다
             const __mp = selectedSquare ? game.get(selectedSquare) : null, __floating = !!(__mp && balloons[__mp.uid] > 0);   // 풍선 기물은 잡지 않고 올라설 뿐이라 빨간 원을 쓰지 않는다
             legalMoves.forEach(move => {
                 const coords = getCoords(move.to); const el = document.createElement('div');
                 if (!isFogOn() && !__floating && (game.get(move.to) || move.captured)) el.className = 'capture-ring'; else el.className = 'dot';
-                el.style.left = `${coords.x}%`; el.style.top = `${coords.y}%`; dotsLayer.appendChild(el);
+                el.style.left = `${coords.x}%`; el.style.top = `${coords.y}%`;
+                // 풍선(업) 기물은 잡지 않고 올라서므로, 기물이 있는 칸에도 주황 점이 보이도록 기물 위 레이어에 그린다
+                (__floating && dotsTop && el.className === 'dot' && game.get(move.to) ? dotsTop : dotsLayer).appendChild(el);
             });
             squareList.forEach(s => s.classList.remove('selected'));
             if(selectedSquare) squareEls.get(selectedSquare).classList.add('selected');
@@ -6344,7 +6497,7 @@
         // 암전 중에는 상대 기물이 보이지 않아도 "어디서 어디로" 움직였는지 화살표로 드러낸다 (기물 종류는 가려진 채)
         function updateMoveTrail() {
             let svg = document.getElementById('move-trail'), on = false;
-            try { on = !!(isFogOn() && previousMove && previousMove.color !== myColor); } catch (e) { on = false; }
+            try { on = !!(isFogOn() && previousMove && previousMove.color !== fogSide()); } catch (e) { on = false; }
             if (!on) { if (svg) svg.remove(); return; }
             const key = previousMove.from + '>' + previousMove.to + '#' + previousMove.color;   // moveCount는 넣지 않는다: 수 직후 handlePostMove가 올리면 같은 화살표가 다시 그려져 끊겨 보였다
             if (svg && svg.dataset.key === key) return;
@@ -6523,9 +6676,10 @@
         }
         function rvSugUpdateBtn(f) {   // 평가가 있는 모든 수에 버튼을 보인다: 좋은 수는 '이유', 최선이 아니었던 수는 '추천 수'
             const b = document.getElementById('rp-sug-btn'); if (!b) return;
-            const ok = !!(f && f.kind === 'move' && f.rv && RV[f.rv.c] && f.rv.c !== 'forced' && replayMode !== 'live');
+            const isAug = !!(f && f.kind === 'augment' && f.offered && f.offered.length >= 2 && f.av !== null && replayMode !== 'live');   // 증강 선택도 '이유' 버튼으로 해설을 연다
+            const ok = isAug || !!(f && f.kind === 'move' && f.rv && RV[f.rv.c] && f.rv.c !== 'forced' && replayMode !== 'live');
             b.style.display = ok ? '' : 'none';
-            if (ok) { b.dataset.lbl = RV_GOOD_CLS[f.rv.c] ? '이유' : '추천 수'; if (!rvSugBusy && rvSugIdx < 0) b.textContent = b.dataset.lbl; }
+            if (ok) { b.dataset.lbl = (isAug || RV_GOOD_CLS[f.rv.c]) ? '이유' : '추천 수'; if (!rvSugBusy && rvSugIdx < 0) b.textContent = b.dataset.lbl; }
         }
         // v3.78: 나쁜 등급(블런더 등)인데 탐색기의 최선이 둔 수와 같은 모순을 바로잡는다. 분석 때는 '메이트를 피하는 수'로 추천 수를 바꿨지만 저장본에는 글자만 남아,
         //        다시 열어 탐색하면 효과(덩굴 등)를 못 보는 탐색기가 또 둔 수를 최선으로 낸다. game = 그 수를 두기 직전 판이어야 한다.
@@ -7598,6 +7752,7 @@
         }
         function rvSugToggle() {
             if (rvSugBusy || rvLoading) return;
+            { const f0 = replayFrames[replayIdx]; if (f0 && f0.kind === 'augment') { rvAugToggle(replayIdx); return; } }
             const i = replayIdx, f = replayFrames[i]; if (!f || f.kind !== 'move' || !f.rv) return;
             if (rvSugIdx === i) { replayShow(i, false); return; }   // 다시 누르면 원래 장면으로
             if (replayPlaying) replaySetPlaying(false);
@@ -7820,7 +7975,7 @@
                     return { v, t: `이후 증강 선택지가 계속 1개 늘어 더 좋은 증강을 고를 수 있어요${early > 0.5 ? ' (아직 초반이라 오래 쓰여요)' : ''}${calm ? '' : ' — 다만 지금은 체크 상태라 급한 불부터 꺼야 해요'}` };
                 }
                 if (aug.name === '시간 도둑') {
-                    const lv = (augTimeCut && augTimeCut[enemy]) || 0, T = [30, 20, 10], nx = Math.min(2, lv + 1);
+                    const lv = (augTimeCut && augTimeCut[enemy]) || 0, T = [30, 15, 8], nx = Math.min(2, lv + 1);
                     return { v: lv ? 60 : 90, t: `상대의 증강 선택 시간이 ${T[lv]}초에서 ${T[nx]}초로 줄어요. 선택이 급해지는 효과가 이후 증강 단계마다 이어져요` };
                 }
                 if (aug.name === '법정 대리인') return { v: 130, t: '이어지는 상대의 증강 선택권을 가져와, 상대 선택지 중 가장 덜 위험한 증강을 대신 고를 수 있어요' };
@@ -8080,19 +8235,33 @@
             } finally { BOT.ana = svBot.ana; BOT.mineOwner = svBot.owner; BOT.seen = svBot.seen; botRestore(snap); moveCount = sv.mc; pendingAugments = sv.pa; activeAugmentOptions = sv.ao; activeAugmentPlayerColor = sv.ap; selectedAugmentIdx = sv.si; mines = hidden; }
         }
         const RV_AUG_LABEL = { best: '최고의 선택', good: '좋은 선택', inaccuracy: '아쉬운 선택', mistake: '나쁜 선택', miss: '놓친 승리' };
-        function rvAugWhyHide() { const w = document.getElementById('rp-sug-why'); if (w && w.dataset.aug) { delete w.dataset.aug; w.style.display = 'none'; w.innerHTML = ''; w.classList.remove('more'); } }
-        function rvPaintAug(cur, av) {   // v3.93: 수 분석과 같은 틀 — 위 줄은 아이콘+평가, 설명은 같은 패널(#rp-sug-why)의 .blk 블록으로
-            const why = document.getElementById('rp-sug-why'), info = av && RV[av.c];
+        let rvAugOpen = -1;   // '이유' 버튼으로 증강 해설을 펼쳐 둔 장면 번호
+        function rvAugWhyHide() { rvAugOpen = -1; const w = document.getElementById('rp-sug-why'); if (w && w.dataset.aug) { try { rvWhySheet(false); } catch (e) {} delete w.dataset.aug; w.style.display = 'none'; w.innerHTML = ''; w.classList.remove('more'); } }
+        function rvPaintAug(cur, av) {   // 위 줄에는 아이콘+평가만 보이고, 설명은 '이유' 버튼을 눌러야 나온다
+            const info = av && RV[av.c];
             if (!info) { cur.textContent = ''; rvAugWhyHide(); return; }
             cur.innerHTML = `<span class="rv-ic">${info.svg}</span><b style="color:${info.color}">${RV_AUG_LABEL[av.c] || info.label}</b>`;
-            if (!why) return;
+        }
+        function rvAugPanel(av) {   // 수 분석과 같은 틀 — 설명은 같은 패널(#rp-sug-why)의 .blk 블록으로, 세로 모드에서는 탭하면 크게 보기 시트로 펼친다
+            const why = document.getElementById('rp-sug-why'); if (!why || !av || !RV[av.c]) return;
             const good = av.c === 'best' || av.c === 'good';
             let h = `<div class="blk ${good ? 'good' : 'bad'}"><b>평가 요약</b><div>${av.head}</div></div>`;
             av.lines.forEach(l => { const m = /^<b>(.*?)<\/b>([\s\S]*)$/.exec(l); h += m ? `<div class="blk"><b>${m[1]}</b><div class="deep"><span class="tx">${m[2].trim()}</span></div></div>` : `<div class="blk"><div class="deep"><span class="tx">${l}</span></div></div>`; });
-            why.innerHTML = h; why.dataset.aug = '1'; why.scrollTop = 0; why.style.display = '';
+            why.innerHTML = '<div class="why-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M10 21H3v-7M21 3l-7.5 7.5M3 21l7.5-7.5"/></svg></div>' + h; why.dataset.aug = '1'; why.scrollTop = 0; why.style.display = '';
             try { rvWhyLink(why); } catch (e) {}   // 칸 이름은 파랗게, 누르면 판에서 강조
-            why.onclick = e => { const q = e.target && e.target.closest ? e.target.closest('.sq-ref') : null; if (q) rvSqHl(q.dataset.sq, q.dataset.kind); };
+            try { rvWhyIconBind(why); } catch (e) {}
+            why.onclick = e => {
+                const q = e.target && e.target.closest ? e.target.closest('.sq-ref') : null; if (q) { rvSqHl(q.dataset.sq, q.dataset.kind); return; }
+                if (!document.body.classList.contains('wide-mode') || document.body.classList.contains('why-sheet')) { if (!(window.getSelection && String(window.getSelection()))) rvWhySheet(); }
+            };
             try { window.dispatchEvent(new Event('resize')); } catch (e) {}
+        }
+        function rvAugToggle(i) {   // 증강 장면의 '이유' 버튼
+            const f = replayFrames[i], btn = document.getElementById('rp-sug-btn'); if (!f || f.kind !== 'augment') return;
+            if (rvAugOpen === i) { rvAugWhyHide(); if (btn) { btn.classList.remove('on'); btn.textContent = '이유'; } return; }
+            if (!f.av) return;   // 아직 분석 중이거나 평가가 없는 선택
+            if (replayPlaying) replaySetPlaying(false);
+            rvAugPanel(f.av); rvAugOpen = i; if (btn) { btn.classList.add('on'); btn.textContent = '닫기'; }
         }
         function rvShowAugBadge(f, cur) {
             if (!f.offered || f.offered.length < 2) { cur.textContent = ''; return; }
@@ -8101,7 +8270,7 @@
             const i = replayFrames.indexOf(f);
             setTimeout(() => {
                 if (f.av === undefined) { try { f.av = rvAugEval(f, i); } catch (e) { f.av = null; } }
-                if (replayFrames[replayIdx] === f) { const c2 = document.getElementById('rp-rv-cur'); if (c2) rvPaintAug(c2, f.av); }
+                if (replayFrames[replayIdx] === f) { const c2 = document.getElementById('rp-rv-cur'); if (c2) rvPaintAug(c2, f.av); rvSugUpdateBtn(f); }
             }, 60);
         }
         function replayShowBadge(f) {   // 지금 장면이 '수'라면 그 수의 평가를 보드(도착 칸)와 아래 줄에 표시
@@ -8592,7 +8761,7 @@
         }
         function startLiveReview() {   // 경기 중 이전 수 되돌아보기 (처음부터 무제한)
             if (replayFrames.length < 2) { showToast('아직 볼 이전 수가 없어요', 'var(--danger)', 1600); return; }
-            replayFogLock = !isSpectating && blackout[myColor] > 0;
+            replayFogLock = !isSpectating && blackout[fogSide()] > 0 && !(isPracticeMode && practiceOmni);
             replayMode = 'live'; liveMinIdx = 0;
             replayFinalState = serializeGameState(); replaySavedPrev = previousMove; replayQueue = []; replayActive = true;
             document.body.classList.add('replay-mode', 'live-review');
@@ -8951,7 +9120,7 @@
         function updateLastMoveLabel() {   // 이전 수를 보지 않는 현재 상태에서는 직전 이동을 보여 준다 (내가 암전 중이면 숨김)
             const el = document.getElementById('lr-label'); if (!el || replayActive) return;
             let idx = -1; for (let k = replayFrames.length - 1; k >= 0; k--) if (replayFrames[k].kind === 'move') { idx = k; break; }
-            el.innerText = (!isGameStarted || idx < 0 || (!isSpectating && blackout[myColor] > 0)) ? '' : `직전 · ${replayLabelParts(idx).text}`;
+            el.innerText = (!isGameStarted || idx < 0 || (!isSpectating && blackout[fogSide()] > 0 && !(isPracticeMode && practiceOmni))) ? '' : `직전 · ${replayLabelParts(idx).text}`;
         }
         function syncStrip() {
             const inLive = replayActive && replayMode === 'live';
@@ -9019,6 +9188,11 @@
         }
 
         function showEndScreen(resultType, reasonStr, opts = {}) {
+            if (isPracticeMode) {   // 연습 모드는 끝나지 않는다: 알림만 띄우고 계속한다
+                const now = Date.now();
+                if (!practiceEditing && now - practiceNoteAt > 4000) { practiceNoteAt = now; showToast('연습 모드는 끝나지 않아요 — 되돌리기나 배치 편집으로 이어가세요', '#f39c12', 2600); }
+                return;
+            }
             if(game.is_game_over) return;
             game.set_game_over(); closeAugmentUI();   // 기권·종료 때 증강 선택창이 남지 않도록
             try { botReactEnd(resultType); } catch (e) {}
@@ -9212,17 +9386,26 @@
                 if (game.turn() === myColor && pickables(selectedSquare, myColor).length > 1) { const c = getCoords(selectedSquare), d = document.createElement('div'); d.className = 'pick-swap'; d.style.left = c.x + '%'; d.style.top = c.y + '%'; d.innerHTML = SWAP_SVG; dotsLayer.appendChild(d); }
             } catch (e) {}
         }
+        // 업: 내 킹이 내 풍선 기물 밑에 숨어 있고 곧 내려올 때, 다른 기물을 고르려 하면 먼저 움직여야 할 풍선 기물을 살짝 강조한다
+        function balloonNudge(sq, color) {
+            const h = game.hiddenKing(color); if (!h || h.cnt > 2 || sq === h.sq) return;
+            const el = pieceEls.get(h.fuid); if (!el) return;
+            el.classList.remove('balloon-nudge'); void el.offsetWidth; el.classList.add('balloon-nudge');
+            setTimeout(() => el.classList.remove('balloon-nudge'), 1100);
+        }
         function onSquareClick(sq) {
             if (isSpectating) return;   // 관전 중에는 조작할 수 없다
             if (replayActive) { if (replayMode !== 'live') document.getElementById('rp-play').click(); return; }
             if (targeting) { handleTargetClick(sq); return; }
+            if (isPracticeMode && practiceEditing) { practicePlace(sq); return; }
+            if (isPracticeMode) myColor = game.turn();
             if (game.game_over() || isSystemLocked || !isGameStarted) return;
             if (game.turn() !== myColor) { onPremoveClick(sq); return; }   // 상대 차례에는 수를 예약한다
 
             const turnColor = game.turn();
             if (!selectedSquare) {
                 const pk = pickables(sq, turnColor);
-                if (pk.length) selectAt(sq, pk[0]);
+                if (pk.length) { try { balloonNudge(sq, turnColor); } catch (e) {} selectAt(sq, pk[0]); }
             } else {
                 if (selectedSquare === sq) {
                     if (pickables(sq, turnColor).length > 1) { selectAt(sq, !selectedUnder); return; }   // 위에 뜬 기물과 아래 내 기물이 겹친 칸: 다시 누르면 움직일 기물이 바뀐다
@@ -9321,6 +9504,7 @@
         }
 
         function executeMoveLocal(from, to, promo, under) {
+            if (isPracticeMode) practiceSnap();
             // 동귀어진: 이동 전에 잡힐 기물을 확인해 둔다 (앙파상은 다른 칸의 폰)
             let pactVictim = null; { const mv = under && balloonUnder[from] ? balloonUnder[from].piece : game.get(from); let vic = game.get(to); if (!vic && mv && mv.type === 'p' && to === game.ep_square) vic = game.get(to[0] + from[1]); if (vic && pactPieces[vic.uid]) pactVictim = vic.uid; }
             const moveResult = game.move({ from: from, to: to, promotion: promo, under: !!under });
@@ -9417,7 +9601,7 @@
             updateCheckStatus();   // 벽 소멸/독구름/탄생 등으로 생긴 체크·체크메이트도 반영
             replayRefresh({ blasts: postBlasts, mk: postMk, poison: poisonKilled, baby: babyBorn, promo: promotedSq, walls: postFx ? postFx.walls : [], vines: postFx ? postFx.vines : [] }); try { updateLastMoveLabel(); } catch (e) {}   // 암전 남은 수가 줄어든 뒤 표시 갱신
 
-            if (moveCount > 0 && moveCount % AUGMENT_INTERVAL === 0 && !game.game_over() && !__AUG_DEMO) {
+            if (moveCount > 0 && moveCount % AUGMENT_INTERVAL === 0 && !game.game_over() && !__AUG_DEMO && !isPracticeMode) {
                 pendingAugments = game.turn() === 'w' ? ['w', 'b'] : ['b', 'w']; 
                 setTimeout(() => { if (!game.game_over()) processNextAugmentPhase(true); }, 300);   // 마지막 수를 잠깐 보여 준 뒤 증강이 등장한다 (연속감을 위해 짧게)
             } else { 
@@ -9619,7 +9803,9 @@
             }
             return born;
         }
-        const isFogOn = () => !!(isGameStarted && !isSpectating && (replayActive ? (replayMode === 'live' && replayFogLock) : blackout[myColor] > 0));   // 이전 수 보기 중에도 현재 암전 상태면 그대로 어둡게 (되감아서 정보를 훔쳐보지 못하게)
+        const fogSide = () => isPracticeMode ? (document.body.classList.contains('black-pov') ? 'b' : 'w') : myColor;   // 연습 모드: 차례가 아니라 '보고 있는 시점'이 안개 기준
+        let practiceOmni = false;   // 연습 모드 '전지적 시점': 암전 안개를 끈다
+        const isFogOn = () => !!(isGameStarted && !isSpectating && !(isPracticeMode && practiceOmni) && (replayActive ? (replayMode === 'live' && replayFogLock) : blackout[fogSide()] > 0));   // 이전 수 보기 중에도 현재 암전 상태면 그대로 어둡게 (되감아서 정보를 훔쳐보지 못하게)
         function updateBlackoutBadge() {
             const el = document.getElementById('blackout-badge'); if (!el) return;
             el.style.display = 'none'; return;   // 암전 남은 수는 이제 킹의 상태 칩으로 보여 준다
@@ -9631,11 +9817,12 @@
         }
         function updateFog() {
             updateBlackoutBadge();
-            const on = isFogOn(), lit = new Set(on ? findPieces(myColor) : []);
+            const on = isFogOn(), fs = fogSide(), lit = new Set(on ? findPieces(fs) : []);
             squareList.forEach(el => el.classList.toggle('fog', on && !lit.has(el.dataset.square)));
-            pieceEls.forEach(el => el.classList.toggle('piece-hidden', on && el.dataset.color !== myColor));
+            pieceEls.forEach(el => el.classList.toggle('piece-hidden', on && el.dataset.color !== fs));
             dotsLayer.style.zIndex = (on && legalMoves.length) ? '2' : '';
             updateMoveTrail();
+            if (isPracticeMode) { try { practiceStatus(); } catch (e) {} }
         }
 
         // 가중치(소수 가능)에 비례해 중복 없이 count개를 뽑는다
@@ -10259,9 +10446,9 @@
                   if (!sq) return { t: [], vfx: '', msg: '' };
                   prospects[game.get(sq).uid] = 11; spawnFloatingText(sq, '🎖️');
                   return { t: [sq], vfx: 'vfx-heal', msg: '🎖️ 유망주가 탄생했습니다! 11수 뒤 퀸으로 승급합니다.' }; } },
-            { name: '시간 도둑', icon: '⏳', weight: 1.62, desc: '상대의 [증강 선택 시간]을 {영구적으로} 훔칩니다. 처음에는 {30초 → 20초}, 두 번째에는 {20초 → 10초}가 됩니다.', detail: '같은 상대에게 최대 2번까지만 걸 수 있고, 이미 10초가 된 상대에게는 나오지 않습니다. 나올 확률이 낮은 증강입니다.', globalVfx: 'vfx-global-meta', isKillType: false,
+            { name: '시간 도둑', icon: '⏳', weight: 1.62, desc: '상대의 [증강 선택 시간]을 {영구적으로} 훔칩니다. 처음에는 {30초 → 15초}, 두 번째에는 {15초 → 8초}가 됩니다.', detail: '같은 상대에게 최대 2번까지만 걸 수 있고, 이미 8초가 된 상대에게는 나오지 않습니다. 나올 확률이 낮은 증강입니다.', globalVfx: 'vfx-global-meta', isKillType: false,
               condition: (m, e) => ((augTimeCut && augTimeCut[e]) || 0) < 2,
-              apply: (m, e) => { const lv = (augTimeCut[e] || 0), T = [30, 20, 10], nx = Math.min(2, lv + 1); augTimeCut[e] = nx; const k = findPieces(m, 'k')[0];
+              apply: (m, e) => { const lv = (augTimeCut[e] || 0), T = [30, 15, 8], nx = Math.min(2, lv + 1); augTimeCut[e] = nx; const k = findPieces(m, 'k')[0];
                   const ek = findPieces(e, 'k')[0]; return { t: ek ? [ek] : [], vfx: '', origin: k || null, fxArg: lv + 1, msg: `⏳ 시간 도둑! 상대의 증강 선택 시간이 ${T[lv]}초에서 ${T[nx]}초로 줄었습니다.` }; } },
             { name: '법정 대리인', icon: '⚖️', weight: 1.62, desc: '증강을 {먼저 고를 때} 나옵니다. 이어지는 [상대의 증강 선택권]을 {한 번} 가져와, 상대의 선택지 중 하나를 {대신 고릅니다}.', detail: '고른 증강은 상대가 쓴 것으로 발동됩니다. 대상이나 위치를 정해야 하는 증강은 무작위로 정해집니다. 나올 확률이 낮은 증강입니다.', globalVfx: 'vfx-global-meta', isKillType: false,
               condition: (m, e) => Array.isArray(pendingAugments) && pendingAugments[0] === e && !proxyPick[e],
@@ -10414,9 +10601,9 @@
                     const setLv = s => { fill.style.width = (s / 30 * 100) + '%'; lost.style.width = (100 - s / 30 * 100) + '%'; };
                     const tween = (a, b, ms) => new Promise(res => { const t0 = performance.now(), tick = () => { const k = Math.min(1, (performance.now() - t0) / ms), v = a + (b - a) * k; sec.textContent = Math.round(v) + 's'; bar.classList.toggle('low', v <= 5); if (k < 1) requestAnimationFrame(tick); else res(); }; tick(); });
                     h.cap('상대의 증강 선택 시간은 원래 30초예요'); await h.wait(1500);
-                    h.cap('시간 도둑에 한 번 걸리면 20초로 줄어요'); setLv(20); await tween(30, 20, 700); await h.wait(1400);
-                    h.cap('두 번째에는 20초에서 10초까지 줄어요 (최대 2번)'); setLv(10); await tween(20, 10, 700); await h.wait(1400);
-                    h.cap('고민할 틈이 사라진 상대는 서둘러 고르게 돼요'); fill.style.transform = 'scaleX(0)'; await tween(10, 0, 2500); await h.wait(500);
+                    h.cap('시간 도둑에 한 번 걸리면 15초로 줄어요'); setLv(15); await tween(30, 15, 700); await h.wait(1400);
+                    h.cap('두 번째에는 15초에서 8초까지 줄어요 (최대 2번)'); setLv(8); await tween(15, 8, 700); await h.wait(1400);
+                    h.cap('고민할 틈이 사라진 상대는 서둘러 고르게 돼요'); fill.style.transform = 'scaleX(0)'; await tween(8, 0, 2500); await h.wait(500);
                     demoHideCards();
                 } },
             '법정 대리인': { cap: '증강을 먼저 고를 때, 이어지는 상대의 증강 선택권을 가져옵니다',
@@ -11231,6 +11418,248 @@
             const t = targeting; clearTargetVisuals(); targeting = null;
             if (t && t.onCancel) t.onCancel();
         }
+
+        // ==========================================
+        // 연습 모드 v2: 자유 배치·이동 · 증강 체험 · 시점 전환(암전 안개 포함) · 되돌리기/다시하기
+        // ==========================================
+        let practiceEditing = false, practiceTool = null, practiceHist = [], practiceFuture = [], practiceNoteAt = 0, practiceAugSide = 'w';
+        let practiceSel = null, practiceAuto = false, practicePovT = 0, practiceBoPrev = { w: 0, b: 0 }, practiceAugCat = '전체';
+        const $p = id => document.getElementById(id);
+        const SIDE_KO = { w: '백', b: '흑' };
+        const practicePov = () => document.body.classList.contains('black-pov') ? 'b' : 'w';
+        function practiceLoadPrefs() { try { const o = JSON.parse(localStorage.getItem('practicePrefs') || '{}'); practiceOmni = !!o.omni; practiceAuto = !!o.auto; } catch (e) { practiceOmni = false; practiceAuto = false; } }
+        function practiceSavePrefs() { try { localStorage.setItem('practicePrefs', JSON.stringify({ omni: practiceOmni, auto: practiceAuto })); } catch (e) {} }
+        function practiceRecent() { try { const r = JSON.parse(localStorage.getItem('practiceRecentAug') || '[]'); return Array.isArray(r) ? r : []; } catch (e) { return []; } }
+        function practiceRecentAdd(n) { try { localStorage.setItem('practiceRecentAug', JSON.stringify([n, ...practiceRecent().filter(x => x !== n)].slice(0, 10))); } catch (e) {} }
+
+        function practiceBtns() {
+            ['pt-undo', 'pt-undo2'].forEach(id => { const b = $p(id); if (b) b.disabled = !practiceHist.length; });
+            ['pt-redo', 'pt-redo2'].forEach(id => { const b = $p(id); if (b) b.disabled = !practiceFuture.length; });
+        }
+        function practiceSnap() { try { practiceHist.push(serializeGameState()); if (practiceHist.length > 100) practiceHist.shift(); practiceFuture.length = 0; } catch (e) {} try { practiceBtns(); } catch (e) {} }
+        function practiceBusy() { if (targeting) { cancelTargeting(); return true; } return isSystemLocked || augBusy; }
+        function practiceClearSel() {
+            if (practiceSel) { const el = squareEls.get(practiceSel); if (el) el.classList.remove('pt-sel'); }
+            practiceSel = null; try { practiceHintUpdate(); } catch (e) {}
+        }
+        function practiceRepaint() {
+            practiceClearSel();
+            selectedSquare = null; selectedUnder = false; legalMoves = []; previousMove = null;
+            muteShatter = true; drawPieces(false); muteShatter = false;
+            drawDots(); updateProgressBar(); updateBoardVisuals(); updateTurnIndicator(); updateCheckStatus(); updatePreviousMoveHighlights();
+            practiceBtns(); practiceStatus();
+        }
+        function practiceFixRights() {   // 배치를 바꾼 뒤: 앙파상·캐슬링 권리를 새 배치에 맞게 정리한다
+            game.ep_square = null; game.castling = { w: { k: true, q: true }, b: { k: true, q: true } }; game.rebuildCastleUids(); game.sanitizeSpecialStates();
+        }
+        function startPractice() {
+            Promise.resolve(cancelMatchmaking()).catch(() => {}).then(() => {
+                modeSelectOverlay.style.display = 'none';
+                isBotMode = false; isPracticeMode = true; currentRoomId = null; myColor = 'w'; isGameStarted = true; statsRecorded = true; rankCtx = null;
+                practiceEditing = false; practiceTool = null; practiceHist = []; practiceFuture = []; practiceSel = null; practiceBoPrev = { w: 0, b: 0 }; practiceLoadPrefs();
+                document.body.classList.remove('black-pov', 'practice-editing'); document.body.classList.add('practice-mode');
+                document.getElementById('game-controls').style.display = 'flex';
+                document.getElementById('btn-resign').style.display = 'none';
+                document.getElementById('btn-settings-game').style.display = 'block';
+                resetGameUI(); showBoardContainer(); practiceBuildPalette(); practiceSyncUI();
+                showToast('연습 모드 — 증강을 써 보거나, 편집 탭에서 기물을 자유롭게 옮겨 보세요', 'var(--primary)', 2800);
+            });
+        }
+        function practiceHintUpdate() {
+            const h = $p('pt-hint'); if (!h) return;
+            h.textContent = practiceTool === 'erase' ? '지우고 싶은 기물이 있는 칸을 누르세요'
+                : (practiceTool && practiceTool !== 'move') ? '칸을 누르면 기물이 놓여요 · 같은 기물을 다시 누르면 지워져요'
+                : (practiceSel ? '옮길 칸을 누르세요 · 같은 칸을 다시 누르면 취소' : '옮길 기물을 누른 뒤 도착 칸을 누르세요 (규칙 상관없이 자유 이동)');
+        }
+        function practiceSyncUI() {
+            document.body.classList.toggle('practice-editing', practiceEditing);
+            $p('pt-tab-play').classList.toggle('on', !practiceEditing); $p('pt-tab-edit').classList.toggle('on', practiceEditing);
+            document.querySelectorAll('#pt-pal-w button, #pt-pal-b button').forEach(b => b.classList.toggle('sel', !!practiceTool && typeof practiceTool === 'object' && b.dataset.k === practiceTool.color + practiceTool.type));
+            $p('pt-tool-move').classList.toggle('on', practiceTool === 'move'); $p('pt-erase').classList.toggle('on', practiceTool === 'erase');
+            practiceHintUpdate(); practiceBtns(); practiceStatus();
+            try { scheduleFit(); } catch (e) {}
+        }
+        function practiceBuildPalette() {
+            [['w', 'pt-pal-w'], ['b', 'pt-pal-b']].forEach(([color, id]) => {
+                const box = $p(id); box.innerHTML = '';
+                ['k', 'q', 'r', 'b', 'n', 'p'].forEach(type => {
+                    const b = document.createElement('button'); b.type = 'button'; b.dataset.k = color + type; b.setAttribute('aria-label', (color === 'w' ? '백 ' : '흑 ') + type);
+                    b.innerHTML = svgPieces[type.toUpperCase()].replace(/{fill}/g, color === 'w' ? '#ffffff' : '#222222').replace(/{stroke}/g, color === 'w' ? '#000000' : '#eeeeee');
+                    b.onclick = () => { const same = practiceTool && typeof practiceTool === 'object' && practiceTool.color === color && practiceTool.type === type; practiceTool = same ? 'move' : { color, type }; practiceClearSel(); practiceSyncUI(); };
+                    box.appendChild(b);
+                });
+            });
+        }
+        function practicePlace(sq) {
+            const t = practiceTool || 'move', cur = game.get(sq);
+            if (t === 'move') {   // 자유 이동: 규칙·턴과 상관없이 기물을 옮긴다 (도착 칸에 기물이 있으면 덮어쓴다)
+                if (practiceSel) {
+                    if (practiceSel === sq) { practiceClearSel(); return; }
+                    const from = practiceSel, pc = game.get(from); practiceClearSel();
+                    if (!pc) return;
+                    practiceSnap(); game.remove(from); if (game.get(sq)) game.remove(sq); game.put(pc, sq);
+                    practiceFixRights(); practiceRepaint(); return;
+                }
+                if (cur) { practiceSel = sq; const el = squareEls.get(sq); if (el) el.classList.add('pt-sel'); practiceHintUpdate(); }
+                return;
+            }
+            if (t === 'erase' && !cur) return;
+            practiceSnap();
+            if (t === 'erase') game.remove(sq);
+            else if (cur && cur.type === t.type && cur.color === t.color) game.remove(sq);
+            else { if (cur) game.remove(sq); game.put({ type: t.type, color: t.color }, sq); }
+            practiceFixRights(); practiceRepaint();
+        }
+        function practiceSetEdit(on) {
+            if (on && practiceBusy()) return;
+            practiceEditing = !!on; practiceTool = on ? 'move' : null; practiceClearSel();
+            selectedSquare = null; selectedUnder = false; legalMoves = []; drawDots(); practiceSyncUI(); updateCheckStatus();
+        }
+        function practiceUndo() {
+            if (targeting) { cancelTargeting(); return; }
+            if (isSystemLocked || augBusy) return;
+            const prev = practiceHist.pop(); if (!prev) { showToast('되돌릴 수가 없어요', '#f39c12', 1200); return; }
+            try { practiceFuture.push(serializeGameState()); } catch (e) {}
+            deserializeGameState(prev, true); isSystemLocked = false; augBusy = false; postMovePending = 0; closeAugmentUI();
+            practiceBoPrev = { w: blackout.w, b: blackout.b };
+            practiceRepaint();
+        }
+        function practiceRedo() {
+            if (targeting) { cancelTargeting(); return; }
+            if (isSystemLocked || augBusy) return;
+            const nx = practiceFuture.pop(); if (!nx) { showToast('다시 할 수가 없어요', '#f39c12', 1200); return; }
+            try { practiceHist.push(serializeGameState()); } catch (e) {}
+            deserializeGameState(nx, true); isSystemLocked = false; augBusy = false; postMovePending = 0; closeAugmentUI();
+            practiceBoPrev = { w: blackout.w, b: blackout.b };
+            practiceRepaint();
+        }
+        function practicePass() {
+            if (practiceBusy()) return;
+            practiceSnap(); game._turn = game._turn === 'w' ? 'b' : 'w'; game.ep_square = null;
+            selectedSquare = null; legalMoves = []; previousMove = null; drawDots(); updateTurnIndicator(); updatePreviousMoveHighlights();
+            isSystemLocked = true; handlePostMove();   // 수를 둔 것처럼 지속 효과(덩굴·풍선·벽·암전 등)의 남은 수를 한 칸 줄인다
+            showToast((game.turn() === 'w' ? '백' : '흑') + ' 차례로 넘겼어요', 'var(--primary)', 1200);
+        }
+        function practiceTurnToggle() {
+            if (practiceBusy()) return;
+            practiceSnap(); game._turn = game._turn === 'w' ? 'b' : 'w'; game.ep_square = null; practiceRepaint();
+            showToast((game.turn() === 'w' ? '백' : '흑') + ' 차례', 'var(--primary)', 1000);
+        }
+        // 시점: 보드를 뒤집는 것과 동시에 안개(암전)도 그 시점 기준으로 다시 그린다
+        function practiceSetPov(side) {
+            const want = side === 'b'; if (document.body.classList.contains('black-pov') === want) return;
+            document.body.classList.toggle('black-pov', want);
+            muteShatter = true; drawPieces(false); muteShatter = false; drawDots();
+            try { scheduleFit(); } catch (e) {}
+            practiceStatus();
+        }
+        function practiceFlip() { practiceSetPov(practicePov() === 'w' ? 'b' : 'w'); }
+        function practiceAutoPov() {   // 자동 시점: 차례가 바뀌면 잠깐 뒤 그 쪽 시점으로 돌린다
+            clearTimeout(practicePovT);
+            practicePovT = setTimeout(() => { if (isPracticeMode && practiceAuto && !practiceEditing && !targeting) practiceSetPov(game.turn()); }, 450);
+        }
+        function practiceClearBlackout(c) {
+            if (practiceBusy()) return;
+            practiceSnap(); blackout[c] = 0; practiceRepaint();
+        }
+        function practiceClearEffects() {   // 판 위에 남은 증강 효과(암전·속박·무적·벽·독구름·지뢰 등)를 한꺼번에 해제한다 (풍선은 위치를 쓰므로 유지)
+            if (practiceBusy()) return;
+            practiceSnap();
+            try { activeWalls.forEach(w => { const pc = game.get(w.sq); if (pc && pc.type === 'wall') game.remove(w.sq); }); } catch (e) {}
+            try { Object.keys(rootedPieces).forEach(uid => releaseVine(uid)); } catch (e) {}
+            const keepB = balloons, keepBU = balloonUnder; resetAugmentState(); balloons = keepB; balloonUnder = keepBU;
+            practiceFixRights(); practiceRepaint();
+            showToast('남아 있던 증강 효과를 모두 해제했어요', 'var(--primary)', 1400);
+        }
+        // 상태 줄: 차례 · 시점 · 암전 등을 칩으로 보여 주고 눌러서 바로 바꾼다
+        function practiceStatus() {
+            const box = $p('pt-status'); if (!box || !isPracticeMode) return;
+            const turn = game.turn(), pov = practicePov(), bo = blackout;
+            ['w', 'b'].forEach(c => {   // 새로 암전이 걸렸는데 내가 그 시점이 아니면 안내
+                if (bo[c] > (practiceBoPrev[c] || 0) && c !== pov && !practiceOmni) showToast(`💡 ${SIDE_KO[c]} 암전 — 상태 줄의 암전 칩을 누르면 ${SIDE_KO[c]} 시점으로 볼 수 있어요`, 'var(--primary)', 3200);
+            });
+            practiceBoPrev = { w: bo.w, b: bo.b };
+            const sig = [turn, pov, bo.w, bo.b, practiceOmni ? 1 : 0].join('|');
+            if (box.dataset.sig === sig) return; box.dataset.sig = sig;
+            box.innerHTML = '';
+            const chip = (cls, html, title, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'pt-chip ' + cls; b.innerHTML = html; if (title) b.title = title; b.onclick = fn; box.appendChild(b); return b; };
+            chip('', `<i class="${turn}"></i>${SIDE_KO[turn]} 차례 ⇄`, '눌러서 차례 바꾸기', practiceTurnToggle);
+            chip('', `👁 ${SIDE_KO[pov]} 시점 ⇄`, '눌러서 시점 전환', practiceFlip);
+            ['w', 'b'].forEach(c => {
+                if (!(bo[c] > 0)) return;
+                const ch = chip('fog', `💡 ${SIDE_KO[c]} 암전 ${bo[c]}`, `${SIDE_KO[c]} 시점으로 보기`, () => practiceSetPov(c));
+                const x = document.createElement('span'); x.className = 'x'; x.textContent = '✕'; x.title = '암전 해제';
+                x.onclick = ev => { ev.stopPropagation(); practiceClearBlackout(c); }; ch.appendChild(x);
+            });
+            if (practiceOmni) chip('on', '전지적 시점', '암전을 무시하고 전부 보는 중 — 눌러서 끄기', () => { practiceOmni = false; practiceSavePrefs(); updateFog(); drawDots(); practiceStatus(); });
+            const sp = document.createElement('span'); sp.className = 'pt-sp'; box.appendChild(sp);
+            chip('exit', '✕', '연습 모드 나가기', () => { document.getElementById('btn-menu-leave').click(); });
+        }
+        // ---- 증강 사용 창: 시전 쪽 · 분류 · 검색 · 최근 사용 ----
+        function practiceAugOpen() {
+            if (practiceBusy()) return;
+            practiceSetEdit(false); practiceAugSide = game.turn();
+            $p('pa-search').value = ''; $p('practice-aug-overlay').style.display = 'flex'; practiceAugRender();
+        }
+        function practiceAugRender() {
+            const side = practiceAugSide, foe = side === 'w' ? 'b' : 'w', q = ($p('pa-search').value || '').trim();
+            $p('pa-side-w').classList.toggle('on', side === 'w'); $p('pa-side-b').classList.toggle('on', side === 'b');
+            const recent = practiceRecent(), cats = ['전체'];
+            if (recent.length) cats.push('최근');
+            AUGMENT_POOL.forEach(a => { const c = getAugmentCategoryLabel(a); if (!cats.includes(c)) cats.push(c); });
+            if (!cats.includes(practiceAugCat)) practiceAugCat = '전체';
+            const cbox = $p('pa-cats'); cbox.innerHTML = '';
+            cats.forEach(c => { const b = document.createElement('button'); b.type = 'button'; b.textContent = c; b.className = c === practiceAugCat ? 'on' : ''; b.onclick = () => { practiceAugCat = c; practiceAugRender(); }; cbox.appendChild(b); });
+            let items = AUGMENT_POOL.filter(a => (practiceAugCat === '전체' || (practiceAugCat === '최근' ? recent.includes(a.name) : getAugmentCategoryLabel(a) === practiceAugCat)) && (!q || a.name.includes(q) || String(a.desc || '').includes(q)));
+            if (practiceAugCat === '최근') items.sort((a, b) => recent.indexOf(a.name) - recent.indexOf(b.name));
+            const rows = items.map(a => { let ok = true; try { if (typeof a.condition === 'function') ok = !!a.condition(side, foe); } catch (e) { ok = true; } return { a, ok }; });
+            rows.sort((x, y) => (y.ok ? 1 : 0) - (x.ok ? 1 : 0));   // 지금 쓸 수 있는 것을 위로 (정렬은 안정적이라 원래 순서가 유지된다)
+            $p('pa-count').textContent = rows.length + '개';
+            const list = $p('pa-list'); list.innerHTML = '';
+            if (!rows.length) { const e = document.createElement('div'); e.className = 'pa-empty'; e.textContent = '맞는 증강이 없어요'; list.appendChild(e); }
+            rows.forEach(({ a, ok }) => {
+                const row = document.createElement('button'); row.type = 'button'; row.className = 'pa-row' + (ok ? '' : ' off');
+                const ic = document.createElement('span'); ic.className = 'pa-ic'; ic.innerHTML = augIconHtml(a.name, a.icon);
+                const tx = document.createElement('span'); tx.className = 'pa-tx';
+                const nm = document.createElement('b'); nm.textContent = a.name;
+                const ds = document.createElement('small'); ds.textContent = ok ? String(a.desc || '').replace(/[{}\[\]]/g, '') : '지금 판에서는 쓸 수 없어요';
+                tx.appendChild(nm); tx.appendChild(ds); row.appendChild(ic); row.appendChild(tx);
+                row.onclick = () => {
+                    if (!ok) { showToast('지금 판에서는 쓸 수 없는 증강이에요', 'var(--danger)', 1400); return; }
+                    $p('practice-aug-overlay').style.display = 'none'; practiceRecentAdd(a.name); practiceUseAug(a, side);
+                };
+                list.appendChild(row);
+            });
+        }
+        function practiceUseAug(aug, color) {
+            const foe = color === 'w' ? 'b' : 'w';
+            practiceSnap(); isSystemLocked = true; myColor = color; selectedSquare = null; legalMoves = []; drawDots();
+            applySelectedAugment(aug, color, foe, () => { isSystemLocked = false; practiceHist.pop(); practiceBtns(); });   // 대상 지정을 취소하면 아무 일도 없었던 것으로
+        }
+        function practiceSettingsOpen() {
+            if (practiceBusy()) return;
+            $p('ps-omni').checked = practiceOmni; $p('ps-auto').checked = practiceAuto; $p('practice-set-overlay').style.display = 'flex';
+        }
+        $p('btn-practice-mode').onclick = startPractice;
+        $p('pt-tab-play').onclick = () => practiceSetEdit(false);
+        $p('pt-tab-edit').onclick = () => practiceSetEdit(true);
+        $p('pt-aug').onclick = practiceAugOpen;
+        $p('pt-pass').onclick = practicePass;
+        $p('pt-set').onclick = practiceSettingsOpen;
+        $p('pt-undo').onclick = practiceUndo; $p('pt-undo2').onclick = practiceUndo;
+        $p('pt-redo').onclick = practiceRedo; $p('pt-redo2').onclick = practiceRedo;
+        $p('pt-tool-move').onclick = () => { practiceTool = 'move'; practiceClearSel(); practiceSyncUI(); };
+        $p('pt-erase').onclick = () => { practiceTool = practiceTool === 'erase' ? 'move' : 'erase'; practiceClearSel(); practiceSyncUI(); };
+        $p('pt-clear').onclick = () => { if (practiceBusy()) return; practiceSnap(); resetGameUI(); game._board = Array(8).fill(null).map(() => Array(8).fill(null)); practiceFixRights(); practiceRepaint(); };
+        $p('pt-std').onclick = () => { if (practiceBusy()) return; practiceSnap(); resetGameUI(); practiceRepaint(); };
+        $p('pa-side-w').onclick = () => { practiceAugSide = 'w'; practiceAugRender(); };
+        $p('pa-side-b').onclick = () => { practiceAugSide = 'b'; practiceAugRender(); };
+        $p('pa-search').addEventListener('input', practiceAugRender);
+        $p('pa-close').onclick = () => { $p('practice-aug-overlay').style.display = 'none'; };
+        $p('ps-omni').addEventListener('change', e => { practiceOmni = e.target.checked; practiceSavePrefs(); updateFog(); drawDots(); practiceStatus(); });
+        $p('ps-auto').addEventListener('change', e => { practiceAuto = e.target.checked; practiceSavePrefs(); if (practiceAuto) practiceAutoPov(); });
+        $p('ps-clearfx').onclick = () => { $p('practice-set-overlay').style.display = 'none'; practiceClearEffects(); };
+        $p('ps-close').onclick = () => { $p('practice-set-overlay').style.display = 'none'; };
 
         initBoard();
         if (__AUG_DEMO) startAugDemo((window.__AUG_DEMO__ || {}).name);
