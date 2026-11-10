@@ -1099,6 +1099,7 @@
         .pt-chip { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; height: 32px; border-radius: 999px; border: 1px solid var(--panel-border); background: rgba(128,128,128,.14); color: var(--text-color); font-weight: 700; font-size: .72rem; cursor: pointer; white-space: nowrap; }
         .pt-chip i { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid #888; display: inline-block; } .pt-chip i.w { background: #fff; border-color: #000; } .pt-chip i.b { background: #222; border-color: #eee; }
         .pt-chip.fog { background: rgba(255,200,40,.16); border-color: rgba(230,170,0,.65); color: #c58a00; }
+        .pt-chip.mate { background: rgba(255,71,87,.16); border-color: rgba(255,71,87,.7); color: #ff4757; }
         .pt-chip.on { background: var(--primary); border-color: var(--primary); color: #fff; }
         .pt-chip.exit { color: var(--danger); width: 32px; padding: 0; justify-content: center; font-size: .9rem; }
         .pt-chip .x { margin-left: 2px; padding: 0 2px; opacity: .75; }
@@ -1115,17 +1116,26 @@
         .pt-btn.danger { color: var(--danger); }
         .pt-btn:disabled { opacity: .35; cursor: default; }
         .pt-btn:not(:disabled):active { transform: scale(.96); }
-        .pt-edit { display: none; flex-direction: column; gap: 6px; }
+        .pt-edit { display: none; flex-direction: column; gap: 6px; min-width: 0; max-width: 100%; max-height: min(44vh, 330px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+        #practice-tools { max-width: 100%; overflow-x: hidden; }
+        .pt-btn { min-width: 0; white-space: nowrap; overflow: hidden; }
+        .pt-btn.sm { min-height: 36px; padding: 4px 0; font-size: .68rem; border-radius: 9px; }
+        .pt-btn .ico-e { font-size: 1rem; line-height: 17px; height: 17px; }
+        .pt-selbox { display: none; flex-direction: column; gap: 4px; padding: 6px; border-radius: 12px; border: 1px dashed var(--primary); background: rgba(243,156,18,.07); }
+        .pt-selbox .pt-cnt { font-size: .72rem; font-weight: 800; color: var(--primary); text-align: center; }
+        body.practice-editing #board { touch-action: none; }
         body.practice-editing .pt-edit { display: flex; } body.practice-editing .pt-play { display: none; }
-        .pt-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
-        .pt-btn.mini { min-height: 46px; padding: 5px 0 4px; font-size: .62rem; gap: 2px; border-radius: 10px; }
+        .pt-row { display: grid; grid-template-columns: repeat(var(--n, 6), minmax(0, 1fr)); gap: 4px; min-width: 0; }
+        .pt-btn.mini { min-height: 42px; padding: 5px 0 4px; font-size: .62rem; gap: 2px; border-radius: 10px; }
         .pt-btn.mini .ico { width: 17px; height: 17px; }
-        .pt-pal { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
-        .pt-pal button { aspect-ratio: 1; padding: 3px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(128,128,128,.16); cursor: pointer; }
-        .pt-pal button svg { width: 100%; height: 100%; display: block; }
+        .pt-pal { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; min-width: 0; }
+        .pt-pal button { aspect-ratio: 1.35; min-width: 0; min-height: 0; overflow: hidden; padding: 3px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(128,128,128,.16); cursor: pointer; }
+        .pt-pal button svg { width: 100%; height: 100%; max-width: 100%; display: block; }
         .pt-pal button.sel { outline: 2px solid var(--primary); background: rgba(243,156,18,.28); }
         .pt-hint { font-size: .72rem; color: #999; text-align: center; min-height: 1.1em; }
         body.practice-editing #board .square { cursor: crosshair; }
+        #board .square.pt-multi { box-shadow: inset 0 0 0 3px #3aa0ff; background-image: linear-gradient(rgba(58,160,255,.32), rgba(58,160,255,.32)); }
+        #board .square.pt-box { box-shadow: inset 0 0 0 3px #3aa0ff; background-image: linear-gradient(rgba(58,160,255,.22), rgba(58,160,255,.22)); }
         #board .square.pt-sel { box-shadow: inset 0 0 0 3px var(--primary); }
         #practice-aug-overlay .pa-box, #practice-set-overlay .pa-box { width: min(400px, calc(100% - 20px)); }
         .pa-side { display: flex; gap: 6px; margin-bottom: 8px; }
@@ -1932,17 +1942,38 @@
                 <button type="button" class="pt-btn" id="pt-set"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>설정</button>
             </div>
             <div class="pt-edit">
-                <div class="pt-row">
+                <div class="pt-row" style="--n:5">
                     <button type="button" class="pt-btn mini on" id="pt-tool-move"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>이동</button>
+                    <button type="button" class="pt-btn mini" id="pt-tool-select"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 3"/></svg>영역</button>
                     <button type="button" class="pt-btn mini" id="pt-erase"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>지우개</button>
                     <button type="button" class="pt-btn mini" id="pt-undo2" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>되돌리기</button>
                     <button type="button" class="pt-btn mini" id="pt-redo2" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/></svg>다시</button>
-                    <button type="button" class="pt-btn mini" id="pt-std"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a9 9 0 1 0 2.1-9.4L1 10"/></svg>기본 배치</button>
-                    <button type="button" class="pt-btn mini danger" id="pt-clear"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>모두 비움</button>
                 </div>
                 <div class="pt-pal" id="pt-pal-w"></div>
                 <div class="pt-pal" id="pt-pal-b"></div>
                 <div class="pt-hint" id="pt-hint"></div>
+                <div class="pt-selbox" id="pt-selbox">
+                    <div class="pt-cnt" id="pt-sel-cnt">선택 없음</div>
+                    <div class="pt-row" style="--n:5">
+                    <button type="button" class="pt-btn sm" id="pt-s-del">지우기</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-swap">색 반전</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-fh">좌우 ⇋</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-fv">상하 ⇅</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-add">＋추가</button>
+                    </div>
+                    <div class="pt-row" style="--n:6">
+                    <button type="button" class="pt-btn sm" id="pt-s-l">←</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-u">↑</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-d">↓</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-r">→</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-all">전체</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-none">해제</button>
+                    </div>
+                </div>
+                <div class="pt-row" style="--n:2">
+                    <button type="button" class="pt-btn sm" id="pt-std"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a9 9 0 1 0 2.1-9.4L1 10"/></svg>기본 배치</button>
+                    <button type="button" class="pt-btn sm danger" id="pt-clear"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>모두 비움</button>
+                </div>
             </div>
         </div>
         <div id="emote-popup">
@@ -9189,8 +9220,7 @@
 
         function showEndScreen(resultType, reasonStr, opts = {}) {
             if (isPracticeMode) {   // 연습 모드는 끝나지 않는다: 알림만 띄우고 계속한다
-                const now = Date.now();
-                if (!practiceEditing && now - practiceNoteAt > 4000) { practiceNoteAt = now; showToast('연습 모드는 끝나지 않아요 — 되돌리기나 배치 편집으로 이어가세요', '#f39c12', 2600); }
+                try { practiceAnnounce(resultType, reasonStr); } catch (e) {}
                 return;
             }
             if(game.is_game_over) return;
@@ -10263,7 +10293,7 @@
                   game.remove(bSq); spawnFloatingText(bSq, '🙏');
                   for (let r = 8; r >= 1; r--) { const sq = f + r, p = game.get(sq); if (p && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { game.remove(sq); spawnFloatingText(sq, '⚡'); hit.push(sq); } }
                   return { t: [bSq, ...hit], vfx: 'vfx-lightning', msg: hit.length > 0 ? '⚡ 비숍을 제물로 신의 심판이 내렸습니다!' : '⚡ 번개가 허공을 갈랐습니다...' }; } },
-            { name: '공성전', icon: '🏹', desc: '아군 기물이 없는 {가로줄} 하나가 무작위로 정해집니다. 모든 아군 {룩}이 그 줄에서 자기 {세로줄}과 만나는 칸을 [포격]해, 그 칸의 적 기물(킹 제외)을 [파괴]합니다.', globalVfx: null, isKillType: true,
+            { name: '공성전', icon: '🏹', desc: '적 기물이 있는 {가로줄} 하나가 무작위로 정해집니다. 모든 아군 {룩}이 그 줄에서 자기 {세로줄}과 만나는 칸을 [포격]해, 그 칸의 적 기물(킹 제외)을 [파괴]합니다.', globalVfx: null, isKillType: true,
               condition: (m, e) => siegeHasTarget(m, e),
               apply: (m, e) => {
                   const shots = siegeShots(m, e), hit = [];
@@ -10457,7 +10487,7 @@
         ];
 
         // 고유 연출이 끝난 뒤 다음 단계로 넘어가도록 증강별 대기 시간(ms)을 늘린다 (이미 지정된 delay는 유지)
-        // 공성전: 아군 기물이 하나도 없는 가로줄(적·빈칸으로만 된 줄) 중 하나를 무작위로 정하고, 아군 룩마다 '자기 세로줄'이 그 줄과 만나는 칸을 포격한다.
+        // 공성전: 적 기물이 있는 가로줄(아군 기물이 없는 줄) 중 하나를 무작위로 정하고, 아군 룩마다 '자기 세로줄'이 그 줄과 만나는 칸을 포격한다.
         // 그 칸의 적 기물(킹·벽·무적 제외)만 파괴되고, 빈 칸은 아무 일도 없다.
         function balloonCands(m) { return findPieces(m).filter(sq => { const p = game.get(sq); return p && p.type !== 'k' && p.type !== 'wall' && !(balloons[p.uid] > 0); }); }   // 업: 킹·장벽·이미 풍선이 붙은 기물은 제외
         function siegeKillable(sq, e) { const p = game.get(sq); return !!p && p.color === e && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]; }
@@ -10550,7 +10580,7 @@
             '캐슬링+': { cap: '킹 주변의 폰이 룩으로 승급합니다' },
             '진군 명령': { w: 'Ke1 Qd1 Ra1 Rh1 Bc1 Bf1 Nb1 Ng1 Pa2 Pb2 Pc2 Pd2 Pe2 Pf2 Ph2 Pg7', b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Rh8 Pa7 Pb7 Pc7 Pd7 Pe7 Pf7 Ph7',
                 cap: '모든 폰이 전진하고, 끝줄에 닿은 폰은 원하는 기물로 승급합니다' },
-            '공성전': { cap: '아군이 없는 가로줄 하나를 골라, 각 룩이 자기 세로줄의 그 칸을 포격합니다' },
+            '공성전': { cap: '적 기물이 있는 가로줄 하나를 골라, 각 룩이 자기 세로줄의 그 칸을 포격합니다' },
             '차원 장벽': { target: 'd4', cap: '장벽은 10수 동안 모든 이동을 막습니다' },
             '빛의 수호': { cap: '무적이 된 폰은 2수 동안 잡히지 않습니다' },
             '잭팟': { cap: '이후 증강 단계에서 선택지가 한 장 더 나옵니다',
@@ -11422,6 +11452,7 @@
         // ==========================================
         // 연습 모드 v2: 자유 배치·이동 · 증강 체험 · 시점 전환(암전 안개 포함) · 되돌리기/다시하기
         // ==========================================
+        let practiceMulti = new Set(), practiceAdd = false, practiceDrag = null, practiceDragged = false, practiceEndKey = '';
         let practiceEditing = false, practiceTool = null, practiceHist = [], practiceFuture = [], practiceNoteAt = 0, practiceAugSide = 'w';
         let practiceSel = null, practiceAuto = false, practicePovT = 0, practiceBoPrev = { w: 0, b: 0 }, practiceAugCat = '전체';
         const $p = id => document.getElementById(id);
@@ -11447,7 +11478,7 @@
             selectedSquare = null; selectedUnder = false; legalMoves = []; previousMove = null;
             muteShatter = true; drawPieces(false); muteShatter = false;
             drawDots(); updateProgressBar(); updateBoardVisuals(); updateTurnIndicator(); updateCheckStatus(); updatePreviousMoveHighlights();
-            practiceBtns(); practiceStatus();
+            practiceBtns(); practiceStatus(); try { practiceMultiPaint(); } catch (e) {}
         }
         function practiceFixRights() {   // 배치를 바꾼 뒤: 앙파상·캐슬링 권리를 새 배치에 맞게 정리한다
             game.ep_square = null; game.castling = { w: { k: true, q: true }, b: { k: true, q: true } }; game.rebuildCastleUids(); game.sanitizeSpecialStates();
@@ -11456,7 +11487,7 @@
             Promise.resolve(cancelMatchmaking()).catch(() => {}).then(() => {
                 modeSelectOverlay.style.display = 'none';
                 isBotMode = false; isPracticeMode = true; currentRoomId = null; myColor = 'w'; isGameStarted = true; statsRecorded = true; rankCtx = null;
-                practiceEditing = false; practiceTool = null; practiceHist = []; practiceFuture = []; practiceSel = null; practiceBoPrev = { w: 0, b: 0 }; practiceLoadPrefs();
+                practiceEditing = false; practiceTool = null; practiceHist = []; practiceFuture = []; practiceSel = null; practiceMulti = new Set(); practiceEndKey = ''; practiceBoPrev = { w: 0, b: 0 }; practiceLoadPrefs();
                 document.body.classList.remove('black-pov', 'practice-editing'); document.body.classList.add('practice-mode');
                 document.getElementById('game-controls').style.display = 'flex';
                 document.getElementById('btn-resign').style.display = 'none';
@@ -11467,15 +11498,17 @@
         }
         function practiceHintUpdate() {
             const h = $p('pt-hint'); if (!h) return;
-            h.textContent = practiceTool === 'erase' ? '지우고 싶은 기물이 있는 칸을 누르세요'
-                : (practiceTool && practiceTool !== 'move') ? '칸을 누르면 기물이 놓여요 · 같은 기물을 다시 누르면 지워져요'
-                : (practiceSel ? '옮길 칸을 누르세요 · 같은 칸을 다시 누르면 취소' : '옮길 기물을 누른 뒤 도착 칸을 누르세요 (규칙 상관없이 자유 이동)');
+            h.textContent = practiceTool === 'select' ? (practiceMulti.size ? `${practiceMulti.size}칸 선택됨 · 아래 기물을 누르면 전부 그 기물로 채워져요` : '보드를 드래그해 영역을 고르세요 · 칸을 눌러 하나씩 추가/해제')
+                : practiceTool === 'erase' ? '칸을 누르거나 드래그해서 지우세요'
+                : (practiceTool && practiceTool !== 'move') ? '칸을 누르면 놓여요(같은 기물은 지워져요) · 드래그하면 쭉 칠해져요'
+                : (practiceSel ? '옮길 칸을 누르세요 · 같은 칸을 다시 누르면 취소' : '기물을 누르거나 끌어서 옮기세요 (선택 영역 안의 기물을 끌면 한꺼번에 이동)');
         }
         function practiceSyncUI() {
             document.body.classList.toggle('practice-editing', practiceEditing);
             $p('pt-tab-play').classList.toggle('on', !practiceEditing); $p('pt-tab-edit').classList.toggle('on', practiceEditing);
             document.querySelectorAll('#pt-pal-w button, #pt-pal-b button').forEach(b => b.classList.toggle('sel', !!practiceTool && typeof practiceTool === 'object' && b.dataset.k === practiceTool.color + practiceTool.type));
-            $p('pt-tool-move').classList.toggle('on', practiceTool === 'move'); $p('pt-erase').classList.toggle('on', practiceTool === 'erase');
+            $p('pt-tool-move').classList.toggle('on', practiceTool === 'move'); $p('pt-erase').classList.toggle('on', practiceTool === 'erase'); $p('pt-tool-select').classList.toggle('on', practiceTool === 'select');
+            $p('pt-selbox').style.display = practiceTool === 'select' ? 'flex' : 'none'; $p('pt-hint').style.display = practiceTool === 'select' ? 'none' : ''; $p('pt-s-add').classList.toggle('on', practiceAdd); $p('pt-sel-cnt').textContent = practiceMulti.size ? `${practiceMulti.size}칸 선택됨 · 위 기물을 누르면 전부 채워져요` : '보드를 드래그해 영역을 고르세요 (칸을 눌러도 추가/해제)';
             practiceHintUpdate(); practiceBtns(); practiceStatus();
             try { scheduleFit(); } catch (e) {}
         }
@@ -11485,7 +11518,7 @@
                 ['k', 'q', 'r', 'b', 'n', 'p'].forEach(type => {
                     const b = document.createElement('button'); b.type = 'button'; b.dataset.k = color + type; b.setAttribute('aria-label', (color === 'w' ? '백 ' : '흑 ') + type);
                     b.innerHTML = svgPieces[type.toUpperCase()].replace(/{fill}/g, color === 'w' ? '#ffffff' : '#222222').replace(/{stroke}/g, color === 'w' ? '#000000' : '#eeeeee');
-                    b.onclick = () => { const same = practiceTool && typeof practiceTool === 'object' && practiceTool.color === color && practiceTool.type === type; practiceTool = same ? 'move' : { color, type }; practiceClearSel(); practiceSyncUI(); };
+                    b.onclick = () => { if (practiceTool === 'select' && practiceMulti.size) { practiceSelApply(() => practiceFill(type, color)); return; } const same = practiceTool && typeof practiceTool === 'object' && practiceTool.color === color && practiceTool.type === type; practiceTool = same ? 'move' : { color, type }; practiceClearSel(); practiceSyncUI(); };
                     box.appendChild(b);
                 });
             });
@@ -11503,6 +11536,7 @@
                 if (cur) { practiceSel = sq; const el = squareEls.get(sq); if (el) el.classList.add('pt-sel'); practiceHintUpdate(); }
                 return;
             }
+            if (t === 'select') { if (practiceMulti.has(sq)) practiceMulti.delete(sq); else practiceMulti.add(sq); practiceMultiPaint(); practiceSyncUI(); return; }
             if (t === 'erase' && !cur) return;
             practiceSnap();
             if (t === 'erase') game.remove(sq);
@@ -11512,7 +11546,7 @@
         }
         function practiceSetEdit(on) {
             if (on && practiceBusy()) return;
-            practiceEditing = !!on; practiceTool = on ? 'move' : null; practiceClearSel();
+            practiceEditing = !!on; practiceTool = on ? 'move' : null; practiceClearSel(); practiceMulti = new Set(); try { practiceMultiPaint(); } catch (e) {}
             selectedSquare = null; selectedUnder = false; legalMoves = []; drawDots(); practiceSyncUI(); updateCheckStatus();
         }
         function practiceUndo() {
@@ -11579,7 +11613,8 @@
                 if (bo[c] > (practiceBoPrev[c] || 0) && c !== pov && !practiceOmni) showToast(`💡 ${SIDE_KO[c]} 암전 — 상태 줄의 암전 칩을 누르면 ${SIDE_KO[c]} 시점으로 볼 수 있어요`, 'var(--primary)', 3200);
             });
             practiceBoPrev = { w: bo.w, b: bo.b };
-            const sig = [turn, pov, bo.w, bo.b, practiceOmni ? 1 : 0].join('|');
+            const cond = practiceCondition(); if (!cond || cond === 'check') practiceEndKey = '';
+            const sig = [turn, pov, bo.w, bo.b, practiceOmni ? 1 : 0, cond].join('|');
             if (box.dataset.sig === sig) return; box.dataset.sig = sig;
             box.innerHTML = '';
             const chip = (cls, html, title, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'pt-chip ' + cls; b.innerHTML = html; if (title) b.title = title; b.onclick = fn; box.appendChild(b); return b; };
@@ -11591,6 +11626,10 @@
                 const x = document.createElement('span'); x.className = 'x'; x.textContent = '✕'; x.title = '암전 해제';
                 x.onclick = ev => { ev.stopPropagation(); practiceClearBlackout(c); }; ch.appendChild(x);
             });
+            if (cond === 'check') chip('mate', `⚠️ ${SIDE_KO[turn]} 체크`, '킹이 공격받고 있어요', () => {});
+            else if (cond === 'mate') chip('mate', `♚ 체크메이트 · ${SIDE_KO[turn === 'w' ? 'b' : 'w']} 승`, '더 둘 수 있는 수가 없어요 — 되돌리기로 이어갈 수 있어요', () => {});
+            else if (cond === 'stale') chip('mate', '🤝 스테일메이트', '체크는 아니지만 둘 수 있는 수가 없어요', () => {});
+            else if (cond === 'nokingw' || cond === 'nokingb') chip('mate', `👑 ${cond === 'nokingw' ? '백' : '흑'} 킹 없음`, '킹이 없으면 체크·메이트 판정이 되지 않아요', () => {});
             if (practiceOmni) chip('on', '전지적 시점', '암전을 무시하고 전부 보는 중 — 눌러서 끄기', () => { practiceOmni = false; practiceSavePrefs(); updateFog(); drawDots(); practiceStatus(); });
             const sp = document.createElement('span'); sp.className = 'pt-sp'; box.appendChild(sp);
             chip('exit', '✕', '연습 모드 나가기', () => { document.getElementById('btn-menu-leave').click(); });
@@ -11660,6 +11699,120 @@
         $p('ps-auto').addEventListener('change', e => { practiceAuto = e.target.checked; practiceSavePrefs(); if (practiceAuto) practiceAutoPov(); });
         $p('ps-clearfx').onclick = () => { $p('practice-set-overlay').style.display = 'none'; practiceClearEffects(); };
         $p('ps-close').onclick = () => { $p('practice-set-overlay').style.display = 'none'; };
+
+        // ---- 연습 모드 자유도: 드래그 브러시 · 영역 선택 · 일괄 편집 · 끌어서 이동 ----
+        const PT_FILES = 'abcdefgh';
+        const ptCol = sq => PT_FILES.indexOf(sq[0]), ptRank = sq => parseInt(sq[1], 10), ptSq = (c, r) => (c < 0 || c > 7 || r < 1 || r > 8) ? null : PT_FILES[c] + r;
+        function practiceSqAt(x, y) {
+            const b = $p('board'); if (!b) return null;
+            const r = b.getBoundingClientRect(), w = b.clientWidth, h = b.clientHeight, px = x - r.left - b.clientLeft, py = y - r.top - b.clientTop;
+            if (px < 0 || py < 0 || px >= w || py >= h) return null;
+            let c = Math.floor(px / w * 8), rr = Math.floor(py / h * 8);
+            if (practicePov() === 'b') { c = 7 - c; rr = 7 - rr; }
+            return PT_FILES[c] + (8 - rr);
+        }
+        function practiceRect(a, b) {
+            const out = [], c0 = Math.min(ptCol(a), ptCol(b)), c1 = Math.max(ptCol(a), ptCol(b)), r0 = Math.min(ptRank(a), ptRank(b)), r1 = Math.max(ptRank(a), ptRank(b));
+            for (let c = c0; c <= c1; c++) for (let r = r0; r <= r1; r++) out.push(ptSq(c, r));
+            return out;
+        }
+        function practiceMultiPaint() { squareEls.forEach((el, sq) => el.classList.toggle('pt-multi', practiceMulti.has(sq))); }
+        function practiceBoxPaint(list) { const s = new Set(list || []); squareEls.forEach((el, sq) => el.classList.toggle('pt-box', s.has(sq))); }
+        function practiceBrush(sq, t) {
+            const cur = game.get(sq);
+            if (t === 'erase') { if (cur) game.remove(sq); }
+            else { if (cur && cur.type === t.type && cur.color === t.color) return; if (cur) game.remove(sq); game.put({ type: t.type, color: t.color }, sq); }
+            practiceFixRights(); practiceRepaint();
+        }
+        function practiceFill(type, color) { [...practiceMulti].forEach(sq => { if (game.get(sq)) game.remove(sq); game.put({ type, color }, sq); }); }
+        function practiceSelApply(fn) {
+            if (practiceBusy()) return;
+            if (!practiceMulti.size) { showToast('먼저 보드를 드래그해 영역을 선택하세요', '#f39c12', 1500); return; }
+            practiceSnap(); fn(); practiceFixRights(); practiceRepaint(); practiceSyncUI();
+        }
+        function practiceShift(dc, dr, sqs) {   // 선택한 칸들을 통째로 (dc, dr)만큼 옮긴다. 보드 밖으로 나가면 취소
+            const list = sqs || [...practiceMulti];
+            if (list.some(s => !ptSq(ptCol(s) + dc, ptRank(s) + dr))) { showToast('보드 밖으로 나가요', '#f39c12', 1200); return false; }
+            const pcs = list.map(s => ({ s, p: game.get(s) })).filter(o => o.p);
+            pcs.forEach(o => game.remove(o.s));
+            pcs.forEach(o => { const t = ptSq(ptCol(o.s) + dc, ptRank(o.s) + dr); if (game.get(t)) game.remove(t); game.put(o.p, t); });
+            practiceMulti = new Set(list.map(s => ptSq(ptCol(s) + dc, ptRank(s) + dr)));
+            return true;
+        }
+        function practiceFlipSel(horizontal) {
+            const L = [...practiceMulti], cs = L.map(ptCol), rs = L.map(ptRank), c0 = Math.min(...cs), c1 = Math.max(...cs), r0 = Math.min(...rs), r1 = Math.max(...rs);
+            const map = s => horizontal ? ptSq(c0 + c1 - ptCol(s), ptRank(s)) : ptSq(ptCol(s), r0 + r1 - ptRank(s));
+            const pcs = L.map(s => ({ s, p: game.get(s) })).filter(o => o.p);
+            pcs.forEach(o => game.remove(o.s));
+            pcs.forEach(o => { const t = map(o.s); if (game.get(t)) game.remove(t); game.put(o.p, t); });
+            practiceMulti = new Set(L.map(map));
+        }
+        function practiceMoveDrag(from, to, multi) {
+            if (from === to || practiceBusy()) return;
+            if (multi) { practiceSnap(); if (!practiceShift(ptCol(to) - ptCol(from), ptRank(to) - ptRank(from))) { practiceHist.pop(); practiceBtns(); return; } }
+            else { const pc = game.get(from); if (!pc) return; practiceSnap(); game.remove(from); if (game.get(to)) game.remove(to); game.put(pc, to); }
+            practiceFixRights(); practiceRepaint(); practiceSyncUI();
+        }
+        window.addEventListener('pointerdown', e => {
+            if (!isPracticeMode || !practiceEditing || targeting || (e.pointerType === 'mouse' && e.button !== 0)) return;
+            const b = $p('board'); if (!b || !b.contains(e.target)) return;
+            const sq = practiceSqAt(e.clientX, e.clientY); if (!sq) return;
+            const tool = practiceTool || 'move';
+            const d = { sq, last: sq, id: e.pointerId, moved: false, snapped: false, tool, add: practiceAdd || e.shiftKey || e.ctrlKey || e.metaKey, base: new Set(practiceMulti), multi: false };
+            if (tool === 'move') { if (!game.get(sq)) return; d.multi = practiceMulti.has(sq) && practiceMulti.size > 1; }
+            practiceDrag = d;
+        });
+        window.addEventListener('pointermove', e => {
+            const d = practiceDrag; if (!d || e.pointerId !== d.id) return;
+            const sq = practiceSqAt(e.clientX, e.clientY); if (!sq || sq === d.last) return;
+            d.last = sq;
+            if (!d.moved) { d.moved = true; practiceDragged = true; practiceClearSel(); }
+            if (d.tool === 'select') practiceBoxPaint(practiceRect(d.sq, sq));
+            else if (d.tool === 'move') practiceBoxPaint([sq]);
+            else {   // 브러시 / 지우개: 지나가는 칸마다 바로 적용
+                if (!d.snapped) { practiceSnap(); d.snapped = true; practiceBrush(d.sq, d.tool); }
+                practiceBrush(sq, d.tool);
+            }
+        });
+        const practiceDragEnd = e => {
+            const d = practiceDrag; if (!d || e.pointerId !== d.id) return;
+            practiceDrag = null; practiceBoxPaint([]);
+            if (!d.moved) return;   // 제자리 탭은 기존 클릭 처리로 넘긴다
+            setTimeout(() => { practiceDragged = false; }, 0);
+            if (e.type === 'pointercancel') return;
+            const sq = practiceSqAt(e.clientX, e.clientY) || d.last;
+            if (d.tool === 'select') { practiceMulti = d.add ? new Set([...d.base, ...practiceRect(d.sq, sq)]) : new Set(practiceRect(d.sq, sq)); practiceMultiPaint(); practiceSyncUI(); }
+            else if (d.tool === 'move') practiceMoveDrag(d.sq, sq, d.multi);
+        };
+        window.addEventListener('pointerup', practiceDragEnd); window.addEventListener('pointercancel', practiceDragEnd);
+        window.addEventListener('click', e => { if (practiceDragged) { e.stopPropagation(); e.preventDefault(); practiceDragged = false; } }, true);   // 드래그 뒤에 따라오는 클릭은 무시
+        $p('pt-tool-select').onclick = () => { practiceTool = practiceTool === 'select' ? 'move' : 'select'; practiceClearSel(); practiceSyncUI(); };
+        $p('pt-s-del').onclick = () => practiceSelApply(() => { practiceMulti.forEach(sq => { if (game.get(sq)) game.remove(sq); }); });
+        $p('pt-s-swap').onclick = () => practiceSelApply(() => { [...practiceMulti].forEach(sq => { const p = game.get(sq); if (!p) return; game.remove(sq); game.put({ type: p.type, color: p.color === 'w' ? 'b' : 'w' }, sq); }); });
+        $p('pt-s-fh').onclick = () => practiceSelApply(() => practiceFlipSel(true));
+        $p('pt-s-fv').onclick = () => practiceSelApply(() => practiceFlipSel(false));
+        $p('pt-s-add').onclick = () => { practiceAdd = !practiceAdd; practiceSyncUI(); };
+        [['pt-s-l', -1, 0], ['pt-s-r', 1, 0], ['pt-s-u', 0, 1], ['pt-s-d', 0, -1]].forEach(([id, dc, dr]) => { $p(id).onclick = () => { if (!practiceMulti.size) { showToast('먼저 영역을 선택하세요', '#f39c12', 1200); return; } if (practiceBusy()) return; practiceSnap(); if (!practiceShift(dc, dr)) { practiceHist.pop(); practiceBtns(); return; } practiceFixRights(); practiceRepaint(); practiceSyncUI(); }; });
+        $p('pt-s-all').onclick = () => { practiceMulti = new Set(); for (const f of PT_FILES) for (let r = 1; r <= 8; r++) practiceMulti.add(f + r); practiceMultiPaint(); practiceSyncUI(); };
+        $p('pt-s-none').onclick = () => { practiceMulti = new Set(); practiceMultiPaint(); practiceSyncUI(); };
+
+        // ---- 체크 / 체크메이트 / 스테일메이트 알림 (연습 모드는 끝나지 않지만 상황은 그대로 알려 준다) ----
+        function practiceBoardSig() { try { return game.board().map(r => r.map(p => p ? p.color + p.type : '.').join('')).join('/'); } catch (e) { return ''; } }
+        function practiceAnnounce(resultType, reason) {
+            if (practiceEditing) return;   // 배치 편집 중에는 알리지 않는다 (상태 줄 칩으로만 표시)
+            const key = reason + '|' + game.turn() + '|' + practiceBoardSig(); if (key === practiceEndKey) return; practiceEndKey = key;
+            const loser = game.turn(), winner = loser === 'w' ? 'b' : 'w';
+            const msg = /체크메이트/.test(reason) ? `♚ 체크메이트! ${SIDE_KO[winner]} 승리 (연습 모드는 계속돼요)` : /스테일/.test(reason) ? '🤝 스테일메이트 — 무승부 (연습 모드는 계속돼요)' : `${reason} (연습 모드는 계속돼요)`;
+            showToast(msg, '#ff4757', 3600);
+        }
+        function practiceCondition() {   // 차례인 쪽 기준의 상태: '' | check | mate | stale | nokingw | nokingb
+            try {
+                const hasK = c => game.board().some(r => r.some(p => p && p.type === 'k' && p.color === c));
+                if (!hasK('w')) return 'nokingw'; if (!hasK('b')) return 'nokingb';
+                if (game.in_checkmate()) return 'mate'; if (game.in_draw()) return 'stale'; if (game.in_check()) return 'check';
+            } catch (e) {}
+            return '';
+        }
 
         initBoard();
         if (__AUG_DEMO) startAugDemo((window.__AUG_DEMO__ || {}).name);
