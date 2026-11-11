@@ -1015,6 +1015,11 @@
         .aug-info { position: absolute; top: 5px; right: 5px; z-index: 3; width: 19px; height: 19px; padding: 0; border-radius: 50%; border: 1px solid rgba(var(--acc), 0.6); background: rgba(0,0,0,0.38); color: rgb(var(--acc-soft)); font: italic 800 0.72rem/1 Georgia, 'Times New Roman', serif; display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .aug-info::after { content: ''; position: absolute; inset: -7px; }
         .aug-info:active { background: rgba(var(--acc), 0.3); }
+        /* 상대가 증강을 고르는 중(흐리게 처리된 카드)에도 i 버튼을 눌러 설명을 볼 수 있다 */
+        .augment-card.dimmed .aug-info { pointer-events: auto; }
+        /* 증강 설명 창: 배경을 검게 덮지 않고 살짝 흐리게만 보이도록 한다 */
+        #aug-info-overlay { background: rgba(10, 10, 15, 0.34); background: color-mix(in srgb, var(--overlay-bg) 38%, transparent); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+        body.aug-info-open #augment-overlay { background: rgba(10, 10, 15, 0.4); background: color-mix(in srgb, var(--overlay-bg) 42%, transparent); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
         #aug-info-overlay .help-box { width: 100%; max-width: 440px; padding: 0 !important; overflow: hidden; display: flex; flex-direction: column; max-height: min(92vh, 720px); text-align: left; --acc: 150,150,170; --acc-soft: 200,200,215; }
         .aug-info-box.augment-type-damage { --acc: 255,107,94; --acc-soft: 255,196,188; }
         .aug-info-box.augment-type-summon { --acc: 61,220,151; --acc-soft: 176,244,212; }
@@ -3993,6 +3998,7 @@
             } else if (action.type === 'augment_preview') {
                 opponentAugmentPreview = action.preview; oppAugDeadline = Date.now() + augLimitMs(proxyPick[action.playerColor] || action.playerColor);   // 상대가 카드를 보기 시작한 시점부터 30초
                 opponentAugmentPreviewColor = action.playerColor;
+                opponentAugmentPreviewEarly = augmentOverlay.style.display !== 'flex';
                 if (augmentOverlay.style.display === 'flex') {
                     renderOpponentPreviewCards(opponentAugmentPreview, opponentAugmentPreviewColor, augmentOverlay);
                 }
@@ -4002,7 +4008,7 @@
             } else if (action.type === 'augment_sync') {
                 oppAugDeadline = 0; const __tok = specSession;
                 augBusy = true; augBusyAt = Date.now();
-                opponentAugmentSelection = null;
+                opponentAugmentSelection = null; opponentAugmentPreviewEarly = false;
                 document.getElementById('augment-overlay').style.display = 'none';
                 deserializeGameState(action.state); 
                 { const ag0 = AUGMENT_POOL.find(x => x.name === action.name); if (ag0) addAugmentLog(action.by === myColor ? 'mine' : 'opp', ag0); }
@@ -4499,6 +4505,12 @@
                     this.castleUids[color] = { king: (k && k.type === 'k' && k.color === color) ? k.uid : null, k: (rk && rk.type === 'r' && rk.color === color) ? rk.uid : null, q: (rq && rq.type === 'r' && rq.color === color) ? rq.uid : null };
                 }
             }
+            // 업: 아래에 다른 기물 없이 공중에 떠 있는 풍선 기물의 칸은 길목을 막지 않는다 (비숍·룩·퀸이 그 아래로 지나간다)
+            airFloat(p, r, c) {
+                if (!p || p.type === 'wall' || !(balloons[p.uid] > 0)) return false;
+                const u = balloonUnder[this.rcToSq(r, c)];
+                return !(u && String(u.uid) === String(p.uid));
+            }
             castleOk(color, side) {
                 const cu = this.castleUids && this.castleUids[color]; if (!cu) return false;
                 const back = color === 'w' ? 7 : 0, king = this._board[back][4], rook = this._board[back][side === 'k' ? 7 : 0];
@@ -4547,6 +4559,7 @@
                     while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
                         const p = B[nr][nc];
                         if (p && future && p.type === 'wall') { const ew = activeWalls.find(x => x.sq === this.rcToSq(nr, nc)); if (ew && ew.duration <= 1) { nr += dr; nc += dc; continue; } }   // 내 수 직후 사라질 장벽은 가로막지 못한다
+                        if (p && this.airFloat(p, nr, nc)) { nr += dr; nc += dc; continue; }   // 떠 있는 기물 아래로 공격선이 지나간다
                         if (p) {
                             if (p.type !== 'wall' && p.color === attackerColor && (p.type === 'q' || (future && p.type === 'p' && prospects[p.uid] === 1) || p.type === (diag ? 'b' : 'r')) && !(rootedPieces[p.uid] > keep) && !(balloons[p.uid] > 0)) return true;   // 유망주 폰은 내 수 직후 퀸이 되므로 퀸처럼 공격한다
                             break;
@@ -4583,6 +4596,7 @@
                     if (this.isValidRC(nr, nc)) {
                         const t = boardState[nr][nc];
                         if (t && t.type === 'wall') return false; 
+                        if (t && this.airFloat(t, nr, nc)) return true;   // 떠 있는 기물 아래로 지나간다 (그 칸에 멈추지는 못한다)
                         if (!t) { moves.push({ r: nr, c: nc }); return true; }
                         if (t.color !== color) {
                             if (!(invinciblePieces[t.uid] || balloons[t.uid] > 0)) moves.push({ r: nr, c: nc }); 
@@ -9856,8 +9870,8 @@
         }
 
         // 가중치(소수 가능)에 비례해 중복 없이 count개를 뽑는다
-        function weightedSample(list, count) {
-            const pool = list.map(a => ({ a, w: a.weight !== undefined ? a.weight : (a.isKillType ? 1 : 4) })), out = [];
+        function weightedSample(list, count, who) {   // who: 이 선택지를 받는 색 (증강별 weightMul이 있으면 상황에 맞게 가중치를 조절)
+            const pool = list.map(a => { let w = a.weight !== undefined ? a.weight : (a.isKillType ? 1 : 4); if (who && typeof a.weightFn === 'function') { try { const v = a.weightFn(who); if (v > 0) w = v; } catch (e) {} } return { a, w }; }), out = [];
             while (out.length < count && pool.length) {
                 const tot = pool.reduce((t, x) => t + x.w, 0); let r = Math.random() * tot, i = 0;
                 for (; i < pool.length - 1; i++) { r -= pool[i].w; if (r <= 0) break; }
@@ -10279,12 +10293,12 @@
         let demoFateFixed = null;   // 도움말 미리보기 전용: 한 기물을 고정하고 나머지 하나만 무작위로 고른다
         function fatePool(e) { return findPieces(e).filter(sq => { const p = game.get(sq); return p && p.type !== 'k' && p.type !== 'wall' && !(invinciblePieces[p.uid] > 0) && !fateLinks.some(l => l[0] === p.uid || l[1] === p.uid); }); }
         const AUGMENT_POOL = [
-            { name: '네크로맨서', icon: '💀', desc: '아군 폰의 {절반}을 제물로 바쳐, 폰이 있던 자리 중 한 곳에 [퀸]을 [소환]합니다.', detail: '절반이 소수면 반올림합니다(폰 3개면 2개). 제물이 2개 이상일 때, 즉 폰이 3개 이상일 때만 나옵니다.', globalVfx: 'vfx-global-void', isKillType: false,
+            { name: '네크로맨서', icon: '💀', desc: '아군 폰의 {절반}을 희생하여, 희생된 폰이 있던 칸 중 한 곳에 [퀸]을 [소환]합니다.', detail: '절반이 소수이면 반올림합니다(폰 3개이면 2개). 희생할 폰이 2개 이상일 때, 즉 폰이 3개 이상일 때만 등장합니다.', globalVfx: 'vfx-global-void', isKillType: false,
               condition: (m) => !!planNecromancer(m),
               apply: (m, e) => { const plan = planNecromancer(m); if (!plan) return { t: [], vfx: '', msg: '희생할 폰이 부족해 실패했습니다.' };
                   plan.sac.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '💀'); }); game.put({ type: 'q', color: m }, plan.queenSq); spawnFloatingText(plan.queenSq, '👑');
                   return { t: plan.sac, vfx: 'vfx-void', origin: plan.queenSq, msg: '💀 폰을 제물로 퀸이 소환되었습니다!' }; } },
-            { name: '신의 심판', icon: '⚡', desc: '아군 비숍 {하나}를 제물로 바칩니다. 그 비숍이 서 있던 {세로줄}에 번개가 내리쳐 킹을 제외한 모든 기물을 [파괴]합니다.', globalVfx: null, isKillType: true,
+            { name: '신의 심판', icon: '⚡', desc: '아군 비숍 {하나}를 희생합니다. 해당 비숍이 있던 {세로줄}에서 킹을 제외한 모든 기물을 [파괴]합니다.', globalVfx: null, isKillType: true,
               target: { mode: 'piece', file: true, prompt: '희생할 아군 비숍을 선택하세요', valid: (m) => findPieces(m, 'b') },
               condition: (m) => findPieces(m, 'b').length > 0,
               apply: (m, e, target) => {
@@ -10293,13 +10307,13 @@
                   game.remove(bSq); spawnFloatingText(bSq, '🙏');
                   for (let r = 8; r >= 1; r--) { const sq = f + r, p = game.get(sq); if (p && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { game.remove(sq); spawnFloatingText(sq, '⚡'); hit.push(sq); } }
                   return { t: [bSq, ...hit], vfx: 'vfx-lightning', msg: hit.length > 0 ? '⚡ 비숍을 제물로 신의 심판이 내렸습니다!' : '⚡ 번개가 허공을 갈랐습니다...' }; } },
-            { name: '공성전', icon: '🏹', desc: '적 기물이 있는 {가로줄} 하나가 무작위로 정해집니다. 모든 아군 {룩}이 그 줄에서 자기 {세로줄}과 만나는 칸을 [포격]해, 그 칸의 적 기물(킹 제외)을 [파괴]합니다.', globalVfx: null, isKillType: true,
+            { name: '공성전', icon: '🏹', desc: '적 기물이 있는 {가로줄} 하나를 무작위로 선택합니다. 모든 아군 {룩}이 해당 가로줄에서 자신의 {세로줄}과 만나는 칸을 [포격]하여, 그 칸의 적 기물(킹 제외)을 [파괴]합니다.', globalVfx: null, isKillType: true,
               condition: (m, e) => siegeHasTarget(m, e),
               apply: (m, e) => {
                   const shots = siegeShots(m, e), hit = [];
                   shots.forEach(sh => { if (sh.hit && !hit.includes(sh.to)) { const p = game.get(sh.to); if (p && p.color === e && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { game.remove(sh.to); hit.push(sh.to); spawnFloatingText(sh.to, '🏹'); } } });
                   return { t: hit, vfx: 'vfx-explosion', fxMoves: shots.map(sh => ({ from: sh.from, to: sh.to })), msg: hit.length > 0 ? `🏹 공성전! 룩의 화살이 적 ${hit.length}개를 꿰뚫었습니다!` : '🏹 화살이 빗나갔습니다...' }; } },
-            { name: '벼락', icon: '🌩️', desc: '적 진영의 무작위 {3칸}에 벼락이 떨어집니다. 맞은 적 기물은 킹이 아닌 한 [파괴]됩니다.', globalVfx: null, isKillType: true,
+            { name: '벼락', icon: '🌩️', desc: '적 진영의 무작위 {3칸}에 벼락을 떨어뜨립니다. 해당 칸의 적 기물은 킹이 아닌 경우 [파괴]됩니다.', globalVfx: null, isKillType: true,
               condition: (m, e) => findVulnerable(e).some(sq => (e === 'b' ? parseInt(sq[1]) >= 5 : parseInt(sq[1]) <= 4)),
               apply: (m, e) => {
                   const ranks = e === 'b' ? [5, 6, 7, 8] : [1, 2, 3, 4], pool = [];
@@ -10307,50 +10321,50 @@
                   const strikes = shuffle(pool).slice(0, 3), hit = [];
                   strikes.forEach(sq => { const p = game.get(sq); if (p && p.color === e && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { game.remove(sq); hit.push(sq); spawnFloatingText(sq, '⚡'); } });
                   return { t: strikes, vfx: 'vfx-lightning', msg: hit.length > 0 ? `🌩️ 벼락이 적 ${hit.length}개를 강타했습니다!` : '🌩️ 벼락이 빗나갔습니다...' }; } },
-            { name: '독구름', icon: '☠️', desc: '무작위 위치에 {2×2} 크기의 [맹독 지대]가 {6턴} 동안 머뭅니다. 지대 안에 있는 적 기물은 킹을 제외하고 모두 [제거]됩니다.', globalVfx: 'vfx-global-void', isKillType: true, condition: () => true,
+            { name: '독구름', icon: '☠️', desc: '무작위 위치에 {2×2} 크기의 [맹독 지대]를 {12수} 동안 생성합니다. 지대 안에 있는 적 기물은 킹을 제외하고 [파괴]됩니다.', globalVfx: 'vfx-global-void', isKillType: true, condition: () => true,
               apply: (m, e) => { const fIdx = Math.floor(Math.random() * 7), r = 2 + Math.floor(Math.random() * 6), fc = String.fromCharCode(97 + fIdx), fn = String.fromCharCode(98 + fIdx);
                   const squares = [fc + r, fc + (r + 1), fn + r, fn + (r + 1)]; activePoison.push({ squares: squares, owner: m, duration: 12 }); updateBoardVisuals();
                   return { t: squares, vfx: 'vfx-void', msg: '☠️ 맹독 지대가 형성되었습니다!' }; } },
-            { name: '암살', icon: '🗡️', desc: '가치가 가장 낮은 적 기물 {2개}를 노려 [파괴]합니다.', globalVfx: 'vfx-global-assassinate', isKillType: true, condition: (m, e) => findVulnerable(e).length > 1,
+            { name: '암살', icon: '🗡️', desc: '가치가 가장 낮은 적 기물 {2개}를 [파괴]합니다.', globalVfx: 'vfx-global-assassinate', isKillType: true, condition: (m, e) => findVulnerable(e).length > 1,
               apply: (m, e) => { const targets = findVulnerable(e).sort((a, b) => pieceValue[game.get(a).type] - pieceValue[game.get(b).type]).slice(0, 2); targets.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '🗡️'); }); return { t: targets, vfx: 'vfx-explosion', msg: '🗡️ 어둠 속 암살자가 습격했습니다!' }; } },
-            { name: '연계 분쇄', icon: '⛓️', weight: 2.48, desc: '킹이 {체크}에 걸렸을 때 나타납니다. 킹을 위협하는 적 기물을 그 자리에서 [파괴]합니다.', globalVfx: 'vfx-global-explosion', isKillType: true,
+            { name: '연계 분쇄', icon: '⛓️', weight: 2.48, desc: '킹이 {체크} 상태일 때 등장합니다. 킹을 위협하는 적 기물을 [파괴]합니다.', globalVfx: 'vfx-global-explosion', isKillType: true,
               condition: (m, e) => game.in_check(m) && findCheckers(m).length > 0,
               apply: (m, e) => { const sqs = findCheckers(m); if (!sqs.length) return { t: [], vfx: '', msg: '위협하는 적 기물을 찾지 못했습니다.' };
                   sqs.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '⛓️'); });
                   return { t: sqs, vfx: 'vfx-explosion', origin: findPieces(m, 'k')[0], msg: '⛓️ 킹을 노리던 적을 역으로 분쇄했습니다!' }; } },
-            { name: '흑사', icon: '♠️', desc: '적 폰 중 무작위 {절반}에게 죽음이 드리웁니다. 선택된 폰은 모두 [파괴]됩니다.', detail: '절반이 소수면 반올림합니다(폰 3개면 2개).', globalVfx: 'vfx-global-void', isKillType: true,
+            { name: '흑사', icon: '♠️', desc: '무작위 적 폰 {절반}을 [파괴]합니다.', detail: '절반이 소수이면 반올림합니다(폰 3개이면 2개).', globalVfx: 'vfx-global-void', isKillType: true,
               condition: (m, e) => findVulnerable(e).some(sq => game.get(sq).type === 'p'),
               apply: (m, e) => { const total = findPieces(e, 'p').length, n = Math.round(total / 2), pawns = shuffle(findVulnerable(e).filter(sq => game.get(sq).type === 'p')).slice(0, n);
                   pawns.forEach(sq => { game.remove(sq); spawnFloatingText(sq, '♠️'); }); return { t: pawns, vfx: 'vfx-void', msg: `♠️ 흑사병이 퍼져 폰 ${pawns.length}개가 쓰러졌습니다!` }; } },
-            { name: '복수', icon: '🥀', desc: '가장 최근에 아군을 잡은 적 기물을 찾아내어 [파괴]합니다.', globalVfx: 'vfx-global-explosion', isKillType: true,
+            { name: '복수', icon: '🥀', desc: '아군 기물을 가장 최근에 잡은 적 기물을 [파괴]합니다.', globalVfx: 'vfx-global-explosion', isKillType: true,
               condition: (m, e) => { const sq = findKillerSq(m); if (!sq) return false; const p = game.get(sq); return !!p && p.color === e && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]; },
               apply: (m, e) => { const sq = findKillerSq(m); if (!sq) return { t: [], vfx: '', msg: '복수할 대상을 찾지 못했습니다.' }; game.remove(sq); lastKiller[m] = null; spawnFloatingText(sq, '🥀'); return { t: [sq], vfx: 'vfx-explosion', msg: '🥀 복수가 이루어졌습니다!' }; } },
-            { name: '신성한 폭발', icon: '💥', desc: '아군 킹 주변 {8칸}에서 성스러운 폭발이 일어납니다. 무적 같은 보호 효과를 무시하고, 범위 안의 적 기물을 킹을 제외하고 모두 [파괴]합니다.', globalVfx: 'vfx-global-divine', isKillType: true, condition: (m, e) => { const ks = findPieces(m, 'k')[0]; return !!ks && neighborSquares(ks).some(sq => { const p = game.get(sq); return p && p.color === e && p.type !== 'k'; }); },
+            { name: '신성한 폭발', icon: '💥', desc: '아군 킹 주변 {8칸}에 폭발을 일으킵니다. 무적 등의 보호 효과를 무시하고, 범위 안의 적 기물을 킹을 제외하고 모두 [파괴]합니다.', globalVfx: 'vfx-global-divine', isKillType: true, condition: (m, e) => { const ks = findPieces(m, 'k')[0]; return !!ks && neighborSquares(ks).some(sq => { const p = game.get(sq); return p && p.color === e && p.type !== 'k'; }); },
               apply: (m, e) => { const kingSq = findPieces(m, 'k')[0], hit = [];
                   neighborSquares(kingSq).forEach(sq => { const p = game.get(sq); if (p && p.color === e && p.type !== 'k') { game.remove(sq); hit.push(sq); spawnFloatingText(sq, '💥'); } });
                   return { t: hit, vfx: 'vfx-explosion', origin: kingSq, msg: hit.length > 0 ? '💥 킹의 주변을 휩쓸었습니다!' : '💥 폭발이 빗나갔습니다.' }; } },
-            { name: '징집', icon: '🪖', desc: '병사들을 불러 모아 무작위 빈칸 {2~3곳}에 아군 [폰]을 [소환]합니다.', detail: '2곳 50%, 3곳 50%입니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'p').length >= 2,
+            { name: '징집', icon: '🪖', desc: '무작위 빈칸 {2~3곳}에 아군 [폰]을 [소환]합니다.', detail: '2곳과 3곳이 각각 50% 확률입니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'p').length >= 2,
               apply: (m, e) => { const sqs = shuffle(getSafeEmptySquares(m, 'p')).slice(0, 2 + Math.floor(Math.random() * 2)); sqs.forEach(sq => { game.put({ type: 'p', color: m }, sq); spawnFloatingText(sq, '🪖'); });
                   return { t: sqs, vfx: 'vfx-heal', msg: `🪖 폰 ${sqs.length}개가 징집되었습니다!` }; } },
             { name: '축복', icon: '🕊️', desc: '무작위 빈칸에 아군 [비숍] {하나}를 [소환]합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'b').length > 0,
               apply: (m, e) => { const sq = shuffle(getSafeEmptySquares(m, 'b'))[0]; game.put({ type: 'b', color: m }, sq); spawnFloatingText(sq, '✨'); return { t: [sq], vfx: 'vfx-heal', msg: '🕊️ 축복으로 비숍이 합류했습니다!' }; } },
-            { name: '숲의 망령', icon: '🌲', desc: '숲속의 망령이 깨어나 무작위 빈칸에 아군 [나이트] {하나}를 [소환]합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'n').length > 0,
+            { name: '숲의 망령', icon: '🌲', desc: '무작위 빈칸에 아군 [나이트] {하나}를 [소환]합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => getSafeEmptySquares(m, 'n').length > 0,
               apply: (m, e) => { const sq = shuffle(getSafeEmptySquares(m, 'n'))[0]; game.put({ type: 'n', color: m }, sq); spawnFloatingText(sq, '🌲'); return { t: [sq], vfx: 'vfx-heal', msg: '🌲 숲의 망령이 나이트로 나타났습니다!' }; } },
-            { name: '기사 서임', icon: '⚔️', desc: '무작위 아군 폰 {1~3개}를 [나이트]로 [승급]시킵니다.', detail: '1개, 2개, 3개가 각각 약 33%입니다. 폰이 부족하면 있는 만큼만 승급합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => findPieces(m, 'p').length > 0,
+            { name: '기사 서임', icon: '⚔️', desc: '무작위 아군 폰 {1~3개}를 [나이트]로 [승급]합니다.', detail: '1개, 2개, 3개가 각각 약 33% 확률입니다. 폰이 부족하면 가능한 만큼만 승급합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => findPieces(m, 'p').length > 0,
               apply: (m, e) => { const tgts = shuffle(findPieces(m, 'p')).slice(0, Math.floor(Math.random() * 3) + 1); tgts.forEach(tg => { game.remove(tg); game.put({ type: 'n', color: m }, tg); spawnFloatingText(tg, '⚔️'); }); return { t: tgts, vfx: 'vfx-heal', msg: `⚔️ ${tgts.length}개의 폰이 기사로 서임되었습니다!` }; } },
-            { name: '프로모션', icon: '👑', desc: '무작위 아군 폰 {하나}를 상위 기물로 [프로모션]합니다.', detail: '비숍 30%, 나이트 30%, 룩 25%, 퀸 15%입니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => findPieces(m, 'p').length > 0,
+            { name: '프로모션', icon: '👑', desc: '무작위 아군 폰 {하나}를 상위 기물로 [승급]합니다.', detail: '비숍 30%, 나이트 30%, 룩 25%, 퀸 15% 확률입니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => findPieces(m, 'p').length > 0,
               apply: (m, e) => { const tg = shuffle(findPieces(m, 'p'))[0], roll = Math.random(), type = roll < 0.30 ? 'b' : roll < 0.60 ? 'n' : roll < 0.85 ? 'r' : 'q';
                   game.remove(tg); game.put({ type: type, color: m }, tg); spawnFloatingText(tg, '👑'); return { t: [tg], vfx: 'vfx-lightning', msg: type === 'q' ? '👑 폰이 퀸으로 프로모션했습니다!' : '👑 폰이 상위 기물로 프로모션했습니다!' }; } },
-            { name: '캐슬링+', icon: '🏰', desc: '아군 킹 주변 {8칸}의 폰을 최대 {2개}까지 [룩]으로 [승급]시킵니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+            { name: '캐슬링+', icon: '🏰', desc: '아군 킹 주변 {8칸}의 폰을 최대 {2개}까지 [룩]으로 [승급]합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
               condition: (m) => { const k = findPieces(m, 'k')[0]; return !!k && neighborSquares(k).some(sq => { const p = game.get(sq); return p && p.color === m && p.type === 'p'; }); },
               apply: (m, e) => { const kingSq = findPieces(m, 'k')[0], adj = shuffle(neighborSquares(kingSq).filter(sq => { const p = game.get(sq); return p && p.color === m && p.type === 'p'; })).slice(0, 2);
                   adj.forEach(sq => { game.remove(sq); game.put({ type: 'r', color: m }, sq); spawnFloatingText(sq, '🏰'); }); return { t: adj, vfx: 'vfx-heal', origin: kingSq, msg: `🏰 폰 ${adj.length}개가 룩으로 승급했습니다!` }; } },
-            { name: '나이트 클럽', icon: '🕺', weight: 2, desc: '아군의 {모든 비숍과 룩}이 [나이트]로 변신합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+            { name: '나이트 클럽', icon: '🕺', weight: 2, desc: '아군의 {모든 비숍과 룩}을 [나이트]로 [변환]합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
               condition: (m) => findPieces(m).some(sq => ['b', 'r'].includes(game.get(sq).type)),
               apply: (m, e) => { const tgts = findPieces(m).filter(sq => ['b', 'r'].includes(game.get(sq).type));
                   tgts.forEach(sq => { game.remove(sq); game.put({ type: 'n', color: m }, sq); spawnFloatingText(sq, '🐴'); });
                   return { t: tgts, vfx: 'vfx-heal', msg: `🕺 나이트 클럽이 열렸습니다! ${tgts.length}개의 기물이 나이트가 되었습니다.` }; } },
-            { name: '진군 명령', icon: '🚩', desc: '모든 아군 폰이 {최대 두 칸} [전진]합니다. 앞이 막히면 그 앞에서 멈추고, 끝줄에 닿은 폰은 [원하는 기물로 승급]합니다.', globalVfx: null, isKillType: false, condition: (m) => canMarch(m),
+            { name: '진군 명령', icon: '🚩', desc: '모든 아군 폰이 {최대 2칸} [전진]합니다. 앞이 막혀 있으면 그 앞에서 멈추며, 끝줄에 도달한 폰은 [원하는 기물로 승급]합니다.', globalVfx: null, isKillType: false, condition: (m) => canMarch(m),
               apply: (m, e) => { const dir = m === 'w' ? 1 : -1, promoRank = m === 'w' ? 8 : 1, moved = [], fxMoves = [], promos = [], wasInCheck = game.in_check(m);
                   const pawns = findPieces(m, 'p').sort((a, b) => (parseInt(b[1]) - parseInt(a[1])) * dir);
                   pawns.forEach(sq => { const f = sq[0], r = parseInt(sq[1]);
@@ -10362,62 +10376,62 @@
                           moved.push(s2); fxMoves.push({ from: sq, to: s2 }); if (r + dir * steps === promoRank) promos.push(s2); break;
                       } });
                   return { t: moved, vfx: '', fxMoves, promos, msg: '🛡️ 폰들이 일제히 전진했습니다!' }; } },
-            { name: '그림자 교체', icon: '🥷', desc: '아군 킹과 무작위 아군 기물 {하나}가 서로 [자리를 바꿉니다].', globalVfx: 'vfx-global-void', isKillType: false, condition: (m) => !!pickShadowTarget(m),
+            { name: '그림자 교체', icon: '🥷', desc: '아군 킹과 무작위 아군 기물 {하나}의 [위치를 교환]합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m) => !!pickShadowTarget(m),
               apply: (m, e) => { const kingSq = findPieces(m, 'k')[0], tg = pickShadowTarget(m); if (!tg) return { t: [], vfx: '', msg: '교체할 대상을 찾지 못했습니다.' };
                   const kInfo = game.get(kingSq), aInfo = game.get(tg); game.remove(kingSq); game.remove(tg); game.put(aInfo, kingSq); game.put(kInfo, tg);
                   spawnFloatingText(kingSq, '🥷'); spawnFloatingText(tg, '🥷'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🥷 킹이 그림자 속으로 위치를 바꿨습니다!' }; } },
-            { name: '저주', icon: '🐸', desc: '폰이 아닌 적 기물 {1~2개}에게 저주를 걸어 [폰]으로 [변이]시킵니다.', detail: '1개일 확률 65%, 2개일 확률 35%입니다.',   // detail: 도움말에서만 보이는 자세한 설명
+            { name: '저주', icon: '🐸', desc: '폰이 아닌 적 기물 {1~2개}를 [폰]으로 [변환]합니다.', detail: '1개일 확률 65%, 2개일 확률 35%입니다.',   // detail: 도움말에서만 보이는 자세한 설명
                globalVfx: 'vfx-global-void', isKillType: false,
               condition: (m, e) => findMovable(e).some(sq => game.get(sq).type !== 'p' && pawnSafeAt({ type: 'p', color: e }, sq)),
               apply: (m, e) => { const targets = shuffle(findMovable(e).filter(sq => game.get(sq).type !== 'p' && pawnSafeAt({ type: 'p', color: e }, sq))).slice(0, Math.random() < 0.65 ? 1 : 2);   // 1개 65%, 2개 35%
                   targets.forEach(tg => { game.remove(tg); game.put({ type: 'p', color: e }, tg); spawnFloatingText(tg, '🐸'); }); return { t: targets, vfx: 'vfx-lightning', msg: '🐸 적들이 폰으로 변했습니다!' }; } },
-            { name: '혼란', icon: '🌀', desc: '종류가 다른 적 기물 {2개}를 무작위로 골라 서로 [자리를 바꿉니다].', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => !!pickSwapPair(e),
+            { name: '혼란', icon: '🌀', desc: '종류가 서로 다른 적 기물 {2개}를 무작위로 선택하여 [위치를 교환]합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => !!pickSwapPair(e),
               apply: (m, e) => { const pair = pickSwapPair(e); if (!pair) return { t: [], vfx: '', msg: '위치를 바꿀 대상이 없습니다.' };
                   const p1 = game.get(pair[0]), p2 = game.get(pair[1]); game.remove(pair[0]); game.remove(pair[1]); game.put(p2, pair[0]); game.put(p1, pair[1]);
                   return { t: pair, vfx: 'vfx-lightning', msg: '🌀 적들이 위치를 상실했습니다!' }; } },
-            { name: '광기', icon: '🤡', desc: '적 기물 {하나}를 골라 무작위 빈칸으로 [이동]시킵니다.', globalVfx: 'vfx-global-void', isKillType: false,
+            { name: '광기', icon: '🤡', desc: '적 기물 {하나}를 무작위 빈칸으로 [이동]시킵니다.', globalVfx: 'vfx-global-void', isKillType: false,
               target: { mode: 'piece', prompt: '이동시킬 적 기물을 선택하세요', valid: (m, e) => findVulnerable(e) },
               condition: (m, e) => findVulnerable(e).length > 0 && getSafeEmptySquares(e, 'p').length > 0,
               apply: (m, e, target) => { const list = findVulnerable(e), tg = (target && list.includes(target)) ? target : shuffle(list)[0], pInfo = game.get(tg), empties = shuffle(getSafeEmptySquares(pInfo.color, pInfo.type));
                   if (empties.length > 0) { game.remove(tg); game.put(pInfo, empties[0]); spawnFloatingText(tg, '🤡'); spawnFloatingText(empties[0], '🌀'); return { t: [tg, empties[0]], vfx: 'vfx-lightning', msg: '🤡 적이 알 수 없는 곳으로 이동했습니다!' }; }
                   return { t: [], vfx: '', msg: '공간이 부족해 실패했습니다.' }; } },
-            { name: '강제 이주', icon: '🧳', desc: '적 킹을 인접한 무작위 빈칸으로 강제로 [이동]시킵니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => { const ks = findPieces(e, 'k')[0]; return !!ks && getAdjEmptySquares(ks).length > 0; },
+            { name: '강제 이주', icon: '🧳', desc: '적 킹을 인접한 무작위 빈칸으로 [이동]시킵니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => { const ks = findPieces(e, 'k')[0]; return !!ks && getAdjEmptySquares(ks).length > 0; },
               apply: (m, e) => { const kingSq = findPieces(e, 'k')[0], tg = shuffle(getAdjEmptySquares(kingSq))[0], kingInfo = game.get(kingSq); game.remove(kingSq); game.put(kingInfo, tg); spawnFloatingText(tg, '🌀'); return { t: [kingSq, tg], vfx: 'vfx-lightning', msg: '🌀 적 킹이 이동당했습니다!' }; } },
-            { name: '파도', icon: '🌊', desc: '거대한 파도가 밀려와 적 기물들을 {한 칸씩} 뒤로 [밀어냅니다]. 뒤쪽이 막혀 있거나 보드 밖이면 밀려나지 않습니다.', globalVfx: 'vfx-global-wave', isKillType: false, delay: 1900, condition: (m, e) => findPieces(e).length > 0,
+            { name: '파도', icon: '🌊', desc: '적 기물들을 {한 칸씩} 뒤로 [밀어냅니다]. 뒤쪽 칸이 막혀 있거나 보드 밖이면 밀려나지 않습니다.', globalVfx: 'vfx-global-wave', isKillType: false, delay: 1900, condition: (m, e) => findPieces(e).length > 0,
               apply: (m, e) => { const moved = [], eTgts = findPieces(e);
                   eTgts.sort((a, b) => { const rA = parseInt(a[1]), rB = parseInt(b[1]); return e === 'b' ? rB - rA : rA - rB; });
                   eTgts.forEach(sq => { const r = parseInt(sq[1]), c = sq.charCodeAt(0), pushRank = e === 'b' ? r + 1 : r - 1;
                       if (pushRank >= 1 && pushRank <= 8) { const targetSq = String.fromCharCode(c) + pushRank; if (!game.get(targetSq)) { const p = game.get(sq); game.remove(sq); game.put(p, targetSq); moved.push(targetSq); } } });
                   return { t: moved, vfx: 'vfx-heal', fxArg: e, msg: '🌊 거센 파도가 적들을 밀어냈습니다!' }; } },
-            { name: '덩굴', icon: '🌿', desc: '무작위 적 기물 {2개}를 {8수} 동안 덩굴로 [속박]합니다. 속박된 기물은 움직일 수 없습니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findVulnerable(e).length >= 2,
+            { name: '덩굴', icon: '🌿', desc: '무작위 적 기물 {2개}를 {8수} 동안 [속박]합니다. 속박된 기물은 이동할 수 없습니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m, e) => findVulnerable(e).length >= 2,
               apply: (m, e) => { const tgts = shuffle(findVulnerable(e)).slice(0, 2); tgts.forEach(sq => { const p = game.get(sq); rootedPieces[p.uid] = 8; spawnFloatingText(sq, '🌿'); }); return { t: tgts, vfx: 'vfx-void', msg: '🌿 적들이 덩굴에 묶였습니다!' }; } },
             { name: '빛의 수호', icon: '🛡️', desc: '모든 아군 폰이 {2수} 동안 [무적]이 됩니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => findPieces(m, 'p').length > 0,
               apply: (m, e) => { const tgts = findPieces(m, 'p'); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq, '🛡️'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '🛡️ 폰들이 무적 상태가 되었습니다!' }; } },
-            { name: '여신의 가호', icon: '✨', desc: '나이트·비숍·룩·퀸 중 무작위 아군 기물 {2개}가 {2수} 동안 [무적]이 됩니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3).length > 0,
+            { name: '여신의 가호', icon: '✨', desc: '아군 나이트·비숍·룩·퀸 중 무작위 {2개}가 {2수} 동안 [무적]이 됩니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3).length > 0,
               apply: (m, e) => { const tgts = shuffle(findPieces(m).filter(sq => pieceValue[game.get(sq).type] >= 3)).slice(0, 2); tgts.forEach(sq => { const p = game.get(sq); invinciblePieces[p.uid] = 2; spawnFloatingText(sq, '✨'); }); return { t: tgts, vfx: 'vfx-lightning', msg: '✨ 상위 기물들이 무적이 되었습니다!' }; } },
             { name: '마인드 컨트롤', icon: '🧠', desc: '무작위 적 폰 {하나}를 [세뇌]하여 아군 기물로 만듭니다.', globalVfx: 'vfx-global-void', isKillType: false,
               condition: (m, e) => findMovable(e).some(sq => game.get(sq).type === 'p' && pawnSafeAt({ type: 'p', color: m }, sq)),
               apply: (m, e) => { const tg = shuffle(findMovable(e).filter(sq => game.get(sq).type === 'p' && pawnSafeAt({ type: 'p', color: m }, sq)))[0]; game.remove(tg); game.put({ type: 'p', color: m }, tg); spawnFloatingText(tg, '🧠'); return { t: [tg], vfx: 'vfx-lightning', msg: '🧠 적 폰을 아군으로 세뇌했습니다!' }; } },
-            { name: '차원 장벽', icon: '🧱', desc: '원하는 빈칸 {한 곳}에 {10수} 동안 [장벽]을 세웁니다. 장벽은 모든 이동을 막습니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+            { name: '차원 장벽', icon: '🧱', desc: '원하는 빈칸 {한 곳}에 {10수} 동안 [장벽]을 설치합니다. 장벽은 모든 기물의 이동을 막습니다.', globalVfx: 'vfx-global-heal', isKillType: false,
               target: { mode: 'square', ghost: 'wall', prompt: '장벽을 세울 빈칸을 선택하세요', valid: () => getEmptySquares() },
               condition: () => getEmptySquares().length > 0,
               apply: (m, e, target) => { const sq = (target && !game.get(target)) ? target : shuffle(getEmptySquares())[0];
                   if (mines.some(x => x.sq === sq)) { mines = mines.filter(x => x.sq !== sq); return { t: [sq], vfx: 'vfx-heal', blasts: [sq], msg: '💥 장벽이 지뢰와 함께 폭발했습니다!' }; }   // 지뢰 위에 세우면 벽과 지뢰가 모두 사라진다
                   game.put({ type: 'wall', color: 'none' }, sq); activeWalls.push({ sq: sq, duration: 10, owner: m }); return { t: [sq], vfx: 'vfx-heal', msg: '차원 장벽이 생성되었습니다!' }; } },
-            { name: '자아 분열', icon: '😵‍💫', desc: '적 폰들이 방향 감각을 잃고 {6수} 동안 [반대 방향]으로 움직입니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(e, 'p').length > 0,
+            { name: '자아 분열', icon: '😵‍💫', desc: '적 폰이 {6수} 동안 [반대 방향]으로 이동합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(e, 'p').length > 0,
               apply: (m, e) => { reversedPawns[e] = 6; reversedUids[e] = {}; findPieces(e, 'p').forEach(sq => { reversedUids[e][game.get(sq).uid] = true; }); return { t: findPieces(e, 'p'), vfx: 'vfx-void', msg: '😵‍💫 적 폰들이 방향 감각을 잃었습니다!' }; } },
-            { name: '잭팟', icon: '🎰', desc: '이제부터 자신에게 나오는 증강 선택지가 {1개} [늘어납니다].', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => jackpotBonus[m] < 1,
+            { name: '잭팟', icon: '🎰', desc: '이후 자신에게 제시되는 증강 선택지가 {1개} [증가]합니다.', globalVfx: 'vfx-global-heal', isKillType: false, condition: (m) => jackpotBonus[m] < 1,
               apply: (m, e) => { jackpotBonus[m] = (jackpotBonus[m] || 0) + 1; const k = findPieces(m, 'k')[0]; if (k) spawnFloatingText(k, '🎰'); return { t: [], vfx: '', origin: k || null, msg: '🎰 잭팟! 앞으로 증강 선택지가 하나 더 늘어납니다.' }; } },
-            { name: '아기는 어떻게 태어나?', icon: '🦢', desc: '{8수} 동안 아군 킹과 퀸에게 [축복]이 깃듭니다. 두 기물이 서로 인접해 있으면 {2수마다} 무작위 빈칸에 새 폰이 [태어납니다]. 낮은 확률로 가치가 높은 기물이 태어나기도 합니다. {체크를 당하면} [축복]이 사라집니다.', detail: '새로 태어나는 기물은 폰 88%, 나이트 약 4%, 비숍 약 4%, 룩 약 2.6%, 퀸 약 1%입니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+            { name: '아기는 어떻게 태어나?', icon: '🦢', desc: '{8수} 동안 아군 킹과 퀸에게 [축복]을 부여합니다. 두 기물이 인접해 있으면 {2수마다} 무작위 빈칸에 새 폰이 [탄생]합니다. 낮은 확률로 가치가 높은 기물이 탄생하기도 합니다. {체크} 상태가 되면 [축복]이 사라집니다.', detail: '새로 탄생하는 기물은 폰 88%, 나이트 약 4%, 비숍 약 4%, 룩 약 2.6%, 퀸 약 1% 확률입니다.', globalVfx: 'vfx-global-heal', isKillType: false,
               condition: (m) => !babyEffect[m] && !game.in_check(m) && findPieces(m, 'k').length > 0 && findPieces(m, 'q').length > 0,
               apply: (m, e) => { const k = findPieces(m, 'k')[0], q = findPieces(m, 'q')[0];
                   babyEffect[m] = { color: m, remaining: 8, seed: Math.floor(Math.random() * 1e9), kUid: game.get(k).uid, qUid: game.get(q).uid };
                   [k, q].forEach(sq => spawnFloatingText(sq, '🦢'));
                   return { t: [k, q], vfx: 'vfx-heal', msg: '🦢 왕과 왕비에게 축복이 내려졌습니다!' }; } },
-            { name: '암전', icon: '💡', weight: 1, desc: '{4수} 동안 상대의 시야를 [암전]시킵니다. 상대는 자신의 기물이 있는 칸 외에는 아무것도 볼 수 없습니다.', globalVfx: 'vfx-global-blackout', isKillType: false,
+            { name: '암전', icon: '💡', weight: 1, desc: '{4수} 동안 상대의 시야를 [암전]시킵니다. 상대는 자신의 기물이 있는 칸 외에는 볼 수 없습니다.', globalVfx: 'vfx-global-blackout', isKillType: false,
               condition: (m, e) => !(blackout[e] > 0) && !(isBotMode && m === myColor),
               apply: (m, e) => { blackout[e] = 4; return { t: [], vfx: '', msg: '💡 상대의 시야가 어둠에 잠겼습니다!' }; } },
-            { name: '운명의 수레바퀴', icon: '🎡', desc: '체스보드 [맨 바깥쪽] 칸에 있는 기물들이 {시계방향}으로 {한 칸씩} [회전]합니다. 벽은 움직이지 않습니다.', globalVfx: 'vfx-global-void', isKillType: false, delay: 1500,
+            { name: '운명의 수레바퀴', icon: '🎡', desc: '체스보드 [가장자리] 칸에 있는 기물들이 {시계 방향}으로 {한 칸씩} [회전]합니다. 벽은 이동하지 않습니다.', globalVfx: 'vfx-global-void', isKillType: false, delay: 1500,
               condition: (m, e) => getWheelRing().some(sq => { const p = game.get(sq); return p && p.type !== 'wall'; }),
               apply: (m, e) => {
                   const ring = getWheelRing().filter(sq => { const p = game.get(sq); return !p || p.type !== 'wall'; }), n = ring.length;   // 벽 칸은 건너뜀
@@ -10428,7 +10442,7 @@
                   game.keepUids = game.keepUids || {};
                   ring.forEach(sq => { const pc = game.get(sq); if (pc && pc.type === 'p' && parseInt(sq[1]) === (pc.color === 'w' ? 8 : 1)) game.keepUids[pc.uid] = true; });   // 끝줄에 닿은 폰은 퀸이 되지 않고 그대로 남는다
                   return { t: moved, vfx: 'vfx-lightning', msg: '🎡 운명의 수레바퀴가 돌아갑니다!' }; } },
-            { name: '지뢰 찾기', icon: '💣', desc: '원하는 빈칸 {한 곳}에 [지뢰]를 묻습니다. 지뢰는 [상대에게 보이지 않으며], 그 칸에 들어온 기물은 {피아 구분 없이} [파괴]됩니다.', globalVfx: 'vfx-global-void', isKillType: false,
+            { name: '지뢰 찾기', icon: '💣', desc: '원하는 빈칸 {한 곳}에 [지뢰]를 설치합니다. 지뢰는 [상대에게 보이지 않으며], 그 칸에 진입한 기물은 {아군·적 구분 없이} [파괴]됩니다.', globalVfx: 'vfx-global-void', isKillType: false,
               target: { mode: 'square', prompt: '지뢰를 묻을 빈칸을 선택하세요', valid: (m) => getEmptySquares().filter(sq => !mines.some(x => x.sq === sq && x.owner === m)) },
               condition: (m) => getEmptySquares().some(sq => !mines.some(x => x.sq === sq && x.owner === m)),
               apply: (m, e, target) => {
@@ -10436,7 +10450,7 @@
                   const sq = ok(target) ? target : shuffle(getEmptySquares().filter(ok))[0];
                   if (sq) mines.push({ sq, owner: m });
                   return { t: [], vfx: '', mineSq: sq || null, msg: '💣 지뢰가 매설되었습니다!' }; } },   // mineSq는 설치한 사람의 화면에만 쓰고 상대에게는 보내지 않는다
-            { name: '앙파상+', icon: '🎼', desc: '앞이 가로막힌 아군 폰이 장애물을 {뛰어넘어} {두 칸 앞}으로 [도약]합니다. 도착할 칸이 막혀 있으면 이동하지 않고, 끝줄에 닿은 폰은 [원하는 기물로 승급]합니다.', globalVfx: null, isKillType: false, condition: (m) => canHop(m),
+            { name: '앙파상+', icon: '🎼', desc: '앞이 막힌 아군 폰이 장애물을 {뛰어넘어} {2칸 앞}으로 [도약]합니다. 도착할 칸이 막혀 있으면 이동하지 않으며, 끝줄에 도달한 폰은 [원하는 기물로 승급]합니다.', globalVfx: null, isKillType: false, condition: (m) => canHop(m),
               apply: (m, e) => { const wasInCheck = game.in_check(m), moved = [], fxMoves = [], promos = [], promoRank = m === 'w' ? 8 : 1;
                   const pawns = findPieces(m, 'p').sort((a, b) => (parseInt(b[1]) - parseInt(a[1])) * (m === 'w' ? 1 : -1));
                   pawns.forEach(sq => { const to = hopTarget(sq, m); if (!to) return;
@@ -10444,13 +10458,13 @@
                       if (!wasInCheck && game.in_check(m)) { game.remove(to); game.put(p, sq); return; }
                       moved.push(to); fxMoves.push({ from: sq, to }); if (parseInt(to[1]) === promoRank) promos.push(to); });
                   return { t: moved, vfx: '', fxMoves, promos, msg: '🎼 폰들이 장애물을 뛰어넘었습니다!' }; } },
-            { name: '업!', icon: '🎈', desc: '아군 기물 {하나}에 [풍선]을 달아 {4수} 동안 띄웁니다. 떠 있는 기물은 증강 외에는 [잡히지] 않고, 평소 움직임대로 {다른 기물 위}에도 올라설 수 있습니다. 4수가 지나면 풍선이 날아가며 땅에 내려앉고, 그 밑에 있던 {기물}은 아군·적 구분 없이 [제거]됩니다.', detail: '올라서도 밑의 기물을 잡지는 않아요. 밑에 있는 기물이 킹이면 킹은 무사하고 대신 풍선 기물이 사라지며, 장벽이면 장벽이 부서집니다. 킹과 장벽에는 풍선을 달 수 없어요. 위에 뜬 기물과 밑에 깔린 내 기물이 한 칸에 겹쳐 있을 때는, 그 칸을 다시 누르면 움직일 기물이 서로 바뀝니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+            { name: '업!', icon: '🎈', desc: '아군 기물 {하나}에 [풍선]을 달아 {4수} 동안 띄웁니다. 떠 있는 기물은 증강 외에는 [잡히지] 않으며, 평소와 같이 이동하고 {다른 기물 위}에도 올라설 수 있습니다. 4수가 지나면 풍선이 사라지며 땅에 내려앉고, 그 밑에 있던 {기물}은 아군·적 구분 없이 [파괴]됩니다.', detail: '올라선 것만으로는 밑의 기물을 잡지 않습니다. 아래에 기물이 없는 칸에 떠 있는 기물은 길을 막지 않으며, 비숍·룩·퀸은 그 칸을 지나갈 수 있습니다(멈출 수는 없습니다). 밑에 있는 기물이 킹이면 킹은 무사하고 풍선이 달린 기물이 파괴되며, 장벽이면 장벽이 파괴됩니다. 킹과 장벽에는 풍선을 달 수 없습니다. 위에 뜬 기물과 밑에 있는 아군 기물이 같은 칸에 겹쳐 있을 때는, 그 칸을 다시 누르면 이동할 기물이 전환됩니다.', globalVfx: 'vfx-global-heal', isKillType: false,
               target: { mode: 'piece', prompt: '풍선을 붙일 아군 기물을 선택하세요', valid: (m) => balloonCands(m) },
               condition: (m) => balloonCands(m).length > 0,
               apply: (m, e, target) => { const c = balloonCands(m); if (!c.length) return { t: [], vfx: '', msg: '풍선을 붙일 기물이 없습니다.' };
                   const sq = (target && c.includes(target)) ? target : shuffle(c)[0]; balloons[game.get(sq).uid] = 4;
                   return { t: [sq], vfx: 'vfx-heal', msg: '기물이 풍선을 타고 떠올랐습니다!' }; } },
-            { name: '동귀어진', icon: '🪦', desc: '아군 기물 {하나}에 [동귀어진]을 겁니다. 이 기물이 잡히면 {잡은 기물도 함께} 사라집니다. {영구} 지속되며, 킹은 영향을 받지 않습니다.', globalVfx: 'vfx-global-void', isKillType: false,
+            { name: '동귀어진', icon: '🪦', desc: '아군 기물 {하나}에 [동귀어진]을 부여합니다. 이 기물이 잡히면 {잡은 기물도 함께} [파괴]됩니다. {영구} 지속되며, 킹은 영향을 받지 않습니다.', globalVfx: 'vfx-global-void', isKillType: false,
               target: { mode: 'piece', prompt: '동귀어진을 걸 아군 기물을 선택하세요', valid: (m) => findPieces(m).filter(sq => { const p = game.get(sq); return p && p.type !== 'k' && p.type !== 'wall' && !pactPieces[p.uid]; }) },
               condition: (m) => findPieces(m).some(sq => { const p = game.get(sq); return p && p.type !== 'k' && p.type !== 'wall' && !pactPieces[p.uid]; }),
               apply: (m, e, target) => {
@@ -10459,7 +10473,7 @@
                   if (!sq) return { t: [], vfx: '', msg: '동귀어진을 걸 기물이 없습니다.' };
                   pactPieces[game.get(sq).uid] = true; spawnFloatingText(sq, '⛓️');
                   return { t: [sq], vfx: 'vfx-void', msg: '⛓️ 동귀어진이 걸렸습니다!' }; } },
-            { name: '운명공동체', icon: '🔔', desc: '킹을 제외한 {무작위} 적 기물 {둘}이 [운명공동체]로 연결됩니다. 둘 중 하나가 [처치]되면 {나머지 하나도 파괴}됩니다.', detail: '필드에 운명공동체로 묶인 기물이 남아 있는 동안에는 이 증강이 나오지 않습니다.', globalVfx: 'vfx-global-void', isKillType: false,
+            { name: '운명공동체', icon: '🔔', desc: '킹을 제외한 적 기물 {2개}를 {무작위}로 선택하여 [운명공동체]로 연결합니다. 둘 중 하나가 [처치]되면 {나머지 하나도 파괴}됩니다.', detail: '필드에 운명공동체로 연결된 기물이 남아 있는 동안에는 등장하지 않습니다.', globalVfx: 'vfx-global-void', isKillType: false,
               condition: (m, e) => fateLinks.length === 0 && fatePool(e).length >= 2,
               apply: (m, e) => {
                   const pool = shuffle(fatePool(e)); if (pool.length < 2) return { t: [], vfx: '', msg: '연결할 적 기물이 부족해 실패했습니다.' };
@@ -10467,7 +10481,7 @@
                   const a = pool[0], b = pool[1], pa = game.get(a), pb = game.get(b);
                   fateLinks.push([pa.uid, pb.uid]); spawnFloatingText(a, '🔔'); spawnFloatingText(b, '🔔');
                   return { t: [a, b], vfx: 'vfx-void', msg: '🔔 적 기물 둘이 운명공동체로 묶였습니다!' }; } },
-            { name: '수퍼 워너비', icon: '🎖️', desc: '아군 폰 {하나}를 [유망주]로 키웁니다. {11수} 뒤 이 폰은 [퀸]으로 [프로모션]합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
+            { name: '수퍼 워너비', icon: '🎖️', desc: '아군 폰 {하나}를 [유망주]로 지정합니다. {11수} 뒤 해당 폰이 [퀸]으로 [승급]합니다.', globalVfx: 'vfx-global-heal', isKillType: false,
               target: { mode: 'piece', prompt: '유망주로 만들 아군 폰을 선택하세요', valid: (m) => findPieces(m, 'p').filter(sq => !(prospects[game.get(sq).uid] > 0)) },
               condition: (m) => findPieces(m, 'p').some(sq => !(prospects[game.get(sq).uid] > 0)),
               apply: (m, e, target) => {
@@ -10476,11 +10490,11 @@
                   if (!sq) return { t: [], vfx: '', msg: '' };
                   prospects[game.get(sq).uid] = 11; spawnFloatingText(sq, '🎖️');
                   return { t: [sq], vfx: 'vfx-heal', msg: '🎖️ 유망주가 탄생했습니다! 11수 뒤 퀸으로 승급합니다.' }; } },
-            { name: '시간 도둑', icon: '⏳', weight: 1.62, desc: '상대의 [증강 선택 시간]을 {영구적으로} 훔칩니다. 처음에는 {30초 → 15초}, 두 번째에는 {15초 → 8초}가 됩니다.', detail: '같은 상대에게 최대 2번까지만 걸 수 있고, 이미 8초가 된 상대에게는 나오지 않습니다. 나올 확률이 낮은 증강입니다.', globalVfx: 'vfx-global-meta', isKillType: false,
+            { name: '시간 도둑', icon: '⏳', weight: 2.16, weightFn: who => ((((augTimeCut && augTimeCut[who === 'w' ? 'b' : 'w']) || 0) === 1) ? 3.2 : 2.16), desc: '상대의 [증강 선택 시간]을 {영구적으로} 감소시킵니다. 첫 번째는 {30초 → 15초}, 두 번째는 {15초 → 8초}로 줄어듭니다.', detail: '같은 상대에게 최대 2번까지 사용할 수 있으며, 이미 8초가 된 상대에게는 등장하지 않습니다. 한 번 사용한 뒤에는 두 번째로 등장할 확률이 크게 증가합니다. 등장 확률이 낮은 증강입니다.', globalVfx: 'vfx-global-meta', isKillType: false,
               condition: (m, e) => ((augTimeCut && augTimeCut[e]) || 0) < 2,
               apply: (m, e) => { const lv = (augTimeCut[e] || 0), T = [30, 15, 8], nx = Math.min(2, lv + 1); augTimeCut[e] = nx; const k = findPieces(m, 'k')[0];
                   const ek = findPieces(e, 'k')[0]; return { t: ek ? [ek] : [], vfx: '', origin: k || null, fxArg: lv + 1, msg: `⏳ 시간 도둑! 상대의 증강 선택 시간이 ${T[lv]}초에서 ${T[nx]}초로 줄었습니다.` }; } },
-            { name: '법정 대리인', icon: '⚖️', weight: 1.62, desc: '증강을 {먼저 고를 때} 나옵니다. 이어지는 [상대의 증강 선택권]을 {한 번} 가져와, 상대의 선택지 중 하나를 {대신 고릅니다}.', detail: '고른 증강은 상대가 쓴 것으로 발동됩니다. 대상이나 위치를 정해야 하는 증강은 무작위로 정해집니다. 나올 확률이 낮은 증강입니다.', globalVfx: 'vfx-global-meta', isKillType: false,
+            { name: '법정 대리인', icon: '⚖️', weight: 2.16, desc: '증강을 {먼저 선택할 때} 등장합니다. 이어지는 [상대의 증강 선택권]을 {한 번} 가져와, 상대에게 제시된 선택지 중 하나를 {대신 선택}합니다.', detail: '선택한 증강은 상대가 사용한 것으로 발동됩니다. 대상이나 위치를 지정해야 하는 증강은 무작위로 결정됩니다. 등장 확률이 낮은 증강입니다.', globalVfx: 'vfx-global-meta', isKillType: false,
               condition: (m, e) => Array.isArray(pendingAugments) && pendingAugments[0] === e && !proxyPick[e],
               apply: (m, e) => { proxyPick[e] = m; const k = findPieces(m, 'k')[0];
                   const ek = findPieces(e, 'k')[0]; return { t: ek ? [ek] : [], vfx: '', origin: k || null, msg: '⚖️ 법정 대리인! 상대의 다음 증강을 내가 대신 고릅니다.' }; } }
@@ -10576,19 +10590,19 @@
             '강제 이주': { b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Ng8 Rh8 Pa7 Pb7 Pc7 Pd7 Pf7 Pg7 Ph7' },
             '파도': { b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Ng8 Rh8 Pa5 Pb6 Pc5 Pd6 Pe5 Pf6 Pg5 Ph6' },
             '앙파상+': { w: 'Ke1 Qd1 Ra1 Rh1 Bc1 Bf1 Nb1 Ng1 Pa2 Pb2 Pc2 Ph2 Pd4 Pe4 Pf4 Pg6', b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Rh8 Pa7 Pb7 Pc7 Pg7 Ph7 Pd5 Pe5 Pf5',
-                cap: '막힌 폰은 장애물을 뛰어넘고, 끝줄에 닿으면 원하는 기물로 승급합니다' },
+                cap: '막힌 폰은 장애물을 뛰어넘고, 끝줄에 도달하면 원하는 기물로 승급합니다' },
             '캐슬링+': { cap: '킹 주변의 폰이 룩으로 승급합니다' },
             '진군 명령': { w: 'Ke1 Qd1 Ra1 Rh1 Bc1 Bf1 Nb1 Ng1 Pa2 Pb2 Pc2 Pd2 Pe2 Pf2 Ph2 Pg7', b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Rh8 Pa7 Pb7 Pc7 Pd7 Pe7 Pf7 Ph7',
-                cap: '모든 폰이 전진하고, 끝줄에 닿은 폰은 원하는 기물로 승급합니다' },
-            '공성전': { cap: '적 기물이 있는 가로줄 하나를 골라, 각 룩이 자기 세로줄의 그 칸을 포격합니다' },
+                cap: '모든 폰이 전진하고, 끝줄에 도달한 폰은 원하는 기물로 승급합니다' },
+            '공성전': { cap: '적 기물이 있는 가로줄 하나를 선택하여, 각 룩이 자신의 세로줄과 만나는 칸을 포격합니다' },
             '차원 장벽': { target: 'd4', cap: '장벽은 10수 동안 모든 이동을 막습니다' },
             '빛의 수호': { cap: '무적이 된 폰은 2수 동안 잡히지 않습니다' },
-            '잭팟': { cap: '이후 증강 단계에서 선택지가 한 장 더 나옵니다',
+            '잭팟': { cap: '이후 증강 단계에서 선택지가 한 개 증가합니다',
                 after: async h => {
-                    h.cap('다음 증강 단계부터 선택지가 4장 나옵니다'); await h.wait(900);
+                    h.cap('다음 증강 단계부터 선택지가 4장 제시됩니다'); await h.wait(900);
                     const avail = AUGMENT_POOL.filter(a => a.name !== '잭팟' && a.condition('w', 'b')), opts = weightedSample(avail, augmentOptionCount('w'));
                     document.body.classList.add('demo-cards'); selectedAugmentIdx = -1; showAugmentCards('w', opts);
-                    await h.wait(1700); h.cap('카드를 한 번 눌러 고르고…');
+                    await h.wait(1700); h.cap('카드를 한 번 눌러 선택하고…');
                     const cs = document.querySelectorAll('#augment-overlay .augment-card'), k = Math.floor(Math.random() * cs.length);
                     if (cs[k]) cs[k].classList.add('selected');
                     await h.wait(1700); h.cap('한 번 더 누르면 발동합니다'); await h.wait(1500);
@@ -10603,7 +10617,7 @@
             '독구름': { turn: 'b',
                 after: async h => {
                     const zone = activePoison.length ? activePoison[0].squares : [], mv = h.find(m => zone.includes(m.to) && !m.captured && game.get(m.from).type !== 'k');
-                    if (mv) { h.cap('독구름 안으로 들어간 기물은 파괴됩니다'); await h.wait(700); await h.move(mv.from, mv.to); } else h.cap('독구름이 6턴 동안 유지됩니다. 안으로 들어가는 기물은 파괴됩니다');
+                    if (mv) { h.cap('독구름 안으로 들어간 기물은 파괴됩니다'); await h.wait(700); await h.move(mv.from, mv.to); } else h.cap('독구름이 12수 동안 유지됩니다. 안으로 들어가는 기물은 파괴됩니다');
                 } },
             '덩굴': { after: async h => {
                     h.cap('덩굴에 묶인 기물은 움직일 수 없습니다'); await h.wait(600);
@@ -10612,49 +10626,49 @@
             '자아 분열': { b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Ng8 Rh8 Pa6 Pb6 Pc6 Pd6 Pe6 Pf6 Pg6 Ph6', turn: 'b',
                 after: async h => {
                     const mv = h.find(m => game.get(m.from).type === 'p' && parseInt(m.to[1]) > parseInt(m.from[1]));
-                    if (mv) { h.cap('방향을 잃은 폰은 뒤로 걷습니다'); await h.wait(700); await h.move(mv.from, mv.to); }
+                    if (mv) { h.cap('폰이 반대 방향으로 이동합니다'); await h.wait(700); await h.move(mv.from, mv.to); }
                 } },
             '아기는 어떻게 태어나?': { turn: 'w', b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Ne5 Rh8 Pa7 Pb7 Pc7 Pd7 Pe7 Pf7 Pg7 Ph7',
                 after: async h => {
-                    h.cap('왕과 왕비가 붙어 있으면 2수마다 새 기물이 태어납니다'); await h.wait(900);
+                    h.cap('킹과 퀸이 인접해 있으면 2수마다 새 기물이 탄생합니다'); await h.wait(900);
                     await h.quiet({ avoid: ['k', 'q'] }); await h.wait(500);
                     await h.move('a7', 'a6', 900);
                     await h.quiet({ avoid: ['k', 'q'] }); await h.wait(700);
-                    h.cap('왕이 체크를 당하면 축복이 사라집니다'); await h.wait(900);
+                    h.cap('킹이 체크 상태가 되면 축복이 사라집니다'); await h.wait(900);
                     const mv = h.find(m => m.from === 'e5' && (m.to === 'f3' || m.to === 'd3'));
                     if (mv) await h.move(mv.from, mv.to, 2600);
                 } },
-            '시간 도둑': { cap: '상대의 증강 선택 시간을 영구적으로 훔칩니다',
+            '시간 도둑': { cap: '상대의 증강 선택 시간을 영구적으로 감소시킵니다',
                 after: async h => {
                     const ov = demoShowCards(demoAugOpts(3), `<div class="demo-ban">${augIconHtml('시간 도둑', '⏳')} 상대의 증강 선택</div><div class="aug-timer opp demo-t"><div class="at-track"><b class="dt-lost"></b><i></i></div><span class="at-sec">30s</span></div>`);
                     const bar = ov.querySelector('.demo-t'), fill = bar.querySelector('i'), lost = bar.querySelector('.dt-lost'), sec = bar.querySelector('.at-sec');
                     const setLv = s => { fill.style.width = (s / 30 * 100) + '%'; lost.style.width = (100 - s / 30 * 100) + '%'; };
                     const tween = (a, b, ms) => new Promise(res => { const t0 = performance.now(), tick = () => { const k = Math.min(1, (performance.now() - t0) / ms), v = a + (b - a) * k; sec.textContent = Math.round(v) + 's'; bar.classList.toggle('low', v <= 5); if (k < 1) requestAnimationFrame(tick); else res(); }; tick(); });
-                    h.cap('상대의 증강 선택 시간은 원래 30초예요'); await h.wait(1500);
-                    h.cap('시간 도둑에 한 번 걸리면 15초로 줄어요'); setLv(15); await tween(30, 15, 700); await h.wait(1400);
-                    h.cap('두 번째에는 15초에서 8초까지 줄어요 (최대 2번)'); setLv(8); await tween(15, 8, 700); await h.wait(1400);
-                    h.cap('고민할 틈이 사라진 상대는 서둘러 고르게 돼요'); fill.style.transform = 'scaleX(0)'; await tween(8, 0, 2500); await h.wait(500);
+                    h.cap('상대의 증강 선택 시간은 기본 30초입니다'); await h.wait(1500);
+                    h.cap('시간 도둑을 한 번 사용하면 15초로 감소합니다'); setLv(15); await tween(30, 15, 700); await h.wait(1400);
+                    h.cap('두 번째에는 15초에서 8초로 감소합니다 (최대 2번)'); setLv(8); await tween(15, 8, 700); await h.wait(1400);
+                    h.cap('선택 시간이 줄어든 상대는 더 서둘러 선택해야 합니다'); fill.style.transform = 'scaleX(0)'; await tween(8, 0, 2500); await h.wait(500);
                     demoHideCards();
                 } },
-            '법정 대리인': { cap: '증강을 먼저 고를 때, 이어지는 상대의 증강 선택권을 가져옵니다',
+            '법정 대리인': { cap: '증강을 먼저 선택할 때, 이어지는 상대의 증강 선택권을 가져옵니다',
                 after: async h => {
                     const opts = demoAugOpts(3), banner = () => document.querySelector('#augment-overlay .demo-ban');
                     const ov = demoShowCards(opts, `<div class="demo-ban">상대의 증강 선택지</div>`);
-                    h.cap('이어서 상대가 증강을 고를 차례예요'); await h.wait(1600);
+                    h.cap('이어서 상대가 증강을 선택할 차례입니다'); await h.wait(1600);
                     const b = banner(); b.classList.add('proxy'); b.innerHTML = augIconHtml('법정 대리인', '⚖️') + ' 내가 대신 고르는 중';
-                    h.cap('하지만 그 선택권은 법정 대리인 덕분에 내 손에 있어요'); await h.wait(1700);
+                    h.cap('그러나 법정 대리인의 효과로 선택권은 나에게 있습니다'); await h.wait(1700);
                     const cards = ov.querySelectorAll('.augment-card'), k = Math.max(0, opts.findIndex(a => getAugmentCategoryLabel(a) !== '피해'));
-                    h.cap('상대의 선택지 중 하나를 눌러서…'); if (cards[k]) cards[k].classList.add('selected'); await h.wait(1500);
-                    h.cap('한 번 더 누르면 도장이 쾅! 찍혀 확정돼요'); await h.wait(900); if (cards[k]) gavelConfirm(cards[k], () => {}); await h.wait(1700);
-                    h.cap('고른 증강은 상대가 쓴 것으로 발동돼요. 선택권만 내 몫이에요'); await h.wait(2300);
+                    h.cap('상대에게 제시된 선택지 중 하나를 눌러 선택하고…'); if (cards[k]) cards[k].classList.add('selected'); await h.wait(1500);
+                    h.cap('한 번 더 누르면 확정됩니다'); await h.wait(900); if (cards[k]) gavelConfirm(cards[k], () => {}); await h.wait(1700);
+                    h.cap('선택한 증강은 상대가 사용한 것으로 발동됩니다. 선택권만 나에게 있습니다'); await h.wait(2300);
                     demoHideCards();
                 } },
             '업!': { w: 'Ra1 Nb1 Bc1 Qd1 Ke1 Bf1 Rh1 Nf3 Pa2 Pb2 Pc2 Pd2 Pf2 Pg2 Ph2', b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Ng8 Rh8 Pa7 Pb7 Pc7 Pd7 Pe5 Pf7 Pg7 Ph7', target: 'f3', turn: 'w',
                 after: async h => {
-                    h.cap('풍선이 붙은 기물은 다른 기물 위에도 올라설 수 있어요'); await h.wait(1200);
+                    h.cap('풍선이 달린 기물은 다른 기물 위에도 올라설 수 있습니다'); await h.wait(1200);
                     await h.move('f3', 'e5', 1900);
-                    h.cap('올라선 기물은 잡히지 않고, 아래 기물은 그대로 남아 있어요'); await h.wait(1800);
-                    h.cap('4수가 지나면 풍선이 날아가고, 내려앉으며 아래 기물을 제거합니다'); await h.wait(1000);
+                    h.cap('올라선 기물은 잡히지 않으며, 아래 기물은 그대로 유지됩니다'); await h.wait(1800);
+                    h.cap('4수가 지나면 풍선이 사라지고, 내려앉으며 아래 기물을 파괴합니다'); await h.wait(1000);
                     const prot = Object.keys(balloons);
                     for (let i = 0; i < 3; i++) await h.quiet({ protect: prot, fast: true });
                     await h.wait(1100);
@@ -10803,7 +10817,7 @@
                 clearTimeout(loadTimer); loadTimer = setTimeout(() => { if (load.style.display !== 'none') load.textContent = '미리보기를 불러오지 못했어요. 다시 보기를 눌러 주세요.'; }, 12000);
             }
             function close() {
-                clearTimeout(loadTimer); stage.querySelectorAll('iframe').forEach(f => f.remove()); curFrame = null; curName = null; ov.style.display = 'none';
+                clearTimeout(loadTimer); stage.querySelectorAll('iframe').forEach(f => f.remove()); curFrame = null; curName = null; ov.style.display = 'none'; document.body.classList.remove('aug-info-open');
             }
             window.__openAugInfo = function (name) {
                 const aug = AUGMENT_POOL.find(a => a.name === name); if (!aug) return;
@@ -10812,7 +10826,7 @@
                 document.getElementById('ai-title').innerHTML = '<span class="ai-ic">' + augIconHtml(aug.name, esc(aug.icon)) + '</span> ' + esc(aug.name);
                 document.getElementById('ai-meta').innerHTML = `<span class="help-aug-tag">${esc(getAugmentCategoryLabel(aug))}</span>` + (risk ? `<span class="help-aug-tag risk">${esc(risk)}</span>` : '');
                 document.getElementById('ai-desc').innerHTML = renderAugDesc(aug.desc);
-                ov.style.display = 'flex'; play();
+                ov.style.display = 'flex'; document.body.classList.add('aug-info-open'); play();
             };
             window.addEventListener('message', e => {
                 const d = e.data; if (!d || d.aug !== 'demo' || !curFrame || e.source !== curFrame.contentWindow || ov.style.display === 'none') return;
@@ -10833,6 +10847,7 @@
         let selectedAugmentIdx = -1;
         let opponentAugmentPreview = null;
         let opponentAugmentPreviewColor = null;
+        let opponentAugmentPreviewEarly = false;   // 내 화면에 증강 창이 열리기 전에 먼저 도착한 선택지 (법정 대리인: 상대가 내 증강을 바로 고르기 시작함)
         let activeAugmentOptions = null;
         let augOfferedNow = null;   // 지금 증강을 고르는 쪽이 받은 선택지 이름 { color, names } — 리플레이의 증강 선택 평가용
         let activeAugmentPlayerColor = null;
@@ -10887,9 +10902,14 @@
             if (ext === true && !isSpectating && (augIsBusy() || augmentOverlay.style.display === 'flex')) return;   // 이미 증강 단계가 진행 중이면 중복으로 시작하지 않는다
             augBusy = false;
             if (isSpectating) { specNextPhase(); return; }
-            opponentAugmentSelection = null;
-            opponentAugmentPreview = null;
-            opponentAugmentPreviewColor = null;
+            const __nextC = (Array.isArray(pendingAugments) && pendingAugments.length) ? pendingAugments[0] : null;
+            const __keepPv = !!(opponentAugmentPreviewEarly && opponentAugmentPreview && __nextC && opponentAugmentPreviewColor === __nextC);   // 이미 도착한 다음 선택지는 지우지 않고 그대로 보여 준다
+            opponentAugmentPreviewEarly = false;
+            if (!__keepPv) {
+                opponentAugmentSelection = null;
+                opponentAugmentPreview = null;
+                opponentAugmentPreviewColor = null;
+            }
             if (pendingAugments.length === 0) { proxyPick = { w: null, b: null }; 
                 try { if (augKillClaim && !canCaptureKing(augKillClaim.color)) augKillClaim = null; } catch (e) {}   // 상대의 증강으로 킹을 잡을 각이 막혔다면 기록을 지운다
                 isSystemLocked = false; updateCheckStatus(); updateProgressBar(); 
@@ -10998,7 +11018,7 @@
             if (!vals.size) return 0;
             const k = augmentOptionCount(humanC), R = 40; let tot = 0;
             for (let r = 0; r < R; r++) {
-                const set = weightedSample(elig, k).filter(a => vals.has(a));
+                const set = weightedSample(elig, k, humanC).filter(a => vals.has(a));
                 if (!set.length) { tot += base; continue; }
                 const vs = set.map(a => vals.get(a)), mn = Math.min(...vs), mean = vs.reduce((x, y) => x + y, 0) / vs.length;
                 tot += 0.65 * mn + 0.35 * mean;   // 사람이 늘 최선을 고르진 않으므로 최선 65% + 평균 35%
@@ -11152,7 +11172,7 @@
                     // 사람과 대전할 때와 같은 화면: 사람과 같은 개수의 선택지를 뽑아 '상대 선택 중' 카드로 보여 준다
                     const enemyColor = playerColor === 'w' ? 'b' : 'w';
                     const available = AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
-                    const botOptions = weightedSample(available, augmentOptionCount(playerColor));
+                    const botOptions = weightedSample(available, augmentOptionCount(playerColor), playerColor);
                     if (botOptions.length === 0) { processNextAugmentPhase(); return; }
                     augOfferedNow = { color: playerColor, names: botOptions.map(o => o.name) };
                     renderOpponentPreviewCards(buildAugmentPreviewPayload(botOptions), playerColor, overlay);
@@ -11182,13 +11202,15 @@
                     return;
                 }
                 if (currentRoomId) {
-                    overlay.innerHTML = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방 선택 중...</div><h2>적 선택 중</h2><p style="color:#ccc; margin-bottom:12px; font-size:0.95rem;">상대 선택지를 불러오는 중입니다...</p>`;
+                    const __myProxy = !!proxyPick[playerColor] && playerColor === myColor;   // 법정 대리인: 상대가 내 증강을 대신 고르는 중
+                    overlay.innerHTML = `<div class="turn-badge ${playerColor==='w'?'white':'black'}">상대방 선택 중...</div><h2>${__myProxy ? '상대가 내 증강을 대신 고르는 중' : '적 선택 중'}</h2><p style="color:#ccc; margin-bottom:12px; font-size:0.95rem;">${__myProxy ? '법정 대리인 효과로 상대가 내 선택지 중 하나를 대신 고릅니다. 선택지를 불러오는 중입니다...' : '상대 선택지를 불러오는 중입니다...'}</p>`;
+                    overlay.dataset.proxy = __myProxy ? '1' : '';
                     overlay.style.display = 'flex';
                     return;
                 }
                 const enemyColor = playerColor === 'w' ? 'b' : 'w';
                 let available = AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
-                const previewOptions = weightedSample(available, augmentOptionCount(playerColor));
+                const previewOptions = weightedSample(available, augmentOptionCount(playerColor), playerColor);
                 if (previewOptions.length === 0) { processNextAugmentPhase(); return; }
                 renderOpponentPreviewCards(previewOptions, playerColor, overlay);
                 return; 
@@ -11199,7 +11221,7 @@
             let available = resolvedOptions.length > 0 ? resolvedOptions : AUGMENT_POOL.filter(aug => aug.condition(playerColor, enemyColor));
 
             if (!options) {
-                options = weightedSample(available, augmentOptionCount(playerColor));
+                options = weightedSample(available, augmentOptionCount(playerColor), playerColor);
             } else {
                 options = resolveAugmentOptions(options);
             }
