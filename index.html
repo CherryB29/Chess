@@ -9359,6 +9359,7 @@
             let wKing = false, bKing = false;
             for(let r=0; r<8; r++) for(let c=0; c<8; c++) { const p = game.board()[r][c]; if(p && p.type === 'k') { if(p.color === 'w') wKing = true; if(p.color === 'b') bKing = true; } }
             
+            for (const usq in balloonUnder) { const en = balloonUnder[usq]; if (en && en.piece && en.piece.type === 'k') { if (en.piece.color === 'w') wKing = true; else bKing = true; } }   // 업: 풍선 기물 아래 깔려 숨은 킹도 살아 있다 (풍선이 내려와야 판가름난다)
             if(!wKing && !bKing) { showEndScreen("무승부", "양팀 킹 동시 파괴", { delay: 1500 }); return; }
             if(!wKing) { showEndScreen(myColor === 'b' ? '승리' : '패배', "백 킹이 파괴되었습니다.", { delay: kickPlanned ? 2400 : 1500 }); return; }
             if(!bKing) { showEndScreen(myColor === 'w' ? '승리' : '패배', "흑 킹이 파괴되었습니다.", { delay: kickPlanned ? 2400 : 1500 }); return; }
@@ -11373,7 +11374,7 @@
                 const augWinCheck = () => {   // 내가 쓴 증강으로 상대가 체크메이트 되거나 킹이 사라졌으면 업적 (관전·상대·봇의 증강은 제외)
                     try {
                         if (pColor !== myColor || isSpectating || augWinReported) return;
-                        const eKing = findPieces(eColor, 'k').length, mKing = findPieces(pColor, 'k').length;
+                        const hidKs = c => Object.values(balloonUnder).filter(en => en && en.piece && en.piece.type === 'k' && en.piece.color === c).length, eKing = findPieces(eColor, 'k').length + hidKs(eColor), mKing = findPieces(pColor, 'k').length + hidKs(pColor);
                         if ((mKing > 0 && eKing === 0) || (eKing > 0 && game.in_checkmate() && game.turn() === eColor)) { augWinReported = true; reportWinAch({ kind: 'aug', name: selectedAug.name }, 2500); }
                         else if (!capBefore && mKing > 0 && eKing > 0 && game.turn() === pColor && canCaptureKing(pColor)) augKillClaim = { name: selectedAug.name, color: pColor };   // 먼저 쓰는 쪽: 킹을 잡을 각을 만들었다. 상대가 막지 못하고 그 수로 킹을 잡으면 업적
                     } catch (e) {}
@@ -11837,7 +11838,7 @@
         }
         function practiceCondition() {   // 차례인 쪽 기준의 상태: '' | check | mate | stale | nokingw | nokingb
             try {
-                const hasK = c => game.board().some(r => r.some(p => p && p.type === 'k' && p.color === c));
+                const hasK = c => game.board().some(r => r.some(p => p && p.type === 'k' && p.color === c)) || Object.values(balloonUnder).some(en => en && en.piece && en.piece.type === 'k' && en.piece.color === c);   // 풍선 아래 숨은 킹 포함
                 if (!hasK('w')) return 'nokingw'; if (!hasK('b')) return 'nokingb';
                 if (game.in_checkmate()) return 'mate'; if (game.in_draw()) return 'stale'; if (game.in_check()) return 'check';
             } catch (e) {}
