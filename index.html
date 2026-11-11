@@ -10494,7 +10494,7 @@
               condition: (m, e) => ((augTimeCut && augTimeCut[e]) || 0) < 2,
               apply: (m, e) => { const lv = (augTimeCut[e] || 0), T = [30, 15, 8], nx = Math.min(2, lv + 1); augTimeCut[e] = nx; const k = findPieces(m, 'k')[0];
                   const ek = findPieces(e, 'k')[0]; return { t: ek ? [ek] : [], vfx: '', origin: k || null, fxArg: lv + 1, msg: `⏳ 시간 도둑! 상대의 증강 선택 시간이 ${T[lv]}초에서 ${T[nx]}초로 줄었습니다.` }; } },
-            { name: '법정 대리인', icon: '⚖️', weight: 2.16, desc: '증강을 {먼저 선택할 때} 등장합니다. 이어지는 [상대의 증강 선택권]을 {한 번} 가져와, 상대에게 제시된 선택지 중 하나를 {대신 선택}합니다.', detail: '선택한 증강은 상대가 사용한 것으로 발동됩니다. 대상이나 위치를 지정해야 하는 증강은 무작위로 결정됩니다. 등장 확률이 낮은 증강입니다.', globalVfx: 'vfx-global-meta', isKillType: false,
+            { name: '법정 대리인', icon: '⚖️', weight: 2.16, desc: '증강을 {먼저 선택할 때} 등장합니다. 이어지는 [상대의 증강 선택권]을 {한 번} 가져와, 상대에게 제시된 선택지 중 하나를 {대신 선택}합니다.', detail: '선택한 증강은 상대가 사용한 것으로 발동됩니다. 대상이나 위치를 지정해야 하는 증강은 선택한 사람이 직접 지정합니다. 등장 확률이 낮은 증강입니다.', globalVfx: 'vfx-global-meta', isKillType: false,
               condition: (m, e) => Array.isArray(pendingAugments) && pendingAugments[0] === e && !proxyPick[e],
               apply: (m, e) => { proxyPick[e] = m; const k = findPieces(m, 'k')[0];
                   const ek = findPieces(e, 'k')[0]; return { t: ek ? [ek] : [], vfx: '', origin: k || null, msg: '⚖️ 법정 대리인! 상대의 다음 증강을 내가 대신 고릅니다.' }; } }
@@ -11251,7 +11251,7 @@
                 const typeClass = getAugmentCategoryClass(aug);
                 html += `<div class="augment-card ${typeClass}" data-idx="${idx}"><button type="button" class="aug-info" data-aug="${aug.name}" aria-label="${aug.name} 정보">i</button><div class="augment-icon">${augIconHtml(aug.name, aug.icon)}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${typeLabel}</span>${riskLabel ? `<span class="aug-risk">${riskLabel}</span>` : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
             });
-            html += `</div><div class="augment-hint">카드 바깥쪽을 눌러 필드를 확인하세요.${isProxy ? '<br>고른 증강은 상대가 쓴 것으로 발동돼요. 대상이나 위치를 정해야 하면 무작위로 정해져요.' : ''}</div>`;
+            html += `</div><div class="augment-hint">카드 바깥쪽을 눌러 필드를 확인하세요.${isProxy ? '<br>선택한 증강은 상대가 사용한 것으로 발동됩니다. 대상이나 위치는 내가 직접 지정합니다.' : ''}</div>`;
             if (!__AUG_DEMO && !document.body.classList.contains('demo-cards')) {
                 if (!(augKeepDeadline && augDeadline)) augDeadline = Date.now() + augLimitMs(myColor);
                 augKeepDeadline = false; augCtx = { playerColor, enemyColor, options };
@@ -11303,7 +11303,7 @@
         }
 
         function applySelectedAugment(selectedAug, pColor, eColor, onCancel) {
-            if (selectedAug.target && pColor === myColor) {
+            if (selectedAug.target && (pColor === myColor || proxyPick[pColor] === myColor)) {   // 법정 대리인: 대신 고른 사람이 대상·위치도 직접 지정한다
                 beginTargeting(selectedAug, pColor, eColor, target => doApplyAugment(selectedAug, pColor, eColor, target), onCancel);
                 return;
             }
@@ -11357,6 +11357,7 @@
             showCastText(selectedAug.name, () => {
                 if (gs0 !== gameEpoch || game.is_game_over) { augBusy = false; return; }   // 시전 중에 기권·종료·새 게임이 되었다면 적용하지 않는다
                 floatLog = [];
+                const byMe = pColor === myColor || proxyPick[pColor] === myColor;   // 법정 대리인: 승급할 기물도 대신 고른 사람이 정한다
                 let res, capBefore = false;
                 try { if (pColor === myColor && !isSpectating) capBefore = canCaptureKing(pColor); } catch (e) {}   // 증강 전부터 킹을 잡을 수 있었다면 증강 덕이 아니다
                 try { res = selectedAug.apply(pColor, eColor, target); const { poisoned, blasts, fated } = settleBoard({ fx: false, poison: true, sanitize: true, fateFx: true }); if (poisoned.length) res.t = [...new Set([...(res.t || []), ...poisoned])]; if (fated.length) res.t = [...new Set([...(res.t || []), ...fated])]; res.blasts = [...new Set([...(res.blasts || []), ...blasts])]; if (res.blasts.length) res.t = [...new Set([...(res.t || []), ...res.blasts])]; }
@@ -11386,7 +11387,7 @@
                 };
                 const visual = extra => playAugmentVisuals(Object.assign({ name: selectedAug.name, globalVfx: selectedAug.globalVfx, t: res.t, vfx: res.vfx, floats: floats, fxArg: res.fxArg, origin: res.origin, fxMoves: res.fxMoves, blasts: res.blasts, mineSq: pColor === myColor ? res.mineSq : null }, extra || {}));
 
-                if (promoSqs.length && pColor === myColor) {
+                if (promoSqs.length && byMe) {
                     // 폰이 끝줄에 닿는 연출을 먼저 보여 주고, 왼쪽 폰부터 툴팁으로 기물을 고른다. 다 고른 뒤에 상태를 상대에게 보낸다.
                     const lead = visual({ holdCheck: true });
                     showToast(res.msg, "var(--primary)", 4000);
@@ -11446,7 +11447,7 @@
             if (!valid.length) { onConfirm(null); return; }
             targeting = { aug, valid: new Set(valid), preview: null, onConfirm, onCancel };
             valid.forEach(sq => { const el = squareEls.get(sq); if (el) { el.classList.add('target-valid'); if (def.mode === 'piece') el.classList.add('tv-piece'); } });
-            setTargetBanner(`${aug.icon} ${aug.name}`, def.prompt, false);
+            setTargetBanner(`${aug.icon} ${aug.name}`, pColor === myColor ? def.prompt : '(대리 지정) ' + def.prompt.replace(/아군/g, '상대 진영의').replace(/적 기물/g, '내 기물'), false);
         }
         function handleTargetClick(sq) {
             if (!targeting) return;
