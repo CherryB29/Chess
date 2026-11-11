@@ -4597,7 +4597,7 @@
                     if (this.isValidRC(nr, nc)) {
                         const t = boardState[nr][nc];
                         if (t && t.type === 'wall') return false; 
-                        if (t && this.airFloat(t, nr, nc)) return true;   // 떠 있는 기물 아래로 지나간다 (그 칸에 멈추지는 못한다)
+                        if (t && this.airFloat(t, nr, nc)) { moves.push({ r: nr, c: nc }); return true; }   // 떠 있는 기물(아군·적 모두)의 칸은 빈 공간: 지나갈 수 있고 그 칸에 멈춰 설 수도 있다 (풍선 기물 아래에 선다)
                         if (!t) { moves.push({ r: nr, c: nc }); return true; }
                         if (t.color !== color) {
                             if (!(invinciblePieces[t.uid] || balloons[t.uid] > 0)) moves.push({ r: nr, c: nc }); 
@@ -4616,18 +4616,18 @@
                         if (this.isValidRC(r + dir, c + 1)) { const t = boardState[r+dir][c+1]; if (attackOnly || (t && t.type !== 'wall' && t.color === enemyColor && !(invinciblePieces[t.uid] || balloons[t.uid] > 0)) || this.ep_square === this.rcToSq(r+dir, c+1)) moves.push({ r: r+dir, c: c+1, flags: 'c' }); }
                         if (!attackOnly && this.isValidRC(r + dir, c)) { 
                             const t1 = boardState[r+dir][c];
-                            if(!t1) {
-                                moves.push({ r: r+dir, c: c, flags: 'n' }); 
-                                if (!isReversed && r === startRank && !boardState[r+dir*2][c]) moves.push({ r: r+dir*2, c: c, flags: 'b' }); 
+                            if(!t1 || this.airFloat(t1, r+dir, c)) {   // 떠 있는 풍선 기물의 칸은 빈 칸으로 본다
+                                moves.push({ r: r+dir, c: c, flags: 'n' });
+                                if (!isReversed && r === startRank) { const t2 = boardState[r+dir*2][c]; if (!t2 || this.airFloat(t2, r+dir*2, c)) moves.push({ r: r+dir*2, c: c, flags: 'b' }); }
                             }
                         }
                         break;
-                    case 'n': [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || (t.type !== 'wall' && t.color !== color && !(invinciblePieces[t.uid] || balloons[t.uid] > 0))) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
+                    case 'n': [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || this.airFloat(t, r+d[0], c+d[1]) || (t.type !== 'wall' && t.color !== color && !(invinciblePieces[t.uid] || balloons[t.uid] > 0))) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
                     case 'b': [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(d => { let nr = r+d[0], nc = c+d[1]; while(addMove(nr, nc)) { nr+=d[0]; nc+=d[1]; } }); break;
                     case 'r': [[-1,0],[1,0],[0,-1],[0,1]].forEach(d => { let nr = r+d[0], nc = c+d[1]; while(addMove(nr, nc)) { nr+=d[0]; nc+=d[1]; } }); break;
                     case 'q': [[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]].forEach(d => { let nr = r+d[0], nc = c+d[1]; while(addMove(nr, nc)) { nr+=d[0]; nc+=d[1]; } }); break;
-                    case 'k': [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || (t.type !== 'wall' && t.color !== color && !(invinciblePieces[t.uid] || balloons[t.uid] > 0))) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
-                } 
+                    case 'k': [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(d => { if (this.isValidRC(r+d[0], c+d[1])) { const t = boardState[r+d[0]][c+d[1]]; if (!t || this.airFloat(t, r+d[0], c+d[1]) || (t.type !== 'wall' && t.color !== color && !(invinciblePieces[t.uid] || balloons[t.uid] > 0))) moves.push({r:r+d[0], c:c+d[1]}); }}); break;
+                }
                 if (!attackOnly && balloons[piece.uid] > 0) {   // 업: 풍선이 붙은 기물은 떠다니므로 다른 기물(아군·적·킹·벽) 위에도 올라설 수 있다. 올라서기만 할 뿐 잡지는 않는다.
                     const have = new Set(moves.map(x => x.r * 8 + x.c));
                     const add = (nr, nc) => { if (!this.isValidRC(nr, nc) || have.has(nr * 8 + nc)) return; const t = boardState[nr][nc]; if (t && balloons[t.uid] > 0) return; have.add(nr * 8 + nc); moves.push({ r: nr, c: nc }); };
@@ -4670,7 +4670,7 @@
                     }
                     let kr2 = kr, kc2 = kc; if (hidK && !um && (piece.uid === hidK.fuid || hidK.cnt <= 1)) { kr2 = hidK.r; kc2 = hidK.c; }   // 풍선 기물이 킹 위에서 움직이면 킹이 드러나고, 1수 남았다면 어떤 수든 직후에 드러난다
                     for (let pi = 0; pi < pseudoMoves.length; pi++) {
-                        const m = pseudoMoves[pi], tgtPc = B[m.r][m.c];
+                        const m = pseudoMoves[pi], tgtAt = B[m.r][m.c], airTgt = !!tgtAt && this.airFloat(tgtAt, m.r, m.c), tgtPc = airTgt ? null : tgtAt;   // 떠 있는 기물의 칸은 빈 칸: 잡는 수가 아니라 그 아래에 서는 수
                         let epCapture = false; const fl = balloons[piece.uid] > 0;   // 풍선 기물은 잡지 못한다(올라설 뿐)
                         if (piece.type === 'p' && m.c !== c && !tgtPc && !fl) epCapture = true;
                         if (options.captures && !tgtPc && !epCapture && !(piece.type === 'p' && m.r === (piece.color === 'w' ? 0 : 7))) continue;   // v3.74: 분석 탐색의 정지 탐색용 — 잡기·승급만 합법 판정
@@ -4687,7 +4687,7 @@
                             B[m.r][m.c] = piece; B[r][c] = um ? origAt : null; if (epCapture) B[r][m.c] = null; if (fP) B[fP.r][fP.c] = null;   // 임시로 둔다 (운명공동체의 짝도 함께 치운다)
                             const kR = piece.type === 'k' ? m.r : kr2, kC = piece.type === 'k' ? m.c : kc2;
                             ok = kR === -1 ? true : !this.isSquareAttacked(kR, kC, enemy, B, true);   // 내 수를 둔 뒤의 상태로 합법 여부를 판단한다
-                            B[r][c] = origAt; B[m.r][m.c] = tgtPc; if (epCapture) B[r][m.c] = epPc; if (fP) B[fP.r][fP.c] = fP.p;   // 되돌린다
+                            B[r][c] = origAt; B[m.r][m.c] = tgtAt; if (epCapture) B[r][m.c] = epPc; if (fP) B[fP.r][fP.c] = fP.p;   // 되돌린다
                         }
                         if (ok && hidK && !um && hidK.cnt === 2 && piece.uid !== hidK.fuid) {   // 풍선이 상대 수 직후 내려와 킹이 드러난다: 그때 체크메이트가 되는 수는 둘 수 없다
                             const sv = [B[m.r][m.c], B[r][c], B[hidK.r][hidK.c]];
@@ -4724,10 +4724,15 @@
                 if (m.flags === 'k') { this._board[fR][5] = this._board[fR][7]; this._board[fR][7] = null; }
                 if (m.flags === 'q') { this._board[fR][3] = this._board[fR][0]; this._board[fR][0] = null; }
 
-                const under = floater ? this._board[tR][tC] : null;   // 풍선 기물이 올라서는 칸의 기물은 잡히지 않고 아래에 깔린다
-                this._board[tR][tC] = piece; if (um) delete balloonUnder[m.from]; else this._board[fR][fC] = null;
-                if (floater) { const en = balloonUnder[m.from]; if (en && en.uid === piece.uid) { this._board[fR][fC] = en.piece; delete balloonUnder[m.from]; } if (under && under.uid !== piece.uid) balloonUnder[m.to] = { uid: piece.uid, piece: under }; }
-                if (m.promotion) this._board[tR][tC].type = moveParam.promotion;
+                const atT = this._board[tR][tC];
+                const airT = !floater && !!atT && this.airFloat(atT, tR, tC);   // 떠 있는 풍선 기물의 칸은 빈 공간: 그 아래에 서고, 풍선 기물은 그대로 떠 있다
+                const under = floater ? atT : null;   // 풍선 기물이 올라서는 칸의 기물은 잡히지 않고 아래에 깔린다
+                if (airT) { balloonUnder[m.to] = { uid: atT.uid, piece }; if (um) delete balloonUnder[m.from]; else this._board[fR][fC] = null; }
+                else {
+                    this._board[tR][tC] = piece; if (um) delete balloonUnder[m.from]; else this._board[fR][fC] = null;
+                    if (floater) { const en = balloonUnder[m.from]; if (en && en.uid === piece.uid) { this._board[fR][fC] = en.piece; delete balloonUnder[m.from]; } if (under && under.uid !== piece.uid) balloonUnder[m.to] = { uid: piece.uid, piece: under }; }
+                }
+                if (m.promotion) piece.type = moveParam.promotion;
 
                 if (piece.type === 'k') { this.castling[this._turn].k = false; this.castling[this._turn].q = false; }
                 if (piece.type === 'r') {
@@ -4971,10 +4976,11 @@
             const __mp = selectedSquare ? game.get(selectedSquare) : null, __floating = !!(__mp && balloons[__mp.uid] > 0);   // 풍선 기물은 잡지 않고 올라설 뿐이라 빨간 원을 쓰지 않는다
             legalMoves.forEach(move => {
                 const coords = getCoords(move.to); const el = document.createElement('div');
-                if (!isFogOn() && !__floating && (game.get(move.to) || move.captured)) el.className = 'capture-ring'; else el.className = 'dot';
+                const __tg = game.get(move.to), __air = !!(__tg && balloons[__tg.uid] > 0 && game.airFloat(__tg, game.sqToRC(move.to).r, game.sqToRC(move.to).c));   // 떠 있는 풍선 기물의 칸은 빈 칸: 빨간 원 대신 점
+                if (!isFogOn() && !__floating && ((__tg && !__air) || move.captured)) el.className = 'capture-ring'; else el.className = 'dot';
                 el.style.left = `${coords.x}%`; el.style.top = `${coords.y}%`;
                 // 풍선(업) 기물은 잡지 않고 올라서므로, 기물이 있는 칸에도 주황 점이 보이도록 기물 위 레이어에 그린다
-                (__floating && dotsTop && el.className === 'dot' && game.get(move.to) ? dotsTop : dotsLayer).appendChild(el);
+                ((__floating || __air) && dotsTop && el.className === 'dot' && __tg ? dotsTop : dotsLayer).appendChild(el);
             });
             squareList.forEach(s => s.classList.remove('selected'));
             if(selectedSquare) squareEls.get(selectedSquare).classList.add('selected');
@@ -9551,7 +9557,7 @@
         function executeMoveLocal(from, to, promo, under) {
             if (isPracticeMode) practiceSnap();
             // 동귀어진: 이동 전에 잡힐 기물을 확인해 둔다 (앙파상은 다른 칸의 폰)
-            let pactVictim = null; { const mv = under && balloonUnder[from] ? balloonUnder[from].piece : game.get(from); let vic = game.get(to); if (!vic && mv && mv.type === 'p' && to === game.ep_square) vic = game.get(to[0] + from[1]); if (vic && pactPieces[vic.uid]) pactVictim = vic.uid; }
+            let pactVictim = null; { const mv = under && balloonUnder[from] ? balloonUnder[from].piece : game.get(from); let vic = game.get(to); if (vic && balloons[vic.uid] > 0) vic = null;   /* 떠 있는 기물은 잡히지 않는다 */ if (!vic && mv && mv.type === 'p' && to === game.ep_square) vic = game.get(to[0] + from[1]); if (vic && pactPieces[vic.uid]) pactVictim = vic.uid; }
             const moveResult = game.move({ from: from, to: to, promotion: promo, under: !!under });
             if (!moveResult) return;
             try { botHistory.push(from + to); const hk = botHash(game); BOT.seen.set(hk, (BOT.seen.get(hk) || 0) + 1); } catch (e) {}   // 봇: 오프닝북/반복 국면 기록
