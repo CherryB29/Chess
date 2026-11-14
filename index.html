@@ -312,6 +312,8 @@
         .vs-card { display: flex; flex-direction: column; align-items: center; flex: 1; opacity: 0; animation: slideIn 0.5s forwards;}
         .vs-card.opp { animation-delay: 0.2s; }
         .vs-icon { font-size: 4rem; margin-bottom: 10px; background: rgba(128,128,128,0.2); padding: 15px; border-radius: 50%; }
+        .brain-ico { width: 1em; height: 1em; display: block; color: #f7a8c8; }
+        .vs-icon:has(.brain-ico) { display: flex; align-items: center; justify-content: center; }
         .vs-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
         .vs-title { font-size: 0.78rem; font-weight: 800; color: #e8b923; margin: -2px 0 5px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
         .vs-title:empty { display: none; }
@@ -1097,7 +1099,100 @@
         .pr-card { margin: 0 0 14px; padding-bottom: 14px; border-bottom: 1px solid var(--panel-border); } .pr-card:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
         .pr-desc { font-size: .8rem; color: #999; line-height: 1.5; margin-top: -4px; padding: 0 4px; text-align: left; }
         #practice-tools { display: none; flex: 1 1 auto; min-width: 0; flex-direction: column; gap: 6px; }
-        body.practice-mode #game-controls > :not(#practice-tools) { display: none !important; }
+        body.practice-mode #game-controls > :not(#practice-tools):not(#puzzle-tools) { display: none !important; }
+        #puzzle-tools { display: none; flex: 1 1 auto; min-width: 0; flex-direction: column; gap: 8px; }
+        body.puzzle-mode #practice-tools { display: none !important; }
+        body.puzzle-mode #puzzle-tools { display: flex; }
+        #pz-head { display: flex; align-items: center; gap: 10px; padding: 2px 4px 0; min-width: 0; }
+        #pz-title { display: flex; align-items: baseline; gap: 7px; min-width: 0; color: var(--text-color); font-weight: 800; }
+        #pz-title small { font-size: .6rem; letter-spacing: 2px; color: #8d8d9b; font-weight: 700; }
+        #pz-title b { font-size: 1.4rem; line-height: 1; font-variant-numeric: tabular-nums; }
+        #pz-title .pz-name { font-size: .74rem; font-weight: 600; color: #8d8d9b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #pz-sub { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; font-size: .72rem; font-weight: 700; color: #8d8d9b; }
+        #pz-sub .ico { width: 14px; height: 14px; color: var(--danger); }
+        #pz-meter { display: flex; gap: 6px; }
+        .pz-stat { flex: 1; display: flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--input-bg); color: var(--text-color); font-size: .76rem; font-weight: 700; }
+        .pz-stat .ico { width: 16px; height: 16px; color: var(--primary); }
+        .pz-stat em { font-style: normal; font-weight: 600; color: #9a9aa8; }
+        .pz-cnt { margin-left: auto; display: inline-flex; align-items: baseline; gap: 1px; font-variant-numeric: tabular-nums; }
+        .pz-cnt b { font-size: 1.05rem; font-weight: 800; color: var(--text-color); }
+        .pz-cnt span { font-size: .78rem; font-weight: 600; color: #8d8d9b; }
+        .pz-stat.zero .pz-cnt b { color: #6d6d7c; }
+        .pz-stat.zero .ico { color: #6d6d7c; }
+        #pz-cards { display: flex; justify-content: center; gap: 8px; }
+        .pz-chip { width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; border-radius: 11px; border: 1px solid var(--panel-border); background: var(--input-bg); font-size: 1.2rem; line-height: 1; transition: opacity .25s, filter .25s; }
+        .pz-chip.used { opacity: .3; filter: grayscale(1); }
+        #pz-pick { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--primary); background: var(--primary); color: #fff; font-size: .95rem; font-weight: 800; letter-spacing: .3px; cursor: pointer; transition: transform .15s, opacity .15s; }
+        #pz-pick .ico { width: 20px; height: 20px; }
+        #pz-pick .pk-n { min-width: 22px; padding: 1px 7px; box-sizing: border-box; border-radius: 999px; background: rgba(255,255,255,.24); font-size: .78rem; font-weight: 800; line-height: 1.5; text-align: center; font-variant-numeric: tabular-nums; }
+        #pz-pick:not(:disabled):active { transform: scale(.97); }
+        #pz-pick:disabled { background: transparent; border-color: var(--panel-border); color: #6d6d7c; cursor: default; }
+        #pz-pick:disabled .pk-n { background: rgba(128,128,128,.18); }
+        .pz-pick-cancel { display: block; margin: 14px auto 0; padding: 9px 24px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-color); font-size: .85rem; font-weight: 700; cursor: pointer; }
+        body.puzzle-mode.augment-picking #game-controls, body.wide-mode.puzzle-mode.augment-picking #game-controls { position: static !important; translate: none !important; width: auto !important; max-width: none !important; background: none !important; border: 0 !important; box-shadow: none !important; pointer-events: none !important; z-index: auto !important; }
+        body.puzzle-mode.augment-picking #game-controls > * { pointer-events: none !important; }
+        #pz-desc { text-align: left; word-break: keep-all; font-size: .76rem; line-height: 1.5; color: var(--text-color); background: var(--input-bg); border-left: 3px solid var(--primary); border-radius: 4px 10px 10px 4px; padding: 7px 10px; }
+        #pz-desc b { display: block; font-size: .8rem; margin-bottom: 1px; }
+        #pz-desc small { display: block; margin-top: 3px; font-size: .68rem; color: #8d8d9b; }
+        .pz-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .pz-row .pt-btn { min-height: 40px; flex-direction: row; gap: 6px; font-size: .78rem; padding: 0 4px; }
+        .pz-row .pt-btn .ico { width: 17px; height: 17px; }
+        .pz-row .pt-btn:disabled { opacity: .4; }
+        .square.pz-target { box-shadow: inset 0 0 0 2px rgba(255,71,87,.9); }
+        .square.pz-target::after { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; animation: pzTargetPulse 1.7s ease-in-out infinite; }
+        @keyframes pzTargetPulse { 0%, 100% { box-shadow: inset 0 0 6px 1px rgba(255,71,87,.25); } 50% { box-shadow: inset 0 0 16px 4px rgba(255,71,87,.65); } }
+        #pz-meter .pz-stat { transition: border-color .25s, opacity .25s; }
+        #pz-meter .pz-stat.zero { opacity: .65; }
+        #pz-title b { background: linear-gradient(135deg, var(--primary), #ffd166); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .pz-done-box.ok #pz-done-ic { animation: pzDonePop .5s cubic-bezier(.2,1.4,.4,1) both; box-shadow: 0 0 0 0 rgba(46,204,113,.5), 0 0 24px rgba(46,204,113,.35); }
+        .pz-done-box.fail #pz-done-ic { animation: pzDoneShake .45s ease both; }
+        @keyframes pzDonePop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes pzDoneShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+        .pzs-cell { transition: transform .15s, border-color .2s, background-color .2s; }
+        .pzs-cell:active { transform: scale(.94); }
+        .pzs-cell.next::after { content: ''; position: absolute; inset: -3px; border-radius: 12px; border: 2px solid var(--primary); opacity: 0; animation: pzNextPing 1.8s ease-out infinite; pointer-events: none; }
+        @keyframes pzNextPing { 0% { opacity: .7; transform: scale(.96); } 100% { opacity: 0; transform: scale(1.12); } }
+        body.puzzle-mode #chat-log, body.puzzle-mode #chat-spacer { display: none !important; }
+        #pz-pick, .pz-pick-cancel, .pzs-cell, .pz-row .pt-btn { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        /* 스테이지 선택 */
+        #puzzle-stages .pz-box { box-sizing: border-box; display: flex; flex-direction: column; width: min(94vw, 420px); max-width: none; max-height: 88vh; padding: 22px 18px 16px; text-align: left; }
+        #puzzle-stages h2 { margin: 0 0 4px; font-size: 1.25rem; text-align: left; animation: none; }
+        #pzs-sub { margin: 0 0 8px; font-size: .8rem; font-weight: 700; color: #8d8d9b; }
+        #pzs-bar { height: 4px; margin-bottom: 14px; border-radius: 4px; background: rgba(128,128,128,.2); overflow: hidden; }
+        #pzs-bar i { display: block; width: 0; height: 100%; background: var(--primary); transition: width .3s; }
+        #pzs-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 2px; align-content: start; }
+        .pzs-cell { position: relative; aspect-ratio: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 0; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--input-bg); color: var(--text-color); cursor: pointer; }
+        .pzs-cell .n { font-size: 1.1rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+        .pzs-cell .m { display: inline-flex; gap: 6px; font-size: .6rem; font-weight: 700; color: #8d8d9b; }
+        .pzs-cell .m span { display: inline-flex; align-items: center; gap: 2px; }
+        .pzs-cell .m .ico { width: 10px; height: 10px; stroke-width: 2.4; }
+        .pzs-cell .ck { position: absolute; top: 4px; right: 4px; display: flex; color: #2ecc71; }
+        .pzs-cell .ck .ico { width: 12px; height: 12px; stroke-width: 3; }
+        .pzs-cell.done { border-color: rgba(46,204,113,.5); }
+        .pzs-cell.done .n { color: #2ecc71; }
+        .pzs-cell.next { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(243,156,18,.22); }
+        .pzs-cell.locked { cursor: not-allowed; opacity: .42; filter: grayscale(.8); }
+        .pzs-cell.locked::before { content: '🔒'; position: absolute; top: 5px; right: 5px; font-size: .72rem; }
+        body.puzzle-mode .turn-wrapper { display: none !important; }
+        #pz-tutorial { position: fixed; inset: 0; z-index: 620; display: none; }
+        #pz-tutorial-spot { position: fixed; z-index: 1; border: 2px solid #ffd166; border-radius: 14px; box-shadow: 0 0 0 9999px rgba(7,8,14,.72), 0 0 24px rgba(255,209,102,.6); pointer-events: none; transition: top .22s ease, left .22s ease, width .22s ease, height .22s ease; }
+        #pz-tutorial-card { position: fixed; z-index: 2; width: min(340px, calc(100vw - 32px)); box-sizing: border-box; padding: 16px; border: 1px solid rgba(255,209,102,.5); border-radius: 16px; background: var(--panel-bg); color: var(--text-color); box-shadow: 0 16px 42px rgba(0,0,0,.45); animation: pzTutorialFloat .35s ease both; }
+        #pz-tutorial-step { margin: 0 0 6px; color: #ffd166; font-size: .72rem; font-weight: 800; letter-spacing: .08em; }
+        #pz-tutorial-card h3 { margin: 0 0 7px; font-size: 1rem; }
+        #pz-tutorial-card p { margin: 0; font-size: .86rem; line-height: 1.5; color: var(--text-color); }
+        #pz-tutorial-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 14px; }
+        #pz-tutorial-actions button { min-height: 38px; padding: 0 13px; border: 1px solid var(--panel-border); border-radius: 10px; background: transparent; color: var(--text-color); font-weight: 700; cursor: pointer; }
+        #pz-tutorial-next { border-color: var(--primary) !important; background: var(--primary) !important; color: #fff !important; }
+        @keyframes pzTutorialFloat { from { opacity: 0; transform: translateY(7px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @media (prefers-reduced-motion: reduce) { #pz-tutorial-card, #pz-tutorial-spot { animation: none; transition: none; } }
+        /* 결과 */
+        #pz-done-ic { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 50%; border: 2px solid currentColor; }
+        #pz-done-ic .ico { width: 28px; height: 28px; stroke-width: 2.4; }
+        .pz-done-box.ok #pz-done-ic { color: #2ecc71; }
+        .pz-done-box.fail #pz-done-ic { color: var(--danger); }
+        #pz-done-title { margin: 0 0 6px; font-size: 1.4rem; }
+        #pz-done-desc { margin: 0 0 16px; font-size: .88rem; line-height: 1.5; color: #8d8d9b; text-align: center; }
+        @media (max-height: 740px) { #pz-desc { font-size: .74rem; padding: 6px 8px; } }
         body.practice-mode #practice-tools { display: flex; }
         body.practice-mode .progress-container { display: none; }
         .pt-status { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; min-height: 32px; }
@@ -1572,6 +1667,104 @@
         body.light-mode .rp-sug-why .blk.good > b + div:not(.deep):not(.tip):not(.pv-wrap) { color: #4f8a22; }
         body.light-mode .rp-sug-why .blk.aug > b + div:not(.deep):not(.tip):not(.pv-wrap) { color: #7a55c8; }
         .rp-sug-why .ai { font-style: normal; font-size: .82em; margin-right: .2em; vertical-align: .02em; opacity: .95; }
+
+        /* ===== 연습 모드 패널 다듬기 (v2) ===== */
+        #practice-tools { gap: 8px; }
+        .pt-status { gap: 6px; min-height: 30px; }
+        .pt-chip { height: 30px; padding: 0 11px; gap: 6px; font-size: .72rem; font-weight: 700; background: var(--input-bg); border: 1px solid var(--panel-border); color: var(--text-color); transition: border-color .15s, background-color .15s, transform .12s; }
+        .pt-chip:not(.mate):hover { border-color: color-mix(in srgb, var(--primary) 55%, var(--panel-border)); }
+        .pt-chip:active { transform: scale(.96); }
+        .pt-chip .ico { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+        .pt-chip .ico.sw { width: 12px; height: 12px; opacity: .5; margin-left: 1px; }
+        .pt-chip i { width: 10px; height: 10px; }
+        .pt-chip.fog { background: color-mix(in srgb, #f5b82e 14%, transparent); border-color: color-mix(in srgb, #f5b82e 55%, transparent); color: #d89c0a; }
+        .pt-chip.mate { background: color-mix(in srgb, var(--danger) 13%, transparent); border-color: color-mix(in srgb, var(--danger) 55%, transparent); color: var(--danger); cursor: default; }
+        .pt-chip.on { background: color-mix(in srgb, var(--primary) 18%, transparent); border-color: var(--primary); color: var(--primary); }
+        .pt-chip.exit { width: 30px; padding: 0; color: #8d8d9b; }
+        .pt-chip.exit:hover { color: var(--danger); border-color: var(--danger); }
+        .pt-chip .x { display: inline-flex; align-items: center; margin: 0 -3px 0 0; padding: 3px; border-radius: 50%; opacity: .7; }
+        .pt-chip .x:hover { opacity: 1; background: rgba(128,128,128,.22); }
+        .pt-chip .x .ico { width: 11px; height: 11px; }
+
+        .pt-seg { gap: 0; padding: 3px; border-radius: 12px; background: color-mix(in srgb, var(--text-color) 7%, var(--panel-bg)); border: 1px solid var(--panel-border); }
+        .pt-seg button { padding: 8px 0; border-radius: 9px; color: #8d8d9b; font-weight: 700; font-size: .82rem; transition: background-color .18s, color .18s, box-shadow .18s; }
+        .pt-seg button .ico { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+        .pt-seg button.on { background: var(--panel-bg); color: var(--text-color); box-shadow: 0 1px 3px rgba(0,0,0,.28), 0 0 0 1px var(--panel-border); }
+        .pt-seg button.on .ico { color: var(--primary); }
+
+        .pt-play { grid-template-columns: 1fr 1fr 1.45fr 1fr 1fr; gap: 6px; }
+        .pt-btn { gap: 4px; min-height: 52px; background: var(--input-bg); border: 1px solid var(--panel-border); color: var(--text-color); font-weight: 600; transition: transform .12s, border-color .15s, background-color .15s, color .15s; }
+        .pt-btn .ico { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; color: #9a9aa8; transition: color .15s; }
+        .pt-btn:not(:disabled):hover { border-color: color-mix(in srgb, var(--primary) 50%, var(--panel-border)); }
+        .pt-btn:not(:disabled):hover .ico { color: var(--primary); }
+        .pt-btn.on { background: color-mix(in srgb, var(--primary) 16%, transparent); border-color: var(--primary); color: var(--primary); }
+        .pt-btn.on .ico { color: var(--primary); }
+        .pt-btn.hot { background: linear-gradient(180deg, color-mix(in srgb, var(--primary) 100%, #fff 12%), var(--primary)); border-color: transparent; color: #fff; font-weight: 800; box-shadow: 0 3px 10px color-mix(in srgb, var(--primary) 38%, transparent); }
+        .pt-btn.hot .ico, .pt-btn.hot:not(:disabled):hover .ico { color: #fff; }
+        .pt-btn.danger { color: var(--danger); }
+        .pt-btn.danger .ico { color: var(--danger); }
+        .pt-btn.sm { min-height: 38px; flex-direction: row; gap: 5px; font-size: .7rem; padding: 4px 2px; }
+        .pt-btn.sm .ico { width: 14px; height: 14px; }
+        .pt-btn.mini { min-height: 44px; }
+
+        .pt-pal { gap: 5px; padding: 5px; border-radius: 12px; background: color-mix(in srgb, var(--text-color) 5%, transparent); border: 1px solid var(--panel-border); }
+        .pt-pal button { aspect-ratio: 1.3; padding: 3px; border-radius: 8px; border: 1px solid transparent; background: transparent; transition: background-color .12s, transform .12s; }
+        .pt-pal button:hover { background: rgba(128,128,128,.2); }
+        .pt-pal button:active { transform: scale(.94); }
+        .pt-pal button.sel { outline: 0; background: color-mix(in srgb, var(--primary) 22%, transparent); border-color: var(--primary); }
+        .pt-hint { font-size: .72rem; color: #8d8d9b; }
+        .pt-selbox { gap: 5px; padding: 8px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--primary) 45%, var(--panel-border)); background: color-mix(in srgb, var(--primary) 7%, transparent); }
+        .pt-selbox .pt-cnt { font-weight: 700; }
+
+        .pa-side { padding: 3px; gap: 0; border-radius: 12px; background: color-mix(in srgb, var(--text-color) 7%, var(--panel-bg)); border: 1px solid var(--panel-border); }
+        .pa-side button { border: 0; border-radius: 9px; color: #8d8d9b; padding: 8px; transition: background-color .18s, color .18s; }
+        .pa-side button.on { background: var(--panel-bg); color: var(--text-color); box-shadow: 0 1px 3px rgba(0,0,0,.28), 0 0 0 1px var(--panel-border); }
+        .pa-cats button { background: var(--input-bg); color: #9a9aa8; font-weight: 600; }
+        .pa-cats button.on { background: color-mix(in srgb, var(--primary) 16%, transparent); border-color: var(--primary); color: var(--primary); }
+        .pa-row { background: var(--input-bg); border-radius: 12px; transition: border-color .15s, background-color .15s, transform .12s; }
+        .pa-row:hover { border-color: color-mix(in srgb, var(--primary) 55%, var(--panel-border)); }
+        .pa-row:active { transform: scale(.985); }
+        .pa-ic { flex-basis: 38px; height: 38px; border-radius: 10px; background: color-mix(in srgb, var(--text-color) 6%, transparent); }
+
+        /* ===== 퍼즐: 제공 증강은 '증강 고르기' 버튼에서 나온 말풍선 (누르는 UI가 아님) ===== */
+        #pz-cards { --bub: color-mix(in srgb, var(--text-color) 9%, var(--panel-bg)); position: relative; align-self: center; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; gap: 3px; margin: -1px auto 0; padding: 3px 9px 3px 10px; border-radius: 9px; background: var(--bub); border: 1px solid var(--panel-border); pointer-events: none; user-select: none; -webkit-user-select: none; cursor: default; }
+        #pz-cards::before { content: ''; position: absolute; left: 50%; top: -6px; width: 11px; height: 6px; margin-left: -5.5px; background: var(--panel-border); clip-path: polygon(50% 0, 0 100%, 100% 100%); }
+        #pz-cards::after { content: ''; position: absolute; left: 50%; top: -5px; width: 9px; height: 5px; margin-left: -4.5px; background: var(--bub); clip-path: polygon(50% 0, 0 100%, 100% 100%); }
+        #pz-cards:empty { display: none; }
+        .pz-bub-l { margin-right: 3px; font-size: .62rem; font-weight: 700; letter-spacing: .2px; color: #8d8d9b; white-space: nowrap; }
+        .pz-chip { width: 22px; height: 22px; border: 0; border-radius: 6px; background: transparent; font-size: .95rem; }
+        .pz-chip svg, .pz-chip img { width: 100%; height: 100%; }
+        .pz-chip.used { opacity: .28; }
+
+        /* ===== PLAY 메뉴 · 연습 탭 (v2) ===== */
+        #ms-tabs { gap: 0; padding: 3px; border-radius: 12px; background: color-mix(in srgb, var(--text-color) 7%, var(--panel-bg)); border: 1px solid var(--panel-border); margin-bottom: 16px; }
+        #ms-tabs button { border: 0; border-radius: 9px; padding: 9px 4px; color: #8d8d9b; font-weight: 700; font-size: .86rem; transition: background-color .18s, color .18s, box-shadow .18s; }
+        #ms-tabs button.active { background: var(--panel-bg); border: 0; color: var(--text-color); box-shadow: 0 1px 3px rgba(0,0,0,.28), 0 0 0 1px var(--panel-border); }
+        #ms-pane-practice { display: flex; flex-direction: column; gap: 10px; }
+        #ms-pane-practice[style*="display: none"] { display: none !important; }
+        .pr-hero { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: stretch; gap: 0; width: 100%; box-sizing: border-box; margin: 0; padding: 16px 16px 14px; text-align: left; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--primary) 38%, var(--panel-border)); background: radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--primary) 20%, transparent), transparent 60%), var(--input-bg); color: var(--text-color); cursor: pointer; transition: transform .15s, border-color .2s; -webkit-tap-highlight-color: transparent; }
+        .pr-hero:hover { border-color: var(--primary); }
+        .pr-hero:active { transform: scale(.985); }
+        .pr-hero-top { display: flex; align-items: center; justify-content: space-between; }
+        .pr-tag { font-size: .6rem; font-weight: 800; letter-spacing: 2.5px; color: var(--primary); }
+        .pr-count { display: inline-flex; align-items: baseline; gap: 4px; font-size: .72rem; font-weight: 600; color: #8d8d9b; font-variant-numeric: tabular-nums; }
+        .pr-count b { font-size: 1.05rem; font-weight: 800; color: var(--text-color); }
+        .pr-hero-title { margin-top: 10px; font-size: 1.28rem; font-weight: 800; letter-spacing: -.2px; }
+        .pr-hero-sub { margin-top: 3px; font-size: .78rem; line-height: 1.45; color: #8d8d9b; word-break: keep-all; }
+        .pr-hero-foot { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+        .pr-bar { flex: 1 1 auto; height: 5px; border-radius: 99px; overflow: hidden; background: rgba(128,128,128,.22); }
+        .pr-bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--primary); transition: width .4s; }
+        .pr-hero-cta { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 2px; font-size: .78rem; font-weight: 800; color: var(--primary); }
+        .pr-go { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+        .pr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .pr-tile { display: flex; flex-direction: column; align-items: flex-start; gap: 0; box-sizing: border-box; margin: 0; padding: 14px 14px 15px; text-align: left; border-radius: 16px; border: 1px solid var(--panel-border); background: var(--input-bg); color: var(--text-color); cursor: pointer; transition: transform .15s, border-color .2s; -webkit-tap-highlight-color: transparent; }
+        .pr-tile:hover { border-color: color-mix(in srgb, var(--primary) 55%, var(--panel-border)); }
+        .pr-tile:active { transform: scale(.97); }
+        .pr-tile-ic { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; border-radius: 10px; background: color-mix(in srgb, var(--text-color) 8%, transparent); color: var(--text-color); }
+        .pr-tile-ic svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .pr-tile b { font-size: .98rem; font-weight: 800; }
+        .pr-tile small { margin-top: 4px; font-size: .72rem; line-height: 1.45; color: #8d8d9b; word-break: keep-all; }
+        #pz-pick.none { background: transparent; border-color: var(--panel-border); color: #8d8d9b; }
 </style>
 </head>
 <body>
@@ -1933,6 +2126,18 @@
     <div id="chat-log" aria-label="채팅 기록"></div>
     <div id="chat-spacer"></div>
     <div id="game-controls">
+        <div id="puzzle-tools">
+            <div id="pz-head"><div id="pz-title"></div><div id="pz-sub"></div></div>
+            <div id="pz-meter"></div>
+            <button type="button" id="pz-pick"></button>
+            <div id="pz-cards"></div>
+            <div id="pz-desc" style="display:none"></div>
+            <div class="pz-row">
+                <button type="button" class="pt-btn" id="pz-undo" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>되돌리기</button>
+                <button type="button" class="pt-btn" id="pz-restart"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>처음부터</button>
+                <button type="button" class="pt-btn" id="pz-exit"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>나가기</button>
+            </div>
+        </div>
         <div id="practice-tools">
             <div class="pt-status" id="pt-status"></div>
             <div class="pt-seg">
@@ -1961,16 +2166,16 @@
                     <div class="pt-cnt" id="pt-sel-cnt">선택 없음</div>
                     <div class="pt-row" style="--n:5">
                     <button type="button" class="pt-btn sm" id="pt-s-del">지우기</button>
-                    <button type="button" class="pt-btn sm" id="pt-s-swap">색 반전</button>
-                    <button type="button" class="pt-btn sm" id="pt-s-fh">좌우 ⇋</button>
-                    <button type="button" class="pt-btn sm" id="pt-s-fv">상하 ⇅</button>
-                    <button type="button" class="pt-btn sm" id="pt-s-add">＋추가</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-swap"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18z"/><circle cx="12" cy="12" r="9"/></svg>색 반전</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-fh"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21" stroke-dasharray="2 3"/><path d="M8 7L3 12l5 5z"/><path d="M16 7l5 5-5 5z"/></svg>좌우 반전</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-fv"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="2 3"/><path d="M7 8l5-5 5 5z"/><path d="M7 16l5 5 5-5z"/></svg>상하 반전</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-add"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>추가 선택</button>
                     </div>
                     <div class="pt-row" style="--n:6">
-                    <button type="button" class="pt-btn sm" id="pt-s-l">←</button>
-                    <button type="button" class="pt-btn sm" id="pt-s-u">↑</button>
-                    <button type="button" class="pt-btn sm" id="pt-s-d">↓</button>
-                    <button type="button" class="pt-btn sm" id="pt-s-r">→</button>
+                    <button type="button" class="pt-btn sm" id="pt-s-l" aria-label="왼쪽"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></button>
+                    <button type="button" class="pt-btn sm" id="pt-s-u" aria-label="위"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg></button>
+                    <button type="button" class="pt-btn sm" id="pt-s-d" aria-label="아래"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+                    <button type="button" class="pt-btn sm" id="pt-s-r" aria-label="오른쪽"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></button>
                     <button type="button" class="pt-btn sm" id="pt-s-all">전체</button>
                     <button type="button" class="pt-btn sm" id="pt-s-none">해제</button>
                     </div>
@@ -2103,13 +2308,23 @@
             <h2>PLAY</h2>
             <div id="ms-tabs"><button id="ms-tab-practice" type="button">연습</button><button id="ms-tab-match" type="button" class="active">매치메이킹</button><button id="ms-tab-live" type="button">실시간 전투</button></div>
             <div id="ms-pane-practice" class="ms-pane" style="display: none;">
-                <div class="pr-card">
-                    <button id="btn-show-bot-diff" class="lobby-btn secondary"><svg class="ico-sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 13h.01M15 13h.01M9 17h6"/></svg> 컴퓨터 대전</button>
-                    <div class="pr-desc">난이도를 골라 컴퓨터와 한 판 겨뤄요. 증강도 정상적으로 나와요.</div>
-                </div>
-                <div class="pr-card">
-                    <button id="btn-practice-mode" class="lobby-btn"><svg class="ico-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 연습 모드</button>
-                    <div class="pr-desc">기물을 자유롭게 배치·이동하고, 원하는 증강을 골라 써 볼 수 있어요. 시점을 바꾸면 암전 같은 시야 효과도 그대로 보여요. 되돌리기 · 다시하기 · 턴 넘기기 지원.</div>
+                <button id="btn-puzzle-mode" type="button" class="pr-hero">
+                    <span class="pr-hero-top"><span class="pr-tag">PUZZLE</span><span class="pr-count"><b id="puzzle-card-done">0</b><span id="puzzle-card-desc"></span></span></span>
+                    <span class="pr-hero-title">퍼즐 스테이지</span>
+                    <span class="pr-hero-sub">증강을 1회 이상 사용해 흑 킹을 처치하세요. 횟수는 최대치라 남겨도 됩니다.</span>
+                    <span class="pr-hero-foot"><span class="pr-bar"><i id="puzzle-card-bar"></i></span><span class="pr-hero-cta" id="puzzle-card-cta">시작하기<svg class="pr-go" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></span>
+                </button>
+                <div class="pr-grid">
+                    <button id="btn-show-bot-diff" type="button" class="pr-tile">
+                        <span class="pr-tile-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 13h.01M15 13h.01M9 17h6"/></svg></span>
+                        <b>컴퓨터 대전</b>
+                        <small>하 · 중 · 상 난이도의<br>AI와 증강 대국</small>
+                    </button>
+                    <button id="btn-practice-mode" type="button" class="pr-tile">
+                        <span class="pr-tile-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+                        <b>연습 모드</b>
+                        <small>기물을 자유롭게 놓고<br>증강을 체험해 보기</small>
+                    </button>
                 </div>
             </div>
             <div id="ms-pane-match" class="ms-pane">
@@ -2179,9 +2394,9 @@
     <div id="bot-diff-overlay" class="overlay" style="display: none; z-index: 160;">
         <div class="lobby-box">
             <h2 style="margin-bottom: 20px;">봇 난이도 선택</h2>
-            <button class="lobby-btn btn-bot-diff" data-diff="하" style="background: #27ae60;">하 (초보자)</button>
-            <button class="lobby-btn btn-bot-diff" data-diff="중" style="background: #f39c12;">중 (숙련자)</button>
-            <button class="lobby-btn btn-bot-diff" data-diff="상" style="background: #e74c3c;">상 (마스터)</button>
+            <button class="lobby-btn btn-bot-diff" data-diff="하" style="background: #27ae60;">하</button>
+            <button class="lobby-btn btn-bot-diff" data-diff="중" style="background: #f39c12;">중</button>
+            <button class="lobby-btn btn-bot-diff" data-diff="상" style="background: #e74c3c;">상</button>
             <button id="btn-close-bot-diff" class="lobby-btn secondary" style="margin-top: 20px;">취소</button>
         </div>
     </div>
@@ -2390,6 +2605,41 @@
             <button id="btn-replay" class="lobby-btn secondary" style="margin-bottom: 10px;">▶ 경기 리플레이</button>
             <button id="btn-return-lobby" class="lobby-btn">메인으로</button>
         </div>
+    </div>
+
+    <div id="puzzle-done" class="overlay" style="z-index: 360;">
+        <div class="lobby-box pz-done-box">
+            <div id="pz-done-ic"></div>
+            <h2 id="pz-done-title"></h2>
+            <p id="pz-done-desc"></p>
+            <button id="btn-pz-next" class="lobby-btn" style="margin-bottom: 8px;">다음 스테이지</button>
+            <button id="btn-pz-undo" class="lobby-btn" style="margin-bottom: 8px; display: none;">한 수 되돌리기</button>
+            <button id="btn-pz-again" class="lobby-btn secondary" style="margin-bottom: 8px;">다시 풀어보기</button>
+            <button id="btn-pz-list" class="lobby-btn secondary">스테이지 목록</button>
+        </div>
+    </div>
+
+    <div id="puzzle-stages" class="overlay" style="z-index: 355;">
+        <div class="lobby-box pz-box">
+            <h2>퍼즐 스테이지</h2>
+            <p id="pzs-sub"></p>
+            <div id="pzs-bar"><i></i></div>
+            <div id="pzs-grid"></div>
+            <button id="pzs-close" class="lobby-btn secondary" style="margin-top: 14px;">닫기</button>
+        </div>
+    </div>
+
+    <div id="pz-tutorial" aria-hidden="true">
+        <div id="pz-tutorial-spot" aria-hidden="true"></div>
+        <section id="pz-tutorial-card" role="dialog" aria-modal="true" aria-labelledby="pz-tutorial-title" aria-describedby="pz-tutorial-text">
+            <div id="pz-tutorial-step"></div>
+            <h3 id="pz-tutorial-title"></h3>
+            <p id="pz-tutorial-text"></p>
+            <div id="pz-tutorial-actions">
+                <button type="button" id="pz-tutorial-skip">건너뛰기</button>
+                <button type="button" id="pz-tutorial-next">다음</button>
+            </div>
+        </section>
     </div>
 
     <script type="module">
@@ -2611,7 +2861,7 @@
 
         augmentOverlay.addEventListener('pointerdown', (e) => {
             if (augmentOverlay.style.display !== 'flex') return;
-            if (e.target.closest('.augment-card')) return;
+            if (e.target.closest('.augment-card, .pz-pick-cancel')) return;
             augmentOverlay.classList.add('peeking');
             augmentOverlay.style.pointerEvents = 'none';
             isAugmentPeeked = true;
@@ -2671,7 +2921,15 @@
             set(r, true).catch(() => {});
             onDisconnect(r).remove().catch(() => {});
         }
+        function dropGlobalPresence() {   // 현재 올려 둔 접속 표시를 지우고 자동 삭제 예약도 해제한다
+            if (!presenceUid) return;
+            const r = ref(db, `online_users/${presenceUid}`);
+            try { onDisconnect(r).cancel().catch(() => {}); } catch (e) {}
+            remove(r).catch(() => {});
+            presenceUid = null;
+        }
         function registerGlobalPresence(uid) {
+            if (presenceUid && presenceUid !== uid) dropGlobalPresence();   // 계정이 바뀌면(게스트→구글, 재로그인) 이전 uid가 남아 +1로 보이던 문제 방지
             presenceUid = uid; presenceAway = false;
             assertGlobalPresence();
             if (window.__presenceBound) return; window.__presenceBound = true;
@@ -3068,6 +3326,7 @@
             if (user) {
                 enterAfterAuth(user).catch(e => { console.error(e); if (!isGameStarted) mainLobbyOverlay.style.display = 'flex'; }).finally(() => { if (window.__appReady) window.__appReady(); });
             } else {
+                try { dropGlobalPresence(); } catch (e) {}
                 myUid = null;
                 if(!isGameStarted) {
                     loginOverlay.style.display = 'flex';
@@ -3522,7 +3781,7 @@
         const startBotMode = () => {
             isBotMode = true; myColor = 'w'; isGameStarted = true; statsRecorded = false; rankCtx = null;
             
-            const botProfile = { name: `컴퓨터 (${botDifficulty})`, icon: "🤖", stats: {w:999, l:0, d:0} }; lastOppName = botProfile.name; chatOpp = { name: botProfile.name, icon: botProfile.icon };
+            const botProfile = { name: `컴퓨터 (${botDifficulty})`, icon: BOT_ICON, stats: {w:999, l:0, d:0} }; lastOppName = botProfile.name; chatOpp = { name: botProfile.name, icon: botProfile.icon };
             showVsScreen(userProfile, botProfile, () => {
                 playerInfo.innerText = `봇 대전 [${botDifficulty}] (당신은 백입니다)`;
                 document.body.classList.remove('black-pov');
@@ -3639,7 +3898,7 @@
             document.getElementById('vs-my-name').innerText = myP.name;
             document.getElementById('vs-my-stats').innerText = `${myP.stats.w}W ${myP.stats.l}L ${myP.stats.d}D` + (isBotMode ? '' : '\n' + vsRankText(myP, !!(auth.currentUser && auth.currentUser.isAnonymous)));
 
-            document.getElementById('vs-opp-icon').innerText = oppP.icon;
+            setIconEl(document.getElementById('vs-opp-icon'), oppP.icon);
             document.getElementById('vs-opp-name').innerText = oppP.name;
             setVsTitle('vs-my-name', isBotMode ? '' : titleLabelOf(ensureAch().title)); setVsTitle('vs-opp-name', '');
             if (oppUid && !isBotMode) fetchTitleLabel(oppUid).then(t => { if (vsOverlay.style.display === 'flex') setVsTitle('vs-opp-name', t); });
@@ -4282,7 +4541,7 @@
         function buildChatItem(side, msg, typing) {
             const who = chatWho(side), first = chatLogLast !== side;
             const item = document.createElement('div'); item.className = 'cl-item ' + (side === 'mine' ? 'mine' : 'opp') + (first ? ' first' : '') + (typing ? ' cl-typing' : '');
-            const av = document.createElement('div'); av.className = 'cl-av'; av.textContent = who.icon;
+            const av = document.createElement('div'); av.className = 'cl-av'; setIconEl(av, who.icon);
             const col = document.createElement('div'); col.className = 'cl-col';
             if (first) { const nm = document.createElement('span'); nm.className = 'cl-who'; nm.textContent = who.name; col.appendChild(nm); }
             const text = document.createElement('span'); text.className = 'cl-msg'; text.textContent = msg; col.appendChild(text);
@@ -4438,6 +4697,7 @@
             await cancelMatchmaking(); // 안전 장치
             mainLobbyOverlay.style.display = 'flex'; 
             setLobbyMsg(""); isGameStarted = false; currentRoomId = null; isBotMode = false;
+            try { puzzleCleanup(); } catch (e) {}
             if (isPracticeMode) { isPracticeMode = false; practiceEditing = false; practiceTool = null; practiceHist = []; document.body.classList.remove('practice-mode', 'practice-editing'); document.getElementById('practice-aug-overlay').style.display = 'none'; if (targeting) { clearTargetVisuals(); targeting = null; } }
             activeAugmentOptions = null;
             activeAugmentPlayerColor = null;
@@ -4533,7 +4793,48 @@
 
             // future=true: 내가 이 수를 둔 직후의 상태로 본다. 덩굴(속박)·자아 분열이 1수만 남은 상대는 내 수 직후 풀려서 바로 공격할 수 있다.
             // 목표 칸에서 거꾸로 훑어 공격자를 찾는다. (기물마다 이동을 생성하던 방식과 결과가 같다: 벽/무적/속박/반전 폰 규칙 포함)
+            // 업: 풍선 기물 아래 깔린 기물도 언제든 빠져나와 공격할 수 있으므로 공격자로 센다 (풍선 기물이 그 위에 올라서 있어도 체크는 그대로다)
             isSquareAttacked(r, c, attackerColor, boardState = this._board, future = false) {
+                if (this.isSquareAttackedBase(r, c, attackerColor, boardState, future)) return true;
+                for (const k in balloonUnder) return this.underAttacks(r, c, attackerColor, boardState, future);
+                return false;
+            }
+            underAttacks(r, c, attackerColor, B, future) {
+                const keep = future ? 1 : 0, tgt = B[r][c];
+                const hitOk = !tgt || (tgt.type !== 'wall' && tgt.color !== attackerColor && !(invinciblePieces[tgt.uid] || balloons[tgt.uid] > 0));
+                for (const sq in balloonUnder) {
+                    const en = balloonUnder[sq], p = en && en.piece;
+                    if (!p || p.type === 'wall' || p.color !== attackerColor || rootedPieces[p.uid] > keep || balloons[p.uid] > 0) continue;
+                    const rc = this.sqToRC(sq), dr = r - rc.r, dc = c - rc.c; if (!dr && !dc) continue;
+                    const adr = Math.abs(dr), adc = Math.abs(dc);
+                    if (p.type === 'p') {
+                        if (adc !== 1) continue;
+                        const rev = reversedPawns[attackerColor] > keep && !!(reversedUids[attackerColor] && reversedUids[attackerColor][p.uid]);
+                        const dir = attackerColor === 'w' ? (rev ? 1 : -1) : (rev ? -1 : 1);
+                        if (dr === dir) return true;
+                        if (!(future && prospects[p.uid] === 1)) continue;
+                    }
+                    if (!hitOk) continue;
+                    if (p.type === 'n') { if (adr * adc === 2) return true; continue; }
+                    if (p.type === 'k') { if (Math.max(adr, adc) === 1) return true; continue; }
+                    const diag = adr === adc, str = dr === 0 || dc === 0;
+                    const asQ = p.type === 'q' || (future && p.type === 'p' && prospects[p.uid] === 1);
+                    if (!(asQ ? (diag || str) : (p.type === 'b' ? diag : (p.type === 'r' ? str : false)))) continue;
+                    const sr = Math.sign(dr), sc = Math.sign(dc); let nr = rc.r + sr, nc = rc.c + sc, blocked = false;
+                    while (nr !== r || nc !== c) {
+                        const q = B[nr][nc];
+                        if (q) {
+                            if (future && q.type === 'wall') { const ew = activeWalls.find(x => x.sq === this.rcToSq(nr, nc)); if (ew && ew.duration <= 1) { nr += sr; nc += sc; continue; } }
+                            if (this.airFloat(q, nr, nc)) { nr += sr; nc += sc; continue; }
+                            blocked = true; break;
+                        }
+                        nr += sr; nc += sc;
+                    }
+                    if (!blocked) return true;
+                }
+                return false;
+            }
+            isSquareAttackedBase(r, c, attackerColor, boardState = this._board, future = false) {
                 const B = boardState, keep = future ? 1 : 0, tgt = B[r][c];
                 const hitOk = !tgt || (tgt.type !== 'wall' && tgt.color !== attackerColor && !(invinciblePieces[tgt.uid] || balloons[tgt.uid] > 0));   // 폰을 뺀 기물은 빈 칸이거나 잡을 수 있는 적일 때만 공격이 성립
                 // 폰: 점유와 무관하게 대각선 앞을 공격한다. 폰의 진행 방향은 자아 분열(반전)에 따라 달라진다.
@@ -4684,10 +4985,14 @@
                         if (!ok && !fP && !kAtt && !epCapture && piece.type !== 'k' && kr2 >= 0 && r !== kr2 && c !== kc2 && Math.abs(r - kr2) !== Math.abs(c - kc2)) ok = true;
                         if (!ok) {
                             const epPc = epCapture ? B[r][m.c] : null;
-                            B[m.r][m.c] = piece; B[r][c] = um ? origAt : null; if (epCapture) B[r][m.c] = null; if (fP) B[fP.r][fP.c] = null;   // 임시로 둔다 (운명공동체의 짝도 함께 치운다)
+                            const tsq = this.rcToSq(m.r, m.c); let tmpU = false, prevU;
+                            const rvl = (fl && !um) ? balloonUnder[this.rcToSq(r, c)] : null;   // 풍선 기물이 떠나면 그 칸에 깔려 있던 기물이 드러난다
+                            if (fl && !um && tgtPc) { tmpU = true; prevU = balloonUnder[tsq]; balloonUnder[tsq] = { uid: piece.uid, piece: tgtPc }; }   // 풍선 기물이 올라선 적 기물은 잡히지 않고 그 밑에서 여전히 공격할 수 있다
+                            B[m.r][m.c] = piece; B[r][c] = um ? origAt : ((rvl && String(rvl.uid) === String(piece.uid)) ? rvl.piece : null); if (epCapture) B[r][m.c] = null; if (fP) B[fP.r][fP.c] = null;   // 임시로 둔다 (운명공동체의 짝도 함께 치운다)
                             const kR = piece.type === 'k' ? m.r : kr2, kC = piece.type === 'k' ? m.c : kc2;
                             ok = kR === -1 ? true : !this.isSquareAttacked(kR, kC, enemy, B, true);   // 내 수를 둔 뒤의 상태로 합법 여부를 판단한다
                             B[r][c] = origAt; B[m.r][m.c] = tgtAt; if (epCapture) B[r][m.c] = epPc; if (fP) B[fP.r][fP.c] = fP.p;   // 되돌린다
+                            if (tmpU) { if (prevU === undefined) delete balloonUnder[tsq]; else balloonUnder[tsq] = prevU; }
                         }
                         if (ok && hidK && !um && hidK.cnt === 2 && piece.uid !== hidK.fuid) {   // 풍선이 상대 수 직후 내려와 킹이 드러난다: 그때 체크메이트가 되는 수는 둘 수 없다
                             const sv = [B[m.r][m.c], B[r][c], B[hidK.r][hidK.c]];
@@ -6718,7 +7023,7 @@
         // ---- v3.63: 추천 수(대안). 부정확·실수·블런더 등 최선이 아니었던 수에서, 그 수를 두기 직전 판의 최선 수를 화살표로 보여 준다 ----
         const RV_PN = { p: '폰', n: '나이트', b: '비숍', r: '룩', q: '퀸', k: '킹' };
         const RV_SUG_CLS = { good: 1, great: 1, inaccuracy: 1, mistake: 1, blunder: 1, miss: 1 };
-        function rvPackMove(m) { return m ? { from: m.from, to: m.to, p: m.promotion || null, pc: m.piece || null, cap: m.captured || null, sc: typeof m.__score === 'number' ? m.__score : null } : null; }
+        function rvPackMove(m) { return m ? { from: m.from, to: m.to, u: !!m.under, p: m.promotion || null, pc: m.piece || null, cap: m.captured || null, sc: typeof m.__score === 'number' ? m.__score : null } : null; }
         const RV_GOOD_CLS = { brilliant: 1, best: 1, book: 1 };   // 이 수 자체가 좋았던 경우: 대안 대신 '이 수가 좋은 이유'를 보여 준다
         function rvSugClear() {
             rvSugIdx = -1; rvPvOpenSet.clear();
@@ -6792,8 +7097,8 @@
         // ---- v3.74: 더 깊은 이유 — 전술 모티프(포크·핀·발견 공격·메이트 그물), 위협 비교, 평가 요소 분해, 승률 차이를 근거로 말한다 ----
         const RV_RAYS = [[-1, 0, 'r'], [1, 0, 'r'], [0, -1, 'r'], [0, 1, 'r'], [-1, -1, 'b'], [-1, 1, 'b'], [1, -1, 'b'], [1, 1, 'b']];
         const rvSqOf = (r, c) => 'abcdefgh'[c] + (8 - r);
-        function rvFindMv(S, rec) { const all = S.moves(); return all.find(y => y.from === rec.from && y.to === rec.to && (rec.p ? y.promotion : true)) || all.find(y => y.from === rec.from && y.to === rec.to) || null; }
-        function rvAfterMove(S0, rec) { if (!rec) return null; const S2 = cloneGameState(S0), mo = rvFindMv(S2, rec); if (!mo) return null; botMake(S2, mo); return S2; }
+        function rvFindMv(S, rec) { const all = botGen(S); return all.find(y => y.from === rec.from && y.to === rec.to && !!y.under === !!rec.u && (rec.p ? y.promotion : true)) || all.find(y => y.from === rec.from && y.to === rec.to && (rec.p ? y.promotion : true)) || all.find(y => y.from === rec.from && y.to === rec.to) || null; }
+        function rvAfterMove(S0, rec) { if (!rec) return null; const S2 = cloneGameState(S0), mo = rvFindMv(S2, rec); if (!mo) return null; const u2 = botMake(S2, mo); botBalloonRevert(S2, u2); return S2; }
         function rvNullTurn(S) { const T = cloneGameState(S); T._turn = S._turn === 'w' ? 'b' : 'w'; T.ep_square = null; return T; }
         function rvCapsFor(S, minGain) {   // 지금 둘 차례 쪽의 '이득이 되는 잡기'(되잡히지 않거나 더 비싼 기물을 잡는 수)
             const out = [];
@@ -8008,7 +8313,7 @@
             }
             if (!best) return null;
             if (!best.f) best.f = before;
-            let rk = null; if (nextEnemy) { try { rk = botAugRiskAfterAug(aug, color, enemy, best.target, 250, best.forced ? () => rvForcedApply(best.forced, enemy) : null); } catch (e) { rk = null; } }   // 이어서 상대가 받을 증강의 기대 피해(음수일수록 위험)
+            let rk = null; if (nextEnemy) { try { rk = botAugRiskAfterAug(aug, color, enemy, best.target, 250, best.forced ? () => rvForcedApply(best.forced, enemy) : null, aug.name === '법정 대리인'); } catch (e) { rk = null; } }   // 이어서 상대가 받을 증강의 기대 피해(음수일수록 위험)
             const lt = rvAugLong(aug, color, enemy, best.target); return { name: aug.name, aug, sc: best.sc, f: best.f, rk, lt, bonus: (BOT_AUG_BONUS[aug.name] || 0) + lt.v, rand: (!aug.target && !RV_AUG_DET.has(aug.name)) || !!best.mad, det: RV_AUG_DET.has(aug.name), mateLoss: best.mateLoss || 0, target: best.target, forced: best.forced || null, mad: best.mad || null, act: best.act || null };
         }
         // v3.93: 판 평가에 안 잡히는 장기 효과(아기는 어떻게 태어나? 등)와 '어디에 쓰는가'를 말로 풀어 준다
@@ -8027,10 +8332,17 @@
                     return { v, t: `이후 증강 선택지가 계속 1개 늘어 더 좋은 증강을 고를 수 있어요${early > 0.5 ? ' (아직 초반이라 오래 쓰여요)' : ''}${calm ? '' : ' — 다만 지금은 체크 상태라 급한 불부터 꺼야 해요'}` };
                 }
                 if (aug.name === '시간 도둑') {
-                    const lv = (augTimeCut && augTimeCut[enemy]) || 0, T = [30, 15, 8], nx = Math.min(2, lv + 1);
-                    return { v: lv ? 60 : 90, t: `상대의 증강 선택 시간이 ${T[lv]}초에서 ${T[nx]}초로 줄어요. 선택이 급해지는 효과가 이후 증강 단계마다 이어져요` };
+                    const lv = (augTimeCut && augTimeCut[enemy]) || 0, T = [30, 15, 8], nx = Math.min(2, lv + 1), em = botMetaEarly();
+                    return { v: botAugBonus(aug, color, enemy) - (BOT_AUG_BONUS[aug.name] || 0), t: `상대의 증강 선택 시간이 ${T[lv]}초에서 ${T[nx]}초로 줄어요. 선택이 급해지는 효과가 이후 증강 단계마다 이어져요` };
                 }
-                if (aug.name === '법정 대리인') return { v: 130, t: '이어지는 상대의 증강 선택권을 가져와, 상대 선택지 중 가장 덜 위험한 증강을 대신 고를 수 있어요' };
+                if (aug.name === '법정 대리인') return { v: botAugBonus(aug, color, enemy) - (BOT_AUG_BONUS[aug.name] || 0), t: '이어지는 상대의 증강 선택권을 가져와요. 상대에게 제시된 선택지 중 나에게 가장 덜 위험한 증강을 내가 고르고, 그 증강의 대상·자리도 상대에게 가장 덜 이로운 곳으로 정할 수 있어요 (상대는 자기가 가장 좋은 증강을 고를 수 없게 돼요)' };
+                if (aug.name === '업!' && typeof target === 'string') {
+                    const bi = botBalloonInfo(color, enemy, target), pn = t => RV_PN[t] || '기물', b0 = bi.crush[0], pc = game.get(target);
+                    let t = `${target}의 ${pc ? pn(pc.type) : '기물'}이 4수 동안 잡히지 않고 길목을 넘어 다닐 수 있어요`;
+                    if (b0) t += b0.esc === 0 ? `. 상대 ${pn(b0.type)} ${b0.to} 위에 올라서면 그 기물이 꼼짝 못 해 4수 뒤 깔려 파괴돼요 (폰 약 ${(BOT_VAL[b0.type] / 100).toFixed(1)}개 가치)` : `. 상대 ${pn(b0.type)} ${b0.to} 위에 올라서면 상대가 비켜나야 해서 한 수를 쓰게 만들어요 (비키지 못하면 4수 뒤 깔려 파괴돼요)`;
+                    else t += '. 지금은 올라설 만한 상대 기물이 없어 위협보다는 몸을 지키는 용도예요';
+                    return { v: bi.v, t };
+                }
                 if (aug.name === '수퍼 워너비' && typeof target === 'string') {
                     const S = cloneGameState(game), hit = botMoveReach(S, enemy, target) > 0, pr = hit ? 0.45 : 0.8, gain = BOT_VAL.q - BOT_VAL.p;
                     const v = Math.round(gain * pr) - botProspectBonus(11);   // 탐색 평가가 이미 반영한 유망주 보너스는 뺀다
@@ -8056,7 +8368,7 @@
                 const w = m => (m.piece === 'p' ? 1.5 : m.piece === 'q' ? .4 : m.piece === 'r' ? .6 : 1) * (home(m) ? 2 : 1) * (cen ? 1.4 : 1);
                 if (em.length) {
                     // '밟을 만한가'는 상대 입장에서 그 수를 실제로 평가해 순위로 보여 준다 (1수 앞 정적 평가)
-                    const sgE = enemy === 'w' ? 1 : -1, after = m => { const S = cloneGameState(game); S._turn = enemy; botMake(S, m); return { S, ev: sgE * botEvaluate(S) }; };
+                    const sgE = enemy === 'w' ? 1 : -1, after = m => { const S = cloneGameState(game); S._turn = enemy; const u3 = botMake(S, m), evv = sgE * botEvaluate(S); botBalloonRevert(S, u3); return { S, ev: evv }; };
                     let all = [], ev0 = 0; try { ev0 = sgE * botEvaluate(S0); all = movesOf(S0, enemy).map(m => ({ m, ev: after(m).ev })).sort((x, y) => y.ev - x.ev); } catch (e) {}
                     const ranked = em.map(m => ({ m, k: all.length ? all.findIndex(a => a.m.from === m.from && a.m.to === m.to) + 1 : 0 })).sort((x, y) => (x.k || 99) - (y.k || 99)), r0 = ranked[0], t = r0.m;
                     const top = em.reduce((x, y) => (BOT_VAL[y.piece] > BOT_VAL[x.piece] ? y : x));
@@ -9195,6 +9507,393 @@
         // 게임 화면의 설정 버튼이 보일 때(경기 중) 화살표 줄도 같이 보이게
         new MutationObserver(() => { document.getElementById('history-strip').style.display = document.getElementById('btn-settings-game').style.display === 'block' ? 'flex' : 'none'; })
             .observe(document.getElementById('btn-settings-game'), { attributes: true, attributeFilter: ['style'] });
+        // ==========================================
+        // 퍼즐 스테이지: 증강을 한 번 이상 사용하고, 이동·증강 상한 안에 상대 킹을 처치한다.
+        // 표시된 횟수는 최대치이며, 클리어를 위해 남은 횟수를 억지로 소진할 필요는 없다.
+        //  - 흑은 움직이지 않는다(정지). 백만 증강·이동을 쓴다.
+        //  - 처치 = 흑 킹을 잡거나, 킹이 사라지거나, 흑이 체크메이트가 되는 것.
+        //  - 증강은 이 판의 실제 증강 엔진 그대로 적용된다. (스테이지에는 무작위 없는 증강만 나온다)
+        // ==========================================
+        const PZ_STAGES = [{"n": 1, "id": 1, "title": "파티 타임", "fen": "1Q6/8/8/8/8/6p1/3Bn3/5k2", "cards": ["나이트 클럽"], "augs": 1, "moves": 1}, {"n": 2, "id": 4, "title": "심판의 번개", "fen": "8/Bp6/7R/kb4R1/5R2/8/p7/8", "cards": ["신의 심판"], "augs": 1, "moves": 1}, {"n": 3, "id": 5, "title": "벽 너머의 킹", "fen": "5Q2/6P1/8/8/8/8/6p1/7k", "cards": ["차원 장벽", "파도", "암살"], "augs": 1, "moves": 1}, {"n": 4, "id": 2, "title": "전진, 또 전진", "fen": "7k/5P2/3p4/8/8/8/7p/5Q2", "cards": ["진군 명령", "앙파상+", "신의 심판"], "augs": 1, "moves": 1}, {"n": 5, "id": 3, "title": "파도에 몸을 맡겨", "fen": "8/8/8/4B3/3p4/3k1B2/5p2/8", "cards": ["진군 명령", "파도", "나이트 클럽"], "augs": 1, "moves": 1}, {"n": 6, "id": 6, "title": "돌고 도는 운명", "fen": "4B3/5n2/8/4kp2/N5B1/8/8/8", "cards": ["운명의 수레바퀴"], "augs": 1, "moves": 2}, {"n": 7, "id": 7, "title": "어둠 속의 칼날", "fen": "1k6/1p1p2N1/6N1/8/8/K7/6R1/8", "cards": ["암살"], "augs": 1, "moves": 2}, {"n": 8, "id": 9, "title": "역습의 시작", "fen": "6R1/2B5/8/8/3p4/p1q5/8/k1K5", "cards": ["연계 분쇄", "나이트 클럽"], "augs": 1, "moves": 2}, {"n": 9, "id": 8, "title": "성스러운 폭발", "fen": "5k2/4p3/4Kb2/8/8/8/B2n4/4R3", "cards": ["신성한 폭발", "앙파상+", "파도"], "augs": 1, "moves": 2}, {"n": 10, "id": 10, "title": "도약하는 폰", "fen": "5k2/4p1p1/3p4/3BP3/8/8/6B1/8", "cards": ["연계 분쇄", "앙파상+", "파도"], "augs": 1, "moves": 2}, {"n": 11, "id": 14, "title": "막다른 길", "fen": "6nk/5p2/5r2/1B6/N1P5/3p4/8/8", "cards": ["앙파상+", "차원 장벽", "운명의 수레바퀴"], "augs": 2, "moves": 2}, {"n": 12, "id": 12, "title": "졸병의 반란", "fen": "2k5/8/2p1p3/1b6/8/p2P4/8/2N5", "cards": ["나이트 클럽", "진군 명령", "운명의 수레바퀴"], "augs": 1, "moves": 3}, {"n": 13, "id": 11, "title": "밀물과 썰물", "fen": "8/8/p1p5/1pr5/k7/5P2/p5N1/8", "cards": ["앙파상+", "연계 분쇄", "파도"], "augs": 1, "moves": 3}, {"n": 14, "id": 13, "title": "폰의 행진", "fen": "8/8/k7/B1n4P/q7/6B1/3pP3/8", "cards": ["연계 분쇄", "신의 심판", "진군 명령", "차원 장벽"], "augs": 2, "moves": 2}, {"n": 15, "id": 15, "title": "회전목마", "fen": "5n2/5P2/8/8/3n3P/3P3k/2p2qp1/5q2", "cards": ["나이트 클럽", "진군 명령", "신성한 폭발", "운명의 수레바퀴"], "augs": 2, "moves": 2}, {"n": 16, "id": 18, "title": "벽을 세워라", "fen": "3rb1k1/2N1p3/1p2N3/8/N3P3/8/8/7N", "cards": ["운명의 수레바퀴", "차원 장벽", "앙파상+", "연계 분쇄"], "augs": 2, "moves": 2}, {"n": 17, "id": 20, "title": "천벌", "fen": "8/2BB1p2/8/3pN3/3P4/q1n5/1pp5/k3K3", "cards": ["신의 심판", "진군 명령", "암살"], "augs": 2, "moves": 3}, {"n": 18, "id": 22, "title": "뛰어넘어!", "fen": "8/k7/p7/r7/5P2/p3N1p1/3K4/8", "cards": ["진군 명령", "신의 심판", "앙파상+", "운명의 수레바퀴"], "augs": 3, "moves": 2}, {"n": 19, "id": 17, "title": "끝줄을 향해", "fen": "5k2/1p1q4/8/8/8/2P5/2P5/8", "cards": ["진군 명령", "파도", "운명의 수레바퀴", "앙파상+"], "augs": 2, "moves": 3}, {"n": 20, "id": 16, "title": "조용한 암살자", "fen": "8/2p5/5qb1/8/6pk/3p4/6p1/1B6", "cards": ["연계 분쇄", "암살", "진군 명령", "운명의 수레바퀴"], "augs": 2, "moves": 3}, {"n": 21, "id": 23, "title": "벽의 미로", "fen": "2B5/8/5p2/5qbP/3bP2k/8/8/8", "cards": ["암살", "앙파상+", "연계 분쇄", "차원 장벽"], "augs": 2, "moves": 3}, {"n": 22, "id": 21, "title": "갇힌 왕", "fen": "7q/5n2/8/1P2p3/8/1b2p3/P3p3/2k5", "cards": ["앙파상+", "차원 장벽", "신의 심판", "운명의 수레바퀴"], "augs": 2, "moves": 3}, {"n": 23, "id": 19, "title": "폰들의 반격", "fen": "8/8/1p6/8/2BP2pr/6q1/2K2ppk/6q1", "cards": ["연계 분쇄", "진군 명령", "차원 장벽", "앙파상+", "신성한 폭발"], "augs": 3, "moves": 2}, {"n": 24, "id": 25, "title": "점프 스타트", "fen": "8/p1p5/3pp3/p1kp1B2/8/2P4P/8/8", "cards": ["앙파상+", "신의 심판", "암살"], "augs": 2, "moves": 4}, {"n": 25, "id": 28, "title": "해일 경보", "fen": "1k6/2pb4/p1rb4/5P2/1P2Bp2/3B4/1K1p4/8", "cards": ["파도", "나이트 클럽", "암살", "운명의 수레바퀴", "앙파상+"], "augs": 3, "moves": 3}, {"n": 26, "id": 26, "title": "가장자리의 비밀", "fen": "kb4B1/pp6/2p2P2/2B1q3/1P4P1/7p/K7/5b2", "cards": ["운명의 수레바퀴", "연계 분쇄", "파도", "진군 명령"], "augs": 3, "moves": 3}, {"n": 27, "id": 24, "title": "진격의 나팔", "fen": "8/4b3/8/8/2p1n2P/8/pp2P1P1/2k1b3", "cards": ["파도", "진군 명령", "신성한 폭발", "운명의 수레바퀴", "암살"], "augs": 3, "moves": 3}, {"n": 28, "id": 27, "title": "차원의 틈", "fen": "8/7r/8/6PB/6Bk/np3ppr/5p1p/5K2", "cards": ["앙파상+", "차원 장벽", "신의 심판", "신성한 폭발", "진군 명령"], "augs": 3, "moves": 3}];
+        const PZ_ICONS = {"_aug": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"5\" y=\"3\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M12 8l1.2 2.6 2.8.4-2 2 .5 2.8-2.5-1.4-2.5 1.4.5-2.8-2-2 2.8-.4z\"/></svg>", "_move": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"7\" r=\"2.6\"/><path d=\"M10 11c0 3-2 4-2 7h8c0-3-2-4-2-7\"/><path d=\"M6.5 21h11\"/></svg>", "_target": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"8\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 2v3M12 19v3M2 12h3M19 12h3\"/></svg>", "_undo": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M9 14L4 9l5-5\"/><path d=\"M4 9h10a6 6 0 0 1 0 12h-3\"/></svg>", "_restart": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 12a9 9 0 1 0 3-6.7\"/><path d=\"M3 4v5h5\"/></svg>", "_list": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.5\"/></svg>", "_check": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg>", "_x": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg>", "_pick": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"4\" y=\"7\" width=\"11\" height=\"14\" rx=\"2\"/><path d=\"M9 4h8a3 3 0 0 1 3 3v10\"/><path d=\"M7.5 12h4M7.5 15.5h4\"/></svg>"};
+        function pzIc(k) { return PZ_ICONS[k] || ''; }
+        let isPuzzleMode = false, puzzleSt = null, pzTokBase = 0, pzEntering = false, pzExiting = false;
+        const PZ_KEY = 'augChessPuzzleV2', PZ_KEY_OLD = 'augChessPuzzleStages';   // 스테이지 번호를 난이도순으로 다시 매겨서 저장 키를 새로 쓴다(기존 클리어 기록은 이어받는다)
+        const PZ_TUTORIAL_KEY = 'augChessPuzzleTutorialSeenV1';
+        let pzTutorialShownThisSession = false, pzTutorialIndex = 0;
+        const PZ_TUTORIAL_STEPS = [
+            { target: '#pz-meter', title: '목표와 최대 횟수', text: '증강을 한 번 이상 사용해 흑 킹을 처치하세요. 표시된 증강·이동 횟수는 최대치라서, 남겨도 클리어할 수 있어요.' },
+            { target: '#pz-pick', title: '증강 사용하기', text: '증강 고르기를 눌러 카드를 선택하세요. 선택한 카드를 한 번 더 누르면 발동합니다.' },
+            { target: '#board', title: '백 기물만 움직여요', text: '백 기물만 직접 움직입니다. 적(흑) 기물은 움직이지 않아요. 흑 킹을 잡으면 클리어예요.' }
+        ];
+        const PZ_FILES = 'abcdefgh';
+        // 제목은 정답 힌트가 되지 않도록 제거하고, 사용 가능한 증강 수에 맞춰 예산을 조정한다.
+        PZ_STAGES.forEach(s => { delete s.title; });
+        Object.assign(PZ_STAGES.find(s => s.n === 25), { augs: 1, moves: 2 });
+        Object.assign(PZ_STAGES.find(s => s.n === 26), { augs: 2, moves: 1 });
+        Object.assign(PZ_STAGES.find(s => s.n === 28), { augs: 2, moves: 2 });
+        Object.assign(PZ_STAGES.find(s => s.n === 18), { augs: 2 });
+        Object.assign(PZ_STAGES.find(s => s.n === 23), { augs: 2 });
+        PZ_STAGES.push(
+            { n: 29, id: 29, fen: '8/1n6/p7/7k/8/8/5R2/K7', cards: ['나이트 클럽', '암살', '차원 장벽'], augs: 1, moves: 2 },
+            { n: 30, id: 30, fen: '8/8/p3B1k1/8/8/8/8/K7', cards: ['파도', '나이트 클럽', '차원 장벽'], augs: 2, moves: 1 },
+            { n: 31, id: 31, fen: 'k7/8/p7/8/p7/8/8/1R5K', cards: ['암살', '차원 장벽', '파도'], augs: 1, moves: 2 },
+            { n: 32, id: 32, fen: '8/8/6P1/7k/8/8/8/K7', cards: ['진군 명령', '앙파상+', '차원 장벽'], augs: 1, moves: 2 },
+            { n: 33, id: 33, fen: '2r5/1k6/3p4/3P4/8/8/8/K7', cards: ['앙파상+', '파도', '차원 장벽'], augs: 2, moves: 2 },
+            { n: 34, id: 34, fen: '7k/8/8/8/6Kp/8/8/1R6', cards: ['신성한 폭발'], augs: 1, moves: 2 },
+            { n: 35, id: 35, fen: '8/8/p5k1/8/8/6N1/8/K7', cards: ['파도', '운명의 수레바퀴'], augs: 1, moves: 2 },
+            { n: 36, id: 36, fen: '8/2p5/8/3N4/p7/8/8/7k', cards: ['운명의 수레바퀴', '파도', '암살'], augs: 2, moves: 2 },
+            { n: 37, id: 37, fen: '8/6p1/1p4P1/7k/8/8/8/K7', cards: ['암살', '진군 명령', '차원 장벽'], augs: 2, moves: 2 },
+            { n: 38, id: 38, fen: '8/8/p7/8/6Nk/7p/8/8', cards: ['운명의 수레바퀴', '암살'], augs: 2, moves: 2 },
+            { n: 39, id: 39, fen: '8/8/6p1/6Pk/8/8/8/K7', cards: ['앙파상+', '진군 명령', '차원 장벽'], augs: 2, moves: 2 },
+            { n: 40, id: 40, fen: 'k7/8/8/p7/r3K3/p7/8/1R6', cards: ['연계 분쇄', '암살', '운명의 수레바퀴'], augs: 2, moves: 2 }
+        );
+        Object.assign(PZ_STAGES.find(s => s.id === 34), { fen: '7k/8/8/8/8/p7/1K6/Rb6' });
+        Object.assign(PZ_STAGES.find(s => s.id === 38), { cards: ['운명의 수레바퀴'], augs: 1 });
+        Object.assign(PZ_STAGES.find(s => s.id === 33), { cards: ['앙파상+'], augs: 1 });
+        Object.assign(PZ_STAGES.find(s => s.id === 40), { fen: 'k7/8/1n6/p7/r3K3/8/8/1R6', cards: ['연계 분쇄', '암살', '운명의 수레바퀴'] });
+        Object.assign(PZ_STAGES.find(s => s.id === 1), { fen: '7k/8/1b6/p7/r3K3/1N6/8/1R6', cards: ['연계 분쇄', '암살', '파도'], augs: 2, moves: 3 });
+        Object.assign(PZ_STAGES.find(s => s.id === 4), { fen: '7N/8/6p1/6Pk/8/8/8/K7', cards: ['앙파상+', '진군 명령', '파도'], augs: 2, moves: 3 });
+        Object.assign(PZ_STAGES.find(s => s.id === 5), { fen: '8/8/8/6k1/8/8/4B3/K7', cards: ['파도', '나이트 클럽', '차원 장벽'], augs: 2, moves: 3 });
+        Object.assign(PZ_STAGES.find(s => s.id === 2), { fen: '8/8/7k/8/r3K3/5B2/8/8', cards: ['연계 분쇄', '나이트 클럽', '파도'], augs: 2, moves: 3 });
+        Object.assign(PZ_STAGES.find(s => s.id === 3), { fen: 'k7/8/pB3n2/8/rN2K3/8/1R6/8', cards: ['운명의 수레바퀴', '암살', '파도'], augs: 2, moves: 3 });
+        Object.assign(PZ_STAGES.find(s => s.id === 6), { fen: '4B3/5n2/8/4kp2/N5B1/8/8/3K4' });
+        Object.assign(PZ_STAGES.find(s => s.id === 10), { fen: '5k2/4p1p1/3p4/3BP3/8/8/6B1/K7' });
+        Object.assign(PZ_STAGES.find(s => s.id === 14), { fen: '6nk/5p2/5r2/1B6/N1P5/3p4/8/K7' });
+        Object.assign(PZ_STAGES.find(s => s.id === 12), { fen: '2k5/8/2p1p3/1b6/8/p2P4/8/2N4K' });
+        Object.assign(PZ_STAGES.find(s => s.id === 11), { fen: '8/8/p1p5/1pr5/k7/5P2/p5N1/7K' });
+        Object.assign(PZ_STAGES.find(s => s.id === 13), { fen: '8/8/k7/B1n4P/q7/6B1/3pP3/7K' });
+        Object.assign(PZ_STAGES.find(s => s.id === 15), { fen: '5n1K/5P2/8/8/3n3P/3P3k/2p2qp1/5q2' });
+        Object.assign(PZ_STAGES.find(s => s.id === 18), { fen: '3rb1k1/2N1p3/1p2N3/8/N3P3/8/8/K7' });
+        Object.assign(PZ_STAGES.find(s => s.id === 17), { fen: '5k2/1p1q4/8/8/8/2P5/2P5/7K' });
+        Object.assign(PZ_STAGES.find(s => s.id === 16), { fen: '8/2p5/5qb1/8/6pk/3p4/6p1/1B5K' });
+        Object.assign(PZ_STAGES.find(s => s.id === 23), { fen: '2B5/8/5p2/5qbP/3bP2k/8/8/7K' });
+        Object.assign(PZ_STAGES.find(s => s.id === 21), { fen: '7q/5n2/8/1P2p3/8/1b2p3/P3p3/2k3K1' });
+        Object.assign(PZ_STAGES.find(s => s.id === 25), { fen: '8/p1p5/3pp3/p1kp1B2/8/2P4P/8/7K' });
+        Object.assign(PZ_STAGES.find(s => s.id === 24), { fen: '8/4b3/8/8/2p1n2P/8/pp2P1P1/2k1b2K' });
+        Object.assign(PZ_STAGES.find(s => s.id === 36), { fen: '7k/8/7p/8/7p/8/8/K6R', cards: ['암살', '파도', '나이트 클럽'], augs: 1, moves: 1 });
+        Object.assign(PZ_STAGES.find(s => s.id === 38), { fen: 'k2p3R/8/8/8/8/8/8/3BK3', cards: ['신의 심판', '나이트 클럽', '차원 장벽'], augs: 1, moves: 1 });
+        Object.assign(PZ_STAGES.find(s => s.id === 9), { goal: 'mate' });
+        PZ_STAGES.push(
+            { n: 41, id: 41, fen: '5r1k/pp3K2/8/6N1/6N1/6N1/8/6R1', cards: ['신성한 폭발', '암살', '차원 장벽', '파도', '나이트 클럽'], augs: 3, moves: 4, goal: 'mate' },
+            { n: 42, id: 42, fen: 'k1r5/2K5/6pp/1N6/1NB5/1N6/8/1R6', cards: ['신의 심판', '암살', '차원 장벽', '파도', '나이트 클럽'], augs: 3, moves: 4, goal: 'mate' },
+            { n: 43, id: 43, fen: 'k2r4/2K5/6pp/1N6/1N6/1N6/8/1R6', cards: ['신성한 폭발', '암살', '차원 장벽', '파도', '나이트 클럽'], augs: 3, moves: 4, goal: 'mate' },
+            { n: 44, id: 44, fen: 'k7/1r4pp/1n6/1B6/N7/N7/N7/R3K3', cards: ['신의 심판', '암살', '차원 장벽', '파도', '나이트 클럽'], augs: 3, moves: 4 },
+            { n: 45, id: 45, fen: 'k3r3/6pp/8/8/N3B3/N7/N7/R3K3', cards: ['신의 심판', '암살', '차원 장벽', '파도', '나이트 클럽'], augs: 3, moves: 4 },
+            { n: 46, id: 46, fen: 'k7/6pp/8/8/N7/N7/N3r3/R3K3', cards: ['신성한 폭발', '암살', '차원 장벽', '파도', '나이트 클럽'], augs: 3, moves: 4 },
+            { n: 47, id: 47, fen: '7k/pp4r1/6n1/6B1/7N/7N/7N/4K2R', cards: ['신의 심판', '암살', '차원 장벽', '파도', '나이트 클럽'], augs: 3, moves: 4 },
+            { n: 48, id: 48, fen: '8/pp5k/8/8/8/8/R3r3/4K3', cards: ['신성한 폭발', '암살', '나이트 클럽', '차원 장벽', '파도'], augs: 3, moves: 4 },
+            { n: 49, id: 49, fen: '7k/pp6/8/8/7N/7N/4r2N/4K2R', cards: ['신성한 폭발', '암살', '차원 장벽', '파도', '나이트 클럽'], augs: 3, moves: 4 },
+            { n: 50, id: 50, fen: 'R3K3/N7/N7/N7/1B6/1n6/1r4pp/k7', cards: ['신의 심판', '암살', '차원 장벽', '파도', '나이트 클럽'], augs: 3, moves: 4 }
+        );
+        Object.assign(PZ_STAGES.find(s => s.id === 48), { fen: '8/pp5k/8/8/8/8/R3r3/4K3', cards: ['신성한 폭발', '나이트 클럽', '암살', '파도', '차원 장벽'], augs: 2, moves: 4 });
+        // 증강 횟수와 이동 횟수는 상한이다. 해법에서 전부 소진할 필요는 없고, 증강은 최소 1회 필요하다.
+        PZ_STAGES.forEach(s => {
+            s.augs = Math.min(s.augs + 1, s.cards.length);
+            s.moves += 1;
+            s.minAugs = 1;
+            s.minMoves = 0;
+        });
+        const pzDifficulty = s => (s.augs + s.moves) * 100 + s.augs * 10 + Math.max(0, s.cards.length - s.augs) * 10 + s.cards.length;
+        PZ_STAGES.sort((a, b) => pzDifficulty(a) - pzDifficulty(b) || a.n - b.n);
+        PZ_STAGES.forEach((s, i) => { s.n = i + 1; });
+        function pzLoad() { try { let o = JSON.parse(localStorage.getItem(PZ_KEY) || 'null'); if (!o) { o = { cleared: {} }; const old = JSON.parse(localStorage.getItem(PZ_KEY_OLD) || '{}'); if (old && old.cleared) Object.keys(old.cleared).forEach(k => { if (old.cleared[k]) o.cleared[k] = 1; }); } return { cleared: (o && o.cleared) || {} }; } catch (e) { return { cleared: {} }; } }
+        function pzSave(o) { try { localStorage.setItem(PZ_KEY, JSON.stringify(o)); } catch (e) {} }
+        function pzSqName(i) { return PZ_FILES[i & 7] + (8 - (i >> 3)); }
+        function pzCardRefresh() {
+            const el = document.getElementById('puzzle-card-desc'); if (!el) return;
+            const o = pzLoad(), done = PZ_STAGES.filter(s => o.cleared[s.id]).length;
+            el.textContent = `/ ${PZ_STAGES.length} 클리어`;
+            const dn = document.getElementById('puzzle-card-done'); if (dn) dn.textContent = done;
+            const cta = document.getElementById('puzzle-card-cta');
+            if (cta) { const nx = PZ_STAGES.find(s => !o.cleared[s.id]); cta.firstChild.nodeValue = !done ? '시작하기' : (nx ? `스테이지 ${nx.n} 이어하기` : '모두 클리어'); }
+            const bar = document.getElementById('puzzle-card-bar'); if (bar) bar.style.width = (PZ_STAGES.length ? done / PZ_STAGES.length * 100 : 0) + '%';
+        }
+
+        // ---- 판 규칙 헬퍼 (실제 게임 엔진 위에서 동작) ----
+        function pzHasKing(c) { try { return game.board().some(r => r.some(p => p && p.type === 'k' && p.color === c)) || Object.values(balloonUnder).some(en => en && en.piece && en.piece.type === 'k' && en.piece.color === c); } catch (e) { return false; } }
+        function pzWon() {   // '' | 'king'(킹 처치) | 'mate'(체크메이트)
+            if (!pzHasKing('b')) return 'king';
+            const t = game._turn; game._turn = 'b'; let mate = false;
+            try { mate = game.in_checkmate(); } catch (e) {} finally { game._turn = t; }
+            return mate ? 'mate' : '';
+        }
+        function pzPieces() { const out = []; game.board().forEach((r, ri) => r.forEach((p, ci) => { if (p && p.type !== 'wall') out.push(PZ_FILES[ci] + (8 - ri)); })); return out; }
+        function pzPlace(fen) {
+            for (let i = 0; i < 64; i++) { const sq = pzSqName(i); if (game.get(sq)) game.remove(sq); }
+            let i = 0;
+            for (const ch of fen.split(' ')[0]) {
+                if (ch === '/') continue;
+                if (/\d/.test(ch)) { i += +ch; continue; }
+                game.put({ type: ch.toLowerCase(), color: ch === ch.toUpperCase() ? 'w' : 'b' }, pzSqName(i++));
+            }
+            game._turn = 'w'; practiceFixRights();
+            game.castling = { w: { k: false, q: false }, b: { k: false, q: false } }; try { game.rebuildCastleUids(); } catch (e) {}
+        }
+        function pzFresh(stage) {
+            pzTokBase += 1000000;   // 이전 스테이지의 늦은 타이머가 새 상태의 토큰과 겹치지 않게 한다
+            return { stage, movesUsed: 0, augUsed: 0, cardUsed: stage.cards.map(() => false), hist: [], busy: false, done: false, armed: -1, tok: pzTokBase };
+        }
+        function pzSetup() {   // 같은 스테이지를 처음부터 다시 시작
+            const stage = puzzleSt.stage, st = puzzleSt = pzFresh(stage);
+            resetGameUI(); pzPlace(stage.fen);
+            moveCount = 0; selectedSquare = null; legalMoves = [];
+            practiceRepaint(); pzHud(); pzHideDone();
+            pzDesc('');
+            requestAnimationFrame(pzShowTutorial);
+        }
+        function pzUsable(nm) {   // 지금 판에서 실제로 쓸 수 있는 증강인가 (킹 없음·체크 아님 등은 조건에서 걸러진다)
+            const ag = AUGMENT_POOL.find(a => a.name === nm); if (!ag) return false;
+            try { return typeof ag.condition === 'function' ? !!ag.condition('w', 'b') : true; } catch (e) { return false; }
+        }
+        function pzLeft() { const st = puzzleSt; return { m: st.stage.moves - st.movesUsed, a: st.stage.augs - st.augUsed }; }
+
+        // ---- HUD ----
+        function pzDesc(txt) { const el = document.getElementById('pz-desc'); if (!el) return; el.textContent = txt || ''; el.style.display = txt ? '' : 'none'; try { scheduleFit(); } catch (e) {} }
+        function pzTutorialSeen() {
+            if (pzTutorialShownThisSession) return true;
+            try { return localStorage.getItem(PZ_TUTORIAL_KEY) === '1'; } catch (e) { return false; }
+        }
+        function pzTutorialPlace() {
+            const step = PZ_TUTORIAL_STEPS[pzTutorialIndex], target = step && document.querySelector(step.target);
+            if (!target) return;
+            const r = target.getBoundingClientRect(), spot = document.getElementById('pz-tutorial-spot');
+            spot.style.left = Math.max(8, r.left - 7) + 'px';
+            spot.style.top = Math.max(8, r.top - 7) + 'px';
+            spot.style.width = Math.min(window.innerWidth - 16, r.width + 14) + 'px';
+            spot.style.height = Math.min(window.innerHeight - 16, r.height + 14) + 'px';
+            const card = document.getElementById('pz-tutorial-card'), cr = card.getBoundingClientRect(), gap = 14, margin = 12;
+            let top = r.bottom + gap;
+            if (top + cr.height > window.innerHeight - margin) top = r.top - cr.height - gap;
+            top = Math.max(margin, Math.min(top, window.innerHeight - cr.height - margin));
+            const left = Math.max(margin, Math.min(r.left + r.width / 2 - cr.width / 2, window.innerWidth - cr.width - margin));
+            card.style.left = left + 'px'; card.style.top = top + 'px';
+        }
+        function pzTutorialRender() {
+            const step = PZ_TUTORIAL_STEPS[pzTutorialIndex], overlay = document.getElementById('pz-tutorial');
+            if (!step || !document.querySelector(step.target)) { pzTutorialClose(); return; }
+            document.getElementById('pz-tutorial-step').textContent = `안내 ${pzTutorialIndex + 1} / ${PZ_TUTORIAL_STEPS.length}`;
+            document.getElementById('pz-tutorial-title').textContent = step.title;
+            document.getElementById('pz-tutorial-text').textContent = step.text;
+            document.getElementById('pz-tutorial-next').textContent = pzTutorialIndex === PZ_TUTORIAL_STEPS.length - 1 ? '시작하기' : '다음';
+            overlay.style.display = 'block'; overlay.setAttribute('aria-hidden', 'false');
+            requestAnimationFrame(pzTutorialPlace);
+        }
+        function pzShowTutorial() {
+            if (!puzzleSt || puzzleSt.stage.n !== 1 || pzTutorialSeen()) return;
+            pzTutorialShownThisSession = true;
+            try { localStorage.setItem(PZ_TUTORIAL_KEY, '1'); } catch (e) {}
+            pzTutorialIndex = 0; pzTutorialRender();
+            window.addEventListener('resize', pzTutorialPlace);
+        }
+        function pzTutorialClose() {
+            const overlay = document.getElementById('pz-tutorial');
+            if (overlay) { overlay.style.display = 'none'; overlay.setAttribute('aria-hidden', 'true'); }
+            window.removeEventListener('resize', pzTutorialPlace);
+        }
+        function pzPips(used, total) { return `<span class="pz-cnt"><b>${used}</b><span>/${total}</span></span>`; }
+        function pzHud() {
+            const st = puzzleSt; if (!st) return; const S = st.stage, L = pzLeft();
+            document.getElementById('pz-title').innerHTML = `<small>STAGE</small><b>${S.n}</b>`;
+            document.getElementById('pz-sub').innerHTML = pzIc('_target') + (S.goal === 'mate' ? '체크메이트' : '흑 킹 처치');
+            document.getElementById('pz-meter').innerHTML =
+                `<div class="pz-stat ${L.a <= 0 ? 'zero' : ''}" title="사용 횟수 / 최대 횟수">${pzIc('_aug')}<em>증강 사용</em>${pzPips(st.augUsed, S.augs)}</div>` +
+                `<div class="pz-stat ${L.m <= 0 ? 'zero' : ''}" title="사용 횟수 / 최대 횟수">${pzIc('_move')}<em>이동 사용</em>${pzPips(st.movesUsed, S.moves)}</div>`;
+            const chips = document.getElementById('pz-cards');
+            if (chips) {
+                const list = S.cards.map((nm, i) => ({ nm, i })).filter(c => st.cardUsed[c.i] || pzUsable(c.nm));
+                chips.innerHTML = list.length ? '<span class="pz-bub-l">쓸 수 있는 증강</span>' + list.map(c => { const ag = AUGMENT_POOL.find(a => a.name === c.nm); return `<span class="pz-chip${st.cardUsed[c.i] ? ' used' : ''}" aria-label="${c.nm}">${ag ? ag.icon : '?'}</span>`; }).join('') : '';
+            }
+            const pk = document.getElementById('pz-pick');
+            if (pk) {
+                const avail = S.cards.filter((nm, i) => !st.cardUsed[i] && pzUsable(nm)).length;
+                pk.innerHTML = pzIc('_pick') + '<span>증강 고르기</span><b class="pk-n">' + Math.max(0, L.a) + '</b>';
+                pk.disabled = L.a <= 0 || st.busy || st.done || S.cards.every((_, i) => st.cardUsed[i]);
+                pk.classList.toggle('none', !pk.disabled && avail <= 0);
+            }
+            try { squareEls.forEach(el => el.classList.remove('pz-target')); game.board().forEach((r, ri) => r.forEach((p, ci) => { if (p && p.type === 'k' && p.color === 'b') { const el = squareEls.get(PZ_FILES[ci] + (8 - ri)); if (el) el.classList.add('pz-target'); } })); } catch (e) {}
+            document.getElementById('pz-undo').disabled = !st.hist.length || st.busy;
+            try { scheduleFit(); } catch (e) {}
+        }
+        function pzOpenPicker() {   // 실제 게임과 같은 증강 선택 화면: 카드를 한 번 누르면 선택, 한 번 더 누르면 발동. 카드 바깥을 누르고 있으면 판이 보인다.
+            const st = puzzleSt; if (!st || st.done || st.busy || targeting || isSystemLocked || augBusy) return;
+            if (pzLeft().a <= 0) { showToast('증강 횟수를 모두 썼어요', 'var(--danger)', 1400); return; }
+            const ids = [], opts = [];
+            st.stage.cards.forEach((nm, i) => { const ag = AUGMENT_POOL.find(a => a.name === nm); if (ag && !st.cardUsed[i] && pzUsable(nm)) { ids.push(i); opts.push(ag); } });
+            if (!opts.length) { showToast('지금 판에서 쓸 수 있는 증강이 없어요', 'var(--danger)', 1600); return; }
+            pzDesc('');
+            const ov = document.getElementById('augment-overlay');
+            let html = `<h2>증강 선택</h2><div class="cards-container cards-n${opts.length}">`;
+            opts.forEach((aug, k) => {
+                const typeLabel = getAugmentCategoryLabel(aug), riskLabel = getAugmentRiskLabel(aug), typeClass = getAugmentCategoryClass(aug);
+                html += `<div class="augment-card ${typeClass}" data-idx="${k}"><button type="button" class="aug-info" data-aug="${aug.name}" aria-label="${aug.name} 정보">i</button><div class="augment-icon">${augIconHtml(aug.name, aug.icon)}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${typeLabel}</span>${riskLabel ? `<span class="aug-risk">${riskLabel}</span>` : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
+            });
+            html += `</div><div class="augment-hint">카드 바깥쪽을 눌러 필드를 확인하세요.</div><button type="button" class="pz-pick-cancel">취소</button>`;
+            ov.innerHTML = html; ov.dataset.pz = '1'; ov.style.display = 'flex'; bindAugInfo(ov);
+            const closeOv = () => { ov.style.display = 'none'; ov.dataset.pz = ''; };
+            let sel = -1;
+            const cards = ov.querySelectorAll('.augment-card');
+            cards.forEach((card, k) => {
+                card.onclick = () => {
+                    if (!puzzleSt || puzzleSt !== st) { closeOv(); return; }
+                    if (sel !== k) {
+                        sel = k; cards.forEach(c => c.classList.remove('selected')); card.classList.add('selected');
+                        showToast('한 번 더 눌러 발동하세요.', 'var(--primary)', 1500); return;
+                    }
+                    let ok = true; try { if (typeof opts[k].condition === 'function') ok = !!opts[k].condition('w', 'b'); } catch (e) { ok = true; }
+                    if (!ok) { sel = -1; card.classList.remove('selected'); showToast('지금 판에서는 쓸 수 없는 증강이에요', 'var(--danger)', 1600); return; }
+                    closeOv(); pzUseCard(ids[k], opts[k]);
+                };
+            });
+            ov.querySelector('.pz-pick-cancel').onclick = closeOv;
+        }
+        function pzUseCard(i, ag) {
+            const st = puzzleSt;
+            pzPush(); st.augUsed++; st.cardUsed[i] = true; st.busy = true; const tok = ++st.tok;
+            isSystemLocked = true; myColor = 'w'; selectedSquare = null; legalMoves = []; drawDots(); pzHud();
+            applySelectedAugment(ag, 'w', 'b', () => {   // 대상 지정을 취소하면 아무 일도 없었던 것으로 되돌리고 선택 화면으로 돌아간다
+                if (!puzzleSt || puzzleSt !== st || st.tok !== tok) return;
+                st.tok++; isSystemLocked = false; st.busy = false; const h = st.hist.pop();
+                if (h) { st.movesUsed = h.mu; st.augUsed = h.au; st.cardUsed = h.cu; }
+                pzHud(); setTimeout(pzOpenPicker, 0);
+            });
+            setTimeout(() => pzAfterAct(tok, 0), 500);
+        }
+        function pzPush() { const st = puzzleSt; st.hist.push({ s: serializeGameState(), mu: st.movesUsed, au: st.augUsed, cu: st.cardUsed.slice() }); }
+        function pzUndo() {
+            const st = puzzleSt; if (!st || st.busy || targeting || isSystemLocked || augBusy) return;
+            const h = st.hist.pop(); if (!h) { showToast('되돌릴 수가 없어요', '#f39c12', 1200); return; }
+            st.tok++; st.done = false; pzHideDone();
+            deserializeGameState(h.s, true); isSystemLocked = false; augBusy = false; postMovePending = 0; closeAugmentUI(); try { document.getElementById('augment-overlay').dataset.pz = ''; } catch (e) {}
+            st.movesUsed = h.mu; st.augUsed = h.au; st.cardUsed = h.cu; st.armed = -1; pzDesc('');
+            practiceRepaint(); pzHud();
+        }
+
+        // ---- 이동 판정 (실제 이동은 게임 엔진이 하고, 여기서는 횟수만 관리) ----
+        function puzzleGate(from, to, promo) {
+            const st = puzzleSt, reject = () => { selectedSquare = null; legalMoves = []; try { drawDots(); } catch (e) {} return false; };
+            if (!st || st.done || st.busy) return reject();
+            if (pzLeft().m <= 0) { showToast('이동 횟수를 모두 썼어요', 'var(--danger)', 1500); return reject(); }
+            pzPush(); st.movesUsed++; st.busy = true; st.armed = -1; pzDesc(''); const tok = ++st.tok;
+            pzHud(); setTimeout(() => pzAfterAct(tok, 0), 700);
+            return true;
+        }
+        // 이동·증강이 끝나길 기다렸다가: 처치했는가? → 아니면 흑 차례를 건너뛰고 다시 백 차례
+        function pzAfterAct(tok, n) {
+            const st = puzzleSt; if (!st || !isPuzzleMode || st.tok !== tok || st.done) return;
+            if (targeting || isSystemLocked || augBusy || postMovePending > 0) { setTimeout(() => pzAfterAct(tok, n + 1), 150); return; }
+            const how = pzWon();
+            if (how === 'king' && st.stage.goal === 'mate') {
+                st.busy = false;
+                pzFail('이 스테이지의 목표는 킹 처치가 아니라 체크메이트예요. 흑 킹을 체크메이트로 몰아야 해요.');
+                return;
+            }
+            if (how) {
+                if (st.augUsed < st.stage.minAugs || st.movesUsed < st.stage.minMoves) {
+                    st.busy = false;
+                    pzFail('킹을 처치하기 전에 증강을 1회 이상 사용해야 해요. 한 수 전으로 되돌려 다시 시도하세요.');
+                    return;
+                }
+                pzClear(how); return;
+            }
+            if (game._turn !== 'w') { game._turn = 'w'; game.ep_square = null; }
+            selectedSquare = null; legalMoves = []; try { drawDots(); updateTurnIndicator(); updateCheckStatus(); } catch (e) {}
+            st.busy = false; pzHud();
+            const L = pzLeft(), availC = st.stage.cards.filter((nm, i) => !st.cardUsed[i] && pzUsable(nm)).length; if (L.m <= 0 && (L.a <= 0 || availC <= 0)) pzFail();   // 남은 카드가 전부 못 쓰는 상태여도 막다른 길이다
+        }
+        function pzClear(how) {
+            const st = puzzleSt; st.done = true; st.busy = false; pzHud();
+            const o = pzLoad(); o.cleared[st.stage.id] = 1; pzSave(o); pzCardRefresh();
+            const next = PZ_STAGES[PZ_STAGES.findIndex(s => s.n === st.stage.n) + 1];
+            setTimeout(() => { if (puzzleSt === st && isPuzzleMode) pzShowDone({ ok: true, how, hasNext: !!next }); }, how === 'king' ? 2000 : 1200);
+        }
+        function pzFail(reason) { const st = puzzleSt, tok = st && st.tok; setTimeout(() => { if (puzzleSt === st && st && st.tok === tok && isPuzzleMode && !st.done) pzShowDone({ ok: false, reason }); }, 700); }
+        function pzShowDone(r) {
+            const st = puzzleSt; if (!st) return; const ov = document.getElementById('puzzle-done'), S = st.stage;
+            const box = ov.querySelector('.lobby-box'); box.classList.toggle('ok', !!r.ok); box.classList.toggle('fail', !r.ok);
+            document.getElementById('pz-done-ic').innerHTML = pzIc(r.ok ? '_check' : '_x');
+            document.getElementById('pz-done-title').textContent = r.ok ? `STAGE ${S.n} 클리어` : (r.reason ? '필수 조건을 채우지 못했어요' : '횟수를 모두 썼어요');
+            document.getElementById('pz-done-desc').textContent = r.ok
+                ? `${r.how === 'mate' ? '체크메이트' : '킹 처치'} · 증강 ${st.augUsed}/${S.augs}회 · 이동 ${st.movesUsed}/${S.moves}회` + (r.hasNext ? '' : ' · 마지막 스테이지까지 클리어했어요')
+                : (r.reason || '킹을 처치하지 못했어요. 한 수 전으로 되돌려 다른 방법을 찾아보세요.');
+            document.getElementById('btn-pz-next').style.display = (r.ok && r.hasNext) ? '' : 'none';
+            document.getElementById('btn-pz-undo').style.display = r.ok ? 'none' : '';
+            document.getElementById('btn-pz-again').textContent = r.ok ? '다시 풀어보기' : '처음부터';
+            ov.style.display = 'flex';
+        }
+        function pzHideDone() { const d = document.getElementById('puzzle-done'); if (d) d.style.display = 'none'; }
+
+        // ---- 스테이지 선택 / 시작 / 종료 ----
+        function pzOpenStages() {
+            const o = pzLoad(), grid = document.getElementById('pzs-grid'); grid.innerHTML = '';
+            const done = PZ_STAGES.filter(s => o.cleared[s.id]).length;
+            document.getElementById('pzs-sub').textContent = `${done} / ${PZ_STAGES.length} 클리어`;
+            const bar = document.querySelector('#pzs-bar i'); if (bar) bar.style.width = (done / PZ_STAGES.length * 100) + '%';
+            const nextIdx = PZ_STAGES.findIndex(s => !o.cleared[s.id]);
+            PZ_STAGES.forEach((s, i) => {
+                const locked = nextIdx >= 0 && i > nextIdx;
+                const b = document.createElement('button'); b.type = 'button';
+                b.className = 'pzs-cell' + (o.cleared[s.id] ? ' done' : '') + (i === nextIdx ? ' next' : '') + (locked ? ' locked' : '');
+                b.disabled = locked;
+                b.setAttribute('aria-label', 'STAGE ' + s.n + (locked ? ' 잠김' : ''));
+                if (locked) b.title = '이전 스테이지를 먼저 클리어하세요';
+                b.innerHTML = (o.cleared[s.id] ? `<span class="ck">${pzIc('_check')}</span>` : '') + `<span class="n">${s.n}</span><span class="m"><span>${pzIc('_aug')}${s.augs}</span><span>${pzIc('_move')}${s.moves}</span></span>`;
+                b.onclick = () => startPuzzle(i);
+                grid.appendChild(b);
+            });
+            document.getElementById('puzzle-stages').style.display = 'flex';
+            const cur = grid.querySelector('.pzs-cell.next'); if (cur) setTimeout(() => { try { cur.scrollIntoView({ block: 'center' }); } catch (e) {} }, 30);
+        }
+        function pzCloseStages() { document.getElementById('puzzle-stages').style.display = 'none'; }
+        function startPuzzle(idx) {
+            const stage = PZ_STAGES[idx]; if (!stage || pzEntering || pzExiting) return;
+            const progress = pzLoad(), nextIdx = PZ_STAGES.findIndex(s => !progress.cleared[s.id]);
+            if (nextIdx >= 0 && idx > nextIdx) return;
+            pzEntering = true;
+            Promise.resolve(cancelMatchmaking()).catch(() => {}).then(() => {
+                pzEntering = false;
+                pzCloseStages(); modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'none';
+                if (isPuzzleMode) puzzleCleanup();
+                pzHideDone(); try { closeAugmentUI(); } catch (e) {}
+                isBotMode = false; isPracticeMode = true; isPuzzleMode = true; currentRoomId = null; myColor = 'w'; isGameStarted = true; statsRecorded = true; rankCtx = null;
+                practiceEditing = false; practiceTool = null; practiceHist = []; practiceFuture = []; practiceSel = null; practiceMulti = new Set(); practiceEndKey = ''; practiceBoPrev = { w: 0, b: 0 };
+                practiceOmni = false; practiceAuto = false;   // 퍼즐은 항상 백 시점
+                document.body.classList.remove('black-pov', 'practice-editing'); document.body.classList.add('practice-mode', 'puzzle-mode');
+                document.getElementById('game-controls').style.display = 'flex';
+                document.getElementById('btn-resign').style.display = 'none';
+                document.getElementById('btn-settings-game').style.display = 'none';
+                puzzleSt = pzFresh(stage); showBoardContainer(); practiceSyncUI();
+                pzSetup(null);
+            });
+        }
+        function puzzleCleanup() { pzTutorialClose(); try { const ov = document.getElementById('augment-overlay'); if (ov && ov.dataset.pz === '1') { ov.style.display = 'none'; ov.dataset.pz = ''; } } catch (e) {} if (puzzleSt) puzzleSt.tok++; try { closeAugmentUI(); } catch (e) {} isSystemLocked = false; augBusy = false; postMovePending = 0; document.body.classList.remove('augment-picking'); isPuzzleMode = false; puzzleSt = null; document.body.classList.remove('puzzle-mode'); pzHideDone(); pzDesc(''); }
+        async function puzzleExit(toStages) {
+            if (pzExiting) return; pzExiting = true;
+            try {
+                pzHideDone();
+                const b = document.getElementById('btn-return-lobby'); if (b && b.onclick) await b.onclick();
+                mainLobbyOverlay.style.display = 'none'; modeSelectOverlay.style.display = 'flex'; selectMsTab('practice');   // 연습 메뉴로 복귀
+                if (toStages) pzOpenStages(); else pzCloseStages();
+            } finally { pzExiting = false; }
+        }
+        document.getElementById('btn-puzzle-mode').onclick = pzOpenStages;
+        document.getElementById('pzs-close').onclick = pzCloseStages;
+        document.getElementById('pz-tutorial-skip').onclick = pzTutorialClose;
+        document.getElementById('pz-tutorial-next').onclick = () => {
+            if (pzTutorialIndex >= PZ_TUTORIAL_STEPS.length - 1) { pzTutorialClose(); return; }
+            pzTutorialIndex++; pzTutorialRender();
+        };
+        document.getElementById('pz-pick').onclick = pzOpenPicker;
+        document.getElementById('pz-undo').onclick = pzUndo;
+        document.getElementById('pz-restart').onclick = () => { const st = puzzleSt; if (!st || st.busy || targeting) return; if (isSystemLocked || augBusy) return; pzSetup(st); };
+        document.getElementById('pz-exit').onclick = () => puzzleExit(false);
+        document.getElementById('btn-pz-again').onclick = () => { if (puzzleSt) pzSetup(puzzleSt); };
+        document.getElementById('btn-pz-undo').onclick = () => { pzHideDone(); pzUndo(); };
+        document.getElementById('btn-pz-next').onclick = () => { const st = puzzleSt; if (!st) return; const i = PZ_STAGES.findIndex(s => s.n === st.stage.n); pzHideDone(); if (PZ_STAGES[i + 1]) { puzzleSt = pzFresh(PZ_STAGES[i + 1]); pzSetup(null); } };
+        document.getElementById('btn-pz-list').onclick = () => puzzleExit(true);
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) pzCardRefresh(); });
+        pzCardRefresh();
+
         document.getElementById('btn-replay').onclick = startReplay;
         document.getElementById('rp-exit').onclick = exitReplay;
         document.getElementById('btn-replay-exit').onclick = async () => { if (isSpectating) { if (await askConfirm('관전을 그만할까요?', { ok: '나가기' })) leaveSpectate(); } else exitReplay(); };
@@ -9556,6 +10255,7 @@
         }
 
         function executeMoveLocal(from, to, promo, under) {
+            if (isPuzzleMode && !puzzleGate(from, to, promo)) return;
             if (isPracticeMode) practiceSnap();
             // 동귀어진: 이동 전에 잡힐 기물을 확인해 둔다 (앙파상은 다른 칸의 폰)
             let pactVictim = null; { const mv = under && balloonUnder[from] ? balloonUnder[from].piece : game.get(from); let vic = game.get(to); if (vic && balloons[vic.uid] > 0) vic = null;   /* 떠 있는 기물은 잡히지 않는다 */ if (!vic && mv && mv.type === 'p' && to === game.ep_square) vic = game.get(to[0] + from[1]); if (vic && pactPieces[vic.uid]) pactVictim = vic.uid; }
@@ -9677,7 +10377,7 @@
             } else {
                 move = selectTopBotMove() || moves[Math.floor(Math.random() * moves.length)];
             }
-            executeMoveLocal(move.from, move.to, move.promotion ? 'q' : null);
+            executeMoveLocal(move.from, move.to, move.promotion ? 'q' : null, !!move.under);
         }
 
         // ==========================================
@@ -9984,6 +10684,14 @@
                 else { npm += BOT_VAL[t]; if (t === 'b') { if (w) wBish++; else bBish++; } if (t === 'r') rooks.push({ r, c, w });
                     if ((t === 'n' || t === 'b') && r === (w ? 7 : 0)) minorsHome[p.color]++; }
             }
+            for (const usq in balloonUnder) {   // 업: 풍선 기물 아래 기물 — 풍선이 내려올 때까지 살아 있다. 곧 내려오면(남은 수 1) 대부분 사라진다
+                const en = balloonUnder[usq], p = en && en.piece; if (!p || p.type === 'wall') continue;
+                const w = p.color === 'w', sg = w ? 1 : -1, cnt = balloons[en.uid] || 0, rc = S.sqToRC(usq);
+                if (p.type === 'k') { if (w) wk = { r: rc.r, c: rc.c }; else bk = { r: rc.r, c: rc.c }; continue; }
+                const f = cnt >= 4 ? 0.9 : cnt === 3 ? 0.75 : cnt === 2 ? 0.5 : 0.2, idx = (w ? rc.r : 7 - rc.r) * 8 + rc.c;   // 풍선이 내려오면 피아 구분 없이 깔린다. 비켜날 수 있는 시간이 줄수록 위험
+                mat += sg * Math.round(BOT_VAL[p.type] * f); pstMg += sg * Math.round(BOT_PST[p.type][idx] * f);
+                if (p.type !== 'p') npm += BOT_VAL[p.type];
+            }
             const phase = Math.min(1, npm / 6520), eg = 1 - phase;
             let score = mat + pstMg;
             if (wk) { const i = wk.r * 8 + wk.c; score += BOT_PST.kmg[i] * phase + BOT_PST.keg[i] * eg; }
@@ -10103,28 +10811,78 @@
         // 두었다가 되돌리기 (castling/ep/승급/동귀어진/운명공동체 포함)
         function botMake(S, m) {
             const B = S._board, fc = m.from.charCodeAt(0) - 97, fr = 56 - m.from.charCodeAt(1), tc = m.to.charCodeAt(0) - 97, tr = 56 - m.to.charCodeAt(1);
-            const piece = B[fr][fc], cap = B[tr][tc], cs = S.castling, u = { fr, fc, tr, tc, piece, cap, epPc: null, rook: 0, cw: [cs.w.k, cs.w.q, cs.b.k, cs.b.q], ep: S.ep_square, pact: null, mine: null, mined: null, fate: null };
-            if (piece.type === 'p' && fc !== tc && !cap) { u.epPc = B[fr][tc]; B[fr][tc] = null; }
+            const top = B[fr][fc], cap = B[tr][tc], cs = S.castling;
+            let bal = false; for (const k in balloons) { bal = true; break; }   // 업: 풍선이 있는 판이면 풍선 규칙(올라서기·아래 기물·착지)을 따른다
+            if (!bal) for (const k in balloonUnder) { bal = true; break; }
+            const um = bal && !!m.under && !!balloonUnder[m.from];
+            const piece = um ? balloonUnder[m.from].piece : top;
+            const u = { fr, fc, tr, tc, piece: top, cap, epPc: null, rook: 0, cw: [cs.w.k, cs.w.q, cs.b.k, cs.b.q], ep: S.ep_square, pact: null, mine: null, mined: null, fate: null };
+            let floater = false, airT = false;
+            if (bal) { u.bal = { bs: Object.assign({}, balloons), bu: Object.assign({}, balloonUnder), aw: activeWalls, sq: [] }; floater = balloons[piece.uid] > 0; airT = !floater && !!cap && S.airFloat(cap, tr, tc); }
+            if (!floater && piece.type === 'p' && fc !== tc && !cap) { u.epPc = B[fr][tc]; B[fr][tc] = null; }
             if (m.flags === 'k') { B[fr][5] = B[fr][7]; B[fr][7] = null; u.rook = 1; } else if (m.flags === 'q') { B[fr][3] = B[fr][0]; B[fr][0] = null; u.rook = 2; }
-            B[tr][tc] = m.promotion ? { type: 'q', color: piece.color, uid: piece.uid } : piece; B[fr][fc] = null;
+            if (bal && (floater || airT || um)) {
+                if (airT) { balloonUnder[m.to] = { uid: cap.uid, piece }; if (um) delete balloonUnder[m.from]; else B[fr][fc] = null; }   // 떠 있는 기물의 칸은 빈 공간: 그 밑에 선다
+                else {
+                    B[tr][tc] = m.promotion ? { type: 'q', color: piece.color, uid: piece.uid } : piece;
+                    if (um) delete balloonUnder[m.from]; else B[fr][fc] = null;
+                    if (floater) {   // 풍선 기물은 잡지 않고 올라설 뿐이다. 떠난 칸에는 밑에 있던 기물이 드러난다
+                        const en = balloonUnder[m.from]; if (en && String(en.uid) === String(piece.uid)) { B[fr][fc] = en.piece; delete balloonUnder[m.from]; }
+                        if (cap && cap.uid !== piece.uid) balloonUnder[m.to] = { uid: piece.uid, piece: cap };
+                    }
+                }
+            } else { B[tr][tc] = m.promotion ? { type: 'q', color: piece.color, uid: piece.uid } : piece; B[fr][fc] = null; }
             const turn = S._turn;
             if (piece.type === 'k') { cs[turn].k = false; cs[turn].q = false; }
             if (piece.type === 'r') { if (fr === 7 && fc === 7) cs.w.k = false; if (fr === 7 && fc === 0) cs.w.q = false; if (fr === 0 && fc === 7) cs.b.k = false; if (fr === 0 && fc === 0) cs.b.q = false; }
             S.ep_square = (piece.type === 'p' && Math.abs(fr - tr) === 2) ? S.rcToSq(fr + (turn === 'w' ? -1 : 1), fc) : null;
             S._turn = turn === 'w' ? 'b' : 'w';
-            const vic = cap || u.epPc;   // 동귀어진: 잡은 기물도 함께 사라진다 (킹은 제외)
+            const vic = (floater || airT) ? null : (cap || u.epPc);   // 동귀어진: 잡은 기물도 함께 사라진다 (킹은 제외)
             if (vic && pactPieces[vic.uid] && piece.type !== 'k' && !(invinciblePieces[piece.uid] > 0)) { u.pact = B[tr][tc]; B[tr][tc] = null; }
             if (BOT.mineSet.size) { const key = String.fromCharCode(97 + tc) + (8 - tr); if (BOT.mineSet.has(key) && B[tr][tc] && !(balloons[B[tr][tc].uid] > 0)) { BOT.mineSet.delete(key); u.mine = key; if (B[tr][tc].type !== 'k') { u.mined = B[tr][tc]; B[tr][tc] = null; } } }   // 지뢰: 밟은 기물 파괴(킹은 폭발만), 지뢰도 사라진다
             if (BOT.ana && activePoison.length) {   // v3.83: 독구름 — 상대가 만든 독 지대에 들어간 기물은 사라진다 (킹·무적 제외)
                 const pc = B[tr][tc];
-                if (pc && pc.type !== 'k' && pc.type !== 'wall' && !invinciblePieces[pc.uid]) { const key = String.fromCharCode(97 + tc) + (8 - tr); if (activePoison.some(x => x.owner !== pc.color && x.squares.includes(key))) { B[tr][tc] = null; u.pois = pc; } }
+                if (pc && !airT && !(balloons[pc.uid] > 0) && pc.type !== 'k' && pc.type !== 'wall' && !invinciblePieces[pc.uid]) { const key = String.fromCharCode(97 + tc) + (8 - tr); if (activePoison.some(x => x.owner !== pc.color && x.squares.includes(key))) { B[tr][tc] = null; u.pois = pc; } }
             }
             if (fateLinks.length) botFateKill(B, [vic, u.pact, u.mined, u.pois], u);   // 운명공동체: 사라진 기물과 연결된 기물도 함께 사라진다
             if (BOT.ana) botFxTick(S, u);
+            if (bal) botBalloonTick(S, u);
             return u;
         }
+        // 업: 수마다 풍선이 줄고, 0이 되면 내려앉아 아래 기물을 없앤다 (킹이면 풍선 기물이 사라지고 킹이 드러난다)
+        function botBalloonTick(S, u) {
+            const B = S._board, bl = u.bal;
+            for (const k in balloons) {
+                if (--balloons[k] > 0) continue;
+                delete balloons[k];
+                for (const sq in balloonUnder) {
+                    const en = balloonUnder[sq]; if (!en || String(en.uid) !== String(k)) continue;
+                    delete balloonUnder[sq];
+                    const rc = S.sqToRC(sq), pc = en.piece;
+                    if (pc.type === 'k') { bl.sq.push({ r: rc.r, c: rc.c, pc: B[rc.r][rc.c] }); B[rc.r][rc.c] = pc; }
+                    else if (pc.type === 'wall') activeWalls = activeWalls.filter(w => w.sq !== sq);
+                    break;
+                }
+            }
+        }
+        function botBalloonRevert(S, u) {
+            const bl = u && u.bal; if (!bl) return;
+            for (let i = bl.sq.length - 1; i >= 0; i--) S._board[bl.sq[i].r][bl.sq[i].c] = bl.sq[i].pc;
+            for (const k in balloons) delete balloons[k]; Object.assign(balloons, bl.bs);
+            for (const k in balloonUnder) delete balloonUnder[k]; Object.assign(balloonUnder, bl.bu);
+            activeWalls = bl.aw;
+        }
+        function botGen(S, o) {
+            let anyU = false, anyB = false; for (const k in balloonUnder) { anyU = true; break; } for (const k in balloons) { anyB = true; break; }
+            const ms = anyU ? S.moves(Object.assign({}, o || {}, { withUnder: true })) : S.moves(o);
+            if (anyB) { const B = S._board; for (const m of ms) {   // 풍선 기물이 적 기물 위에 올라서는 수: 잡는 수는 아니지만 4수 뒤 깔아 버릴 수 있어 앞에 둔다
+                if (m.under || m.captured) continue; const fp = B[56 - m.from.charCodeAt(1)][m.from.charCodeAt(0) - 97]; if (!fp || !(balloons[fp.uid] > 0)) continue;
+                const tp = B[56 - m.to.charCodeAt(1)][m.to.charCodeAt(0) - 97]; if (tp && tp.type !== 'wall' && tp.type !== 'k' && tp.color !== fp.color) m.bt = BOT_VAL[tp.type] || 0; } }
+            return ms;
+        }   // 풍선 기물 아래 깔린 내 기물의 수도 후보에 넣는다
         function botUnmake(S, u) {
             const B = S._board, cs = S.castling;
+            if (u.bal) botBalloonRevert(S, u);
             if (u.fx) botFxUndo(S, u.fx);
             if (u.fate) for (let i = u.fate.length - 1; i >= 0; i--) B[u.fate[i].r][u.fate[i].c] = u.fate[i].pc;
             if (u.mine) BOT.mineSet.add(u.mine);
@@ -10141,8 +10899,9 @@
             const k1 = BOT.killers[ply] && BOT.killers[ply][0], k2 = BOT.killers[ply] && BOT.killers[ply][1];
             for (const m of moves) {
                 let sc = 0;
-                if (ttMove && m.from === ttMove.from && m.to === ttMove.to) sc = 1e7;
+                if (ttMove && m.from === ttMove.from && m.to === ttMove.to && !m.under) sc = 1e7;
                 else if (m.captured) sc = 1e5 + BOT_VAL[m.captured] * 10 - BOT_VAL[m.piece] / 10;
+                else if (m.bt) sc = 9.5e4 + m.bt;
                 else if (m.promotion) sc = 9e4;
                 else if (k1 && k1.from === m.from && k1.to === m.to) sc = 8e4;
                 else if (k2 && k2.from === m.from && k2.to === m.to) sc = 7.9e4;
@@ -10156,7 +10915,7 @@
             BOT.nodes++; if ((BOT.nodes & 2047) === 0 && Date.now() > BOT.deadline) BOT.abort = true; if (BOT.abort) return 0;
             const color = S._turn, inChk = S.in_check(color); let best = -BOT_MATE + ply;
             if (!inChk) { const stand = botEvaluate(S); if (stand >= beta) return stand; if (stand > alpha) alpha = stand; best = stand; if (qd <= 0) return stand; }
-            let moves = BOT.ana ? S.moves(inChk ? BOT_FASTOPT : BOT_CAPOPT) : S.moves(); if (moves.length === 0) return inChk ? -BOT_MATE + ply : (BOT.ana ? best : 0);
+            let moves = BOT.ana ? botGen(S, inChk ? BOT_FASTOPT : BOT_CAPOPT) : botGen(S); if (moves.length === 0) return inChk ? -BOT_MATE + ply : (BOT.ana ? best : 0);
             for (const m of moves) if (m.captured === 'k') return BOT_MATE - ply;
             if (!inChk) moves = moves.filter(m => m.captured || m.promotion);
             botOrder(moves, null, ply);
@@ -10177,7 +10936,7 @@
             if (tt) { ttMove = tt.move; if (tt.depth >= depth && ply > 0) { let v = tt.score; if (v > BOT_MATE - 1000) v -= ply; else if (v < -BOT_MATE + 1000) v += ply; if (tt.flag === 0) return v; if (tt.flag === 1 && v > alpha) alpha = v; else if (tt.flag === 2 && v < beta) beta = v; if (alpha >= beta) return v; } }
             const color = S._turn, inChk = S.in_check(color);
             if (depth <= 0 && !inChk) return botQuiesce(S, alpha, beta, ply, 6);
-            const moves = BOT.ana ? S.moves(BOT_FASTOPT) : S.moves(); if (moves.length === 0) return inChk ? -BOT_MATE + ply : 0;
+            const moves = BOT.ana ? botGen(S, BOT_FASTOPT) : botGen(S); if (moves.length === 0) return inChk ? -BOT_MATE + ply : 0;
             for (const m of moves) if (m.captured === 'k') return BOT_MATE - ply;
             const ana = BOT.ana, pvNode = beta - alpha > 1; let se = null, fut = false;
             if (ana && ply > 0 && !inChk && !pvNode && Math.abs(beta) < BOT_MATE - 1000 && Math.abs(alpha) < BOT_MATE - 1000) {   // v3.74: 분석 전용 가지치기(역 퓨틸리티·널 무브·퓨틸리티)
@@ -10237,11 +10996,11 @@
             try { return botFindMoveRaw(opts); } finally { BOT.ana = prevAna; }
         }
         function botFindMoveRaw(opts) {
-            const S = cloneGameState(game), root = S.moves(BOT.ana ? BOT_FASTOPT : undefined); if (root.length === 0) return null;
+            const S = cloneGameState(game), root = botGen(S, BOT.ana ? BOT_FASTOPT : undefined); if (root.length === 0) return null;
             if (root.length === 1) return root[0];
             for (const m of root) if (m.captured === 'k') return m;
             if (BOT.tt.size > 400000) BOT.tt.clear();
-            BOT.noise = opts.noise || 0; botSyncMines(); BOT.tt.clear(); BOT.killers = []; BOT.hist = {}; BOT.path = new Set(); BOT.nodes = 0; BOT.abort = false; const t0 = Date.now(); BOT.deadline = t0 + opts.timeMs;
+            BOT.noise = opts.noise || 0; botSyncMines(); if (!opts.keepTT) BOT.tt.clear(); BOT.killers = []; BOT.hist = {}; BOT.path = new Set(); BOT.nodes = 0; BOT.abort = false; const t0 = Date.now(); BOT.deadline = t0 + opts.timeMs;
             botOrder(root, null, 0);
             let bestMove = root[0], bestScore = -BOT_MATE, scores = null, doneDepth = 0;
             for (let depth = 1; depth <= opts.maxDepth; depth++) {
@@ -10295,6 +11054,149 @@
         }
         function selectMidBotMove() {   // 중: 3수 깊이 탐색 + 평가 오차(가끔 차선 선택)
             return botBookMove() || botFindMove({ timeMs: 300, maxDepth: 3, noise: 25 });
+        }
+        // ---- 마스터: 상보다 강한 봇 ----
+        // 상과 다른 점: (1) 분석 엔진(BOT.ana)으로 탐색 — 덩굴·무적·유망주·차원 장벽·독구름의 남은 수까지 따라가고, 널 무브·늦은 수 줄이기·퓨틸리티 가지치기로 같은 시간에 훨씬 깊이 본다
+        //              (2) 수당 2초(상 1초), 최대 깊이 40  (3) 증강 단계를 여는 수는 더 많은 후보를 더 오래 비교
+        //              (4) 증강을 고르는 시뮬레이션도 같은 엔진·더 깊은 깊이·더 많은 시행으로 돌린다
+        function botMasterScope(botC, fn) {   // 분석 엔진 상태로 fn을 돌리고 반드시 원래대로 되돌린다. 봇은 자기가 묻은 지뢰만 안다
+            const sv = { ana: BOT.ana, owner: BOT.mineOwner, master: BOT.master };
+            BOT.ana = true; BOT.mineOwner = botC; BOT.master = true;
+            try { return fn(); } finally { BOT.ana = sv.ana; BOT.mineOwner = sv.owner; BOT.master = sv.master; }
+        }
+        function botAugScope(master, fn) { return master ? botMasterScope(myColor === 'w' ? 'b' : 'w', fn) : fn(); }
+        function botMoveIsLegal(m) {   // 탐색이 돌려준 수가 지금 판에서 정말 둘 수 있는 수인지 확인한다 (아니면 상 엔진으로 대신 둔다)
+            if (!m) return false;
+            try { return game.moves({ withUnder: true }).some(x => x.from === m.from && x.to === m.to && !!x.under === !!m.under); } catch (e) { return true; }
+        }
+        // ---- 마스터 Worker: 탐색을 백그라운드 스레드에서 돌려 화면이 멈추지 않게 하고, 그만큼 오래(6초) 생각한다 ----
+        // Worker 코드는 이 페이지의 엔진 함수를 toString()으로 그대로 가져와 만든다 (엔진을 고치면 Worker도 자동으로 따라간다).
+        // 증강 상태는 AUG_STATE_FIELDS 목록으로 보내고 받는다. 사람이 묻은 지뢰는 보내지 않는다. Worker가 안 되면 예전 방식(메인 스레드 2초 탐색)으로 돌아간다.
+        const BOT_MASTER_MS = 6000;   // 일반 수의 생각 시간 상한 (증강 단계를 여는 수는 4.5초 탐색 + 증강 위험 평가)
+        let botWorker = null, botWorkerDead = false, botWorkerSeq = 0, botWorkerPending = null, botThinking = false;
+        function botWorkerSource() {
+            const keys = AUG_STATE_FIELDS.map(f => f.key);
+            const fns = [cloneBoard, cloneGameState, botEvaluate, botHash, botFxTick, botFxUndo, botFateKill, botMake, botBalloonTick, botBalloonRevert, botGen, botUnmake, botOrder, botQuiesce, botHasPieces, botSearch, botSyncMines, botFindMoveRaw].map(f => f.toString());
+            const main = `
+let lastSig = null;
+self.onmessage = function (e) {
+  const d = e.data;
+  try {
+    const s = d.snap; game = new CustomChess();
+    game._board = s.board; game._turn = s.turn; game.castling = s.castling; game.ep_square = s.ep; game.is_game_over = s.over;
+    game.pieceUidCounter = s.uidc; game.castleUids = s.castleUids; game.keepUids = s.keepUids;
+    __setAug(s.aug); futureAttack = !!s.futureAttack;
+    const sig = JSON.stringify(s.aug); if (sig !== lastSig) { BOT.tt.clear(); lastSig = sig; }   // 증강 상태가 바뀌면 전치표를 비운다(지뢰 등은 해시에 없으므로)
+    BOT.ana = true; BOT.mineOwner = d.owner; BOT.seen = new Map(d.seen); BOT.master = true;
+    const m = botFindMoveRaw(d.opts);
+    let scores = null; if (m && m.__scores) { scores = []; m.__scores.forEach((v, mv) => scores.push([mv.from, mv.to, !!mv.under, mv.promotion || null, v])); }
+    self.postMessage({ id: d.id, ok: true, move: m ? { from: m.from, to: m.to, under: !!m.under, promotion: m.promotion || null } : null, depth: m ? m.__depth : 0, nodes: m ? m.__nodes : 0, score: m ? m.__score : 0, scores: scores });
+  } catch (err) { self.postMessage({ id: d.id, ok: false, error: String((err && err.stack) || err) }); }
+};`;
+            return [
+                '"use strict";',
+                `const BOT_VAL = ${JSON.stringify(BOT_VAL)}, BOT_MATE = ${BOT_MATE}, BOT_PST = ${JSON.stringify(BOT_PST)}, BOT_PASSED = ${JSON.stringify(BOT_PASSED)}, BOT_Z = ${JSON.stringify(BOT_Z)}, BOT_FASTOPT = { fast: true }, BOT_CAPOPT = { fast: true, captures: true };`,
+                `const botProspectBonus = ${botProspectBonus.toString()};`,
+                `const BOT = { ana: false, mineSet: new Set(), noise: 0, tt: new Map(), nodes: 0, abort: false, deadline: 0, killers: [], hist: {}, path: new Set(), seen: new Map() };`,
+                `let ${keys.join(', ')}, futureAttack = false, myColor = 'w', game = null;`,
+                `function __setAug(o) { ${keys.map(k => `${k} = o.${k};`).join(' ')} }`,
+                CustomChess.toString(), ...fns, main
+            ].join('\n');
+        }
+        function botWorkerFail(why) {
+            try { console.warn('봇 Worker 사용 불가 — 메인 스레드 탐색으로 전환:', why); } catch (e) {}
+            botWorkerDead = true; try { if (botWorker) botWorker.terminate(); } catch (e) {} botWorker = null;
+            const p = botWorkerPending; botWorkerPending = null; if (p) { clearTimeout(p.timer); p.resolve(null); }
+        }
+        function botWorkerEnsure() {
+            if (botWorkerDead || typeof Worker === 'undefined') return null;
+            if (botWorker) return botWorker;
+            try {
+                const url = URL.createObjectURL(new Blob([botWorkerSource()], { type: 'text/javascript' })), w = new Worker(url);
+                setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 8000);
+                w.onmessage = ev => { const d = ev.data, p = botWorkerPending; if (!p || p.id !== d.id) return; botWorkerPending = null; clearTimeout(p.timer); if (d.ok) p.resolve(d); else { try { console.warn('봇 Worker 오류:', d.error); } catch (e) {} botWorkerFail(d.error); p.resolve(null); } };
+                w.onerror = ev => botWorkerFail(ev && ev.message);
+                botWorker = w; return w;
+            } catch (e) { botWorkerFail(e); return null; }
+        }
+        function botWorkerSearch(opts, owner) {   // 반환: { move, depth, nodes, score, scores } 또는 null(Worker 불가·실패)
+            return new Promise(resolve => {
+                if (botWorkerPending) { try { botWorker && botWorker.terminate(); } catch (e) {} botWorker = null; clearTimeout(botWorkerPending.timer); botWorkerPending.resolve(null); botWorkerPending = null; }   // 이전 판의 낡은 작업이 남아 있으면 Worker를 새로 만든다
+                const w = botWorkerEnsure(); if (!w) { resolve(null); return; }
+                const id = ++botWorkerSeq, snap = botSnapshot();
+                snap.futureAttack = !!futureAttack; snap.aug.mines = (snap.aug.mines || []).filter(x => x.owner === owner);   // 봇은 자기가 묻은 지뢰만 안다
+                const timer = setTimeout(() => botWorkerFail('시간 초과'), opts.timeMs * 2 + 4000);
+                botWorkerPending = { id, resolve, timer };
+                try { w.postMessage({ id, snap, owner, seen: [...BOT.seen], opts: Object.assign({ keepTT: true }, opts) }); } catch (e) { botWorkerFail(e); }
+            });
+        }
+        function botResolveMove(r, legal) { legal = legal || game.moves({ withUnder: true }); return r ? (legal.find(x => x.from === r.from && x.to === r.to && !!x.under === !!r.under && !!x.promotion === !!r.promotion) || null) : null; }
+        // 봇 아이콘: 이모지 대신 뇌 SVG (아이콘 문자열이 BOT_ICON이면 SVG로 그린다)
+        const BOT_ICON = '__brain__';
+        const BRAIN_SVG = '<svg class="brain-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></svg>';
+        function setIconEl(el, icon) { if (icon === BOT_ICON) el.innerHTML = BRAIN_SVG; else el.textContent = icon; }
+        function botThinkUI(on) {
+            let el = document.getElementById('bot-thinking');
+            if (!el) { el = document.createElement('div'); el.id = 'bot-thinking'; el.style.cssText = 'position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 78px);transform:translateX(-50%);z-index:90;padding:7px 16px;border-radius:999px;background:rgba(30,30,40,.92);border:1px solid #4a4a6a;color:#fff;font-size:.85rem;font-weight:700;pointer-events:none;display:none;box-shadow:0 4px 14px rgba(0,0,0,.4);white-space:nowrap'; document.body.appendChild(el); }
+            if (on) { el.textContent = '생각중…'; el.style.display = 'block'; } else el.style.display = 'none';
+        }
+        // 증강 단계를 여는 수: Worker가 모든 후보의 정확한 점수를 구하면, 최선과 가까운 후보마다 '사람이 받을 증강의 기대 피해'를 따져 고른다 (후보마다 화면에 숨 쉴 틈을 준다)
+        async function botAugAwareChooseAsync(res, botC, humanC, still) {
+            const legal = game.moves({ withUnder: true }), best = botResolveMove(res.move, legal), all = [];
+            for (const [f, t, u, pr, v] of (res.scores || [])) { const m = botResolveMove({ from: f, to: t, under: u, promotion: pr }, legal); if (m) all.push([m, v]); }
+            if (all.length < 2) return best;
+            const top = Math.max(...all.map(x => x[1])); if (Math.abs(top) > BOT_MATE - 500) return best;
+            const list = all.filter(([, v]) => Math.abs(v) < BOT_MATE - 500 && v >= top - 110).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            if (list.length < 2) return best;
+            const per = Math.floor(2400 / list.length); let pick = null, pickAdj = -1e9;
+            for (const [m, v] of list) {
+                await new Promise(r => setTimeout(r, 0)); if (!still()) return null;
+                let risk = null, expo = 0;
+                botMasterScope(botC, () => {
+                    botSyncMines();
+                    try { risk = botAugRiskAfterMove(m, botC, humanC, per); } catch (e) { risk = null; }
+                    try { expo = botStaticExposure(m, botC, humanC); } catch (e) {}
+                });
+                const adj = risk === null ? v - Math.min(30, expo) : v + 0.8 * risk - Math.min(12, expo * 0.5);
+                if (adj > pickAdj || (adj === pickAdj && v > (pick ? pick[1] : -1e9))) { pickAdj = adj; pick = [m, v]; }
+            }
+            return pick ? pick[0] : best;
+        }
+        async function selectMasterBotMoveAsync(still) {
+            const book = botBookMove(); if (book) return book;
+            const botC = myColor === 'w' ? 'b' : 'w', humanC = myColor, augOpen = isBotMode && (moveCount + 1) % AUGMENT_INTERVAL === 0;
+            const res = await botWorkerSearch({ timeMs: augOpen ? 4500 : BOT_MASTER_MS, maxDepth: 40, stopFrac: 0.6, exact: augOpen }, botC);
+            if (!res || !res.move) return selectMasterBotMove();   // Worker 불가: 예전 방식(메인 스레드)
+            let m = botResolveMove(res.move);
+            if (augOpen && res.scores && still()) { try { m = (await botAugAwareChooseAsync(res, botC, humanC, still)) || m; } catch (e) {} }
+            return m;
+        }
+        function botMasterTurn() {
+            if (botThinking) return;
+            botThinking = true; botThinkUI(true);
+            const key = botHash(game), botC = myColor === 'w' ? 'b' : 'w';
+            const same = () => isBotMode && isGameStarted && !game.game_over() && game.turn() === botC && botHash(game) === key;
+            const fin = () => { botThinking = false; botThinkUI(false); };
+            const commit = m => {
+                if (!isBotMode || !isGameStarted || game.game_over()) return;
+                if (replayActive) { setTimeout(() => commit(m), 400); return; }
+                if (!same()) { if (isBotMode && isGameStarted && !game.game_over() && game.turn() === botC) setTimeout(makeBotMove, 300); return; }   // 생각하는 사이 판이 바뀌었다면 다시 생각한다
+                if (!botMoveIsLegal(m)) { m = selectTopBotMove(); if (!botMoveIsLegal(m)) { const ms = game.moves(); m = ms[Math.floor(Math.random() * ms.length)]; } }
+                if (m) executeMoveLocal(m.from, m.to, m.promotion ? 'q' : null, !!m.under);
+            };
+            selectMasterBotMoveAsync(same).then(m => { fin(); commit(m); }).catch(e => { fin(); try { console.warn(e); } catch (x) {} let m = null; try { m = selectTopBotMove(); } catch (x) {} commit(m); });
+        }
+        function selectMasterBotMove() {
+            const book = botBookMove(); if (book) return book;
+            const botC = myColor === 'w' ? 'b' : 'w'; let m = null;
+            try {
+                m = botMasterScope(botC, () => {
+                    let r = null;
+                    if (isBotMode && (moveCount + 1) % AUGMENT_INTERVAL === 0) { try { r = botFindMoveAugAware(); } catch (e) { r = null; } }
+                    return r || botFindMove({ timeMs: 2000, maxDepth: 40, stopFrac: 0.6 });
+                });
+            } catch (e) { m = null; }
+            return botMoveIsLegal(m) ? m : selectTopBotMove();
         }
 
         // 운명공동체 후보: 킹·벽·무적·이미 연결된 기물을 제외한 적 기물
@@ -10967,6 +11869,35 @@
             try { S._turn = color; mine = S.moves().length; S._turn = enemy; theirs = S.moves().length; } finally { S._turn = keep; }
             return (mine - theirs) * 2;
         }
+        // 업!: 풍선 기물이 올라서서 4수 뒤 깔아 버릴 수 있는 적 기물을 찾는다. 상대가 비켜날 수 있으면 가치가 작고, 갇혀 있으면(핀·막힘) 사실상 확정 파괴다.
+        function botBalloonInfo(color, enemy, sq) {
+            const out = { v: 0, crush: [] }, p = game.get(sq); if (!p || p.type === 'k' || p.type === 'wall') return out;
+            const had = balloons[p.uid] > 0; if (!had) balloons[p.uid] = 4;
+            const sv = game._turn;
+            try {
+                const S = cloneGameState(game); S._turn = color;
+                const ms = S.moves().filter(m => m.from === sq && !m.under);
+                for (const m of ms) {
+                    const tp = S.get(m.to); if (!tp || tp.type === 'wall' || tp.type === 'k' || tp.color === color || balloons[tp.uid] > 0) continue;
+                    const S1 = cloneGameState(S); let u1 = null, esc = 9;
+                    try { u1 = botMake(S1, m); S1._turn = enemy; esc = S1.moves({ square: m.to, under: true }).length; } catch (e) {} finally { if (u1) { try { botBalloonRevert(S1, u1); } catch (e) {} } }
+                    const val = BOT_VAL[tp.type] || 0, f = esc === 0 ? 0.85 : esc <= 2 ? 0.3 : 0.1;
+                    out.crush.push({ to: m.to, type: tp.type, esc, v: Math.round(val * f) });
+                }
+                out.crush.sort((a, b) => b.v - a.v); out.v = out.crush.length ? Math.min(700, out.crush[0].v) : 0;
+            } catch (e) {} finally { game._turn = sv; if (!had) delete balloons[p.uid]; }
+            return out;
+        }
+        // 판 평가에 안 잡히는 증강 가치 (남은 증강 단계가 많을수록 큰 메타 증강). 초반일수록 오래 쓰인다.
+        function botMetaEarly() { let n = 0; game.board().forEach(r => r.forEach(q => { if (q && q.type !== 'wall') n++; })); return Math.max(0, Math.min(1, (n - 10) / 22)); }
+        function botAugBonus(aug, color, enemy) {
+            const base = BOT_AUG_BONUS[aug.name] || 0;
+            try {
+                if (aug.name === '시간 도둑') { const lv = (augTimeCut && augTimeCut[enemy]) || 0; return Math.round(50 + 45 * lv + 170 * botMetaEarly()); }   // 8초까지 줄이는 2단계가 더 아프다
+                if (aug.name === '법정 대리인') return Math.round(30 + 60 * botMetaEarly());   // 나머지는 '대신 고르는' 기대 이득(위험 계산)으로 반영된다
+            } catch (e) {}
+            return base;
+        }
         function botSimAugment(aug, color, enemy, target, depth) {
             const snap = botSnapshot(), ubv = updateBoardVisuals; updateBoardVisuals = () => {};
             try {
@@ -10977,19 +11908,37 @@
                 const S = cloneGameState(game), turn = S._turn;
                 if (S.moves().length === 0) return S.in_check(turn) ? (turn === color ? -BOT_MATE : BOT_MATE) : 0;
                 BOT.noise = 0; botSyncMines(); BOT.tt.clear(); BOT.killers = []; BOT.hist = {}; BOT.path = new Set(); BOT.nodes = 0; BOT.abort = false; BOT.deadline = Date.now() + 1500;
-                const v = botSearch(S, depth, -BOT_MATE - 1, BOT_MATE + 1, 0), sc = BOT.abort ? botEvaluate(S) : v;
+                const v = botSearch(S, aug.name === '업!' ? Math.max(depth, depth >= 2 ? 4 : 2) : depth, -BOT_MATE - 1, BOT_MATE + 1, 0), sc = BOT.abort ? botEvaluate(S) : v;
                 let extra = 0;
                 if (aug.name === '지뢰 찾기' && res.mineSq) extra = botMineValue(S, res.mineSq, color, enemy);
                 else if (aug.name === '차원 장벽' && target) extra = botWallValue(S, color, enemy);
+                else if (aug.name === '업!' && typeof target === 'string') extra = botBalloonInfo(color, enemy, target).v;
                 return (turn === color ? sc : -sc) + extra;
             } catch (e) { return null; }
             finally { floatLog = null; updateBoardVisuals = ubv; botRestore(snap); }
         }
 
-        function botProxyPick(opts, casterC, chooserC) {   // 법정 대리인: 선택지를 하나씩 가상으로 써 보고 쓰는 쪽(사람)에게 가장 덜 이로운 증강을 고른다
-            let worst = null, wv = Infinity;
-            opts.forEach(a => { const v = botSimAugment(a, casterC, chooserC, null, 0); if (v !== null && v < wv) { wv = v; worst = a; } });
-            return worst ? { aug: worst, target: null } : null;
+        function botProxyPick(opts, casterC, chooserC) {   // 법정 대리인: 쓰는 쪽(사람)에게 가장 덜 이로운 증강을 고르고, 대상·자리도 사람에게 가장 덜 이로운 곳으로 정한다
+            const t0 = Date.now(), per = Math.max(250, Math.floor((BOT.master ? 2600 : 1800) / Math.max(1, opts.length)));
+            let worst = null, wv = Infinity, wt = null;
+            for (const a of opts) {
+                const tS = Date.now(), over = () => Date.now() - tS > per; let v = null, tg = null;
+                if (a.target) {
+                    let cands = []; try { cands = a.target.valid(casterC, chooserC) || []; } catch (e) {}
+                    if (!cands.length) cands = [null];
+                    if (cands.length > (BOT.master ? 32 : 24)) cands = shuffle(cands).slice(0, BOT.master ? 32 : 24);
+                    const first = [];
+                    for (const t of cands) { if (over() && first.length) break; const sc = botSimAugment(a, casterC, chooserC, t, 1); if (sc !== null) first.push({ t, sc }); }
+                    first.sort((x, y) => x.sc - y.sc);   // 사람 기준 점수가 낮을수록 사람에게 불리하다
+                    for (const x of first.slice(0, BOT.master ? 4 : 3)) { const sc = over() ? x.sc : botSimAugment(a, casterC, chooserC, x.t, BOT.master ? 3 : 2); if (sc !== null && (v === null || sc < v)) { v = sc; tg = x.t; } }
+                } else {
+                    let sum = 0, n = 0; for (let i = 0; i < (BOT.master ? 5 : 3) && !(over() && n); i++) { const sc = botSimAugment(a, casterC, chooserC, null, BOT.master ? 3 : 2); if (sc !== null) { sum += sc; n++; } }
+                    if (n) v = sum / n;
+                }
+                if (v !== null) v += botAugBonus(a, casterC, chooserC) * 0.5;   // 사람에게 장기 효과가 큰 증강(시간 도둑 등)은 덜 주고 싶다
+                if (v !== null && v < wv) { wv = v; worst = a; wt = tg; }
+            }
+            return worst ? { aug: worst, target: wt } : null;
         }
         // ---- 상급 봇: 증강 위험 계산 ----
         // 증강 단계는 7수마다 열린다. 사람이 받을 증강 선택지는 가중치대로 무작위로 뽑히고, 사람은 그중 봇에게 가장 아픈 걸 고를 수 있다.
@@ -11004,7 +11953,7 @@
             return botClampV(S._turn === botC ? sc : -sc);
         }
         // 지금 판에서 humanC가 받을 증강의 기대 피해(봇 기준, cp). 음수일수록 위험. 증강별 피해는 한 번씩만 계산하고 선택지 추첨은 숫자 놀이로 반복한다.
-        function botHumanAugRisk(botC, humanC, budgetMs) {
+        function botHumanAugRisk(botC, humanC, budgetMs, proxy) {
             const t0 = Date.now(), over = () => Date.now() - t0 > budgetMs;
             const base = botStaticValue(botC);
             let elig = []; try { elig = AUGMENT_POOL.filter(a => { try { return a.condition(humanC, botC); } catch (e) { return false; } }); } catch (e) {}
@@ -11029,7 +11978,8 @@
                 const set = weightedSample(elig, k, humanC).filter(a => vals.has(a));
                 if (!set.length) { tot += base; continue; }
                 const vs = set.map(a => vals.get(a)), mn = Math.min(...vs), mean = vs.reduce((x, y) => x + y, 0) / vs.length;
-                tot += 0.65 * mn + 0.35 * mean;   // 사람이 늘 최선을 고르진 않으므로 최선 65% + 평균 35%
+                if (proxy) { const mx = Math.max(...vs); tot += 0.85 * mx + 0.15 * mean; }   // 법정 대리인: 선택지 중 봇에게 가장 덜 아픈 것을 봇이 고른다
+                else tot += 0.65 * mn + 0.35 * mean;   // 사람이 늘 최선을 고르진 않으므로 최선 65% + 평균 35%
             }
             return Math.max(-400, Math.min(100, tot / R - base));
         }
@@ -11041,7 +11991,7 @@
             finally { botRestore(snap); botSyncMines(); mines = hidden; }
         }
         // 봇이 증강(대상 target)을 쓴 직후 사람의 증강 기대 피해
-        function botAugRiskAfterAug(aug, color, enemy, target, budgetMs, custom) {
+        function botAugRiskAfterAug(aug, color, enemy, target, budgetMs, custom, proxy) {
             const snap = botSnapshot(), ubv = updateBoardVisuals; updateBoardVisuals = () => {};
             const hidden = mines; mines = mines.filter(x => x.owner === color);
             try {
@@ -11049,7 +11999,7 @@
                 settleBoard({ fx: false, poison: true, sanitize: true });
                 (res.promos || []).forEach(sq => { const p = game.get(sq); if (p && p.type === 'p') { game.remove(sq); game.put({ ...p, type: 'q' }, sq); } });
                 if (game.moves().length === 0) return 0;
-                return botHumanAugRisk(color, enemy, budgetMs);
+                return botHumanAugRisk(color, enemy, budgetMs, !!proxy);
             } catch (e) { return null; }
             finally { floatLog = null; updateBoardVisuals = ubv; botRestore(snap); botSyncMines(); mines = hidden; }
         }
@@ -11070,14 +12020,14 @@
             const botC = myColor === 'w' ? 'b' : 'w', humanC = myColor;
             const snap0 = botSnapshot();
             try {
-                const best = botFindMove({ timeMs: 1000, maxDepth: 14, exact: true });   // 모든 후보의 정확한 점수
+                const M = !!BOT.master, best = botFindMove(M ? { timeMs: 1400, maxDepth: 40, exact: true, stopFrac: 0.5 } : { timeMs: 1000, maxDepth: 14, exact: true });   // 모든 후보의 정확한 점수
                 if (!best || !best.__scores) return best;
                 const all = [...best.__scores.entries()]; if (all.length < 2) return best;
                 const top = Math.max(...all.map(([, v]) => v));
                 if (Math.abs(top) > BOT_MATE - 500) return best;   // 메이트가 걸린 국면은 정석대로
-                const list = all.filter(([, v]) => Math.abs(v) < BOT_MATE - 500 && v >= top - 90).sort((a, b) => b[1] - a[1]).slice(0, 4);   // 최선과 90cp 이내인 상위 4수만 비교
+                const list = all.filter(([, v]) => Math.abs(v) < BOT_MATE - 500 && v >= top - (M ? 110 : 90)).sort((a, b) => b[1] - a[1]).slice(0, M ? 5 : 4);   // 최선과 90cp(마스터 110cp) 이내인 상위 4수(마스터 5수)만 비교
                 if (list.length < 2) return best;
-                const per = Math.floor(1200 / list.length); let pick = null, pickAdj = -1e9;
+                const per = Math.floor((M ? 1800 : 1200) / list.length); let pick = null, pickAdj = -1e9;
                 for (const [m, v] of list) {
                     botSyncMines();
                     let risk = null; try { risk = botAugRiskAfterMove(m, botC, humanC, per); } catch (e) { risk = null; }
@@ -11094,7 +12044,7 @@
             try { return botPlanAugmentInner(options, color, enemy); } finally { mines = hiddenMines; }
         }
         function botPlanAugmentInner(options, color, enemy) {
-            const t0 = Date.now(), over = () => Date.now() - t0 > 1600, results = [];
+            const t0 = Date.now(), over = () => Date.now() - t0 > (BOT.master ? 2400 : 1600), results = [];
             for (const aug of options) {
                 let best = { score: -1e9, target: null };
                 if (aug.target) {   // 놓을 자리가 필요한 증강: 후보를 얕게 훑은 뒤 상위 몇 곳을 더 깊이 본다
@@ -11104,18 +12054,18 @@
                     const first = [];
                     for (const t of cands) { if (over() && first.length) break; const sc = botSimAugment(aug, color, enemy, t, 1); if (sc !== null) first.push({ t, sc }); }
                     first.sort((a, b) => b.sc - a.sc);
-                    for (const x of first.slice(0, 4)) { const sc = over() ? x.sc : botSimAugment(aug, color, enemy, x.t, 2); if (sc !== null && sc > best.score) best = { score: sc, target: x.t }; }
+                    for (const x of first.slice(0, BOT.master ? 6 : 4)) { const sc = over() ? x.sc : botSimAugment(aug, color, enemy, x.t, BOT.master ? 3 : 2); if (sc !== null && sc > best.score) best = { score: sc, target: x.t }; }
                 } else {   // 무작위 요소가 있는 증강은 여러 번 시험해 평균을 본다
                     let sum = 0, n = 0;
-                    for (let i = 0; i < 4 && !(over() && n); i++) { const sc = botSimAugment(aug, color, enemy, null, 2); if (sc !== null) { sum += sc; n++; } }
+                    for (let i = 0; i < (BOT.master ? 6 : 4) && !(over() && n); i++) { const sc = botSimAugment(aug, color, enemy, null, BOT.master ? 3 : 2); if (sc !== null) { sum += sc; n++; } }
                     if (n) best = { score: sum / n, target: null };
                 }
-                if (best.score > -1e9) { best.score += BOT_AUG_BONUS[aug.name] || 0; results.push({ aug, target: best.target, score: best.score }); }
+                if (best.score > -1e9) { best.score += botAugBonus(aug, color, enemy); results.push({ aug, target: best.target, score: best.score }); }
             }
             if (!results.length) return { aug: options[Math.floor(Math.random() * options.length)], target: null };
             if (pendingAugments.length > 0 && pendingAugments[0] === enemy) {   // 내 증강 직후 사람의 증강이 온다: 어떤 증강을 쓰면 판이 덜 위험한지도 따진다
-                const per = Math.min(450, Math.floor(1500 / results.length)), risks = [];
-                results.forEach(r => { let rk = null; try { rk = botAugRiskAfterAug(r.aug, color, enemy, r.target, per); } catch (e) { rk = null; } r.rk = rk; if (rk !== null) risks.push(rk); });
+                const per = BOT.master ? Math.min(600, Math.floor(2000 / results.length)) : Math.min(450, Math.floor(1500 / results.length)), risks = [];
+                results.forEach(r => { let rk = null; try { rk = botAugRiskAfterAug(r.aug, color, enemy, r.target, per, null, r.aug.name === '법정 대리인'); } catch (e) { rk = null; } r.rk = rk; if (rk !== null) risks.push(rk); });
                 if (risks.length) { const avg = risks.reduce((x, y) => x + y, 0) / risks.length; results.forEach(r => { r.score += 0.6 * (r.rk === null ? avg : r.rk); }); }
             }
             const top = Math.max(...results.map(r => r.score)), pool = results.filter(r => r.score >= top - 3);
@@ -11184,11 +12134,11 @@
                     if (botOptions.length === 0) { processNextAugmentPhase(); return; }
                     augOfferedNow = { color: playerColor, names: botOptions.map(o => o.name) };
                     renderOpponentPreviewCards(buildAugmentPreviewPayload(botOptions), playerColor, overlay);
-                    const t0 = Date.now(), smart = botDifficulty === '상', gs = gameEpoch;
+                    const t0 = Date.now(), master = false, smart = botDifficulty === '상', gs = gameEpoch;
                     setTimeout(() => { if (gs !== gameEpoch) return;   // 화면이 그려진 뒤 생각한다: 상급은 증강과 놓을 자리를 시뮬레이션으로 고르고, 나머지는 무작위
                         let plan = null;
-                        if (chooser !== playerColor) { if (smart) { try { plan = botProxyPick(botOptions, playerColor, enemyColor); } catch (e) { plan = null; } } }   // 봇이 사람의 증강을 대신 고른다: 사람에게 가장 덜 이로운 것
-                        else if (smart) { try { plan = botPlanAugment(botOptions, playerColor, enemyColor); } catch (e) { plan = null; } }
+                        if (chooser !== playerColor) { if (smart || botDifficulty === '중') { try { plan = botAugScope(master, () => botProxyPick(botOptions, playerColor, enemyColor)); } catch (e) { plan = null; } } }   // 봇이 사람의 증강을 대신 고른다: 사람에게 가장 덜 이로운 것
+                        else if (smart) { try { plan = botAugScope(master, () => botPlanAugment(botOptions, playerColor, enemyColor)); } catch (e) { plan = null; } }
                         if (!plan) plan = { aug: botOptions[Math.floor(Math.random() * botOptions.length)], target: null };
                         const think = (smart ? 1700 : 1100) + Math.random() * 800, wait = Math.max(500, think - (Date.now() - t0)), idx = Math.max(0, botOptions.indexOf(plan.aug));
                         setTimeout(() => { if (gs !== gameEpoch) return;
@@ -11637,11 +12587,17 @@
             showToast('남아 있던 증강 효과를 모두 해제했어요', 'var(--primary)', 1400);
         }
         // 상태 줄: 차례 · 시점 · 암전 등을 칩으로 보여 주고 눌러서 바로 바꾼다
+        const PT_SV = d => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+        const PT_SWAP = '<svg class="ico sw" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4L3 8l4 4"/><path d="M3 8h13"/><path d="M17 20l4-4-4-4"/><path d="M21 16H8"/></svg>';
+        const PT_EYE = PT_SV('<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>');
+        const PT_FOG = PT_SV('<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>');
+        const PT_WARN = PT_SV('<path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>');
+        const PT_X = PT_SV('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>');
         function practiceStatus() {
             const box = $p('pt-status'); if (!box || !isPracticeMode) return;
             const turn = game.turn(), pov = practicePov(), bo = blackout;
             ['w', 'b'].forEach(c => {   // 새로 암전이 걸렸는데 내가 그 시점이 아니면 안내
-                if (bo[c] > (practiceBoPrev[c] || 0) && c !== pov && !practiceOmni) showToast(`💡 ${SIDE_KO[c]} 암전 — 상태 줄의 암전 칩을 누르면 ${SIDE_KO[c]} 시점으로 볼 수 있어요`, 'var(--primary)', 3200);
+                if (bo[c] > (practiceBoPrev[c] || 0) && c !== pov && !practiceOmni) showToast(`${SIDE_KO[c]} 암전 — 상태 줄의 암전 칩을 누르면 ${SIDE_KO[c]} 시점으로 볼 수 있어요`, 'var(--primary)', 3200);
             });
             practiceBoPrev = { w: bo.w, b: bo.b };
             const cond = practiceCondition(); if (!cond || cond === 'check') practiceEndKey = '';
@@ -11649,21 +12605,21 @@
             if (box.dataset.sig === sig) return; box.dataset.sig = sig;
             box.innerHTML = '';
             const chip = (cls, html, title, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'pt-chip ' + cls; b.innerHTML = html; if (title) b.title = title; b.onclick = fn; box.appendChild(b); return b; };
-            chip('', `<i class="${turn}"></i>${SIDE_KO[turn]} 차례 ⇄`, '눌러서 차례 바꾸기', practiceTurnToggle);
-            chip('', `👁 ${SIDE_KO[pov]} 시점 ⇄`, '눌러서 시점 전환', practiceFlip);
+            chip('', `<i class="${turn}"></i>${SIDE_KO[turn]} 차례${PT_SWAP}`, '눌러서 차례 바꾸기', practiceTurnToggle);
+            chip('', `${PT_EYE}${SIDE_KO[pov]} 시점${PT_SWAP}`, '눌러서 시점 전환', practiceFlip);
             ['w', 'b'].forEach(c => {
                 if (!(bo[c] > 0)) return;
-                const ch = chip('fog', `💡 ${SIDE_KO[c]} 암전 ${bo[c]}`, `${SIDE_KO[c]} 시점으로 보기`, () => practiceSetPov(c));
-                const x = document.createElement('span'); x.className = 'x'; x.textContent = '✕'; x.title = '암전 해제';
+                const ch = chip('fog', `${PT_FOG}${SIDE_KO[c]} 암전 ${bo[c]}`, `${SIDE_KO[c]} 시점으로 보기`, () => practiceSetPov(c));
+                const x = document.createElement('span'); x.className = 'x'; x.innerHTML = PT_X; x.title = '암전 해제';
                 x.onclick = ev => { ev.stopPropagation(); practiceClearBlackout(c); }; ch.appendChild(x);
             });
-            if (cond === 'check') chip('mate', `⚠️ ${SIDE_KO[turn]} 체크`, '킹이 공격받고 있어요', () => {});
-            else if (cond === 'mate') chip('mate', `♚ 체크메이트 · ${SIDE_KO[turn === 'w' ? 'b' : 'w']} 승`, '더 둘 수 있는 수가 없어요 — 되돌리기로 이어갈 수 있어요', () => {});
-            else if (cond === 'stale') chip('mate', '🤝 스테일메이트', '체크는 아니지만 둘 수 있는 수가 없어요', () => {});
-            else if (cond === 'nokingw' || cond === 'nokingb') chip('mate', `👑 ${cond === 'nokingw' ? '백' : '흑'} 킹 없음`, '킹이 없으면 체크·메이트 판정이 되지 않아요', () => {});
+            if (cond === 'check') chip('mate', `${PT_WARN}${SIDE_KO[turn]} 체크`, '킹이 공격받고 있어요', () => {});
+            else if (cond === 'mate') chip('mate', `${PT_WARN}체크메이트 · ${SIDE_KO[turn === 'w' ? 'b' : 'w']} 승`, '더 둘 수 있는 수가 없어요 — 되돌리기로 이어갈 수 있어요', () => {});
+            else if (cond === 'stale') chip('mate', PT_WARN + '스테일메이트', '체크는 아니지만 둘 수 있는 수가 없어요', () => {});
+            else if (cond === 'nokingw' || cond === 'nokingb') chip('mate', `${PT_WARN}${cond === 'nokingw' ? '백' : '흑'} 킹 없음`, '킹이 없으면 체크·메이트 판정이 되지 않아요', () => {});
             if (practiceOmni) chip('on', '전지적 시점', '암전을 무시하고 전부 보는 중 — 눌러서 끄기', () => { practiceOmni = false; practiceSavePrefs(); updateFog(); drawDots(); practiceStatus(); });
             const sp = document.createElement('span'); sp.className = 'pt-sp'; box.appendChild(sp);
-            chip('exit', '✕', '연습 모드 나가기', () => { document.getElementById('btn-menu-leave').click(); });
+            chip('exit', PT_X, '연습 모드 나가기', () => { document.getElementById('btn-menu-leave').click(); });
         }
         // ---- 증강 사용 창: 시전 쪽 · 분류 · 검색 · 최근 사용 ----
         function practiceAugOpen() {
@@ -11830,6 +12786,7 @@
         // ---- 체크 / 체크메이트 / 스테일메이트 알림 (연습 모드는 끝나지 않지만 상황은 그대로 알려 준다) ----
         function practiceBoardSig() { try { return game.board().map(r => r.map(p => p ? p.color + p.type : '.').join('')).join('/'); } catch (e) { return ''; } }
         function practiceAnnounce(resultType, reason) {
+            if (isPuzzleMode) return;   // 퍼즐은 자체 판정을 쓴다
             if (practiceEditing) return;   // 배치 편집 중에는 알리지 않는다 (상태 줄 칩으로만 표시)
             const key = reason + '|' + game.turn() + '|' + practiceBoardSig(); if (key === practiceEndKey) return; practiceEndKey = key;
             const loser = game.turn(), winner = loser === 'w' ? 'b' : 'w';
