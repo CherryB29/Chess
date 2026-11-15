@@ -1108,8 +1108,12 @@
         #pz-title small { font-size: .6rem; letter-spacing: 2px; color: #8d8d9b; font-weight: 700; }
         #pz-title b { font-size: 1.4rem; line-height: 1; font-variant-numeric: tabular-nums; }
         #pz-title .pz-name { font-size: .74rem; font-weight: 600; color: #8d8d9b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        #pz-sub { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; font-size: .72rem; font-weight: 700; color: #8d8d9b; }
-        #pz-sub .ico { width: 14px; height: 14px; color: var(--danger); }
+        #pz-answer { margin-left: auto; flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 14px 0 11px; border-radius: 999px; border: 1px solid var(--panel-border); background: var(--input-bg); color: var(--text-color); font-size: .76rem; font-weight: 700; cursor: pointer; white-space: nowrap; touch-action: manipulation; -webkit-tap-highlight-color: transparent; transition: transform .12s, border-color .15s, background-color .15s, color .15s; }
+        #pz-answer .ico { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        #pz-answer:not(:disabled):hover { border-color: color-mix(in srgb, var(--primary) 50%, var(--panel-border)); color: var(--primary); }
+        #pz-answer:not(:disabled):active { transform: scale(.96); }
+        #pz-answer.playing { background: color-mix(in srgb, var(--primary) 16%, transparent); border-color: var(--primary); color: var(--primary); }
+        #pz-answer:disabled { opacity: .4; cursor: default; }
         #pz-meter { display: flex; gap: 6px; }
         .pz-stat { flex: 1; display: flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--input-bg); color: var(--text-color); font-size: .76rem; font-weight: 700; }
         .pz-stat .ico { width: 16px; height: 16px; color: var(--primary); }
@@ -1185,6 +1189,86 @@
         #pz-tutorial-next { border-color: var(--primary) !important; background: var(--primary) !important; color: #fff !important; }
         @keyframes pzTutorialFloat { from { opacity: 0; transform: translateY(7px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         @media (prefers-reduced-motion: reduce) { #pz-tutorial-card, #pz-tutorial-spot { animation: none; transition: none; } }
+        /* 스테이지 1 코치: 누를 곳을 강조하고, 안내 카드를 위에 띄운다 (화면은 그대로 눌러진다) */
+        #pz-coach { position: fixed; inset: 0; z-index: 615; display: none; pointer-events: none; }
+        #pz-coach-spot { position: fixed; border: 2px solid #ffd166; border-radius: 14px; box-shadow: 0 0 0 9999px rgba(7,8,14,.5), 0 0 22px rgba(255,209,102,.75); pointer-events: none; animation: pzCoachPulse 1.5s ease-in-out infinite; transition: top .22s ease, left .22s ease, width .22s ease, height .22s ease; }
+        #pz-coach-card { position: fixed; width: min(300px, calc(100vw - 32px)); box-sizing: border-box; padding: 13px 15px; border: 1px solid rgba(255,209,102,.55); border-radius: 16px; background: var(--panel-bg); color: var(--text-color); box-shadow: 0 14px 38px rgba(0,0,0,.5); pointer-events: none; animation: pzTutorialFloat .35s ease both, pzCoachBob 2.4s ease-in-out .35s infinite; }
+        #pz-coach-card b { display: block; margin: 0 0 5px; color: #ffd166; font-size: .9rem; }
+        #pz-coach-card p { margin: 0; font-size: .82rem; line-height: 1.5; }
+        #pz-coach-card p em { font-style: normal; font-weight: 800; color: #ffd166; }
+        @keyframes pzCoachBob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
+        @keyframes pzCoachPulse { 0%, 100% { border-color: #ffd166; } 50% { border-color: #fff3c4; box-shadow: 0 0 0 9999px rgba(7,8,14,.5), 0 0 34px rgba(255,209,102,1); } }
+        @media (prefers-reduced-motion: reduce) { #pz-coach-card, #pz-coach-spot { animation: none; transition: none; } }
+        /* 결과: 스테이지 컨셉 제목 + 시간/실패 기록 */
+        #pz-done-concept { margin: -2px 0 10px; text-align: center; font-size: .84rem; font-weight: 700; color: #ffd166; letter-spacing: .02em; }
+        #pz-done-stats { display: flex; gap: 8px; margin: 0 0 16px; }
+        #pz-done-stats:empty { display: none; }
+        .pz-st { flex: 1 1 0; min-width: 0; padding: 9px 4px 8px; border-radius: 12px; border: 1px solid var(--panel-border); background: rgba(128,128,128,.1); text-align: center; }
+        .pz-st span { display: block; margin-bottom: 3px; font-size: .64rem; font-weight: 700; color: #8d8d9b; }
+        .pz-st b { display: block; font-size: 1rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .pz-st.bad b { color: var(--danger); }
+        /* ===== 스테이지 목록 v2 ===== */
+        #puzzle-stages .pz-box { padding: 20px 16px 14px; }
+        #pzs-head { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+        #puzzle-stages h2 { margin: 0; font-size: 1.25rem; }
+        #pzs-sub { flex: 0 0 auto; margin: 0; padding: 4px 11px; border-radius: 999px; background: rgba(46,204,113,.14); border: 1px solid rgba(46,204,113,.35); color: #2ecc71; font-size: .76rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+        #pzs-bar { flex: 0 0 auto; height: 6px; margin: 0 0 12px; border-radius: 6px; }
+        #pzs-bar i { border-radius: 6px; background: linear-gradient(90deg, var(--primary), #ffd166); }
+        #pzs-next { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; width: 100%; box-sizing: border-box; margin: 0 0 12px; padding: 10px 12px 10px 15px; text-align: left; font-family: inherit; color: var(--text-color); cursor: pointer; border-radius: 14px; border: 1px solid rgba(243,156,18,.55); background: linear-gradient(135deg, rgba(243,156,18,.22), rgba(255,209,102,.06)); -webkit-tap-highlight-color: transparent; transition: transform .12s, filter .15s; }
+        #pzs-next:active { transform: scale(.985); }
+        #pzs-next:hover { filter: brightness(1.08); }
+        #pzs-next .tx { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+        #pzs-next .k { font-size: .62rem; font-weight: 800; letter-spacing: .1em; color: #ffd166; }
+        #pzs-next .v { font-size: .92rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #pzs-next .v b { margin-right: 7px; color: #ffd166; font-weight: 800; }
+        #pzs-next .go { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--primary); color: #fff; box-shadow: 0 3px 10px rgba(243,156,18,.35); }
+        #pzs-next .go svg { width: 14px; height: 14px; fill: currentColor; margin-left: 2px; }
+        #pzs-next.all, #pzs-next:disabled { cursor: default; filter: none; transform: none; border-color: rgba(46,204,113,.5); background: rgba(46,204,113,.1); }
+        #pzs-next.all .v { color: #2ecc71; }
+        #pzs-grid { gap: 7px; padding: 3px 6px 24px 3px; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(150,150,170,.45) transparent;
+            -webkit-mask-image: linear-gradient(#000 calc(100% - 22px), transparent); mask-image: linear-gradient(#000 calc(100% - 22px), transparent); }
+        @supports not (scrollbar-width: thin) {
+            #pzs-grid::-webkit-scrollbar { width: 6px; }
+            #pzs-grid::-webkit-scrollbar-track { background: transparent; }
+            #pzs-grid::-webkit-scrollbar-thumb { background: rgba(150,150,170,.45); border-radius: 6px; }
+            #pzs-grid::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+        }
+        .pzs-cell { gap: 5px; border-radius: 12px; background: linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.012)), var(--input-bg); }
+        .pzs-cell:hover { border-color: rgba(243,156,18,.5); }
+        .pzs-cell .n { font-size: 1.15rem; }
+        .pzs-cell.done { border-color: rgba(46,204,113,.45); background: linear-gradient(160deg, rgba(46,204,113,.2), rgba(46,204,113,.05)), var(--input-bg); }
+        .pzs-cell.next { border-color: var(--primary); background: linear-gradient(160deg, rgba(243,156,18,.24), rgba(243,156,18,.06)), var(--input-bg); box-shadow: 0 0 0 2px rgba(243,156,18,.2); }
+        .pzs-cell.next .n { color: #ffd166; }
+        #pzs-close { flex: 0 0 auto; margin-top: 8px !important; }
+        /* ===== 스테이지 말풍선 ===== */
+        .pzs-cell.sel { border-color: #ffd166; box-shadow: 0 0 0 2px rgba(255,209,102,.35); transform: scale(1.04); z-index: 1; }
+        .pzs-cell.locked .n { color: #77778a; }
+        #pzs-pop-bg { position: fixed; inset: 0; z-index: 1; display: none; }
+        #pzs-pop { position: fixed; z-index: 2; display: none; box-sizing: border-box; padding: 14px 14px 13px; text-align: left; color: var(--text-color); background: var(--panel-bg); border: 1px solid rgba(255,209,102,.5); border-radius: 18px; box-shadow: 0 18px 44px rgba(0,0,0,.55); }
+        #pzs-pop.pop-in { animation: pzPopIn .2s cubic-bezier(.2,1.1,.4,1) both; }
+        @keyframes pzPopIn { from { opacity: 0; transform: scale(.88); } to { opacity: 1; transform: scale(1); } }
+        .pzp-arrow { position: absolute; width: 14px; height: 14px; margin-left: -7px; background: var(--panel-bg); border: 1px solid rgba(255,209,102,.5); transform: rotate(45deg); display: none; }
+        #pzs-pop[data-dir="up"] .pzp-arrow { display: block; top: -8px; border-right: 0; border-bottom: 0; border-radius: 3px 0 0 0; }
+        #pzs-pop[data-dir="down"] .pzp-arrow { display: block; bottom: -8px; border-left: 0; border-top: 0; border-radius: 0 0 3px 0; }
+        .pzp-head { display: flex; flex-direction: column; gap: 2px; margin-bottom: 11px; }
+        .pzp-no { display: flex; align-items: center; gap: 7px; font-size: .64rem; font-weight: 800; letter-spacing: .12em; color: #ffd166; }
+        .pzp-no em { font-style: normal; padding: 1px 7px; border-radius: 999px; letter-spacing: 0; font-size: .62rem; color: #2ecc71; background: rgba(46,204,113,.14); border: 1px solid rgba(46,204,113,.4); }
+        .pzp-ti { font-size: 1.08rem; line-height: 1.25; word-break: keep-all; }
+        .pzp-row { display: flex; justify-content: center; }
+        .pzp-board { flex: 0 0 auto; width: min(100%, 230px); aspect-ratio: 1 / 1; box-sizing: border-box; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); grid-template-rows: repeat(8, minmax(0, 1fr)); border-radius: 8px; overflow: hidden; pointer-events: none; box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 6px 16px rgba(0,0,0,.4); }
+        .pzp-board .square { min-width: 0; min-height: 0; overflow: hidden; cursor: default; transition: none; }
+        .pzp-board .pc { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+        .pzp-board .pc svg { width: 92%; height: 92%; display: block; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.45)); }
+        .pzp-lim { display: flex; justify-content: center; gap: 14px; margin: 11px 0 12px; font-size: .72rem; font-weight: 700; color: #a4a4b2; }
+        .pzp-lim span { display: inline-flex; align-items: center; gap: 4px; }
+        .pzp-lim .ico { width: 13px; height: 13px; color: var(--primary); }
+        #pzp-go { display: block; width: 100%; min-height: 44px; border: 0; border-radius: 12px; background: var(--primary); color: #fff; font: inherit; font-size: .95rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px rgba(243,156,18,.35); -webkit-tap-highlight-color: transparent; transition: transform .12s, filter .15s; }
+        #pzp-go:hover { filter: brightness(1.08); } #pzp-go:active { transform: scale(.98); }
+        .pzp-lock { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 6px 2px; text-align: center; }
+        .pzp-lock svg { width: 30px; height: 30px; fill: none; stroke: #9a9aa8; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+        .pzp-lock b { font-size: .98rem; }
+        .pzp-lock p { margin: 0; font-size: .8rem; line-height: 1.45; color: #a4a4b2; word-break: keep-all; }
+        @media (prefers-reduced-motion: reduce) { #pzs-pop.pop-in { animation: none; } .pzs-cell.sel { transform: none; } }
         /* 결과 */
         #pz-done-ic { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 50%; border: 2px solid currentColor; }
         #pz-done-ic .ico { width: 28px; height: 28px; stroke-width: 2.4; }
@@ -2127,7 +2211,7 @@
     <div id="chat-spacer"></div>
     <div id="game-controls">
         <div id="puzzle-tools">
-            <div id="pz-head"><div id="pz-title"></div><div id="pz-sub"></div></div>
+            <div id="pz-head"><div id="pz-title"></div><button type="button" id="pz-answer"></button></div>
             <div id="pz-meter"></div>
             <button type="button" id="pz-pick"></button>
             <div id="pz-cards"></div>
@@ -2611,7 +2695,9 @@
         <div class="lobby-box pz-done-box">
             <div id="pz-done-ic"></div>
             <h2 id="pz-done-title"></h2>
+            <div id="pz-done-concept"></div>
             <p id="pz-done-desc"></p>
+            <div id="pz-done-stats"></div>
             <button id="btn-pz-next" class="lobby-btn" style="margin-bottom: 8px;">다음 스테이지</button>
             <button id="btn-pz-undo" class="lobby-btn" style="margin-bottom: 8px; display: none;">한 수 되돌리기</button>
             <button id="btn-pz-again" class="lobby-btn secondary" style="margin-bottom: 8px;">다시 풀어보기</button>
@@ -2621,12 +2707,14 @@
 
     <div id="puzzle-stages" class="overlay" style="z-index: 355;">
         <div class="lobby-box pz-box">
-            <h2>퍼즐 스테이지</h2>
-            <p id="pzs-sub"></p>
+            <div id="pzs-head"><h2>퍼즐 스테이지</h2><span id="pzs-sub"></span></div>
             <div id="pzs-bar"><i></i></div>
+            <button type="button" id="pzs-next"></button>
             <div id="pzs-grid"></div>
             <button id="pzs-close" class="lobby-btn secondary" style="margin-top: 14px;">닫기</button>
         </div>
+        <div id="pzs-pop-bg"></div>
+        <div id="pzs-pop" role="dialog" aria-modal="false"><div class="pzp-arrow"></div><div id="pzs-pop-body"></div></div>
     </div>
 
     <div id="pz-tutorial" aria-hidden="true">
@@ -2640,6 +2728,11 @@
                 <button type="button" id="pz-tutorial-next">다음</button>
             </div>
         </section>
+    </div>
+
+    <div id="pz-coach" aria-hidden="true">
+        <div id="pz-coach-spot"></div>
+        <div id="pz-coach-card" role="status"><b id="pz-coach-title"></b><p id="pz-coach-text"></p></div>
     </div>
 
     <script type="module">
@@ -9526,51 +9619,111 @@
             if (whiteKings !== 1 || blackKings !== 1) throw new Error('각 퍼즐에는 백·흑 킹이 하나씩 있어야 합니다.');
             return board.map(row => { let out = '', empty = 0; row.forEach(piece => { if (!piece) { empty++; return; } if (empty) { out += empty; empty = 0; } out += piece; }); if (empty) out += empty; return out; }).join('/');
         };
-        const PZ_STAGE_IDS = [301,302,303,304,305,306,307,308,309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,340];
+        const PZ_STAGE_IDS = [371,373,311,383,377,394,387,372,393,395,374,304,390,397,375,332,403,409,327,333,335,386,408,379,380,378,399,376,400,381,384,391,326,328,336,307,406,334,398,382,385,305,322,308,329,396,301,302,303,309,323,324,325,392,388,407,402,405,318,314,404,312,306,401,315,310,319,320,317,321,313,316,389,339,337,330,331,338,340];
         const PZ_STAGE_DATA = [
-            { fen: pzFen([['e7','K'],['e1','R'],['a1','k'],['g5','p'],['c1','n'],['h4','b'],['h7','N'],['g7','P'],['c6','N'],['d4','r']]), cards: ['마인드 컨트롤','암살','파도','나이트 클럽'], augs: 2, moves: 1 }, // 정답: [마인드 컨트롤] [암살] e1a1
-            { fen: pzFen([['g6','K'],['b8','B'],['c8','R'],['b7','k'],['c1','N'],['h1','n'],['c5','p'],['e5','N'],['c3','N'],['d4','b']]), cards: ['신의 심판','파도','암살','나이트 클럽'], augs: 2, moves: 1 }, // 정답: [신의 심판@b8] [파도] c8b8
-            { fen: pzFen([['c6','K'],['c3','B'],['b3','R'],['g3','k'],['d3','p'],['e7','P'],['f8','b'],['g7','P'],['h5','b'],['h4','p']]), cards: ['신의 심판','파도','암살','나이트 클럽'], augs: 2, moves: 1 }, // 정답: [신의 심판@c3] [암살] b3g3
-            { fen: pzFen([['f6','K'],['c6','R'],['f4','B'],['h8','k'],['h6','b'],['e2','N'],['b2','p'],['a7','N'],['a2','P']]), cards: ['덩굴','암살','파도','나이트 클럽'], augs: 2, moves: 1 }, // 정답: c6c8 [덩굴] [파도]
-            { fen: pzFen([['g6','K'],['e6','R'],['e2','k'],['h6','p'],['e5','n'],['a1','n'],['d1','n'],['h8','N'],['g8','b']]), cards: ['신성한 폭발','암살','차원 장벽','파도'], augs: 2, moves: 1 }, // 정답: [신성한 폭발] [암살] e6e2
-            { fen: pzFen([['c5','K'],['b8','R'],['a4','k'],['g2','b'],['b4','b'],['f3','P'],['d4','p'],['e5','P'],['f7','p']]), cards: ['연계 분쇄','암살','나이트 클럽','차원 장벽'], augs: 2, moves: 1 }, // 정답: [연계 분쇄] b8a8 [차원 장벽@b3]
-            { fen: pzFen([['g6','K'],['d6','R'],['h6','P'],['h2','P'],['e7','k'],['h7','b'],['b5','n'],['d7','N']]), cards: ['진군 명령','암살','차원 장벽','파도'], augs: 2, moves: 1 }, // 정답: [암살] [진군 명령=q] h8f8
-            { fen: pzFen([['a4','K'],['b3','B'],['e4','R'],['b8','k'],['f7','n'],['g5','n'],['e7','P'],['c2','r'],['c8','N'],['b5','N']]), cards: ['신의 심판','파도','암살','나이트 클럽'], augs: 1, moves: 2 }, // 정답: [신의 심판@b3] e4b4 b4b8
-            { fen: pzFen([['a1','K'],['f8','R'],['b8','k'],['e8','r'],['g6','b'],['b3','n'],['e3','N'],['d4','N'],['a4','N'],['e7','P']]), cards: ['연계 분쇄','암살','나이트 클럽','차원 장벽'], augs: 2, moves: 1 }, // 정답: [연계 분쇄] [암살] f8b8
-            { fen: pzFen([['d8','K'],['d6','R'],['f5','B'],['f8','k'],['a6','p'],['e4','p'],['a1','n'],['b5','r'],['c4','n'],['d3','P']]), cards: ['나이트 클럽','차원 장벽','연계 분쇄','암살'], augs: 2, moves: 1 }, // 정답: f5e6 [나이트 클럽] [차원 장벽@g8]
-            { fen: pzFen([['b6','K'],['d8','R'],['g7','k'],['f7','p'],['d2','N'],['c5','p'],['g5','b'],['e5','b'],['g3','P']]), cards: ['파도','차원 장벽','암살','신의 심판'], augs: 2, moves: 1 }, // 정답: [파도] [암살] d8g8
-            { fen: pzFen([['c8','K'],['h2','R'],['h1','B'],['h7','k'],['a4','n'],['f6','n'],['h4','p'],['e6','p'],['g7','b']]), cards: ['여신의 가호','신의 심판','차원 장벽','파도'], augs: 2, moves: 1 }, // 정답: [여신의 가호] [신의 심판@h1] h2h7
-            { fen: pzFen([['d7','K'],['e2','P'],['h2','P'],['g7','k'],['h3','p'],['f1','r'],['f3','N'],['c4','b'],['d5','P'],['g3','P']]), cards: ['앙파상+','진군 명령','차원 장벽','암살'], augs: 2, moves: 1 }, // 정답: [앙파상+] [진군 명령] h6g7
-            { fen: pzFen([['d2','K'],['a3','R'],['f7','k'],['e6','p'],['f6','p'],['g2','n'],['h6','p'],['c2','P'],['g5','p'],['f4','N']]), cards: ['파도','차원 장벽','암살','신의 심판'], augs: 2, moves: 1 }, // 정답: a3a8 [파도] [차원 장벽@g7]
-            { fen: pzFen([['f4','K'],['d5','R'],['f1','k'],['c6','p'],['c5','r'],['d8','N'],['b3','p'],['e3','n'],['c1','b']]), cards: ['차원 장벽','운명의 수레바퀴','파도','암살'], augs: 2, moves: 1 }, // 정답: [차원 장벽@e1] [운명의 수레바퀴] d5d1
-            { fen: pzFen([['b4','K'],['h1','R'],['f4','P'],['g7','P'],['e7','k'],['b2','p'],['d5','b'],['e5','N'],['b1','n'],['g2','N']]), cards: ['앙파상+','차원 장벽','파도','암살'], augs: 2, moves: 1 }, // 정답: [차원 장벽@f5] [앙파상+] f6e7
-            { fen: pzFen([['d6','K'],['e3','R'],['a4','B'],['c8','k'],['e6','p'],['g8','n'],['f7','N'],['h4','N'],['f5','P'],['b3','N']]), cards: ['신성한 폭발','연계 분쇄','차원 장벽','파도'], augs: 2, moves: 1 }, // 정답: [신성한 폭발] e3e8 [차원 장벽@b7]
-            { fen: pzFen([['c7','K'],['g6','R'],['d4','B'],['a4','k'],['g5','p'],['b2','n'],['g7','P'],['f3','p'],['b5','P'],['d1','b']]), cards: ['연계 분쇄','파도','차원 장벽','암살'], augs: 2, moves: 1 }, // 정답: c7b6 [파도] [연계 분쇄]
-            { fen: pzFen([['b3','K'],['c1','R'],['a6','k'],['e3','n'],['c8','b'],['d6','p'],['g4','N'],['h3','p'],['e4','n'],['e2','P']]), cards: ['차원 장벽','운명의 수레바퀴','파도','암살'], augs: 2, moves: 1 }, // 정답: [차원 장벽@b1] [운명의 수레바퀴] a1a7
-            { fen: pzFen([['h2','K'],['c8','R'],['e7','B'],['e6','k'],['c6','p'],['h3','n'],['e1','N'],['a3','n'],['d5','r'],['h8','n']]), cards: ['운명의 수레바퀴','나이트 클럽','차원 장벽','파도'], augs: 2, moves: 1 }, // 정답: [운명의 수레바퀴] [나이트 클럽] d8e6
-            { fen: pzFen([['h6','K'],['e6','P'],['d3','P'],['a6','k'],['d8','n'],['g3','p'],['b7','b'],['h4','p'],['e5','N'],['a4','r']]), cards: ['진군 명령','앙파상+','차원 장벽','파도'], augs: 2, moves: 1 }, // 정답: [진군 명령=q] e8a4 [차원 장벽@b6]
-            { fen: pzFen([['e8','K'],['f6','P'],['g5','P'],['e5','k'],['h7','p'],['f2','b'],['c5','p'],['e2','N'],['a7','p']]), cards: ['진군 명령','앙파상+','차원 장벽','파도'], augs: 2, moves: 1 }, // 정답: [진군 명령=n] [파도] f8e6
-            { fen: pzFen([['e1','K'],['f2','R'],['d1','B'],['e7','k'],['a3','n'],['e6','p'],['h7','P'],['c4','N'],['d2','r'],['g5','n']]), cards: ['운명의 수레바퀴','파도','차원 장벽','암살'], augs: 2, moves: 1 }, // 정답: [파도] [운명의 수레바퀴] f2f8
-            { fen: pzFen([['b8','K'],['h7','R'],['e5','B'],['d2','k'],['g3','p'],['c6','p'],['d7','N'],['e6','P'],['e2','r'],['c2','p']]), cards: ['파도','나이트 클럽','차원 장벽','암살'], augs: 2, moves: 1 }, // 정답: [파도] [나이트 클럽] e5d3
-            { fen: pzFen([['c8','K'],['h4','R'],['f4','B'],['d3','k'],['e3','p'],['a3','N'],['h2','p'],['c5','b'],['g6','P'],['g4','N']]), cards: ['운명의 수레바퀴','암살','차원 장벽','파도'], augs: 2, moves: 1 }, // 정답: [운명의 수레바퀴] [암살] h3d3
-            { fen: pzFen([['d8','K'],['a7','N'],['a3','B'],['g1','k'],['a5','p'],['c8','r'],['e7','N'],['e4','r'],['b7','P'],['g5','p']]), cards: ['신성한 폭발','차원 장벽','파도'], augs: 1, moves: 2 }, // 정답: [신성한 폭발] a3c5 c5g1
-            { fen: pzFen([['a2','K'],['e2','R'],['h6','P'],['h7','P'],['g5','k'],['d2','p'],['e6','n'],['c5','b'],['f7','P'],['h5','b']]), cards: ['앙파상+','파도','차원 장벽','암살'], augs: 2, moves: 1 }, // 정답: [앙파상+=n] [파도] h8g6
-            { fen: pzFen([['a6','K'],['b5','R'],['b2','P'],['e5','P'],['g1','k'],['h6','p'],['f6','n'],['f8','b'],['b7','n'],['g7','b']]), cards: ['진군 명령','차원 장벽','파도'], augs: 1, moves: 2 }, // 정답: [진군 명령] b5g5 g5g1
-            { fen: pzFen([['c4','K'],['f6','R'],['g1','k'],['h6','r'],['a8','b'],['a5','n'],['b3','P'],['f5','N'],['b7','P'],['b2','p']]), cards: ['연계 분쇄','암살','나이트 클럽','차원 장벽'], augs: 1, moves: 2 }, // 정답: [연계 분쇄] f6g6 g6g1
-            { fen: pzFen([['b8','K'],['e5','R'],['c6','B'],['e2','k'],['h2','p'],['g2','n'],['e4','p'],['f6','p'],['c3','P'],['d1','b']]), cards: ['업!','나이트 클럽','차원 장벽','파도'], augs: 2, moves: 1 }, // 정답: [업!@e5] e5e2 [나이트 클럽]
-            { fen: pzFen([['c3','K'],['c8','R'],['a3','B'],['a1','k'],['d7','n'],['e2','p'],['e3','n'],['c2','p'],['g5','b'],['b7','N']]), cards: ['업!','암살','차원 장벽','파도'], augs: 2, moves: 1 }, // 정답: c8a8 [업!@a3] [차원 장벽@b1]
-            { fen: pzFen([['b7','K'],['c3','R'],['b4','B'],['d1','k'],['g2','n'],['c6','N'],['a3','N'],['a5','b'],['e5','p'],['h2','p']]), cards: ['업!','암살','차원 장벽','파도'], augs: 2, moves: 1 }, // 정답: [업!@c3] [파도] b4d2
-            { fen: pzFen([['a8','K'],['e3','N'],['f4','B'],['h7','k'],['a3','p'],['c6','p'],['a5','b'],['f3','P'],['d4','p']]), cards: ['파도','차원 장벽','암살'], augs: 1, moves: 2 }, // 정답: f4e5 [파도] e5h8
-            { fen: pzFen([['b1','K'],['g7','R'],['g5','P'],['f7','P'],['g3','k'],['a2','n'],['g8','b'],['h1','b'],['e2','P'],['h2','n']]), cards: ['앙파상+','차원 장벽','파도'], augs: 1, moves: 2 }, // 정답: g7g6 [앙파상+] g6g3
-            { fen: pzFen([['d2','K'],['d4','N'],['f3','B'],['g8','k'],['f7','p'],['a5','n'],['e5','r'],['h4','p'],['a4','p']]), cards: ['암살','차원 장벽','파도'], augs: 1, moves: 2 }, // 정답: f3d5 [암살] d5g8
-            { fen: pzFen([['e6','K'],['g8','N'],['e4','B'],['b8','k'],['a3','p'],['e1','n'],['a8','r'],['c3','P'],['g6','N'],['g4','P']]), cards: ['나이트 클럽','차원 장벽','파도'], augs: 1, moves: 2 }, // 정답: e4c6 [나이트 클럽] c6b8
-            { fen: pzFen([['h7','K'],['d2','R'],['b8','k'],['f3','p'],['c4','n'],['d5','b'],['d1','n']]), cards: ['차원 장벽','운명의 수레바퀴','나이트 클럽','암살'], augs: 3, moves: 1 }, // 정답: [차원 장벽@c8] [운명의 수레바퀴] [암살] d2d8
-            { fen: pzFen([['d8','K'],['b6','R'],['a2','k'],['d4','p'],['c3','n'],['f5','b'],['h4','n']]), cards: ['차원 장벽','운명의 수레바퀴','나이트 클럽','암살'], augs: 3, moves: 1 }, // 정답: [차원 장벽@a3] [운명의 수레바퀴] [나이트 클럽] b6a4
-            { fen: pzFen([['b6','K'],['c6','R'],['g8','k'],['h4','p'],['g6','n'],['h1','b']]), cards: ['차원 장벽','운명의 수레바퀴','파도','암살'], augs: 3, moves: 1 }, // 정답: [운명의 수레바퀴] [차원 장벽@g8] [파도] c6h6
-            { fen: pzFen([['f5','K'],['g2','R'],['b1','k'],['b3','n'],['b2','b'],['a1','n'],['f3','N']]), cards: ['차원 장벽','운명의 수레바퀴','나이트 클럽','암살'], augs: 3, moves: 1 } // 정답: g2c2 [운명의 수레바퀴] [차원 장벽@b1] [나이트 클럽]
+            { fen: pzFen([['h5','k'],['e2','K'],['a5','R'],['f5','n'],['b6','p']]), cards: ['암살'], augs: 1, moves: 1, hints: ['룩(a5)이 h5의 킹을 노리고 있는데, f5의 나이트가 길을 막고 있어요. 「증강 고르기」를 눌러 [암살]을 발동해 보세요! (카드는 한 번 눌러 선택, 한 번 더 눌러 발동)', '암살이 가장 약한 흑 기물 2개(폰과 나이트)를 없앴어요! 이제 룩(a5)으로 흑 킹(h5)을 잡으세요.'], sol: '[암살] a5h5' }, // 정답: [암살] a5h5
+            { fen: pzFen([['a5','k'],['f5','K'],['b6','R'],['a6','p'],['e6','p']]), cards: ['파도'], augs: 1, moves: 1, sol: '[파도] b6a6' }, // 정답: [파도] b6a6
+            { fen: pzFen([['b6','K'],['d8','R'],['g7','k'],['f7','p'],['d2','N'],['c5','p'],['g5','b'],['e5','b'],['g3','P']]), cards: ['파도','차원 장벽','암살','신의 심판'], augs: 2, moves: 1, sol: '[파도] [암살] d8g8' }, // 정답: [파도] [암살] d8g8
+            { fen: pzFen([['a6','k'],['e5','K'],['h7','R'],['f3','N'],['h6','b'],['e6','n'],['f1','r'],['f4','p'],['g1','b']]), cards: ['앙파상+','나이트 클럽','암살','파도'], augs: 2, moves: 1, sol: '[암살] [파도] h7a7' }, // 정답: [암살] [파도] h7a7
+            { fen: pzFen([['a6','k'],['e8','K'],['h8','R'],['d3','n'],['f2','p'],['h7','b']]), cards: ['암살','진군 명령'], augs: 1, moves: 2, sol: '[암살] h8h6 h6a6' }, // 정답: [암살] h8h6 h6a6
+            { fen: pzFen([['a5','k'],['a1','K'],['g7','R'],['a2','B'],['c5','r'],['d6','p'],['d7','r'],['e2','p']]), cards: ['파도','진군 명령','업!','신의 심판'], augs: 1, moves: 2, sol: '[파도] a2c4 c4a6' }, // 정답: [파도] a2c4 c4a6
+            { fen: pzFen([['h1','k'],['a8','K'],['c3','R'],['d3','p'],['b3','n'],['e7','p'],['c2','n'],['b5','b'],['d4','b'],['f2','n']]), cards: ['차원 장벽','암살','신성한 폭발'], augs: 1, moves: 2, sol: '[암살] c3h3 h3h1' }, // 정답: [암살] c3h3 h3h1
+            { fen: pzFen([['c3','k'],['f7','K'],['a2','R'],['b4','p'],['h6','r']]), cards: ['나이트 클럽'], augs: 1, moves: 1, sol: '[나이트 클럽] a2c3' }, // 정답: [나이트 클럽] a2c3
+            { fen: pzFen([['g1','k'],['a3','K'],['c7','R'],['f7','B'],['b2','b'],['g3','p'],['f3','b'],['g5','p'],['h8','n'],['c1','n'],['b3','n']]), cards: ['차원 장벽','진군 명령','파도'], augs: 1, moves: 2, sol: '[파도] c7c2 c2g2' }, // 정답: [파도] c7c2 c2g2
+            { fen: pzFen([['h2','k'],['b4','K'],['c8','R'],['e3','N'],['c3','n'],['e2','n'],['f4','b'],['d6','p'],['c4','r'],['g4','p']]), cards: ['진군 명령','나이트 클럽','파도','차원 장벽'], augs: 1, moves: 2, sol: '[파도] c8h8 h8h3' }, // 정답: [파도] c8h8 h8h3
+            { fen: pzFen([['a1','k'],['c8','K'],['h1','R'],['c1','r'],['g2','p']]), cards: ['연계 분쇄','나이트 클럽'], augs: 1, moves: 1, sol: '[연계 분쇄] h1a1' }, // 정답: [연계 분쇄] h1a1
+            { fen: pzFen([['f6','K'],['c6','R'],['f4','B'],['h8','k'],['h6','b'],['e2','N'],['b2','p'],['a7','N'],['a2','P']]), cards: ['덩굴','암살','파도','나이트 클럽'], augs: 2, moves: 1, sol: 'c6c8 [덩굴] [파도]' }, // 정답: c6c8 [덩굴] [파도]
+            { fen: pzFen([['a3','k'],['d3','K'],['b1','R'],['b5','B'],['d4','P'],['a7','P'],['d2','b'],['e3','n'],['h4','n'],['b7','p'],['h7','b'],['a2','b']]), cards: ['앙파상+','신의 심판','업!','암살'], augs: 1, moves: 2, sol: '[암살] b1b3 b3a3' }, // 정답: [암살] b1b3 b3a3
+            { fen: pzFen([['a8','k'],['d7','K'],['g3','R'],['e5','B'],['h6','R'],['b4','B'],['d6','p'],['d3','p'],['e3','p'],['e8','r'],['f1','b'],['c4','b']]), cards: ['암살','나이트 클럽','진군 명령','앙파상+'], augs: 1, moves: 2, sol: '[암살] h6a6 a6a8' }, // 정답: [암살] h6a6 a6a8
+            { fen: pzFen([['h7','k'],['c5','K'],['d3','R'],['g4','P'],['g3','p'],['a7','p'],['h8','r']]), cards: ['암살','진군 명령'], augs: 1, moves: 1, sol: '[진군 명령] g6h7' }, // 정답: [진군 명령] g6h7
+            { fen: pzFen([['b7','K'],['c3','R'],['b4','B'],['d1','k'],['g2','n'],['c6','N'],['a3','N'],['a5','b'],['e5','p'],['h2','p']]), cards: ['업!','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: '[업!@c3] [파도] b4d2' }, // 정답: [업!@c3] [파도] b4d2
+            { fen: pzFen([['a2','k'],['f2','K'],['f8','R'],['g3','P'],['d4','n'],['g8','n'],['a6','n'],['b7','b']]), cards: ['앙파상+','캐슬링+'], augs: 1, moves: 2, sol: '[캐슬링+] g3a3 a3a2' }, // 정답: [캐슬링+] g3a3 a3a2
+            { fen: pzFen([['h2','k'],['d6','K'],['c6','R'],['c5','P'],['c3','N'],['f4','p'],['g3','b'],['b6','b']]), cards: ['캐슬링+','업!'], augs: 1, moves: 2, sol: '[캐슬링+] c5h5 h5h2' }, // 정답: [캐슬링+] c5h5 h5h2
+            { fen: pzFen([['a2','K'],['e2','R'],['h6','P'],['h7','P'],['g5','k'],['d2','p'],['e6','n'],['c5','b'],['f7','P'],['h5','b']]), cards: ['앙파상+','파도','차원 장벽','암살'], augs: 2, moves: 1, sol: '[앙파상+=n] [파도] h8g6' }, // 정답: [앙파상+=n] [파도] h8g6
+            { fen: pzFen([['a8','K'],['e3','N'],['f4','B'],['h7','k'],['a3','p'],['c6','p'],['a5','b'],['f3','P'],['d4','p']]), cards: ['파도','차원 장벽','암살'], augs: 1, moves: 2, sol: 'f4e5 [파도] e5h8' }, // 정답: f4e5 [파도] e5h8
+            { fen: pzFen([['d2','K'],['d4','N'],['f3','B'],['g8','k'],['f7','p'],['a5','n'],['e5','r'],['h4','p'],['a4','p']]), cards: ['암살','차원 장벽','파도'], augs: 1, moves: 2, sol: 'f3d5 [암살] d5g8' }, // 정답: f3d5 [암살] d5g8
+            { fen: pzFen([['h1','k'],['e1','K'],['a4','R'],['d4','P'],['a5','n'],['c2','b'],['d5','b'],['g4','b'],['e7','b'],['f7','p']]), cards: ['차원 장벽','신의 심판','앙파상+','파도'], augs: 1, moves: 2, sol: 'a4a2 [파도] a2h2' }, // 정답: a4a2 [파도] a2h2
+            { fen: pzFen([['h8','k'],['h5','K'],['c3','R'],['c5','R'],['g6','b'],['c7','r'],['d4','b']]), cards: ['연계 분쇄','공성전','진군 명령'], augs: 1, moves: 2, sol: '[공성전] h5g6 c5c8' }, // 정답: [공성전] h5g6 c5c8
+            { fen: pzFen([['a5','k'],['e7','K'],['c7','R'],['c6','b']]), cards: ['파도','나이트 클럽'], augs: 2, moves: 1, sol: '[파도] [나이트 클럽] c7a6' }, // 정답: [파도] [나이트 클럽] c7a6
+            { fen: pzFen([['h4','k'],['c6','K'],['g7','R'],['d3','p']]), cards: ['나이트 클럽','파도'], augs: 2, moves: 1, sol: '[나이트 클럽] [파도] g7h5' }, // 정답: [나이트 클럽] [파도] g7h5
+            { fen: pzFen([['a2','k'],['a6','K'],['c7','R'],['h3','n'],['b7','b']]), cards: ['연계 분쇄','진군 명령'], augs: 1, moves: 2, sol: '[연계 분쇄] c7c2 c2a2' }, // 정답: [연계 분쇄] c7c2 c2a2
+            { fen: pzFen([['h5','k'],['f3','K'],['g1','R'],['f4','b'],['h3','r']]), cards: ['그림자 교체','진군 명령'], augs: 1, moves: 2, sol: '[그림자 교체] f3h3 h3h5' }, // 정답: [그림자 교체] f3h3 h3h5
+            { fen: pzFen([['a5','k'],['d2','K'],['f1','R'],['d5','N'],['d1','n'],['c5','b'],['a7','p']]), cards: ['나이트 클럽','신성한 폭발'], augs: 1, moves: 2, sol: '[신성한 폭발] f1a1 a1a5' }, // 정답: [신성한 폭발] f1a1 a1a5
+            { fen: pzFen([['a4','k'],['e6','K'],['f6','R'],['e3','p'],['f7','p'],['b5','n'],['b4','n'],['d1','r']]), cards: ['그림자 교체','진군 명령'], augs: 1, moves: 2, sol: '[그림자 교체] e6a6 a6a4' }, // 정답: [그림자 교체] e6a6 a6a4
+            { fen: pzFen([['e2','k'],['g3','K'],['g4','R'],['d6','b'],['h1','b'],['a2','b'],['c5','r']]), cards: ['나이트 클럽','운명의 수레바퀴','진군 명령','앙파상+'], augs: 1, moves: 2, sol: 'g4f4 [나이트 클럽] f4e2' }, // 정답: g4f4 [나이트 클럽] f4e2
+            { fen: pzFen([['a3','k'],['d2','K'],['b8','R'],['a7','P'],['e3','p'],['f6','p'],['f7','b'],['h6','r'],['a8','n']]), cards: ['진군 명령','나이트 클럽','신성한 폭발'], augs: 1, moves: 2, sol: '[신성한 폭발] b8b3 b3a3' }, // 정답: [신성한 폭발] b8b3 b3a3
+            { fen: pzFen([['d3','k'],['h4','K'],['a6','R'],['h5','B'],['b7','B'],['a4','r'],['f4','r'],['b2','r'],['h7','p']]), cards: ['진군 명령','업!','연계 분쇄'], augs: 1, moves: 2, sol: '[연계 분쇄] b7e4 e4d3' }, // 정답: [연계 분쇄] b7e4 e4d3
+            { fen: pzFen([['d8','K'],['a7','N'],['a3','B'],['g1','k'],['a5','p'],['c8','r'],['e7','N'],['e4','r'],['b7','P'],['g5','p']]), cards: ['신성한 폭발','차원 장벽','파도'], augs: 1, moves: 2, sol: '[신성한 폭발] a3c5 c5g1' }, // 정답: [신성한 폭발] a3c5 c5g1
+            { fen: pzFen([['a6','K'],['b5','R'],['b2','P'],['e5','P'],['g1','k'],['h6','p'],['f6','n'],['f8','b'],['b7','n'],['g7','b']]), cards: ['진군 명령','차원 장벽','파도'], augs: 1, moves: 2, sol: '[진군 명령] b5g5 g5g1' }, // 정답: [진군 명령] b5g5 g5g1
+            { fen: pzFen([['e6','K'],['g8','N'],['e4','B'],['b8','k'],['a3','p'],['e1','n'],['a8','r'],['c3','P'],['g6','N'],['g4','P']]), cards: ['나이트 클럽','차원 장벽','파도'], augs: 1, moves: 2, sol: 'e4c6 [나이트 클럽] c6b8' }, // 정답: e4c6 [나이트 클럽] c6b8
+            { fen: pzFen([['g6','K'],['d6','R'],['h6','P'],['h2','P'],['e7','k'],['h7','b'],['b5','n'],['d7','N']]), cards: ['진군 명령','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: '[암살] [진군 명령=q] h8f8' }, // 정답: [암살] [진군 명령=q] h8f8
+            { fen: pzFen([['d3','k'],['f7','K'],['a6','R'],['a7','N'],['c3','p'],['g6','b'],['f3','n'],['f1','n']]), cards: ['업!','파도','마인드 컨트롤','연계 분쇄'], augs: 2, moves: 1, sol: '[마인드 컨트롤] [파도] c3d4' }, // 정답: [마인드 컨트롤] [파도] c3d4
+            { fen: pzFen([['b1','K'],['g7','R'],['g5','P'],['f7','P'],['g3','k'],['a2','n'],['g8','b'],['h1','b'],['e2','P'],['h2','n']]), cards: ['앙파상+','차원 장벽','파도'], augs: 1, moves: 2, sol: 'g7g6 [앙파상+] g6g3' }, // 정답: g7g6 [앙파상+] g6g3
+            { fen: pzFen([['h1','k'],['d4','K'],['g3','R'],['h4','P'],['h2','n'],['a6','r'],['f3','p'],['a4','n'],['b6','b'],['c3','b'],['a2','n']]), cards: ['차원 장벽','연계 분쇄','업!'], augs: 1, moves: 2, sol: '[연계 분쇄] g3g1 g1h1' }, // 정답: [연계 분쇄] g3g1 g1h1
+            { fen: pzFen([['g5','k'],['g3','K'],['h4','R'],['h5','n'],['c1','b'],['f4','p'],['b4','p'],['f5','r'],['b6','n']]), cards: ['진군 명령','신성한 폭발','차원 장벽','운명의 수레바퀴'], augs: 1, moves: 2, sol: '[신성한 폭발] h4h5 h5g5' }, // 정답: [신성한 폭발] h4h5 h5g5
+            { fen: pzFen([['a4','k'],['d3','K'],['e3','R'],['g3','b'],['h7','p'],['a8','n'],['c1','b'],['g8','n'],['e2','b']]), cards: ['신성한 폭발','운명의 수레바퀴','차원 장벽','앙파상+'], augs: 1, moves: 2, sol: '[신성한 폭발] e3e4 e4a4' }, // 정답: [신성한 폭발] e3e4 e4a4
+            { fen: pzFen([['g6','K'],['e6','R'],['e2','k'],['h6','p'],['e5','n'],['a1','n'],['d1','n'],['h8','N'],['g8','b']]), cards: ['신성한 폭발','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: '[신성한 폭발] [암살] e6e2' }, // 정답: [신성한 폭발] [암살] e6e2
+            { fen: pzFen([['e8','K'],['f6','P'],['g5','P'],['e5','k'],['h7','p'],['f2','b'],['c5','p'],['e2','N'],['a7','p']]), cards: ['진군 명령','앙파상+','차원 장벽','파도'], augs: 2, moves: 1, sol: '[진군 명령=n] [파도] f8e6' }, // 정답: [진군 명령=n] [파도] f8e6
+            { fen: pzFen([['a4','K'],['b3','B'],['e4','R'],['b8','k'],['f7','n'],['g5','n'],['e7','P'],['c2','r'],['c8','N'],['b5','N']]), cards: ['신의 심판','파도','암살','나이트 클럽'], augs: 1, moves: 2, sol: '[신의 심판@b3] e4b4 b4b8' }, // 정답: [신의 심판@b3] e4b4 b4b8
+            { fen: pzFen([['c4','K'],['f6','R'],['g1','k'],['h6','r'],['a8','b'],['a5','n'],['b3','P'],['f5','N'],['b7','P'],['b2','p']]), cards: ['연계 분쇄','암살','나이트 클럽','차원 장벽'], augs: 1, moves: 2, sol: '[연계 분쇄] f6g6 g6g1' }, // 정답: [연계 분쇄] f6g6 g6g1
+            { fen: pzFen([['h6','k'],['g4','K'],['h3','R'],['f4','P'],['f2','B'],['b8','B'],['h4','b'],['h5','b'],['g8','r'],['b3','b']]), cards: ['연계 분쇄','진군 명령','차원 장벽','업!'], augs: 1, moves: 2, sol: '[연계 분쇄] h3h4 h4h6' }, // 정답: [연계 분쇄] h3h4 h4h6
+            { fen: pzFen([['e7','K'],['e1','R'],['a1','k'],['g5','p'],['c1','n'],['h4','b'],['h7','N'],['g7','P'],['c6','N'],['d4','r']]), cards: ['마인드 컨트롤','암살','파도','나이트 클럽'], augs: 2, moves: 1, sol: '[마인드 컨트롤] [암살] e1a1' }, // 정답: [마인드 컨트롤] [암살] e1a1
+            { fen: pzFen([['g6','K'],['b8','B'],['c8','R'],['b7','k'],['c1','N'],['h1','n'],['c5','p'],['e5','N'],['c3','N'],['d4','b']]), cards: ['신의 심판','파도','암살','나이트 클럽'], augs: 2, moves: 1, sol: '[신의 심판@b8] [파도] c8b8' }, // 정답: [신의 심판@b8] [파도] c8b8
+            { fen: pzFen([['c6','K'],['c3','B'],['b3','R'],['g3','k'],['d3','p'],['e7','P'],['f8','b'],['g7','P'],['h5','b'],['h4','p']]), cards: ['신의 심판','파도','암살','나이트 클럽'], augs: 2, moves: 1, sol: '[신의 심판@c3] [암살] b3g3' }, // 정답: [신의 심판@c3] [암살] b3g3
+            { fen: pzFen([['a1','K'],['f8','R'],['b8','k'],['e8','r'],['g6','b'],['b3','n'],['e3','N'],['d4','N'],['a4','N'],['e7','P']]), cards: ['연계 분쇄','암살','나이트 클럽','차원 장벽'], augs: 2, moves: 1, sol: '[연계 분쇄] [암살] f8b8' }, // 정답: [연계 분쇄] [암살] f8b8
+            { fen: pzFen([['e1','K'],['f2','R'],['d1','B'],['e7','k'],['a3','n'],['e6','p'],['h7','P'],['c4','N'],['d2','r'],['g5','n']]), cards: ['운명의 수레바퀴','파도','차원 장벽','암살'], augs: 2, moves: 1, sol: '[파도] [운명의 수레바퀴] f2f8' }, // 정답: [파도] [운명의 수레바퀴] f2f8
+            { fen: pzFen([['b8','K'],['h7','R'],['e5','B'],['d2','k'],['g3','p'],['c6','p'],['d7','N'],['e6','P'],['e2','r'],['c2','p']]), cards: ['파도','나이트 클럽','차원 장벽','암살'], augs: 2, moves: 1, sol: '[파도] [나이트 클럽] e5d3' }, // 정답: [파도] [나이트 클럽] e5d3
+            { fen: pzFen([['c8','K'],['h4','R'],['f4','B'],['d3','k'],['e3','p'],['a3','N'],['h2','p'],['c5','b'],['g6','P'],['g4','N']]), cards: ['운명의 수레바퀴','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: '[운명의 수레바퀴] [암살] h3d3' }, // 정답: [운명의 수레바퀴] [암살] h3d3
+            { fen: pzFen([['h1','k'],['h8','K'],['b3','R'],['d4','B'],['e8','R'],['f4','p'],['a5','b'],['f6','p'],['h2','p'],['e6','p'],['g7','b'],['h3','p']]), cards: ['나이트 클럽','신성한 폭발','앙파상+','연계 분쇄'], augs: 1, moves: 2, sol: '[신성한 폭발] b3b1 b1h1' }, // 정답: [신성한 폭발] b3b1 b1h1
+            { fen: pzFen([['h1','k'],['d7','K'],['d4','R'],['h4','P'],['f3','R'],['e6','P'],['d3','n'],['c1','b'],['g1','n'],['f6','n'],['h5','r'],['a6','n'],['e4','p']]), cards: ['차원 장벽','나이트 클럽','연계 분쇄','진군 명령'], augs: 1, moves: 2, sol: '[연계 분쇄] f3h3 h3h1' }, // 정답: [연계 분쇄] f3h3 h3h1
+            { fen: pzFen([['f5','k'],['h1','K'],['b7','R'],['b2','N'],['c5','n'],['f8','b'],['g6','n'],['d8','n'],['h7','n'],['e6','r'],['f4','r'],['f6','b'],['e5','n'],['g4','r'],['g5','b']]), cards: ['암살','강제 이주','앙파상+'], augs: 1, moves: 2, sol: '[강제 이주] b7b4 b4e4' }, // 정답: [강제 이주] b7b4 b4e4
+            { fen: pzFen([['g4','k'],['f2','K'],['d7','R'],['d4','p'],['b7','n'],['b5','r']]), cards: ['그림자 교체','연계 분쇄','진군 명령','나이트 클럽'], augs: 2, moves: 1, sol: '[그림자 교체] [나이트 클럽] f2g4' }, // 정답: [그림자 교체] [나이트 클럽] f2g4
+            { fen: pzFen([['f1','k'],['h3','K'],['e2','R'],['h4','P'],['h2','P'],['d3','b'],['d2','b'],['c3','n'],['b6','b'],['b8','n']]), cards: ['암살','캐슬링+','나이트 클럽'], augs: 2, moves: 1, sol: '[캐슬링+] [나이트 클럽] h2f1' }, // 정답: [캐슬링+] [나이트 클럽] h2f1
+            { fen: pzFen([['c7','K'],['g6','R'],['d4','B'],['a4','k'],['g5','p'],['b2','n'],['g7','P'],['f3','p'],['b5','P'],['d1','b']]), cards: ['연계 분쇄','파도','차원 장벽','암살'], augs: 2, moves: 1, sol: 'c7b6 [파도] [연계 분쇄]' }, // 정답: c7b6 [파도] [연계 분쇄]
+            { fen: pzFen([['d2','K'],['a3','R'],['f7','k'],['e6','p'],['f6','p'],['g2','n'],['h6','p'],['c2','P'],['g5','p'],['f4','N']]), cards: ['파도','차원 장벽','암살','신의 심판'], augs: 2, moves: 1, sol: 'a3a8 [파도] [차원 장벽@g7]' }, // 정답: a3a8 [파도] [차원 장벽@g7]
+            { fen: pzFen([['a6','k'],['b4','K'],['h5','R'],['d6','P'],['h7','P'],['d3','P'],['d8','B'],['a8','b'],['d2','b']]), cards: ['파도','연계 분쇄','네크로맨서'], augs: 2, moves: 1, sol: '[연계 분쇄] [네크로맨서] h5a5' }, // 정답: [연계 분쇄] [네크로맨서] h5a5
+            { fen: pzFen([['c8','K'],['h2','R'],['h1','B'],['h7','k'],['a4','n'],['f6','n'],['h4','p'],['e6','p'],['g7','b']]), cards: ['여신의 가호','신의 심판','차원 장벽','파도'], augs: 2, moves: 1, sol: '[여신의 가호] [신의 심판@h1] h2h7' }, // 정답: [여신의 가호] [신의 심판@h1] h2h7
+            { fen: pzFen([['c5','K'],['b8','R'],['a4','k'],['g2','b'],['b4','b'],['f3','P'],['d4','p'],['e5','P'],['f7','p']]), cards: ['연계 분쇄','암살','나이트 클럽','차원 장벽'], augs: 2, moves: 1, sol: '[연계 분쇄] b8a8 [차원 장벽@b3]' }, // 정답: [연계 분쇄] b8a8 [차원 장벽@b3]
+            { fen: pzFen([['a8','k'],['b1','K'],['c1','R'],['b5','B'],['c8','b'],['a3','b'],['g1','n'],['b8','r'],['b7','r']]), cards: ['앙파상+','업!','나이트 클럽','강제 이주'], augs: 2, moves: 1, sol: '[나이트 클럽] [강제 이주] b5a7' }, // 정답: [나이트 클럽] [강제 이주] b5a7
+            { fen: pzFen([['f4','K'],['d5','R'],['f1','k'],['c6','p'],['c5','r'],['d8','N'],['b3','p'],['e3','n'],['c1','b']]), cards: ['차원 장벽','운명의 수레바퀴','파도','암살'], augs: 2, moves: 1, sol: '[차원 장벽@e1] [운명의 수레바퀴] d5d1' }, // 정답: [차원 장벽@e1] [운명의 수레바퀴] d5d1
+            { fen: pzFen([['d8','K'],['d6','R'],['f5','B'],['f8','k'],['a6','p'],['e4','p'],['a1','n'],['b5','r'],['c4','n'],['d3','P']]), cards: ['나이트 클럽','차원 장벽','연계 분쇄','암살'], augs: 2, moves: 1, sol: 'f5e6 [나이트 클럽] [차원 장벽@g8]' }, // 정답: f5e6 [나이트 클럽] [차원 장벽@g8]
+            { fen: pzFen([['b3','K'],['c1','R'],['a6','k'],['e3','n'],['c8','b'],['d6','p'],['g4','N'],['h3','p'],['e4','n'],['e2','P']]), cards: ['차원 장벽','운명의 수레바퀴','파도','암살'], augs: 2, moves: 1, sol: '[차원 장벽@b1] [운명의 수레바퀴] a1a7' }, // 정답: [차원 장벽@b1] [운명의 수레바퀴] a1a7
+            { fen: pzFen([['h2','K'],['c8','R'],['e7','B'],['e6','k'],['c6','p'],['h3','n'],['e1','N'],['a3','n'],['d5','r'],['h8','n']]), cards: ['운명의 수레바퀴','나이트 클럽','차원 장벽','파도'], augs: 2, moves: 1, sol: '[운명의 수레바퀴] [나이트 클럽] d8e6' }, // 정답: [운명의 수레바퀴] [나이트 클럽] d8e6
+            { fen: pzFen([['d6','K'],['e3','R'],['a4','B'],['c8','k'],['e6','p'],['g8','n'],['f7','N'],['h4','N'],['f5','P'],['b3','N']]), cards: ['신성한 폭발','연계 분쇄','차원 장벽','파도'], augs: 2, moves: 1, sol: '[신성한 폭발] e3e8 [차원 장벽@b7]' }, // 정답: [신성한 폭발] e3e8 [차원 장벽@b7]
+            { fen: pzFen([['h6','K'],['e6','P'],['d3','P'],['a6','k'],['d8','n'],['g3','p'],['b7','b'],['h4','p'],['e5','N'],['a4','r']]), cards: ['진군 명령','앙파상+','차원 장벽','파도'], augs: 2, moves: 1, sol: '[진군 명령=q] e8a4 [차원 장벽@b6]' }, // 정답: [진군 명령=q] e8a4 [차원 장벽@b6]
+            { fen: pzFen([['d7','K'],['e2','P'],['h2','P'],['g7','k'],['h3','p'],['f1','r'],['f3','N'],['c4','b'],['d5','P'],['g3','P']]), cards: ['앙파상+','진군 명령','차원 장벽','암살'], augs: 2, moves: 1, sol: '[앙파상+] [진군 명령] h6g7' }, // 정답: [앙파상+] [진군 명령] h6g7
+            { fen: pzFen([['b4','K'],['h1','R'],['f4','P'],['g7','P'],['e7','k'],['b2','p'],['d5','b'],['e5','N'],['b1','n'],['g2','N']]), cards: ['앙파상+','차원 장벽','파도','암살'], augs: 2, moves: 1, sol: '[차원 장벽@f5] [앙파상+] f6e7' }, // 정답: [차원 장벽@f5] [앙파상+] f6e7
+            { fen: pzFen([['b3','k'],['e1','K'],['c8','R'],['e7','P'],['g6','P'],['d7','p'],['d2','n'],['f4','b'],['b6','n'],['e6','p'],['a1','n'],['h8','r']]), cards: ['파도','업!','진군 명령','신의 심판'], augs: 2, moves: 1, sol: '[진군 명령=b] [신의 심판@e8] g8b3' }, // 정답: [진군 명령=b] [신의 심판@e8] g8b3
+            { fen: pzFen([['b6','K'],['c6','R'],['g8','k'],['h4','p'],['g6','n'],['h1','b']]), cards: ['차원 장벽','운명의 수레바퀴','파도','암살'], augs: 3, moves: 1, sol: '[운명의 수레바퀴] [차원 장벽@g8] [파도] c6h6' }, // 정답: [운명의 수레바퀴] [차원 장벽@g8] [파도] c6h6
+            { fen: pzFen([['h7','K'],['d2','R'],['b8','k'],['f3','p'],['c4','n'],['d5','b'],['d1','n']]), cards: ['차원 장벽','운명의 수레바퀴','나이트 클럽','암살'], augs: 3, moves: 1, sol: '[차원 장벽@c8] [운명의 수레바퀴] [암살] d2d8' }, // 정답: [차원 장벽@c8] [운명의 수레바퀴] [암살] d2d8
+            { fen: pzFen([['b8','K'],['e5','R'],['c6','B'],['e2','k'],['h2','p'],['g2','n'],['e4','p'],['f6','p'],['c3','P'],['d1','b']]), cards: ['업!','나이트 클럽','차원 장벽','파도'], augs: 2, moves: 1, sol: '[업!@e5] e5e2 [나이트 클럽]' }, // 정답: [업!@e5] e5e2 [나이트 클럽]
+            { fen: pzFen([['c3','K'],['c8','R'],['a3','B'],['a1','k'],['d7','n'],['e2','p'],['e3','n'],['c2','p'],['g5','b'],['b7','N']]), cards: ['업!','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: 'c8a8 [업!@a3] [차원 장벽@b1]' }, // 정답: c8a8 [업!@a3] [차원 장벽@b1]
+            { fen: pzFen([['d8','K'],['b6','R'],['a2','k'],['d4','p'],['c3','n'],['f5','b'],['h4','n']]), cards: ['차원 장벽','운명의 수레바퀴','나이트 클럽','암살'], augs: 3, moves: 1, sol: '[차원 장벽@a3] [운명의 수레바퀴] [나이트 클럽] b6a4' }, // 정답: [차원 장벽@a3] [운명의 수레바퀴] [나이트 클럽] b6a4
+            { fen: pzFen([['f5','K'],['g2','R'],['b1','k'],['b3','n'],['b2','b'],['a1','n'],['f3','N']]), cards: ['차원 장벽','운명의 수레바퀴','나이트 클럽','암살'], augs: 3, moves: 1, sol: 'g2c2 [운명의 수레바퀴] [차원 장벽@b1] [나이트 클럽]' } // 정답: g2c2 [운명의 수레바퀴] [차원 장벽@b1] [나이트 클럽]
         ];
         if (PZ_STAGE_DATA.length !== PZ_STAGE_IDS.length) throw new Error('퍼즐 데이터와 저장 ID 수가 일치하지 않습니다.');
-        const PZ_STAGES = PZ_STAGE_DATA.map((stage, i) => ({ n: i + 1, id: PZ_STAGE_IDS[i], ...stage }));
+        // 스테이지 컨셉 제목: 정답(쓰는 증강·기물)이 추측되지 않도록 분위기만 담았다
+        const PZ_TITLES = ['신입의 첫 의뢰', '월요일 아침의 평화', '선택지가 너무 많아', '수상한 초대장', '퇴근 10분 전', '계단은 건강에 좋아요', '도시락 도난 사건', '동네 목욕탕 풍경', '지도에 없는 길', '지름길 공사 중', '다락방의 먼지', '비밀 레시피 노트', '조용한 도서관', '고양이는 알고 있다', '한 장의 비밀 카드', '마술사의 소매', '아침형 인간의 하루', '치킨 한 마리의 행복', '도서관 대출 연체', '모퉁이를 돌면', '느긋한 산책로', '마지막 열차', '성문 앞의 협상', '두 개의 열쇠', '쌍둥이 서커스', '붕어빵 굽는 시간', '비 오는 수요일', '새벽 네 시의 종소리', '점심 메뉴 토론회', '옆집 아저씨의 부탁', '숨바꼭질 챔피언', '수상한 과학 시간', '밤하늘 예약석', '끝없는 복도', '달리는 기차 위에서', '수학여행 전날 밤', '소문의 진원지', '시계탑의 비밀', '얼음 위의 대화', '별이 쏟아지던 밤', '놀이공원 폐장 시간', '번개 배달부', '골목대장의 귀환', '택배 기사의 하루', '하루 만의 반란', '꿈속의 체스판', '낯선 손님', '침묵의 연회', '옥상에서 먹는 라면', '마지막 한 입', '구름 위의 낮잠', '비밀 통로 입구', '시간 여행자의 영수증', '낡은 지도 한 장', '폭풍 전의 고요', '보물섬 탐험대', '모래시계의 속삭임', '가면무도회', '열두 번째 손님', '막다른 골목의 미소', '한밤의 라디오 사연', '손님은 왕이다', '완벽한 알리바이', '신데렐라의 자정', '여름 밤의 괴담', '도깨비 방망이 한 번', '심야 식당', '파티는 끝나지 않아', '퍼즐 가게 사장님', '영웅의 은퇴식', '눈 내리는 전장', '가장 긴 하루', '마법사의 도서관', '최후의 만찬', '새벽의 대결', '왕관의 무게', '마지막 문제', '전설의 끝자락', '그리고 아무도 없었다'];
+        if (PZ_TITLES.length !== PZ_STAGE_IDS.length) throw new Error('퍼즐 제목 수와 스테이지 수가 일치하지 않습니다.');
+        const PZ_STAGES = PZ_STAGE_DATA.map((stage, i) => ({ n: i + 1, id: PZ_STAGE_IDS[i], title: PZ_TITLES[i], ...stage }));
+        // ---- 이번 플레이의 시간 / 실패 횟수 (저장하지 않는다) ----
+        try { localStorage.removeItem('augChessPuzzleRecordsV1'); } catch (e) {}   // 이전 버전이 남긴 기록 정리
+        const pzFailMem = {};   // 스테이지 id → 이번에 목록에서 들어온 뒤 실패한 횟수 (메모리에만 둔다)
+        function pzFmtTime(ms) {
+            const t = Math.max(0, Math.round(ms / 100)), tenth = t % 10, s = Math.floor(t / 10) % 60, m = Math.floor(t / 600) % 60, h = Math.floor(t / 36000);
+            return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}.${tenth}`;
+        }
+        // 시간 재기: 스테이지(또는 '처음부터')를 시작할 때부터. 안내·결과 창·정답 보기·탭이 가려진 동안은 멈춘다
+        // 순서대로만 열린다: 클리어한 스테이지(다시 하기)와, 아직 못 깬 첫 스테이지까지만 들어갈 수 있다
+        function pzPlayable(i) {
+            const s = PZ_STAGES[i]; if (!s) return false;
+            const o = pzLoad(); if (o.cleared[s.id]) return true;
+            const first = PZ_STAGES.findIndex(x => !o.cleared[x.id]);
+            return first < 0 || i <= first;
+        }
+        function pzTNow(st) { return st.tAcc + (st.tRun ? performance.now() - st.tRun : 0); }
+        function pzTPause(st) { if (st && st.tRun) { st.tAcc += performance.now() - st.tRun; st.tRun = 0; } }
+        function pzTResume(st) { if (st && !st.tRun && !st.done && !st.demo) st.tRun = performance.now(); }
         const PZ_ICONS = {"_aug": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"5\" y=\"3\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M12 8l1.2 2.6 2.8.4-2 2 .5 2.8-2.5-1.4-2.5 1.4.5-2.8-2-2 2.8-.4z\"/></svg>", "_move": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"7\" r=\"2.6\"/><path d=\"M10 11c0 3-2 4-2 7h8c0-3-2-4-2-7\"/><path d=\"M6.5 21h11\"/></svg>", "_target": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"8\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 2v3M12 19v3M2 12h3M19 12h3\"/></svg>", "_undo": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M9 14L4 9l5-5\"/><path d=\"M4 9h10a6 6 0 0 1 0 12h-3\"/></svg>", "_restart": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 12a9 9 0 1 0 3-6.7\"/><path d=\"M3 4v5h5\"/></svg>", "_list": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.5\"/></svg>", "_check": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg>", "_x": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg>", "_pick": "<svg class=\"ico\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"4\" y=\"7\" width=\"11\" height=\"14\" rx=\"2\"/><path d=\"M9 4h8a3 3 0 0 1 3 3v10\"/><path d=\"M7.5 12h4M7.5 15.5h4\"/></svg>"};
         function pzIc(k) { return PZ_ICONS[k] || ''; }
         let isPuzzleMode = false, puzzleSt = null, pzTokBase = 0, pzEntering = false, pzExiting = false;
@@ -9617,14 +9770,14 @@
         }
         function pzFresh(stage) {
             pzTokBase += 1000000;   // 이전 스테이지의 늦은 타이머가 새 상태의 토큰과 겹치지 않게 한다
-            return { stage, movesUsed: 0, augUsed: 0, cardUsed: stage.cards.map(() => false), hist: [], busy: false, done: false, armed: -1, tok: pzTokBase };
+            return { stage, movesUsed: 0, augUsed: 0, cardUsed: stage.cards.map(() => false), hist: [], busy: false, done: false, armed: -1, tok: pzTokBase, tAcc: 0, tRun: performance.now() };
         }
         function pzSetup() {   // 같은 스테이지를 처음부터 다시 시작
             const stage = puzzleSt.stage, st = puzzleSt = pzFresh(stage);
             resetGameUI(); showBoardContainer(); pzPlace(stage.fen);
             moveCount = 0; selectedSquare = null; legalMoves = [];
             practiceRepaint(); pzHud(); pzHideDone();
-            pzDesc('');
+            pzDesc(''); pzHint();
             requestAnimationFrame(pzShowTutorial);
         }
         function pzUsable(nm) {   // 지금 판에서 실제로 쓸 수 있는 증강인가 (킹 없음·체크 아님 등은 조건에서 걸러진다)
@@ -9634,7 +9787,46 @@
         function pzLeft() { const st = puzzleSt; return { m: st.stage.moves - st.movesUsed, a: st.stage.augs - st.augUsed }; }
 
         // ---- HUD ----
-        function pzDesc(txt) { const el = document.getElementById('pz-desc'); if (!el) return; el.textContent = txt || ''; el.style.display = txt ? '' : 'none'; try { scheduleFit(); } catch (e) {} }
+        // ---- 스테이지 1 코치: 강조(스포트라이트) + 떠 있는 안내 카드 ----
+        let pzCoachTarget = null, pzCoachTimer = 0;
+        function pzCoachPlace() {
+            const box = document.getElementById('pz-coach'); if (!box || box.style.display === 'none') return;
+            let el = pzCoachTarget; if (typeof el === 'function') el = el();
+            if (!el || !el.isConnected) return;
+            const r = el.getBoundingClientRect(); if (!r.width && !r.height) return;
+            const spot = document.getElementById('pz-coach-spot'), card = document.getElementById('pz-coach-card');
+            spot.style.left = Math.max(4, r.left - 6) + 'px'; spot.style.top = Math.max(4, r.top - 6) + 'px';
+            spot.style.width = Math.min(window.innerWidth - 8, r.width + 12) + 'px'; spot.style.height = Math.min(window.innerHeight - 8, r.height + 12) + 'px';
+            const cr = card.getBoundingClientRect(), gap = 14, margin = 10;
+            let top = r.bottom + gap; if (top + cr.height > window.innerHeight - margin) top = r.top - cr.height - gap;
+            top = Math.max(margin, Math.min(top, window.innerHeight - cr.height - margin));
+            card.style.left = Math.max(margin, Math.min(r.left + r.width / 2 - cr.width / 2, window.innerWidth - cr.width - margin)) + 'px'; card.style.top = top + 'px';
+        }
+        function pzCoachShow(target, title, html) {
+            const box = document.getElementById('pz-coach'); if (!box) return;
+            const tut = document.getElementById('pz-tutorial'); if (tut && tut.style.display === 'block') return;   // 첫 소개 안내가 떠 있는 동안은 겹치지 않게 대기
+            pzCoachTarget = target;
+            document.getElementById('pz-coach-title').textContent = title; document.getElementById('pz-coach-text').innerHTML = html;
+            box.style.display = 'block'; box.setAttribute('aria-hidden', 'false');
+            const card = document.getElementById('pz-coach-card'); card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';   // 단계가 바뀔 때마다 다시 떠오르게
+            window.removeEventListener('resize', pzCoachPlace); window.addEventListener('resize', pzCoachPlace);
+            requestAnimationFrame(pzCoachPlace); clearTimeout(pzCoachTimer); pzCoachTimer = setTimeout(pzCoachPlace, 260);
+        }
+        function pzCoachHide() {
+            const box = document.getElementById('pz-coach'); if (box) { box.style.display = 'none'; box.setAttribute('aria-hidden', 'true'); }
+            pzCoachTarget = null; clearTimeout(pzCoachTimer); window.removeEventListener('resize', pzCoachPlace);
+        }
+        function pzHint() {   // 스테이지 1은 지금까지 한 행동 수에 맞는 안내를 강조 + 떠 있는 카드로 보여 준다
+            const st = puzzleSt;
+            if (!st || !isPuzzleMode || st.demo || st.done || !st.stage.hints) { pzCoachHide(); return; }
+            const step = st.augUsed + st.movesUsed;
+            if (step === 0) {
+                pzCoachShow(() => document.getElementById('pz-pick'), '증강 고르기', '룩(a5)이 흑 킹(h5)을 노리지만 f5의 나이트가 길을 막고 있어요. <em>증강 고르기</em>를 눌러 [암살]을 써 보세요!');
+            } else if (step === 1) {
+                pzCoachShow(() => squareEls.get('a5') || document.getElementById('board'), '이제 킹을 잡으세요', '암살이 가장 약한 흑 기물 2개(폰·나이트)를 없앴어요! <em>룩(a5)</em>을 눌러 <em>흑 킹(h5)</em>으로 움직이세요.');
+            } else pzCoachHide();
+        }
+        function pzDesc(txt) { const el = document.getElementById('pz-desc'); if (!el) return; el.textContent = txt || ''; el.style.display = txt ? '' : 'none'; if (!txt) pzCoachHide(); try { scheduleFit(); } catch (e) {} }
         function pzTutorialSeen() {
             if (pzTutorialShownThisSession) return true;
             try { return localStorage.getItem(PZ_TUTORIAL_KEY) === '1'; } catch (e) { return false; }
@@ -9661,26 +9853,33 @@
             document.getElementById('pz-tutorial-title').textContent = step.title;
             document.getElementById('pz-tutorial-text').textContent = step.text;
             document.getElementById('pz-tutorial-next').textContent = pzTutorialIndex === PZ_TUTORIAL_STEPS.length - 1 ? '시작하기' : '다음';
-            overlay.style.display = 'block'; overlay.setAttribute('aria-hidden', 'false');
+            overlay.style.display = 'block'; overlay.setAttribute('aria-hidden', 'false'); pzTPause(puzzleSt);
             requestAnimationFrame(pzTutorialPlace);
         }
         function pzShowTutorial() {
             if (!puzzleSt || puzzleSt.stage.n !== 1 || pzTutorialSeen()) return;
             pzTutorialShownThisSession = true;
             try { localStorage.setItem(PZ_TUTORIAL_KEY, '1'); } catch (e) {}
-            pzTutorialIndex = 0; pzTutorialRender();
+            pzCoachHide(); pzTutorialIndex = 0; pzTutorialRender();
             window.addEventListener('resize', pzTutorialPlace);
         }
         function pzTutorialClose() {
             const overlay = document.getElementById('pz-tutorial');
-            if (overlay) { overlay.style.display = 'none'; overlay.setAttribute('aria-hidden', 'true'); }
+            if (overlay) { const was = overlay.style.display === 'block'; overlay.style.display = 'none'; overlay.setAttribute('aria-hidden', 'true'); if (was) pzTResume(puzzleSt); }
             window.removeEventListener('resize', pzTutorialPlace);
         }
         function pzPips(used, total) { return `<span class="pz-cnt"><b>${used}</b><span>/${total}</span></span>`; }
         function pzHud() {
             const st = puzzleSt; if (!st) return; const S = st.stage, L = pzLeft();
-            document.getElementById('pz-title').innerHTML = `<small>STAGE</small><b>${S.n}</b>`;
-            document.getElementById('pz-sub').innerHTML = pzIc('_target') + '흑 킹 처치 또는 체크메이트';
+            document.getElementById('pz-title').innerHTML = `<small>STAGE</small><b>${S.n}</b><span class="pz-name">${S.title}</span>`;
+            const ans = document.getElementById('pz-answer');
+            if (ans) {
+                ans.classList.toggle('playing', !!st.demo);
+                ans.innerHTML = st.demo ? '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg><span>재생 중지</span>'
+                    : '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span>정답 보기</span>';
+                ans.disabled = !st.demo && (st.busy || !st.stage.sol);
+                ans.style.display = (st.demo || pzLoad().cleared[S.id]) ? '' : 'none';   // 정답 보기는 이 스테이지를 클리어한 뒤에만 나온다
+            }
             document.getElementById('pz-meter').innerHTML =
                 `<div class="pz-stat ${L.a <= 0 ? 'zero' : ''}" title="사용 횟수 / 최대 횟수">${pzIc('_aug')}<em>증강 사용</em>${pzPips(st.augUsed, S.augs)}</div>` +
                 `<div class="pz-stat ${L.m <= 0 ? 'zero' : ''}" title="사용 횟수 / 최대 횟수">${pzIc('_move')}<em>이동 사용</em>${pzPips(st.movesUsed, S.moves)}</div>`;
@@ -9693,15 +9892,15 @@
             if (pk) {
                 const avail = S.cards.filter((nm, i) => !st.cardUsed[i] && pzUsable(nm)).length;
                 pk.innerHTML = pzIc('_pick') + '<span>증강 고르기</span><b class="pk-n">' + Math.max(0, L.a) + '</b>';
-                pk.disabled = L.a <= 0 || st.busy || st.done || S.cards.every((_, i) => st.cardUsed[i]);
+                pk.disabled = L.a <= 0 || st.busy || st.done || st.demo || S.cards.every((_, i) => st.cardUsed[i]);
                 pk.classList.toggle('none', !pk.disabled && avail <= 0);
             }
             try { squareEls.forEach(el => el.classList.remove('pz-target')); game.board().forEach((r, ri) => r.forEach((p, ci) => { if (p && p.type === 'k' && p.color === 'b') { const el = squareEls.get(PZ_FILES[ci] + (8 - ri)); if (el) el.classList.add('pz-target'); } })); } catch (e) {}
-            document.getElementById('pz-undo').disabled = !st.hist.length || st.busy;
+            document.getElementById('pz-undo').disabled = !st.hist.length || st.busy || !!st.demo;
             try { scheduleFit(); } catch (e) {}
         }
         function pzOpenPicker() {   // 실제 게임과 같은 증강 선택 화면: 카드를 한 번 누르면 선택, 한 번 더 누르면 발동. 카드 바깥을 누르고 있으면 판이 보인다.
-            const st = puzzleSt; if (!st || st.done || st.busy || targeting || isSystemLocked || augBusy) return;
+            const st = puzzleSt; if (!st || st.done || st.busy || st.demo || targeting || isSystemLocked || augBusy) return;
             if (pzLeft().a <= 0) { showToast('증강 횟수를 모두 썼어요', 'var(--danger)', 1400); return; }
             const ids = [], opts = [];
             st.stage.cards.forEach((nm, i) => { const ag = AUGMENT_POOL.find(a => a.name === nm); if (ag && !st.cardUsed[i] && pzUsable(nm)) { ids.push(i); opts.push(ag); } });
@@ -9715,22 +9914,25 @@
             });
             html += `</div><div class="augment-hint">카드 바깥쪽을 눌러 필드를 확인하세요.</div><button type="button" class="pz-pick-cancel">취소</button>`;
             ov.innerHTML = html; ov.dataset.pz = '1'; ov.style.display = 'flex'; bindAugInfo(ov);
-            const closeOv = () => { ov.style.display = 'none'; ov.dataset.pz = ''; };
+            const closeOv = () => { ov.style.display = 'none'; ov.dataset.pz = ''; pzCoachHide(); };
             let sel = -1;
             const cards = ov.querySelectorAll('.augment-card');
+            const coachOn = !!st.stage.hints && st.stage.n === 1;
+            if (coachOn) setTimeout(() => { if (puzzleSt === st && ov.dataset.pz === '1') pzCoachShow(() => ov.querySelector('.augment-card'), '증강 설명 읽기', '[암살]은 가장 약한 적 기물을 없애요. 설명을 읽고 카드를 <em>한 번 눌러 선택</em>하세요.'); }, 60);
             cards.forEach((card, k) => {
                 card.onclick = () => {
                     if (!puzzleSt || puzzleSt !== st) { closeOv(); return; }
                     if (sel !== k) {
                         sel = k; cards.forEach(c => c.classList.remove('selected')); card.classList.add('selected');
-                        showToast('한 번 더 눌러 발동하세요.', 'var(--primary)', 1500); return;
+                        if (coachOn) pzCoachShow(() => ov.querySelector('.augment-card'), '한 번 더 눌러 발동!', '선택됐어요. 같은 카드를 <em>한 번 더 눌러</em> 암살을 발동하세요.');
+                        else showToast('한 번 더 눌러 발동하세요.', 'var(--primary)', 1500); return;
                     }
                     let ok = true; try { if (typeof opts[k].condition === 'function') ok = !!opts[k].condition('w', 'b'); } catch (e) { ok = true; }
                     if (!ok) { sel = -1; card.classList.remove('selected'); showToast('지금 판에서는 쓸 수 없는 증강이에요', 'var(--danger)', 1600); return; }
                     closeOv(); pzUseCard(ids[k], opts[k]);
                 };
             });
-            ov.querySelector('.pz-pick-cancel').onclick = closeOv;
+            ov.querySelector('.pz-pick-cancel').onclick = () => { closeOv(); pzHint(); };
         }
         function pzUseCard(i, ag) {
             const st = puzzleSt;
@@ -9746,11 +9948,11 @@
         }
         function pzPush() { const st = puzzleSt; st.hist.push({ s: serializeGameState(), mu: st.movesUsed, au: st.augUsed, cu: st.cardUsed.slice() }); }
         function pzUndo() {
-            const st = puzzleSt; if (!st || st.busy || targeting || isSystemLocked || augBusy) return;
+            const st = puzzleSt; if (!st || st.busy || st.demo || targeting || isSystemLocked || augBusy) return;
             const h = st.hist.pop(); if (!h) { showToast('되돌릴 수가 없어요', '#f39c12', 1200); return; }
-            st.tok++; st.done = false; pzHideDone();
+            st.tok++; st.done = false; pzHideDone(); pzTResume(st);
             deserializeGameState(h.s, true); isSystemLocked = false; augBusy = false; postMovePending = 0; closeAugmentUI(); try { document.getElementById('augment-overlay').dataset.pz = ''; } catch (e) {}
-            st.movesUsed = h.mu; st.augUsed = h.au; st.cardUsed = h.cu; st.armed = -1; pzDesc('');
+            st.movesUsed = h.mu; st.augUsed = h.au; st.cardUsed = h.cu; st.armed = -1; pzDesc(''); pzHint();
             practiceRepaint(); pzHud();
         }
 
@@ -9773,28 +9975,107 @@
             }
             if (game._turn !== 'w') { game._turn = 'w'; game.ep_square = null; }
             selectedSquare = null; legalMoves = []; try { drawDots(); updateTurnIndicator(); updateCheckStatus(); } catch (e) {}
-            st.busy = false; pzHud();
+            st.busy = false; pzHud(); pzHint();
             const L = pzLeft(), availC = st.stage.cards.filter((nm, i) => !st.cardUsed[i] && pzUsable(nm)).length; if (L.m <= 0 && (L.a <= 0 || availC <= 0)) pzFail();   // 남은 카드가 전부 못 쓰는 상태여도 막다른 길이다
         }
         function pzClear(how) {
-            const st = puzzleSt; st.done = true; st.busy = false; pzHud();
-            const o = pzLoad(); o.cleared[st.stage.id] = 1; pzSave(o); pzCardRefresh();
+            const st = puzzleSt; st.done = true; st.busy = false; st.demo = false; pzHud();
+            if (st.viewed) { pzDesc('정답 플레이가 끝났어요. 직접 풀어 보려면 「처음부터」를 눌러 주세요. (정답 보기로 본 판은 클리어로 기록되지 않아요)'); return; }
+            pzTPause(st); const ms = pzTNow(st);
+            const o = pzLoad(); o.cleared[st.stage.id] = 1; pzSave(o); pzCardRefresh(); pzHud();
+            const failsNow = pzFailMem[st.stage.id] || 0; pzFailMem[st.stage.id] = 0;
             const next = PZ_STAGES[PZ_STAGES.findIndex(s => s.n === st.stage.n) + 1];
-            setTimeout(() => { if (puzzleSt === st && isPuzzleMode) pzShowDone({ ok: true, how, hasNext: !!next }); }, how === 'king' ? 2000 : 1200);
+            setTimeout(() => { if (puzzleSt === st && isPuzzleMode) pzShowDone({ ok: true, how, hasNext: !!next, nextOk: !!next && pzPlayable(PZ_STAGES.findIndex(s => s.n === st.stage.n) + 1), time: ms, fails: failsNow }); }, how === 'king' ? 2000 : 1200);
         }
-        function pzFail(reason) { const st = puzzleSt, tok = st && st.tok; setTimeout(() => { if (puzzleSt === st && st && st.tok === tok && isPuzzleMode && !st.done) pzShowDone({ ok: false, reason }); }, 700); }
+        function pzFail(reason) { const st = puzzleSt, tok = st && st.tok; if (st && st.demo) return; setTimeout(() => { if (puzzleSt === st && st && st.tok === tok && isPuzzleMode && !st.done) { pzTPause(st); let fails = pzFailMem[st.stage.id] || 0; if (!st.viewed) fails = pzFailMem[st.stage.id] = fails + 1; pzShowDone({ ok: false, reason, time: pzTNow(st), fails }); } }, 700); }
         function pzShowDone(r) {
             const st = puzzleSt; if (!st) return; const ov = document.getElementById('puzzle-done'), S = st.stage;
             const box = ov.querySelector('.lobby-box'); box.classList.toggle('ok', !!r.ok); box.classList.toggle('fail', !r.ok);
             document.getElementById('pz-done-ic').innerHTML = pzIc(r.ok ? '_check' : '_x');
+            pzTPause(st);
             document.getElementById('pz-done-title').textContent = r.ok ? `STAGE ${S.n} 클리어` : (r.reason ? '목표를 달성하지 못했어요' : '횟수를 모두 썼어요');
+            document.getElementById('pz-done-concept').textContent = `STAGE ${S.n} · ${S.title}`;
+            const stats = document.getElementById('pz-done-stats');
+            if (r.time == null) stats.innerHTML = '';
+            else if (r.ok) stats.innerHTML = `<div class="pz-st"><span>걸린 시간</span><b>${pzFmtTime(r.time)}</b></div>` +
+                `<div class="pz-st${r.fails ? ' bad' : ''}"><span>실패 횟수</span><b>${r.fails}회</b></div>`;
+            else stats.innerHTML = `<div class="pz-st"><span>경과 시간</span><b>${pzFmtTime(r.time)}</b></div><div class="pz-st bad"><span>실패 횟수</span><b>${r.fails}회</b></div>`;
             document.getElementById('pz-done-desc').textContent = r.ok
                 ? `${r.how === 'mate' ? '체크메이트' : '킹 처치'} · 증강 ${st.augUsed}/${S.augs}회 · 이동 ${st.movesUsed}/${S.moves}회` + (r.hasNext ? '' : ' · 마지막 스테이지까지 클리어했어요')
                 : (r.reason || '킹을 처치하지 못했어요. 한 수 전으로 되돌려 다른 방법을 찾아보세요.');
-            document.getElementById('btn-pz-next').style.display = (r.ok && r.hasNext) ? '' : 'none';
+            document.getElementById('btn-pz-next').style.display = (r.ok && r.hasNext && r.nextOk) ? '' : 'none';
             document.getElementById('btn-pz-undo').style.display = r.ok ? 'none' : '';
             document.getElementById('btn-pz-again').textContent = r.ok ? '다시 풀어보기' : '처음부터';
             ov.style.display = 'flex';
+        }
+        // ---- 정답 보기: 스테이지의 정답 플레이(sol)를 실제 엔진 위에서 그대로 재생한다 ----
+        //  표기: [증강]  [증강@칸]=대상 칸 지정  [증강=q]=승급할 기물  e1a1=기물 이동
+        let pzAnsDrive = false;
+        const pzSleep = ms => new Promise(r => setTimeout(r, ms));
+        function pzParseSol(txt) {
+            const out = [], re = /\[([^\]@=]+?)(?:@([a-h][1-8]))?(?:=([qrbn]))?\]|([a-h][1-8])([a-h][1-8])/g; let m;
+            while ((m = re.exec(txt || ''))) out.push(m[1] ? { card: m[1].trim(), at: m[2] || null, promo: m[3] || null } : { from: m[4], to: m[5] });
+            return out;
+        }
+        function pzStopAnswer() {
+            const st = puzzleSt; if (!st || !st.demo) return;
+            st.demo = false; pzHud(); pzDesc('정답 재생을 멈췄어요. 이어서 직접 풀거나 「처음부터」를 눌러 주세요.');
+        }
+        async function pzShowAnswer() {
+            let st = puzzleSt; if (!st || pzEntering || pzExiting) return;
+            if (st.demo) { pzStopAnswer(); return; }
+            if (st.busy || targeting || isSystemLocked || augBusy) return;
+            if (!pzLoad().cleared[st.stage.id]) return;   // 클리어한 스테이지에서만
+            const steps = pzParseSol(st.stage.sol); if (!steps.length) return;
+            if (st.hist.length || st.movesUsed || st.augUsed || st.done) {
+                if (!(await askConfirm('지금까지의 진행을 지우고, 처음부터 정답 플레이를 보여 줄까요?', { ok: '정답 보기' }))) return;
+                if (puzzleSt !== st) return;
+                pzTutorialClose(); pzSetup(st); st = puzzleSt;
+            }
+            pzTutorialClose(); pzHideDone();
+            st.demo = true; st.viewed = true; pzTPause(st); pzHud();
+            const alive = () => puzzleSt === st && st.demo && isPuzzleMode;
+            const clickPromo = async want => {   // 진군 명령·앙파상+ 로 끝줄에 닿은 폰: 승급 선택창이 뜨면 정답의 기물로 고른다
+                const tip = document.querySelector('.promo-tip'); if (!tip) return false;
+                await pzSleep(700); if (!alive()) return true;
+                const b = tip.querySelector(`button[aria-label="${want || 'q'}"]`) || tip.querySelector('button'); if (b) b.click();
+                await pzSleep(500); return true;
+            };
+            const waitIdle = async step => {   // 증강 연출·이동·승급이 끝나 다음 차례가 올 때까지
+                await pzSleep(250);
+                for (let n = 0; n < 300 && alive(); n++) {
+                    if (st.done) return;
+                    if (await clickPromo(step && step.promo)) continue;
+                    if (!st.busy && !targeting && !isSystemLocked && !augBusy && postMovePending <= 0) return;
+                    await pzSleep(100);
+                }
+            };
+            await pzSleep(500);
+            for (let k = 0; k < steps.length && alive(); k++) {
+                const step = steps[k], tag = `정답 재생 ${k + 1}/${steps.length}`;
+                if (st.done) break;
+                if (step.card) {
+                    const i = st.stage.cards.indexOf(step.card), ag = AUGMENT_POOL.find(a => a.name === step.card);
+                    if (i < 0 || !ag || st.cardUsed[i]) break;
+                    pzDesc(`${tag} · ${ag.name} 발동`);
+                    pzAnsDrive = true; try { pzUseCard(i, ag); } finally { pzAnsDrive = false; }
+                    if (targeting && step.at) {   // 대상 지정: 한 번 눌러 미리보기 → 한 번 더 눌러 확정
+                        await pzSleep(700); if (!alive()) break;
+                        pzAnsDrive = true; try { handleTargetClick(step.at); } finally { pzAnsDrive = false; }
+                        await pzSleep(800); if (!alive()) break;
+                        pzAnsDrive = true; try { handleTargetClick(step.at); } finally { pzAnsDrive = false; }
+                    }
+                } else {
+                    pzDesc(`${tag} · ${step.from} → ${step.to}`);
+                    pzAnsDrive = true;
+                    try { selectedSquare = null; legalMoves = []; onSquareClick(step.from); } finally { pzAnsDrive = false; }
+                    await pzSleep(700); if (!alive()) break;
+                    pzAnsDrive = true; try { onSquareClick(step.to); } finally { pzAnsDrive = false; }
+                }
+                await waitIdle(step);
+                if (alive() && !st.done) await pzSleep(500);
+            }
+            if (puzzleSt === st && st.demo && !st.done) { st.demo = false; pzHud(); pzDesc('정답 재생이 끝났어요.'); }
         }
         function pzHideDone() { const d = document.getElementById('puzzle-done'); if (d) d.style.display = 'none'; }
 
@@ -9807,26 +10088,92 @@
                 const invalidCard = stage.cards.find(nm => !AUGMENT_POOL.some(aug => aug.name === nm));
                 if (invalidCard) throw new Error(`퍼즐 스테이지 ${stage.n}에 없는 증강이 있습니다: ${invalidCard}`);
             });
+            pzPopClose();
             const o = pzLoad(), grid = document.getElementById('pzs-grid'); grid.innerHTML = '';
             const done = PZ_STAGES.filter(s => o.cleared[s.id]).length;
-            document.getElementById('pzs-sub').textContent = `${done} / ${PZ_STAGES.length} 클리어`;
+            document.getElementById('pzs-sub').textContent = `${done} / ${PZ_STAGES.length}`;
             const bar = document.querySelector('#pzs-bar i'); if (bar) bar.style.width = (done / PZ_STAGES.length * 100) + '%';
             const nextIdx = PZ_STAGES.findIndex(s => !o.cleared[s.id]);
+            const nx = document.getElementById('pzs-next');
+            if (nx) {
+                if (nextIdx >= 0) {
+                    const ns = PZ_STAGES[nextIdx]; nx.disabled = false; nx.className = '';
+                    nx.innerHTML = `<span class="tx"><span class="k">${done ? '이어하기' : '시작하기'}</span><span class="v"><b>STAGE ${ns.n}</b>${ns.title}</span></span><span class="go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span>`;
+                    nx.onclick = () => startPuzzle(nextIdx);
+                } else { nx.disabled = true; nx.className = 'all'; nx.innerHTML = '<span class="tx"><span class="v">모든 스테이지를 클리어했어요!</span></span>'; nx.onclick = null; }
+            }
             PZ_STAGES.forEach((s, i) => {
                 const b = document.createElement('button'); b.type = 'button';
-                b.className = 'pzs-cell' + (o.cleared[s.id] ? ' done' : '') + (i === nextIdx ? ' next' : '');
-                b.setAttribute('aria-label', 'STAGE ' + s.n);
+                const open = pzPlayable(i);
+                b.className = 'pzs-cell' + (o.cleared[s.id] ? ' done' : '') + (i === nextIdx ? ' next' : '') + (open ? '' : ' locked'); b.dataset.i = i;
+                if (!open) b.setAttribute('aria-disabled', 'true');
+                b.setAttribute('aria-label', 'STAGE ' + s.n + ' ' + s.title); b.title = s.title;
                 b.innerHTML = (o.cleared[s.id] ? `<span class="ck">${pzIc('_check')}</span>` : '') + `<span class="n">${s.n}</span><span class="m"><span>${pzIc('_aug')}${s.augs}</span><span>${pzIc('_move')}${s.moves}</span></span>`;
-                b.onclick = () => startPuzzle(i);
+                b.onclick = () => pzPopOpen(i, b);
                 grid.appendChild(b);
             });
             document.getElementById('puzzle-stages').style.display = 'flex';
             const cur = grid.querySelector('.pzs-cell.next'); if (cur) setTimeout(() => { try { cur.scrollIntoView({ block: 'center' }); } catch (e) {} }, 30);
         }
-        function pzCloseStages() { document.getElementById('puzzle-stages').style.display = 'none'; }
+        function pzCloseStages() { pzPopClose(); document.getElementById('puzzle-stages').style.display = 'none'; }
+        // ---- 스테이지 말풍선: 제목 · 보드 배치 · 쓸 수 있는 증강 미리보기 · 도전 버튼 ----
+        const PZ_GLYPH = { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' };
+        let pzPopIdx = -1;
+        function pzMiniBoard(fen) {   // 실제 판과 같은 칸 색(.square)·기물 SVG(svgPieces)·목표 표시(.pz-target)를 그대로 쓴다
+            const cells = new Array(64).fill(''); let i = 0;
+            for (const ch of fen.split(' ')[0]) { if (ch === '/') continue; if (/\d/.test(ch)) { i += +ch; continue; } if (i < 64) cells[i++] = ch; }
+            let html = '';
+            for (let k = 0; k < 64; k++) {
+                const r = k >> 3, c = k & 7, ch = cells[k], w = !!ch && ch === ch.toUpperCase(), t = ch.toLowerCase();
+                const svg = ch && svgPieces[t.toUpperCase()] ? svgPieces[t.toUpperCase()].replace(/{fill}/g, w ? '#ffffff' : '#222222').replace(/{stroke}/g, w ? '#000000' : '#eeeeee') : '';
+                html += `<div class="square ${(r + c) % 2 === 0 ? 'light' : 'dark'}${ch && !w && t === 'k' ? ' pz-target' : ''}">${svg ? `<span class="pc">${svg}</span>` : ''}</div>`;
+            }
+            return `<div class="pzp-board" aria-hidden="true">${html}</div>`;
+        }
+        function pzPopClose() {
+            const p = document.getElementById('pzs-pop'), bg = document.getElementById('pzs-pop-bg');
+            if (p) p.style.display = 'none'; if (bg) bg.style.display = 'none';
+            document.querySelectorAll('.pzs-cell.sel').forEach(c => c.classList.remove('sel')); pzPopIdx = -1;
+        }
+        function pzPopOpen(i, cell) {
+            const s = PZ_STAGES[i], pop = document.getElementById('pzs-pop'), bg = document.getElementById('pzs-pop-bg'), body = document.getElementById('pzs-pop-body'); if (!s || !pop) return;
+            const o = pzLoad(), open = pzPlayable(i), cleared = !!o.cleared[s.id];
+            if (open) {
+                body.innerHTML = `<div class="pzp-head"><span class="pzp-no">STAGE ${s.n}${cleared ? '<em>클리어</em>' : ''}</span><b class="pzp-ti">${s.title}</b></div>` +
+                    `<div class="pzp-row">${pzMiniBoard(s.fen)}</div>` +
+                    `<div class="pzp-lim"><span>${pzIc('_aug')}증강 최대 ${s.augs}회</span><span>${pzIc('_move')}이동 최대 ${s.moves}회</span></div>` +
+                    `<button type="button" id="pzp-go">${cleared ? '다시 도전' : '도전하기'}</button>`;
+                body.querySelector('#pzp-go').onclick = () => { pzPopClose(); startPuzzle(i); };
+            } else {
+                const first = PZ_STAGES.findIndex(x => !o.cleared[x.id]);
+                body.innerHTML = `<div class="pzp-lock"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.2"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/></svg><b>아직 잠겨 있어요</b><p>STAGE ${first + 1}을(를) 먼저 클리어하면 차례대로 열려요.</p></div>`;
+            }
+            document.querySelectorAll('.pzs-cell.sel').forEach(c => c.classList.remove('sel')); cell.classList.add('sel'); pzPopIdx = i;
+            bg.style.display = 'block'; pop.style.display = 'block';
+            const vw = window.innerWidth, vh = window.innerHeight, pw = Math.min(340, vw - 24); pop.style.width = pw + 'px';
+            const ph = pop.offsetHeight, r = cell.getBoundingClientRect(), gap = 12;
+            let top, dir = '';
+            if (r.bottom + gap + ph <= vh - 10) { top = r.bottom + gap; dir = 'up'; }
+            else if (r.top - gap - ph >= 10) { top = r.top - gap - ph; dir = 'down'; }
+            else top = Math.max(10, Math.min(vh - ph - 10, r.top + r.height / 2 - ph / 2));
+            const left = Math.max(12, Math.min(r.left + r.width / 2 - pw / 2, vw - pw - 12)), ax = Math.max(24, Math.min(r.left + r.width / 2 - left, pw - 24));
+            pop.style.left = left + 'px'; pop.style.top = top + 'px'; pop.dataset.dir = dir;
+            pop.querySelector('.pzp-arrow').style.left = ax + 'px'; pop.style.transformOrigin = `${ax}px ${dir === 'down' ? '100%' : '0'}`;
+            pop.classList.remove('pop-in'); void pop.offsetWidth; pop.classList.add('pop-in');
+        }
+        (function () {   // 바깥을 누르면 닫고, 바깥에서 다른 칸을 눌렀다면 곧바로 그 칸의 말풍선을 연다
+            const bg = document.getElementById('pzs-pop-bg'), grid = document.getElementById('pzs-grid');
+            bg.onclick = e => {
+                const was = pzPopIdx; pzPopClose();
+                const el = document.elementFromPoint(e.clientX, e.clientY), c = el && el.closest && el.closest('.pzs-cell');
+                if (c && +c.dataset.i !== was) c.click();
+            };
+            grid.addEventListener('scroll', pzPopClose, { passive: true });
+            window.addEventListener('resize', pzPopClose);
+        })();
         function startPuzzle(idx) {
-            const stage = PZ_STAGES[idx]; if (!stage || pzEntering || pzExiting) return;
-            pzEntering = true;
+            const stage = PZ_STAGES[idx]; if (!stage || pzEntering || pzExiting || !pzPlayable(idx)) return;
+            pzFailMem[stage.id] = 0; pzEntering = true;
             Promise.resolve(cancelMatchmaking()).catch(() => {}).then(() => {
                 pzEntering = false;
                 pzCloseStages(); modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'none';
@@ -9843,7 +10190,7 @@
                 pzSetup(null);
             });
         }
-        function puzzleCleanup() { pzTutorialClose(); try { const ov = document.getElementById('augment-overlay'); if (ov && ov.dataset.pz === '1') { ov.style.display = 'none'; ov.dataset.pz = ''; } } catch (e) {} if (puzzleSt) puzzleSt.tok++; try { closeAugmentUI(); } catch (e) {} isSystemLocked = false; augBusy = false; postMovePending = 0; document.body.classList.remove('augment-picking'); isPuzzleMode = false; puzzleSt = null; document.body.classList.remove('puzzle-mode'); pzHideDone(); pzDesc(''); }
+        function puzzleCleanup() { pzTutorialClose(); pzCoachHide(); try { const ov = document.getElementById('augment-overlay'); if (ov && ov.dataset.pz === '1') { ov.style.display = 'none'; ov.dataset.pz = ''; } } catch (e) {} if (puzzleSt) puzzleSt.tok++; try { closeAugmentUI(); } catch (e) {} isSystemLocked = false; augBusy = false; postMovePending = 0; document.body.classList.remove('augment-picking'); isPuzzleMode = false; puzzleSt = null; document.body.classList.remove('puzzle-mode'); pzHideDone(); pzDesc(''); }
         async function puzzleExit(toStages) {
             if (pzExiting) return; pzExiting = true;
             try {
@@ -9855,18 +10202,24 @@
         }
         document.getElementById('btn-puzzle-mode').onclick = pzOpenStages;
         document.getElementById('pzs-close').onclick = pzCloseStages;
-        document.getElementById('pz-tutorial-skip').onclick = pzTutorialClose;
+        document.getElementById('pz-tutorial-skip').onclick = () => { pzTutorialClose(); pzHint(); };
         document.getElementById('pz-tutorial-next').onclick = () => {
-            if (pzTutorialIndex >= PZ_TUTORIAL_STEPS.length - 1) { pzTutorialClose(); return; }
+            if (pzTutorialIndex >= PZ_TUTORIAL_STEPS.length - 1) { pzTutorialClose(); pzHint(); return; }
             pzTutorialIndex++; pzTutorialRender();
         };
+        document.addEventListener('visibilitychange', () => {   // 탭이 가려진 동안은 시간을 세지 않는다
+            const st = puzzleSt; if (!st || !isPuzzleMode) return;
+            if (document.hidden) pzTPause(st);
+            else { const dn = document.getElementById('puzzle-done'), tu = document.getElementById('pz-tutorial'); if ((!dn || dn.style.display !== 'flex') && (!tu || tu.style.display !== 'block')) pzTResume(st); }
+        });
         document.getElementById('pz-pick').onclick = pzOpenPicker;
+        document.getElementById('pz-answer').onclick = pzShowAnswer;
         document.getElementById('pz-undo').onclick = pzUndo;
         document.getElementById('pz-restart').onclick = () => { const st = puzzleSt; if (!st || st.busy || targeting) return; if (isSystemLocked || augBusy) return; pzSetup(st); };
         document.getElementById('pz-exit').onclick = () => puzzleExit(false);
         document.getElementById('btn-pz-again').onclick = () => { if (puzzleSt) pzSetup(puzzleSt); };
         document.getElementById('btn-pz-undo').onclick = () => { pzHideDone(); pzUndo(); };
-        document.getElementById('btn-pz-next').onclick = () => { const st = puzzleSt; if (!st) return; const i = PZ_STAGES.findIndex(s => s.n === st.stage.n); pzHideDone(); if (PZ_STAGES[i + 1]) { puzzleSt = pzFresh(PZ_STAGES[i + 1]); pzSetup(null); } };
+        document.getElementById('btn-pz-next').onclick = () => { const st = puzzleSt; if (!st) return; const i = PZ_STAGES.findIndex(s => s.n === st.stage.n); pzHideDone(); if (PZ_STAGES[i + 1] && pzPlayable(i + 1)) { puzzleSt = pzFresh(PZ_STAGES[i + 1]); pzSetup(null); } };
         document.getElementById('btn-pz-list').onclick = () => puzzleExit(true);
         document.addEventListener('visibilitychange', () => { if (!document.hidden) pzCardRefresh(); });
         pzCardRefresh();
@@ -10124,6 +10477,7 @@
         function onSquareClick(sq) {
             if (isSpectating) return;   // 관전 중에는 조작할 수 없다
             if (replayActive) { if (replayMode !== 'live') document.getElementById('rp-play').click(); return; }
+            if (isPuzzleMode && puzzleSt && puzzleSt.demo && !pzAnsDrive) return;   // 정답 재생 중에는 직접 조작할 수 없다
             if (targeting) { handleTargetClick(sq); return; }
             if (isPracticeMode && practiceEditing) { practicePlace(sq); return; }
             if (isPracticeMode) myColor = game.turn();
