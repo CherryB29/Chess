@@ -141,6 +141,18 @@
         .dot { position: absolute; width: 12.5%; height: 12.5%; display: flex; justify-content: center; align-items: center; pointer-events: none; }
         .dot::after { content: ''; width: 25%; height: 25%; background: rgba(243, 156, 18, 0.8); border-radius: 50%; box-shadow: 0 0 10px rgba(243, 156, 18, 0.5); }
         .capture-ring { position: absolute; width: 12.5%; height: 12.5%; display: flex; justify-content: center; align-items: center; pointer-events: none; }
+        /* 킹을 잡을 수 있는 칸: 체크로 칸이 이미 빨개서 빨간 원이 묻히므로, 가장 위 레이어에 체크메이트와 같은 조준경을 띄운다 */
+        #reticle-layer { z-index: 70; overflow: visible; border-radius: 0; }
+        .king-reticle { position: absolute; width: 12.5%; height: 12.5%; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+        .king-reticle svg { width: 150%; height: 150%; overflow: visible; flex: none; filter: drop-shadow(0 0 2px rgba(0,0,0,.75)); }
+        /* 체크메이트 조준경(drawScope)과 같은 모양·움직임: 크게 돌며 조여 들어와 킹 칸에 잠긴 뒤 살짝 맥동한다 */
+        .king-reticle .kr-lock { transform-origin: 50px 50px; animation: krLock .38s cubic-bezier(.215,.61,.355,1) both, krFade .2s linear both; }
+        .king-reticle .kr-pulse { transform-origin: 50px 50px; animation: krPulse .449s ease-in-out infinite; }
+        @keyframes krLock { from { transform: rotate(69deg) scale(3.23); } to { transform: rotate(0deg) scale(1); } }
+        @keyframes krFade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes krPulse { 0%, 50%, 100% { transform: scale(1); } 25% { transform: scale(1.03); } 75% { transform: scale(.97); } }
+        @media (prefers-reduced-motion: reduce) { .king-reticle .kr-lock, .king-reticle .kr-pulse { animation: none; } }
+        .capture-ring.king-ring { display: none; }
         .capture-ring::after { content: ''; width: 80%; height: 80%; border: 4px solid var(--danger); border-radius: 50%; box-sizing: border-box; box-shadow: 0 0 10px rgba(255, 71, 87, 0.5); animation: spinRing 2s linear infinite; }
         @keyframes spinRing { 0% { transform: scale(0.9) rotate(0deg); opacity: 0.8; } 50% { transform: scale(1.1) rotate(180deg); opacity: 1; } 100% { transform: scale(0.9) rotate(360deg); opacity: 0.8; } }
 
@@ -1866,7 +1878,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v3.93';
+      var VERSION = 'v4.00';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -2195,6 +2207,7 @@
                 <canvas id="fx-canvas" class="layer"></canvas>
                 <div id="vfx-global-layer"></div>
                 <svg id="sug-layer" class="layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+                <div id="reticle-layer" class="layer" aria-hidden="true"></div>
             </div>
         </div>
         
@@ -5068,7 +5081,7 @@
                         let epCapture = false; const fl = balloons[piece.uid] > 0;   // 풍선 기물은 잡지 못한다(올라설 뿐)
                         if (piece.type === 'p' && m.c !== c && !tgtPc && !fl) epCapture = true;
                         if (options.captures && !tgtPc && !epCapture && !(piece.type === 'p' && m.r === (piece.color === 'w' ? 0 : 7))) continue;   // v3.74: 분석 탐색의 정지 탐색용 — 잡기·승급만 합법 판정
-                        let ok = !fl && !!(tgtPc && tgtPc.type === 'k' && tgtPc.color !== color);   // 상대 킹을 잡을 수 있으면 내 킹이 체크 상태여도 잡을 수 있다
+                        let ok = !fl && !this.pzStrict && !!(tgtPc && tgtPc.type === 'k' && tgtPc.color !== color);   // 상대 킹을 잡을 수 있으면 내 킹이 체크 상태여도 잡을 수 있다 (퍼즐 스테이지는 예외: 체크가 걸려 있으면 킹도 잡을 수 없다)
                         // 운명공동체가 걸린 기물을 잡으면 연결된 짝도 함께 사라진다. 그 짝이 내 킹을 막고 있었다면 이 수는 둘 수 없다(내 킹이 체크가 되므로)
                         let fP = null;
                         if (!ok && !fl && fateLinks.length) {
@@ -5368,14 +5381,39 @@
             updateFog(); renderPremove();
         }
 
+        // 킹을 잡는 수에 얹는 조준점: 체크메이트 때 킹에 잠기는 붉은 조준경(drawScope)과 같은 모양
+        // (바깥 원 · 60% 안쪽 원 · 십자 눈금 4개 · 중심점). 1단위 = 칸 크기의 1.5%
+        const KING_RETICLE_SVG = (() => {
+            const C = 'rgb(255,60,50)', R = 41.3, W = 2.4;   // R = 칸 0.62배, W = 칸 0.035배(선 굵기)
+            const tick = (vx, vy) => `M${50 + vx * R * 0.78} ${50 + vy * R * 0.78}L${50 + vx * R * 1.35} ${50 + vy * R * 1.35}`;
+            const ticks = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([x, y]) => tick(x, y)).join('');
+            return `<svg viewBox="0 0 100 100" aria-hidden="true"><g class="kr-lock"><g class="kr-pulse">` +
+                `<circle cx="50" cy="50" r="${R}" fill="none" stroke="${C}" stroke-width="${W}"/>` +
+                `<circle cx="50" cy="50" r="${(R * 0.62).toFixed(1)}" fill="none" stroke="${C}" stroke-width="${W}" opacity=".6"/>` +
+                `<path d="${ticks}" fill="none" stroke="${C}" stroke-width="${W}"/>` +
+                `<circle cx="50" cy="50" r="2" fill="${C}"/>` +
+                `</g></g></svg>`;
+        })();
+        function drawKingReticles(moves) {
+            const host = document.getElementById('reticle-layer'); if (!host) return;
+            host.innerHTML = '';
+            if (isFogOn()) return;   // 암전 중에는 상대 기물 위치를 드러내지 않는다
+            (moves || []).forEach(m => {
+                if (m.captured !== 'k') return;
+                const c = getCoords(m.to), el = document.createElement('div');
+                el.className = 'king-reticle'; el.style.left = c.x + '%'; el.style.top = c.y + '%'; el.innerHTML = KING_RETICLE_SVG;
+                host.appendChild(el);
+            });
+        }
         function drawDots() {
+            drawKingReticles(legalMoves);
             const dotsTop = document.getElementById('dots-top'); if (dotsTop) dotsTop.innerHTML = '';   // 기물 위에 그려야 하는 점(풍선 기물이 올라설 수 있는 칸)
             dotsLayer.innerHTML = ''; dotsLayer.style.zIndex = isFogOn() ? '2' : '';   // 암전 안개(z-index 1) 위로 점을 올린다
             const __mp = selectedSquare ? game.get(selectedSquare) : null, __floating = !!(__mp && balloons[__mp.uid] > 0);   // 풍선 기물은 잡지 않고 올라설 뿐이라 빨간 원을 쓰지 않는다
             legalMoves.forEach(move => {
                 const coords = getCoords(move.to); const el = document.createElement('div');
                 const __tg = game.get(move.to), __air = !!(__tg && balloons[__tg.uid] > 0 && game.airFloat(__tg, game.sqToRC(move.to).r, game.sqToRC(move.to).c));   // 떠 있는 풍선 기물의 칸은 빈 칸: 빨간 원 대신 점
-                if (!isFogOn() && !__floating && ((__tg && !__air) || move.captured)) el.className = 'capture-ring'; else el.className = 'dot';
+                if (!isFogOn() && !__floating && ((__tg && !__air) || move.captured)) el.className = move.captured === 'k' ? 'capture-ring king-ring' : 'capture-ring'; else el.className = 'dot';
                 el.style.left = `${coords.x}%`; el.style.top = `${coords.y}%`;
                 // 풍선(업) 기물은 잡지 않고 올라서므로, 기물이 있는 칸에도 주황 점이 보이도록 기물 위 레이어에 그린다
                 ((__floating || __air) && dotsTop && el.className === 'dot' && __tg ? dotsTop : dotsLayer).appendChild(el);
@@ -9636,13 +9674,13 @@
             { fen: pzFen([['a3','k'],['d3','K'],['b1','R'],['b5','B'],['d4','P'],['a7','P'],['d2','b'],['e3','n'],['h4','n'],['b7','p'],['h7','b'],['a2','b']]), cards: ['앙파상+','신의 심판','업!','암살'], augs: 1, moves: 2, sol: '[암살] b1b3 b3a3' }, // 정답: [암살] b1b3 b3a3
             { fen: pzFen([['a8','k'],['d7','K'],['g3','R'],['e5','B'],['h6','R'],['b4','B'],['d6','p'],['d3','p'],['e3','p'],['e8','r'],['f1','b'],['c4','b']]), cards: ['암살','나이트 클럽','진군 명령','앙파상+'], augs: 1, moves: 2, sol: '[암살] h6a6 a6a8' }, // 정답: [암살] h6a6 a6a8
             { fen: pzFen([['h7','k'],['c5','K'],['d3','R'],['g4','P'],['g3','p'],['a7','p'],['h8','r']]), cards: ['암살','진군 명령'], augs: 1, moves: 1, sol: '[진군 명령] g6h7' }, // 정답: [진군 명령] g6h7
-            { fen: pzFen([['b7','K'],['c3','R'],['b4','B'],['d1','k'],['g2','n'],['c6','N'],['a3','N'],['a5','b'],['e5','p'],['h2','p']]), cards: ['업!','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: '[업!@c3] [파도] b4d2' }, // 정답: [업!@c3] [파도] b4d2
+            { fen: pzFen([['b7','K'],['f4','R'],['b4','B'],['d1','k'],['g2','n'],['c6','N'],['a3','N'],['a5','b'],['e5','p'],['h2','p']]), cards: ['업!','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: '[차원 장벽@a6] [파도] b4d2' }, // 정답: [차원 장벽@a6] [파도] b4d2 (파도를 먼저 쓰면 a5 비숍이 a6으로 올라와 b7 킹에 체크가 걸려 킹을 잡을 수 없다)
             { fen: pzFen([['a2','k'],['f2','K'],['f8','R'],['g3','P'],['d4','n'],['g8','n'],['a6','n'],['b7','b']]), cards: ['앙파상+','캐슬링+'], augs: 1, moves: 2, sol: '[캐슬링+] g3a3 a3a2' }, // 정답: [캐슬링+] g3a3 a3a2
             { fen: pzFen([['h2','k'],['d6','K'],['c6','R'],['c5','P'],['c3','N'],['f4','p'],['g3','b'],['b6','b']]), cards: ['캐슬링+','업!'], augs: 1, moves: 2, sol: '[캐슬링+] c5h5 h5h2' }, // 정답: [캐슬링+] c5h5 h5h2
             { fen: pzFen([['a2','K'],['e2','R'],['h6','P'],['h7','P'],['g5','k'],['d2','p'],['e6','n'],['c5','b'],['f7','P'],['h5','b']]), cards: ['앙파상+','파도','차원 장벽','암살'], augs: 2, moves: 1, sol: '[앙파상+=n] [파도] h8g6' }, // 정답: [앙파상+=n] [파도] h8g6
             { fen: pzFen([['a8','K'],['e3','N'],['f4','B'],['h7','k'],['a3','p'],['c6','p'],['a5','b'],['f3','P'],['d4','p']]), cards: ['파도','차원 장벽','암살'], augs: 1, moves: 2, sol: 'f4e5 [파도] e5h8' }, // 정답: f4e5 [파도] e5h8
             { fen: pzFen([['d2','K'],['d4','N'],['f3','B'],['g8','k'],['f7','p'],['a5','n'],['e5','r'],['h4','p'],['a4','p']]), cards: ['암살','차원 장벽','파도'], augs: 1, moves: 2, sol: 'f3d5 [암살] d5g8' }, // 정답: f3d5 [암살] d5g8
-            { fen: pzFen([['h1','k'],['e1','K'],['a4','R'],['d4','P'],['a5','n'],['c2','b'],['d5','b'],['g4','b'],['e7','b'],['f7','p']]), cards: ['차원 장벽','신의 심판','앙파상+','파도'], augs: 1, moves: 2, sol: 'a4a2 [파도] a2h2' }, // 정답: a4a2 [파도] a2h2
+            { fen: pzFen([['h1','k'],['f1','K'],['a4','R'],['d4','P'],['a5','n'],['c2','b'],['d5','b'],['g4','b'],['e7','b'],['f7','p']]), cards: ['차원 장벽','신의 심판','앙파상+','파도'], augs: 1, moves: 2, sol: 'a4a2 [파도] a2h2' }, // 정답: a4a2 [파도] a2h2
             { fen: pzFen([['h8','k'],['h5','K'],['c3','R'],['c5','R'],['g6','b'],['c7','r'],['d4','b']]), cards: ['연계 분쇄','공성전','진군 명령'], augs: 1, moves: 2, sol: '[공성전] h5g6 c5c8' }, // 정답: [공성전] h5g6 c5c8
             { fen: pzFen([['a5','k'],['e7','K'],['c7','R'],['c6','b']]), cards: ['파도','나이트 클럽'], augs: 2, moves: 1, sol: '[파도] [나이트 클럽] c7a6' }, // 정답: [파도] [나이트 클럽] c7a6
             { fen: pzFen([['h4','k'],['c6','K'],['g7','R'],['d3','p']]), cards: ['나이트 클럽','파도'], augs: 2, moves: 1, sol: '[나이트 클럽] [파도] g7h5' }, // 정답: [나이트 클럽] [파도] g7h5
@@ -9650,9 +9688,9 @@
             { fen: pzFen([['h5','k'],['f3','K'],['g1','R'],['f4','b'],['h3','r']]), cards: ['그림자 교체','진군 명령'], augs: 1, moves: 2, sol: '[그림자 교체] f3h3 h3h5' }, // 정답: [그림자 교체] f3h3 h3h5
             { fen: pzFen([['a5','k'],['d2','K'],['f1','R'],['d5','N'],['d1','n'],['c5','b'],['a7','p']]), cards: ['나이트 클럽','신성한 폭발'], augs: 1, moves: 2, sol: '[신성한 폭발] f1a1 a1a5' }, // 정답: [신성한 폭발] f1a1 a1a5
             { fen: pzFen([['a4','k'],['e6','K'],['f6','R'],['e3','p'],['f7','p'],['b5','n'],['b4','n'],['d1','r']]), cards: ['그림자 교체','진군 명령'], augs: 1, moves: 2, sol: '[그림자 교체] e6a6 a6a4' }, // 정답: [그림자 교체] e6a6 a6a4
-            { fen: pzFen([['e2','k'],['g3','K'],['g4','R'],['d6','b'],['h1','b'],['a2','b'],['c5','r']]), cards: ['나이트 클럽','운명의 수레바퀴','진군 명령','앙파상+'], augs: 1, moves: 2, sol: 'g4f4 [나이트 클럽] f4e2' }, // 정답: g4f4 [나이트 클럽] f4e2
+            { fen: pzFen([['e2','k'],['h3','K'],['g4','R'],['d6','b'],['h1','b'],['a2','b'],['c5','r']]), cards: ['나이트 클럽','운명의 수레바퀴','진군 명령','앙파상+'], augs: 1, moves: 2, sol: 'g4f4 [나이트 클럽] f4e2' }, // 정답: g4f4 [나이트 클럽] f4e2
             { fen: pzFen([['a3','k'],['d2','K'],['b8','R'],['a7','P'],['e3','p'],['f6','p'],['f7','b'],['h6','r'],['a8','n']]), cards: ['진군 명령','나이트 클럽','신성한 폭발'], augs: 1, moves: 2, sol: '[신성한 폭발] b8b3 b3a3' }, // 정답: [신성한 폭발] b8b3 b3a3
-            { fen: pzFen([['d3','k'],['h4','K'],['a6','R'],['h5','B'],['b7','B'],['a4','r'],['f4','r'],['b2','r'],['h7','p']]), cards: ['진군 명령','업!','연계 분쇄'], augs: 1, moves: 2, sol: '[연계 분쇄] b7e4 e4d3' }, // 정답: [연계 분쇄] b7e4 e4d3
+            { fen: pzFen([['d3','k'],['h4','K'],['a6','R'],['h5','B'],['b7','B'],['a5','r'],['f4','r'],['b2','r'],['h7','p']]), cards: ['진군 명령','업!','연계 분쇄'], augs: 1, moves: 2, sol: '[연계 분쇄] b7e4 e4d3' }, // 정답: [연계 분쇄] b7e4 e4d3
             { fen: pzFen([['d8','K'],['a7','N'],['a3','B'],['g1','k'],['a5','p'],['c8','r'],['e7','N'],['e4','r'],['b7','P'],['g5','p']]), cards: ['신성한 폭발','차원 장벽','파도'], augs: 1, moves: 2, sol: '[신성한 폭발] a3c5 c5g1' }, // 정답: [신성한 폭발] a3c5 c5g1
             { fen: pzFen([['a6','K'],['b5','R'],['b2','P'],['e5','P'],['g1','k'],['h6','p'],['f6','n'],['f8','b'],['b7','n'],['g7','b']]), cards: ['진군 명령','차원 장벽','파도'], augs: 1, moves: 2, sol: '[진군 명령] b5g5 g5g1' }, // 정답: [진군 명령] b5g5 g5g1
             { fen: pzFen([['e6','K'],['g8','N'],['e4','B'],['b8','k'],['a3','p'],['e1','n'],['a8','r'],['c3','P'],['g6','N'],['g4','P']]), cards: ['나이트 클럽','차원 장벽','파도'], augs: 1, moves: 2, sol: 'e4c6 [나이트 클럽] c6b8' }, // 정답: e4c6 [나이트 클럽] c6b8
@@ -9671,7 +9709,7 @@
             { fen: pzFen([['g6','K'],['b8','B'],['c8','R'],['b7','k'],['c1','N'],['h1','n'],['c5','p'],['e5','N'],['c3','N'],['d4','b']]), cards: ['신의 심판','파도','암살','나이트 클럽'], augs: 2, moves: 1, sol: '[신의 심판@b8] [파도] c8b8' }, // 정답: [신의 심판@b8] [파도] c8b8
             { fen: pzFen([['c6','K'],['c3','B'],['b3','R'],['g3','k'],['d3','p'],['e7','P'],['f8','b'],['g7','P'],['h5','b'],['h4','p']]), cards: ['신의 심판','파도','암살','나이트 클럽'], augs: 2, moves: 1, sol: '[신의 심판@c3] [암살] b3g3' }, // 정답: [신의 심판@c3] [암살] b3g3
             { fen: pzFen([['a1','K'],['f8','R'],['b8','k'],['e8','r'],['g6','b'],['b3','n'],['e3','N'],['d4','N'],['a4','N'],['e7','P']]), cards: ['연계 분쇄','암살','나이트 클럽','차원 장벽'], augs: 2, moves: 1, sol: '[연계 분쇄] [암살] f8b8' }, // 정답: [연계 분쇄] [암살] f8b8
-            { fen: pzFen([['e1','K'],['f2','R'],['d1','B'],['e7','k'],['a3','n'],['e6','p'],['h7','P'],['c4','N'],['d2','r'],['g5','n']]), cards: ['운명의 수레바퀴','파도','차원 장벽','암살'], augs: 2, moves: 1, sol: '[파도] [운명의 수레바퀴] f2f8' }, // 정답: [파도] [운명의 수레바퀴] f2f8
+            { fen: pzFen([['f1','K'],['f2','R'],['d1','B'],['e7','k'],['a3','n'],['e6','p'],['h7','P'],['c4','N'],['d2','r'],['g5','n']]), cards: ['운명의 수레바퀴','파도','차원 장벽','암살'], augs: 2, moves: 1, sol: '[파도] [운명의 수레바퀴] f2f8' }, // 정답: [파도] [운명의 수레바퀴] f2f8
             { fen: pzFen([['b8','K'],['h7','R'],['e5','B'],['d2','k'],['g3','p'],['c6','p'],['d7','N'],['e6','P'],['e2','r'],['c2','p']]), cards: ['파도','나이트 클럽','차원 장벽','암살'], augs: 2, moves: 1, sol: '[파도] [나이트 클럽] e5d3' }, // 정답: [파도] [나이트 클럽] e5d3
             { fen: pzFen([['c8','K'],['h4','R'],['f4','B'],['d3','k'],['e3','p'],['a3','N'],['h2','p'],['c5','b'],['g6','P'],['g4','N']]), cards: ['운명의 수레바퀴','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: '[운명의 수레바퀴] [암살] h3d3' }, // 정답: [운명의 수레바퀴] [암살] h3d3
             { fen: pzFen([['h1','k'],['h8','K'],['b3','R'],['d4','B'],['e8','R'],['f4','p'],['a5','b'],['f6','p'],['h2','p'],['e6','p'],['g7','b'],['h3','p']]), cards: ['나이트 클럽','신성한 폭발','앙파상+','연계 분쇄'], augs: 1, moves: 2, sol: '[신성한 폭발] b3b1 b1h1' }, // 정답: [신성한 폭발] b3b1 b1h1
@@ -9684,7 +9722,7 @@
             { fen: pzFen([['a6','k'],['b4','K'],['h5','R'],['d6','P'],['h7','P'],['d3','P'],['d8','B'],['a8','b'],['d2','b']]), cards: ['파도','연계 분쇄','네크로맨서'], augs: 2, moves: 1, sol: '[연계 분쇄] [네크로맨서] h5a5' }, // 정답: [연계 분쇄] [네크로맨서] h5a5
             { fen: pzFen([['c8','K'],['h2','R'],['h1','B'],['h7','k'],['a4','n'],['f6','n'],['h4','p'],['e6','p'],['g7','b']]), cards: ['여신의 가호','신의 심판','차원 장벽','파도'], augs: 2, moves: 1, sol: '[여신의 가호] [신의 심판@h1] h2h7' }, // 정답: [여신의 가호] [신의 심판@h1] h2h7
             { fen: pzFen([['c5','K'],['b8','R'],['a4','k'],['g2','b'],['b4','b'],['f3','P'],['d4','p'],['e5','P'],['f7','p']]), cards: ['연계 분쇄','암살','나이트 클럽','차원 장벽'], augs: 2, moves: 1, sol: '[연계 분쇄] b8a8 [차원 장벽@b3]' }, // 정답: [연계 분쇄] b8a8 [차원 장벽@b3]
-            { fen: pzFen([['a8','k'],['b1','K'],['c1','R'],['b5','B'],['c8','b'],['a3','b'],['g1','n'],['b8','r'],['b7','r']]), cards: ['앙파상+','업!','나이트 클럽','강제 이주'], augs: 2, moves: 1, sol: '[나이트 클럽] [강제 이주] b5a7' }, // 정답: [나이트 클럽] [강제 이주] b5a7
+            { fen: pzFen([['a8','k'],['d1','K'],['c1','R'],['b5','B'],['c8','b'],['a3','b'],['g1','n'],['b8','r'],['b7','r']]), cards: ['앙파상+','업!','나이트 클럽','강제 이주'], augs: 2, moves: 1, sol: '[나이트 클럽] [강제 이주] b5a7' }, // 정답: [나이트 클럽] [강제 이주] b5a7
             { fen: pzFen([['f4','K'],['d5','R'],['f1','k'],['c6','p'],['c5','r'],['d8','N'],['b3','p'],['e3','n'],['c1','b']]), cards: ['차원 장벽','운명의 수레바퀴','파도','암살'], augs: 2, moves: 1, sol: '[차원 장벽@e1] [운명의 수레바퀴] d5d1' }, // 정답: [차원 장벽@e1] [운명의 수레바퀴] d5d1
             { fen: pzFen([['d8','K'],['d6','R'],['f5','B'],['f8','k'],['a6','p'],['e4','p'],['a1','n'],['b5','r'],['c4','n'],['d3','P']]), cards: ['나이트 클럽','차원 장벽','연계 분쇄','암살'], augs: 2, moves: 1, sol: 'f5e6 [나이트 클럽] [차원 장벽@g8]' }, // 정답: f5e6 [나이트 클럽] [차원 장벽@g8]
             { fen: pzFen([['b3','K'],['c1','R'],['a6','k'],['e3','n'],['c8','b'],['d6','p'],['g4','N'],['h3','p'],['e4','n'],['e2','P']]), cards: ['차원 장벽','운명의 수레바퀴','파도','암살'], augs: 2, moves: 1, sol: '[차원 장벽@b1] [운명의 수레바퀴] a1a7' }, // 정답: [차원 장벽@b1] [운명의 수레바퀴] a1a7
@@ -10179,7 +10217,7 @@
                 pzCloseStages(); modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'none';
                 if (isPuzzleMode) puzzleCleanup();
                 pzHideDone(); try { closeAugmentUI(); } catch (e) {}
-                isBotMode = false; isPracticeMode = true; isPuzzleMode = true; currentRoomId = null; myColor = 'w'; isGameStarted = true; statsRecorded = true; rankCtx = null;
+                isBotMode = false; isPracticeMode = true; isPuzzleMode = true; game.pzStrict = true; currentRoomId = null; myColor = 'w'; isGameStarted = true; statsRecorded = true; rankCtx = null;
                 practiceEditing = false; practiceTool = null; practiceHist = []; practiceFuture = []; practiceSel = null; practiceMulti = new Set(); practiceEndKey = ''; practiceBoPrev = { w: 0, b: 0 };
                 practiceOmni = false; practiceAuto = false;   // 퍼즐은 항상 백 시점
                 document.body.classList.remove('black-pov', 'practice-editing'); document.body.classList.add('practice-mode', 'puzzle-mode');
@@ -10190,7 +10228,7 @@
                 pzSetup(null);
             });
         }
-        function puzzleCleanup() { pzTutorialClose(); pzCoachHide(); try { const ov = document.getElementById('augment-overlay'); if (ov && ov.dataset.pz === '1') { ov.style.display = 'none'; ov.dataset.pz = ''; } } catch (e) {} if (puzzleSt) puzzleSt.tok++; try { closeAugmentUI(); } catch (e) {} isSystemLocked = false; augBusy = false; postMovePending = 0; document.body.classList.remove('augment-picking'); isPuzzleMode = false; puzzleSt = null; document.body.classList.remove('puzzle-mode'); pzHideDone(); pzDesc(''); }
+        function puzzleCleanup() { pzTutorialClose(); pzCoachHide(); try { const ov = document.getElementById('augment-overlay'); if (ov && ov.dataset.pz === '1') { ov.style.display = 'none'; ov.dataset.pz = ''; } } catch (e) {} if (puzzleSt) puzzleSt.tok++; try { closeAugmentUI(); } catch (e) {} isSystemLocked = false; augBusy = false; postMovePending = 0; document.body.classList.remove('augment-picking'); isPuzzleMode = false; game.pzStrict = false; puzzleSt = null; document.body.classList.remove('puzzle-mode'); pzHideDone(); pzDesc(''); }
         async function puzzleExit(toStages) {
             if (pzExiting) return; pzExiting = true;
             try {
