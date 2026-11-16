@@ -1,4 +1,4 @@
-ㅔ<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -3102,7 +3102,7 @@
             const darkMode = settings.darkMode;
             document.getElementById('theme-toggle').checked = darkMode;
             if (darkMode) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode');
-            updatePreviousMoveHighlights();
+            try { updatePreviousMoveHighlights(); } catch (e) {}   // 저장된 설정을 시작 단계에서 적용할 땐 보드 변수(squareList)가 아직 만들어지기 전이라 오류가 나 앱 전체가 멈췄다
         }
         function saveUserSettings() {
             if (!userProfile.settings) userProfile.settings = {};
@@ -3582,7 +3582,10 @@
             }
             let restored = false;
             try { restored = await withTimeout(tryRestoreRoomSession(), 7000, 'restore'); }
-            catch (e) { console.warn('진행 중이던 방을 복구하지 못해 세션을 정리합니다.', e); clearRoomSession(); currentRoomId = null; restored = false; }
+            catch (e) {
+                console.warn('진행 중이던 방을 복구하지 못해 세션을 정리합니다.', e); clearRoomSession(); currentRoomId = null; restored = false;
+                if (!/timeout/.test(String(e && e.message))) { isGameStarted = false; try { document.body.classList.remove('black-pov'); } catch (e2) {} }   // 복구 중 오류로 '게임 시작됨' 상태만 남아 로비가 안 뜨던 경우 방지
+            }
             if (!restored && !isGameStarted && vsOverlay.style.display === 'none') {
                 const invite = (new URLSearchParams(location.search).get('room') || '').trim();
                 if (/^\d{4}$/.test(invite)) {   // 친구가 보낸 초대 링크로 들어온 경우: 바로 입장 시도
@@ -3600,7 +3603,7 @@
             authResolved = true;
             if (window.__loadStep) window.__loadStep(2);
             if (user) {
-                enterAfterAuth(user).catch(e => { console.error(e); if (!isGameStarted) mainLobbyOverlay.style.display = 'flex'; }).finally(() => { if (window.__appReady) window.__appReady(); });
+                enterAfterAuth(user).catch(e => { console.error(e); loginOverlay.style.display = 'none'; if (!isGameStarted) mainLobbyOverlay.style.display = 'flex'; }).finally(() => { if (window.__appReady) window.__appReady(); });
             } else {
                 try { dropGlobalPresence(); } catch (e) {}
                 myUid = null;
