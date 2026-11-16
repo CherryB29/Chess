@@ -1202,6 +1202,18 @@
         @keyframes pzTutorialFloat { from { opacity: 0; transform: translateY(7px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         @media (prefers-reduced-motion: reduce) { #pz-tutorial-card, #pz-tutorial-spot { animation: none; transition: none; } }
         /* 스테이지 1 코치: 누를 곳을 강조하고, 안내 카드를 위에 띄운다 (화면은 그대로 눌러진다) */
+
+        #ms-tabs button { position: relative; }
+        .ms-dot { position: absolute; top: 5px; right: 8px; width: 9px; height: 9px; border-radius: 50%; background: #ff3b30; box-shadow: 0 0 0 2px var(--panel-bg); pointer-events: none; animation: msDotPulse 1.6s ease-in-out infinite; }
+        @keyframes msDotPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+        #pz-new { position: fixed; inset: 0; z-index: 630; display: none; }
+        #pz-tutorial-spot, #pz-coach-spot { transition: none !important; }
+        #pz-new-spot { position: fixed; border: 2px solid #ffd166; border-radius: 16px; box-shadow: 0 0 0 9999px rgba(7,8,14,.72), 0 0 26px rgba(255,209,102,.8); pointer-events: none; animation: pzCoachPulse 1.5s ease-in-out infinite; }
+        #pz-new-card { position: fixed; width: min(300px, calc(100vw - 32px)); box-sizing: border-box; padding: 14px 16px; border: 1px solid rgba(255,209,102,.55); border-radius: 16px; background: var(--panel-bg); color: var(--text-color); box-shadow: 0 14px 38px rgba(0,0,0,.5); animation: pzTutorialFloat .35s ease both, pzCoachBob 2.4s ease-in-out .35s infinite; }
+        #pz-new-card b { display: block; margin: 0 0 5px; color: #ffd166; font-size: .95rem; }
+        #pz-new-card p { margin: 0; font-size: .84rem; line-height: 1.5; }
+        #pz-new-card small { display: block; margin-top: 8px; color: #999; font-size: .72rem; }
+        @media (prefers-reduced-motion: reduce) { #pz-new-card, #pz-new-spot, .ms-dot { animation: none; } }
         #pz-coach { position: fixed; inset: 0; z-index: 615; display: none; pointer-events: none; }
         #pz-coach-spot { position: fixed; border: 2px solid #ffd166; border-radius: 14px; box-shadow: 0 0 0 9999px rgba(7,8,14,.5), 0 0 22px rgba(255,209,102,.75); pointer-events: none; animation: pzCoachPulse 1.5s ease-in-out infinite; transition: top .22s ease, left .22s ease, width .22s ease, height .22s ease; }
         #pz-coach-card { position: fixed; width: min(300px, calc(100vw - 32px)); box-sizing: border-box; padding: 13px 15px; border: 1px solid rgba(255,209,102,.55); border-radius: 16px; background: var(--panel-bg); color: var(--text-color); box-shadow: 0 14px 38px rgba(0,0,0,.5); pointer-events: none; animation: pzTutorialFloat .35s ease both, pzCoachBob 2.4s ease-in-out .35s infinite; }
@@ -1494,6 +1506,27 @@
         .ach-push .ap-d { display: block; color: #b9b9c8; font-size: 0.78rem; }
         @keyframes achIn { from { opacity: 0; transform: translateY(-30px) scale(0.96); } to { opacity: 1; transform: none; } }
         @keyframes achOut { to { opacity: 0; transform: translateY(-24px); } }
+        /* 히든 업적: 보라빛 카드 + 빛 스윕 + 터지는 연출 (상대가 달성한 경우는 주황빛) */
+        .ach-push.hid { position: relative; overflow: hidden; background: linear-gradient(135deg, #2b1f52, #1a1233 62%, #3a1f4c); border-color: rgba(190,132,255,.9); box-shadow: 0 0 0 1px rgba(190,132,255,.35), 0 10px 34px rgba(150,92,255,.55); animation: achHidIn .7s cubic-bezier(.2,.9,.25,1.2) both; }
+        .ach-push.hid::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.3) 50%, transparent 70%); transform: translateX(-130%); animation: achShine 1.3s .55s ease-out 2; }
+        .ach-push.hid small { color: #dcbcff; }
+        .ach-push.hid .ap-ic { filter: drop-shadow(0 0 8px rgba(214,170,255,.9)); animation: achIcon 1.2s ease-in-out infinite; }
+        .ach-push.hid.foe { background: linear-gradient(135deg, #4a2418, #2a1511 62%, #4a2a1a); border-color: rgba(255,150,100,.9); box-shadow: 0 0 0 1px rgba(255,150,100,.35), 0 10px 34px rgba(255,120,70,.5); }
+        .ach-push.hid.foe small { color: #ffc2a3; }
+        .ach-push.hid.foe .ap-ic { filter: drop-shadow(0 0 8px rgba(255,170,120,.9)); }
+        .ach-push.out { animation: achOut .4s ease-in both; }
+        @keyframes achHidIn { 0% { opacity: 0; transform: translateY(-34px) scale(.82); } 55% { opacity: 1; transform: translateY(4px) scale(1.06); } 100% { opacity: 1; transform: none; } }
+        @keyframes achShine { to { transform: translateX(130%); } }
+        @keyframes achIcon { 0%, 100% { transform: scale(1) rotate(0); } 50% { transform: scale(1.16) rotate(-8deg); } }
+        .hid-burst { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 56px); width: 0; height: 0; z-index: 3999; pointer-events: none; }
+        .hid-burst .hb-flash { position: absolute; left: -170px; top: -170px; width: 340px; height: 340px; border-radius: 50%; background: radial-gradient(circle, rgba(206,160,255,.6), rgba(150,92,255,.18) 45%, transparent 68%); animation: hbFlash 1s ease-out both; }
+        .hid-burst .hb-ring { position: absolute; left: -40px; top: -40px; width: 80px; height: 80px; border-radius: 50%; border: 3px solid rgba(230,200,255,.9); animation: hbRing 1s ease-out both; }
+        .hid-burst .hb-p { position: absolute; left: -10px; top: -10px; font-size: 1.1rem; line-height: 1; opacity: 0; animation: hbFly 1.5s cubic-bezier(.15,.7,.3,1) both; }
+        .hid-burst.foe .hb-flash { background: radial-gradient(circle, rgba(255,170,120,.55), rgba(255,120,70,.16) 45%, transparent 68%); }
+        .hid-burst.foe .hb-ring { border-color: rgba(255,200,160,.9); }
+        @keyframes hbFlash { 0% { opacity: 0; transform: scale(.2); } 25% { opacity: 1; } 100% { opacity: 0; transform: scale(1.5); } }
+        @keyframes hbRing { 0% { opacity: 1; transform: scale(.3); } 100% { opacity: 0; transform: scale(4.2); } }
+        @keyframes hbFly { 0% { opacity: 0; transform: translate(0, 0) scale(.3) rotate(0); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) + 40px)) scale(1.1) rotate(var(--rot)); } }
     
         /* v3.54: 칭호 카드 · 선택창 */
         .title-card { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px 12px; margin: 0 0 12px; border-radius: 12px; border: 1px solid var(--panel-border); background: var(--input-bg); color: var(--text-color); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .12s, border-color .15s; }
@@ -1846,12 +1879,6 @@
         .pr-count { display: inline-flex; align-items: baseline; gap: 4px; font-size: .72rem; font-weight: 600; color: #8d8d9b; font-variant-numeric: tabular-nums; }
         .pr-count b { font-size: 1.05rem; font-weight: 800; color: var(--text-color); }
         .pr-hero-title { margin-top: 10px; font-size: 1.28rem; font-weight: 800; letter-spacing: -.2px; }
-        .pr-hero-sub { margin-top: 3px; font-size: .78rem; line-height: 1.45; color: #8d8d9b; word-break: keep-all; }
-        .pr-hero-foot { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
-        .pr-bar { flex: 1 1 auto; height: 5px; border-radius: 99px; overflow: hidden; background: rgba(128,128,128,.22); }
-        .pr-bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--primary); transition: width .4s; }
-        .pr-hero-cta { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 2px; font-size: .78rem; font-weight: 800; color: var(--primary); }
-        .pr-go { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
         .pr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .pr-tile { display: flex; flex-direction: column; align-items: flex-start; gap: 0; box-sizing: border-box; margin: 0; padding: 14px 14px 15px; text-align: left; border-radius: 16px; border: 1px solid var(--panel-border); background: var(--input-bg); color: var(--text-color); cursor: pointer; transition: transform .15s, border-color .2s; -webkit-tap-highlight-color: transparent; }
         .pr-tile:hover { border-color: color-mix(in srgb, var(--primary) 55%, var(--panel-border)); }
@@ -1861,7 +1888,28 @@
         .pr-tile b { font-size: .98rem; font-weight: 800; }
         .pr-tile small { margin-top: 4px; font-size: .72rem; line-height: 1.45; color: #8d8d9b; word-break: keep-all; }
         #pz-pick.none { background: transparent; border-color: var(--panel-border); color: #8d8d9b; }
-</style>
+
+        /* ---- 통계 창 ---- */
+        #stats-overlay .help-box { width: 100%; max-width: 440px; padding: 0 !important; overflow: hidden; display: flex; flex-direction: column; max-height: min(88vh, 680px); text-align: left; }
+        .st-sec { margin: 0 0 18px; }
+        .st-sec h3 { margin: 0 0 8px; font-size: 0.9rem; }
+        .st-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .st-card { padding: 10px 4px; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--panel-border); text-align: center; min-width: 0; }
+        .st-card b { display: block; font-size: 1.05rem; white-space: nowrap; }
+        .st-card small { color: #8a8a96; font-size: 0.7rem; }
+        .st-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; font-size: 0.84rem; border-bottom: 1px solid rgba(128,128,128,0.14); }
+        .st-row:last-child { border-bottom: 0; }
+        .st-row .ic { width: 1.5em; text-align: center; }
+        .st-row .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+        .st-row .vl { color: #8a8a96; font-size: 0.76rem; white-space: nowrap; }
+        .st-side { display: flex; flex-direction: column; gap: 4px; margin-bottom: 9px; font-size: 0.82rem; }
+        .st-side > div:first-child { display: flex; justify-content: space-between; gap: 8px; }
+        .st-side span { color: #8a8a96; font-size: 0.76rem; }
+        .st-bar { height: 8px; border-radius: 99px; background: rgba(128,128,128,0.22); overflow: hidden; display: flex; }
+        .st-bar i { display: block; height: 100%; }
+        .st-note { color: #8a8a96; font-size: 0.72rem; line-height: 1.5; margin: 0; }
+        .st-empty { color: #8a8a96; font-size: 0.8rem; padding: 4px 0; }
+    </style>
 </head>
 <body>
 
@@ -2408,8 +2456,6 @@
                 <button id="btn-puzzle-mode" type="button" class="pr-hero">
                     <span class="pr-hero-top"><span class="pr-tag">PUZZLE</span><span class="pr-count"><b id="puzzle-card-done">0</b><span id="puzzle-card-desc"></span></span></span>
                     <span class="pr-hero-title">퍼즐 스테이지</span>
-                    <span class="pr-hero-sub">증강은 선택 사항이에요. 목표를 달성하면 클리어예요.</span>
-                    <span class="pr-hero-foot"><span class="pr-bar"><i id="puzzle-card-bar"></i></span><span class="pr-hero-cta" id="puzzle-card-cta">시작하기<svg class="pr-go" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></span></span>
                 </button>
                 <div class="pr-grid">
                     <button id="btn-show-bot-diff" type="button" class="pr-tile">
@@ -2502,9 +2548,20 @@
     <nav id="side-menu" aria-label="메뉴">
         <div class="sm-title">메뉴</div>
         <button type="button" id="btn-open-help" class="sm-item"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1.1.9-1.1 1.7M12 17h.01"/></svg><span>도움말</span></button>
+        <button type="button" id="btn-menu-stats" class="sm-item"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg><span>통계</span></button>
         <button type="button" id="btn-menu-settings" class="sm-item"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>설정</span></button>
         <button type="button" id="btn-menu-leave" class="sm-item" style="display: none;"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg><span>나가기</span></button>
     </nav>
+
+    <div id="stats-overlay" class="overlay" style="display: none; z-index: 310;">
+        <div class="lobby-box help-box" role="dialog" aria-label="통계">
+            <div class="help-head">
+                <h2>통계</h2>
+                <button id="btn-close-stats" class="settings-x" aria-label="닫기"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            </div>
+            <div class="help-body" id="stats-body"></div>
+        </div>
+    </div>
 
     <div id="help-overlay" class="overlay" style="display: none; z-index: 310;">
         <div class="lobby-box help-box" role="dialog" aria-label="도움말">
@@ -2743,6 +2800,7 @@
         </section>
     </div>
 
+    <div id="pz-new" aria-hidden="true"><div id="pz-new-spot"></div><div id="pz-new-card" role="status"><b><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px;margin-right:6px"><path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.705 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"/></svg>새 퍼즐이 생겼어요!</b><p>4.00 업데이트로 <em style="font-style:normal;font-weight:800;color:#ffd166">퍼즐 스테이지</em>가 추가됐어요. 증강을 골라 목표를 달성해 보세요.</p><small>화면을 누르면 닫혀요</small></div></div>
     <div id="pz-coach" aria-hidden="true">
         <div id="pz-coach-spot"></div>
         <div id="pz-coach-card" role="status"><b id="pz-coach-title"></b><p id="pz-coach-text"></p></div>
@@ -2828,7 +2886,7 @@
 
         let myUid = null; let myColor = null; let currentRoomId = null; let isGameStarted = false;
         let isBotMode = false; let botDifficulty = '하'; let isPracticeMode = false;   // 연습 모드: 자유 배치·증강 체험 (증강 단계·게임 종료 없음)
-        let statsRecorded = false; 
+        let statsRecorded = false; let statAugs = {}; let curOppUid = null; 
         let rankCtx = null, lastRank = null;   // 랭킹: 대전 시작 시점의 두 사람 점수 / 마지막 판의 점수 변동
         let userProfile = { name: "Guest", icon: "👤", stats: { w:0, l:0, d:0 }, score: 0 };
         
@@ -3153,6 +3211,18 @@
             const b = hasBatchim(name), ro = (b === 0 || b === 8) ? '로' : '으로';   // 받침 없음/ㄹ 받침은 '로'
             ACHIEVEMENTS.push({ id, icon, title, desc: `${name}${ro} 체크메이트 또는 킹 처치로 승리한다`, test: e => e.kind === 'aug' && e.name === name });
         });
+        // 히든 업적: 목록에는 '???'로만 보이고, 달성하면 이름과 조건이 공개된다. 경기 중 조건이 일어나는 순간 바로 달성된다(사람과의 대전에서만).
+        [
+            { id: 'hid_wave_mine', icon: '🌊', title: '수난시대', desc: '파도로 민 적 기물이 지뢰를 밟게 한다' },
+            { id: 'hid_madness_mine', icon: '🤡', title: '해피 서프라이즈', desc: '광기로 옮긴 적 기물이 지뢰를 밟고 죽게 한다' },
+            { id: 'hid_king_mine3', icon: '👑', title: '솔선수범', desc: '킹으로 지뢰를 3번 제거한다', goal: 3, counter: 'kingMine' },
+            { id: 'hid_barrier_mine', icon: '🧱', title: '철거반', desc: '차원 장벽으로 지뢰를 제거한다' },
+            { id: 'hid_balloon_king', icon: '🎈', title: '업어줄까?', desc: '업!으로 띄운 아군 기물이 킹 위에 내려앉아 희생된다' },
+            { id: 'hid_own_mine', icon: '💥', title: '자업자득', desc: '내 기물로 내가 묻은 지뢰를 밟는다' },
+            { id: 'hid_wheel_mine', icon: '🎡', title: '꽝 없는 룰렛', desc: '수레바퀴로 돌린 적 기물이 지뢰를 밟고 죽게 한다' },
+            { id: 'hid_invincible_poison', icon: '☠️', title: '화생방', desc: '무적 상태의 아군 기물을 적 독구름 위에 올린다' },
+            { id: 'hid_lightning3', icon: '🌩️', title: '벼락부자', desc: '벼락 한 번에 종류가 다른 적 기물 3개를 처치한다' }
+        ].forEach(d => ACHIEVEMENTS.push({ ...d, hidden: true, test: () => false }));
         const LOCAL_ACH_KEY = 'augchess_ach_';
         // 증강으로 마무리(먼저 쓰는 쪽): 증강으로 '킹을 잡을 수 있는 수'가 새로 생겼고 상대가 막지 못해 그 수로 킹을 잡으면 그 증강의 업적이다.
         let augKillClaim = null;   // { name, color }
@@ -3189,14 +3259,32 @@
             try { localStorage.setItem(LOCAL_ACH_KEY + (myUid || 'local'), JSON.stringify(achPayload())); } catch (e) {}
             syncAchRemote();
         }
-        function showAchPush(d) {   // 화면 맨 위에서 내려오는 업적 알림
+        function showAchPush(d, foe) {   // 화면 맨 위에서 내려오는 업적 알림 (foe: 상대가 달성한 히든 업적을 알릴 때)
             let wrap = document.getElementById('ach-push-wrap');
             if (!wrap) { wrap = document.createElement('div'); wrap.id = 'ach-push-wrap'; document.body.appendChild(wrap); }
-            const el = document.createElement('div'); el.className = 'ach-push';
+            const el = document.createElement('div'); el.className = 'ach-push' + (d.hidden ? ' hid' : '') + (foe ? ' foe' : '');
             el.innerHTML = '<div class="ap-ic"></div><div><small>업적 달성</small><b></b><span class="ap-d"></span></div>';
-            el.querySelector('.ap-ic').textContent = d.icon; el.querySelector('b').textContent = `칭호 「${d.title}」 획득!`; el.querySelector('.ap-d').textContent = d.desc;
+            el.querySelector('small').textContent = foe ? '상대가 히든 업적을 달성했어요!' : (d.hidden ? '히든 업적 달성' : '업적 달성');
+            el.querySelector('.ap-ic').textContent = d.icon; el.querySelector('b').textContent = foe ? `「${d.title}」` : `칭호 「${d.title}」 획득!`; el.querySelector('.ap-d').textContent = d.desc;
             wrap.appendChild(el); el.onclick = () => el.remove();
-            setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 450); }, 4300);
+            if (d.hidden) hiddenAchBurst(d.icon, !!foe);
+            setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 450); }, d.hidden ? 5600 : 4300);
+        }
+        function hiddenAchBurst(icon, foe) {   // 히든 업적 연출: 빛이 번지고 별·아이콘이 사방으로 터진다 (모션 줄이기 설정이면 생략)
+            try {
+                if (typeof reduceMotion !== 'undefined' && reduceMotion) return;
+                const w = document.createElement('div'); w.className = 'hid-burst' + (foe ? ' foe' : ''); w.setAttribute('aria-hidden', 'true');
+                w.innerHTML = '<i class="hb-flash"></i><i class="hb-ring"></i>';
+                const N = 18;
+                for (let i = 0; i < N; i++) {
+                    const p = document.createElement('span'); p.className = 'hb-p'; p.textContent = i % 5 === 0 ? icon : (i % 2 ? '✨' : '⭐');
+                    const a = (i / N) * Math.PI * 2 + Math.random() * 0.35, r = 90 + Math.random() * 130;
+                    p.style.setProperty('--dx', Math.round(Math.cos(a) * r) + 'px'); p.style.setProperty('--dy', Math.round(Math.sin(a) * r) + 'px'); p.style.setProperty('--rot', Math.round(Math.random() * 360 - 180) + 'deg'); p.style.animationDelay = (Math.random() * 0.18).toFixed(2) + 's';
+                    w.appendChild(p);
+                }
+                document.body.appendChild(w); setTimeout(() => w.remove(), 2200);
+                if (navigator.vibrate) navigator.vibrate(foe ? [40] : [30, 40, 30]);
+            } catch (e) {}
         }
         function renderTitleUI() {
             const chip = document.getElementById('title-chip'); if (!chip) return;
@@ -3234,10 +3322,20 @@
             const sec = t => { const e = document.createElement('div'); e.className = 'tp-sec'; e.textContent = t; list.appendChild(e); };
             if (titleFilter === 'own' && !nOwn) { const e = document.createElement('div'); e.className = 'tp-empty'; e.innerHTML = '아직 얻은 칭호가 없어요.<br>대전에서 이기면 칭호를 얻을 수 있어요.'; list.appendChild(e); return; }
             const pool = titleFilter === 'own' ? ACHIEVEMENTS.filter(owned) : ACHIEVEMENTS;
-            const basic = pool.filter(d => !d.id.startsWith('aug_')), augs = pool.filter(d => d.id.startsWith('aug_'));
+            const basic = pool.filter(d => !d.hidden && !d.id.startsWith('aug_')), augs = pool.filter(d => !d.hidden && d.id.startsWith('aug_'));
+            const hids = pool.filter(d => d.hidden && owned(d)), hidLeft = titleFilter === 'own' ? 0 : ACHIEVEMENTS.filter(d => d.hidden && !owned(d)).length;
+            const addSecretRow = n => {   // 아직 못 얻은 히든 업적은 한 줄로만 보여 준다 (이름·조건은 비밀)
+                const b = document.createElement('button'); b.type = 'button'; b.className = 'tp-row locked';
+                const ic = document.createElement('span'); ic.className = 'tp-ic'; ic.innerHTML = TP_SVG.lock;
+                const tx = document.createElement('span'); tx.className = 'tp-tx'; const nm = document.createElement('b'), ds = document.createElement('small');
+                nm.textContent = '???'; ds.textContent = `아직 발견하지 못한 히든 업적 ${n}개`; tx.append(nm, ds); b.append(ic, tx);
+                b.onclick = () => { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); };
+                list.appendChild(b);
+            };
             if (titleFilter === 'own') addRow(null);
             if (basic.length) { sec('기본 업적'); basic.forEach(addRow); }
             if (augs.length) { sec('증강 마무리'); augs.forEach(addRow); }
+            if (hids.length || hidLeft) { sec('히든 업적'); hids.forEach(addRow); if (hidLeft) addSecretRow(hidLeft); }
             list.scrollTop = top;
         }
         function setEquippedTitle(id) {
@@ -3265,6 +3363,36 @@
             if (got.length && !a.title) a.title = got[0].id;   // 처음 얻은 칭호는 자동으로 착용
             if (got.length || (ev.kind === 'bot' && ev.level === '상') || ev.kind === 'human') { saveAch(); renderTitleUI(); }
             got.forEach((d, i) => setTimeout(() => showAchPush(d), (delay || 0) + 700 + i * 2300));   // 결과 화면이 뜬 뒤에 알린다
+        }
+
+        function reportEventAch(id, delay) {   // 히든 업적: 경기 중 조건이 일어나는 순간 달성. 연습·컴퓨터 대전·증강 체험·퍼즐·관전에서는 달성되지 않는다
+            try {
+                if (isPracticeMode || isBotMode || isSpectating || (typeof __AUG_DEMO !== 'undefined' && __AUG_DEMO)) return;
+                if (typeof isPuzzleMode !== 'undefined' && isPuzzleMode) return;
+                const d = ACHIEVEMENTS.find(x => x.id === id), a = ensureAch(); if (!d || a.unlocked[id]) return;
+                if (d.goal) { a.prog[d.counter] = (a.prog[d.counter] || 0) + 1; if (a.prog[d.counter] < d.goal) { saveAch(); renderTitleUI(); return; } }
+                a.unlocked[id] = Date.now(); if (!a.title) a.title = id;
+                saveAch(); renderTitleUI();
+                setTimeout(() => { showAchPush(d); try { pushGameAction({ type: 'hid_ach', id, by: myColor }); } catch (e) {} }, (delay || 0) + 700);   // 내 화면에 띄우는 순간 상대에게도 알린다
+            } catch (e) {}
+        }
+        function hiddenAugAch(aug, pColor, eColor, res, hits, delay) {   // 내가 쓴 증강의 결과로 달성되는 히든 업적
+            if (pColor !== myColor || isSpectating || !aug) return;
+            const enemyHit = hits.filter(h => h.color === eColor), enemyKill = enemyHit.filter(h => h.type !== 'k'), n = aug.name;
+            if (n === '파도' && enemyHit.length) reportEventAch('hid_wave_mine', delay);
+            if (n === '광기' && enemyKill.length) reportEventAch('hid_madness_mine', delay);
+            if (n === '운명의 수레바퀴' && enemyKill.length) reportEventAch('hid_wheel_mine', delay);
+            if (n === '차원 장벽' && res && res.minePurge) reportEventAch('hid_barrier_mine', delay);
+            if (n === '벼락' && res && new Set(res.strikeKinds || []).size >= 3) reportEventAch('hid_lightning3', delay);
+        }
+        function hiddenMoveAch(color, hits, invOnPoison) {   // 내가 둔 수로 달성되는 히든 업적 (상대가 둔 수는 이 쪽에서 세지 않는다)
+            if (color !== myColor || isSpectating) return;
+            hits.forEach(h => {
+                if (h.color !== myColor) return;
+                if (h.type === 'k') reportEventAch('hid_king_mine3', 1200);   // 킹은 지뢰를 밟아도 살아남고 지뢰만 사라진다
+                if ((h.owners || []).includes(myColor)) reportEventAch('hid_own_mine', 1200);
+            });
+            if (invOnPoison) reportEventAch('hid_invincible_poison', 1200);
         }
 
         // 칭호 표시용: 상대·랭킹의 착용 칭호를 읽어 '🌱 풋내기' 같은 문구로 돌려준다 (1분 캐시)
@@ -3338,11 +3466,11 @@
             currentRoomId = saved.roomId;
             myColor = saved.color; matchKind = saved.kind || '';
             isBotMode = false;
-            statsRecorded = false;
+            statsRecorded = false; statAugs = {};
             saveRoomSession();
 
             const opponentColor = myColor === 'w' ? 'b' : 'w';
-            const opponentUid = players[opponentColor];
+            const opponentUid = players[opponentColor]; curOppUid = opponentUid || null;
             if (opponentUid) {
                 const cands = [];
                 try { const ss = await get(ref(db, `rooms/${currentRoomId}/states`)); if (ss.exists()) Object.values(ss.val()).forEach(v => cands.push(v)); } catch (e) {}
@@ -3477,13 +3605,48 @@
         document.getElementById('btn-back-main').addEventListener('click', async () => { selectMsTab('match'); await cancelMatchmaking(); modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'flex'; setLobbyMsg(""); });
 
         // ---- PLAY 탭: 매치메이킹 / 실시간 전투 ----
+        const PZ_NEW_KEY = 'augChessPuzzleNewSeenV400';
+        function pzNewSeen() { try { return localStorage.getItem(PZ_NEW_KEY) === '1'; } catch (e) { return false; } }
+        function pzNewDotSync() {   // 4.00에 처음 접속하면 연습 탭에 빨간 점
+            const tab = document.getElementById('ms-tab-practice'); if (!tab) return;
+            let d = tab.querySelector('.ms-dot');
+            if (pzNewSeen()) { if (d) d.remove(); return; }
+            if (!d) { d = document.createElement('i'); d.className = 'ms-dot'; d.setAttribute('aria-hidden', 'true'); tab.appendChild(d); }
+        }
+        function pzNewPlace() {
+            const box = document.getElementById('pz-new'); if (!box || box.style.display !== 'block') return;
+            const el = document.getElementById('btn-puzzle-mode'); if (!el) return;
+            const r = el.getBoundingClientRect(), spot = document.getElementById('pz-new-spot'), card = document.getElementById('pz-new-card'), p = 6;
+            spot.style.left = (r.left - p) + 'px'; spot.style.top = (r.top - p) + 'px'; spot.style.width = (r.width + p * 2) + 'px'; spot.style.height = (r.height + p * 2) + 'px';
+            const cw = card.offsetWidth, ch = card.offsetHeight;
+            let top = r.bottom + p + 14; if (top + ch > innerHeight - 12) top = Math.max(12, r.top - p - 14 - ch);
+            card.style.left = Math.max(12, Math.min(innerWidth - cw - 12, r.left + r.width / 2 - cw / 2)) + 'px'; card.style.top = top + 'px';
+        }
+        function pzNewClose() {
+            const box = document.getElementById('pz-new'); if (!box) return;
+            box.style.display = 'none'; box.setAttribute('aria-hidden', 'true'); window.removeEventListener('resize', pzNewPlace);
+        }
+        function pzNewShow() {   // 연습 탭에 들어오면 퍼즐 카드를 음영으로 강조하고 플로팅 안내를 띄운다
+            if (pzNewSeen()) return;
+            const box = document.getElementById('pz-new'), ov = document.getElementById('mode-select-overlay');
+            if (!box || !ov || ov.style.display === 'none') return;
+            try { localStorage.setItem(PZ_NEW_KEY, '1'); } catch (e) {}
+            pzNewDotSync();
+            box.style.display = 'block'; box.setAttribute('aria-hidden', 'false');
+            window.addEventListener('resize', pzNewPlace);
+            requestAnimationFrame(pzNewPlace); pzTrackStart();
+        }
+        document.getElementById('pz-new').addEventListener('click', pzNewClose);
         function selectMsTab(name) {
+            if (name !== 'practice') pzNewClose();
             ['practice', 'match', 'live'].forEach(n => {
                 document.getElementById('ms-tab-' + n).classList.toggle('active', n === name);
                 document.getElementById('ms-pane-' + n).style.display = n === name ? '' : 'none';
             });
             if (name === 'live') startLiveList(); else stopLiveList();
+            if (name === 'practice') requestAnimationFrame(pzNewShow);
         }
+        pzNewDotSync();
         document.getElementById('ms-tab-practice').addEventListener('click', () => selectMsTab('practice'));
         document.getElementById('ms-tab-match').addEventListener('click', () => selectMsTab('match'));
         document.getElementById('ms-tab-live').addEventListener('click', () => selectMsTab('live'));
@@ -3697,6 +3860,97 @@
         });
         document.getElementById('side-backdrop').addEventListener('click', closeMenu);
         document.getElementById('btn-menu-settings').addEventListener('click', () => { closeMenu(); openSettings(); });
+
+        // ---- 통계: 사람 대전 기록(증강·진영·상대·연승)을 이 기기와 서버(users/{uid}/st, JSON 문자열)에 함께 저장한다 ----
+        const STATS_KEY = 'augchess_st_';
+        let myStats = null, statsUid = null, statsLoadP = null;
+        function emptyStats() { return { v: 1, h: [0, 0, 0], b: [0, 0, 0], c: { w: [0, 0, 0], b: [0, 0, 0] }, streak: { cur: 0, best: 0 }, plies: 0, pn: 0, aug: {}, opp: {} }; }
+        function statsTotal(o) { return o ? o.h[0] + o.h[1] + o.h[2] + o.b[0] + o.b[1] + o.b[2] : -1; }
+        function parseStats(txt) {
+            try {
+                const o = JSON.parse(txt); if (!o || o.v !== 1) return null;
+                const e = emptyStats(), tri = a => Array.isArray(a) && a.length === 3 ? a.map(x => Math.max(0, Number(x) || 0)) : [0, 0, 0];
+                e.h = tri(o.h); e.b = tri(o.b); e.c.w = tri(o.c && o.c.w); e.c.b = tri(o.c && o.c.b);
+                e.streak = { cur: Math.max(0, Number(o.streak && o.streak.cur) || 0), best: Math.max(0, Number(o.streak && o.streak.best) || 0) };
+                e.plies = Math.max(0, Number(o.plies) || 0); e.pn = Math.max(0, Number(o.pn) || 0);
+                Object.keys(o.aug || {}).forEach(k => { e.aug[k] = tri(o.aug[k]); });
+                Object.keys(o.opp || {}).forEach(k => { const v = o.opp[k]; if (Array.isArray(v) && v.length === 6) e.opp[k] = [String(v[0]).slice(0, 20), String(v[1]).slice(0, 8), Math.max(0, Number(v[2]) || 0), Math.max(0, Number(v[3]) || 0), Math.max(0, Number(v[4]) || 0), Number(v[5]) || 0]; });
+                return e;
+            } catch (e) { return null; }
+        }
+        async function ensureStatsLoaded(uid) {
+            if (myStats && statsUid === uid) return;
+            if (statsLoadP && statsUid === uid) return statsLoadP;
+            if (statsUid !== uid) { myStats = null; statsUid = uid; }
+            const p = (async () => {
+                let local = null, remote = null;
+                try { local = parseStats(localStorage.getItem(STATS_KEY + uid)); } catch (e) {}
+                try { const sn = await withTimeout(get(ref(db, `users/${uid}/st`)), 5000, 'stats'); if (sn && sn.exists()) remote = parseStats(sn.val()); } catch (e) {}   // 읽기 규칙이 없거나 오프라인이면 이 기기 기록만 쓴다
+                if (statsUid !== uid) return;
+                myStats = (statsTotal(remote) > statsTotal(local)) ? remote : (local || remote || emptyStats());
+            })();
+            statsLoadP = p; try { await p; } finally { if (statsLoadP === p) statsLoadP = null; }
+        }
+        function saveStats(uid) {
+            if (!myStats || statsUid !== uid) return;
+            const txt = JSON.stringify(myStats);
+            try { localStorage.setItem(STATS_KEY + uid, txt); } catch (e) {}
+            try { set(ref(db, `users/${uid}/st`), txt).catch(() => {}); } catch (e) {}
+        }
+        async function recordStatsGame(result, o) {
+            const uid = myUid; if (!uid) return;
+            const idx = result === '승리' ? 0 : result === '패배' ? 1 : 2;
+            const augs = statAugs; statAugs = {};
+            await ensureStatsLoaded(uid); const s = myStats; if (!s || statsUid !== uid) return;
+            if (!o.human) { s.b[idx]++; saveStats(uid); return; }
+            s.h[idx]++; s.c[o.color === 'b' ? 'b' : 'w'][idx]++;
+            if (idx === 0) { s.streak.cur++; if (s.streak.cur > s.streak.best) s.streak.best = s.streak.cur; } else if (idx === 1) s.streak.cur = 0;   // 무승부는 연승을 끊지 않는다
+            if (o.plies > 0) { s.pn++; s.plies += o.plies; }
+            Object.keys(augs).forEach(n => { const a = s.aug[n] || (s.aug[n] = [0, 0, 0]); a[0] += augs[n]; a[1]++; if (idx === 0) a[2]++; });   // [쓴 횟수, 쓴 판 수, 그 판을 이긴 수]
+            if (o.oppUid) {
+                const e = s.opp[o.oppUid] || (s.opp[o.oppUid] = [o.oppName || '상대', o.oppIcon || '👤', 0, 0, 0, 0]);
+                e[0] = String(o.oppName || e[0]).slice(0, 20); e[1] = String(o.oppIcon || e[1]).slice(0, 8); e[2 + idx]++; e[5] = Date.now();
+                const ks = Object.keys(s.opp); if (ks.length > 30) ks.sort((a, b) => s.opp[a][5] - s.opp[b][5]).slice(0, ks.length - 30).forEach(k => { delete s.opp[k]; });   // 오래된 상대부터 정리
+            }
+            saveStats(uid);
+        }
+        function stEsc(t) { return String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+        function stPct(w, t) { return t > 0 ? Math.round(w / t * 100) + '%' : '-'; }
+        function stBar(a) { const t = a[0] + a[1] + a[2]; if (!t) return '<div class="st-bar"></div>'; return `<div class="st-bar"><i style="width:${a[0] / t * 100}%;background:#2ecc71"></i><i style="width:${a[2] / t * 100}%;background:#f1c40f"></i><i style="width:${a[1] / t * 100}%;background:#ff4757"></i></div>`; }
+        function stAugIcon(n) { try { const w = AUGMENT_SPEC[n] && AUGMENT_SPEC[n].win; return (w && w[1]) || '✨'; } catch (e) { return '✨'; } }
+        function renderStats() {
+            const body = document.getElementById('stats-body'); if (!body) return;
+            const s = myStats || emptyStats(), us = userProfile.stats || { w: 0, l: 0, d: 0 }, tot = (us.w || 0) + (us.l || 0) + (us.d || 0);
+            const ht = s.h[0] + s.h[1] + s.h[2];
+            let h = `<div class="st-sec"><h3>전적</h3><div class="st-cards"><div class="st-card"><b>${us.w || 0}승 ${us.l || 0}패 ${us.d || 0}무</b><small>사람 대전</small></div><div class="st-card"><b>${stPct(us.w || 0, tot)}</b><small>승률</small></div><div class="st-card"><b>${s.streak.cur}연승</b><small>최고 ${s.streak.best}연승</small></div></div></div>`;
+            if (!ht) {
+                h += '<div class="st-sec"><p class="st-empty">아직 쌓인 기록이 없어요. 사람과 대전하면 증강·진영·상대별 통계가 여기에 쌓입니다.</p></div>';
+            } else {
+                h += '<div class="st-sec"><h3>진영별</h3>' + [['w', '⚪ 백'], ['b', '⚫ 흑']].map(([k, lb]) => { const a = s.c[k], t = a[0] + a[1] + a[2]; return `<div class="st-side"><div><b>${lb}</b><span>${a[0]}승 ${a[1]}패 ${a[2]}무 · ${stPct(a[0], t)}</span></div>${stBar(a)}</div>`; }).join('') + (s.pn ? `<p class="st-note">한 판 평균 ${Math.round(s.plies / s.pn)}수 (양쪽 합산)</p>` : '') + '</div>';
+                const augs = Object.keys(s.aug).map(n => ({ n, u: s.aug[n][0], g: s.aug[n][1], w: s.aug[n][2] }));
+                if (augs.length) {
+                    const top = augs.slice().sort((a, b) => b.u - a.u || b.g - a.g).slice(0, 5);
+                    h += '<div class="st-sec"><h3>자주 쓴 증강</h3>' + top.map(a => `<div class="st-row"><span class="ic">${stAugIcon(a.n)}</span><span class="nm">${stEsc(a.n)}</span><span class="vl">${a.u}회</span></div>`).join('') + '</div>';
+                    const best = augs.filter(a => a.g >= 3).sort((a, b) => b.w / b.g - a.w / a.g || b.g - a.g).slice(0, 5);
+                    h += '<div class="st-sec"><h3>승률 높은 증강</h3>' + (best.length ? best.map(a => `<div class="st-row"><span class="ic">${stAugIcon(a.n)}</span><span class="nm">${stEsc(a.n)}</span><span class="vl">${stPct(a.w, a.g)} · ${a.g}판</span></div>`).join('') : '<p class="st-empty">증강을 3판 이상 써야 집계돼요.</p>') + '</div>';
+                }
+                const opps = Object.keys(s.opp).map(k => s.opp[k]).sort((a, b) => (b[2] + b[3] + b[4]) - (a[2] + a[3] + a[4]) || b[5] - a[5]).slice(0, 5);
+                if (opps.length) h += '<div class="st-sec"><h3>자주 만난 상대</h3>' + opps.map(e => `<div class="st-row"><span class="ic">${stEsc(e[1])}</span><span class="nm">${stEsc(e[0])}</span><span class="vl">${e[2]}승 ${e[3]}패 ${e[4]}무</span></div>`).join('') + '</div>';
+            }
+            const bt = s.b[0] + s.b[1] + s.b[2];
+            if (bt) h += `<div class="st-sec"><h3>컴퓨터 대전</h3><div class="st-row"><span class="nm">전적</span><span class="vl">${s.b[0]}승 ${s.b[1]}패 ${s.b[2]}무 · ${stPct(s.b[0], bt)}</span></div></div>`;
+            h += '<p class="st-note">진영·증강·상대 통계는 통계 기능이 추가된 뒤의 사람 대전 기준입니다.</p>';
+            body.innerHTML = h;
+        }
+        async function openStats() {
+            const ov = document.getElementById('stats-overlay'), body = document.getElementById('stats-body'); if (!ov) return;
+            body.innerHTML = '<p class="st-empty">불러오는 중…</p>'; ov.style.display = 'flex'; body.scrollTop = 0;
+            try { if (myUid) await ensureStatsLoaded(myUid); } catch (e) {}
+            if (ov.style.display !== 'none') renderStats();
+        }
+        document.getElementById('btn-menu-stats').addEventListener('click', () => { closeMenu(); openStats(); });
+        document.getElementById('btn-close-stats').addEventListener('click', () => { document.getElementById('stats-overlay').style.display = 'none'; });
+        document.getElementById('stats-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
         document.getElementById('btn-close-settings').addEventListener('click', () => { settingsOverlay.style.display = 'none'; });
         settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) settingsOverlay.style.display = 'none'; });
         document.getElementById('theme-toggle').addEventListener('change', (e) => { if(e.target.checked) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode'); saveUserSettings(); });
@@ -3885,7 +4139,7 @@
         });
 
         const startBotMode = () => {
-            isBotMode = true; myColor = 'w'; isGameStarted = true; statsRecorded = false; rankCtx = null;
+            isBotMode = true; myColor = 'w'; isGameStarted = true; statsRecorded = false; statAugs = {}; rankCtx = null;
             
             const botProfile = { name: `컴퓨터 (${botDifficulty})`, icon: BOT_ICON, stats: {w:999, l:0, d:0} }; lastOppName = botProfile.name; chatOpp = { name: botProfile.name, icon: botProfile.icon };
             showVsScreen(userProfile, botProfile, () => {
@@ -4081,7 +4335,7 @@
         }
 
         function createRoom(roomId, color) {
-            myColor = color; currentRoomId = roomId; isBotMode = false; statsRecorded = false;
+            myColor = color; currentRoomId = roomId; isBotMode = false; statsRecorded = false; statAugs = {};
             saveRoomSession();
             set(ref(db, `rooms/${roomId}/players/${color}`), myUid);
             
@@ -4098,7 +4352,7 @@
         }
 
         async function joinRoom(roomId, color) {   // 자리를 실제로 차지했는지 확인한 뒤에만 시작한다 (동시에 들어온 다른 사람에게 밀리면 실패)
-            myColor = color; currentRoomId = roomId; isBotMode = false; statsRecorded = false;
+            myColor = color; currentRoomId = roomId; isBotMode = false; statsRecorded = false; statAugs = {};
             saveRoomSession();
             let p = null;
             try { await update(ref(db, `rooms/${roomId}/players`), { [color]: myUid }); const snap = await get(ref(db, `rooms/${roomId}/players`)); p = snap.val(); } catch (e) {}
@@ -4110,7 +4364,7 @@
             if(isGameStarted) return;
             isGameStarted = true; modeSelectOverlay.style.display = 'none'; mainLobbyOverlay.style.display = 'none'; hideInvite();
 
-            const opponentUid = myColor === 'w' ? playersData.b : playersData.w;
+            const opponentUid = myColor === 'w' ? playersData.b : playersData.w; curOppUid = opponentUid || null;
             rankCtx = null; let oppProfile = { name: "Unknown", icon: "👤", stats: {w:0,l:0,d:0} };
             if (opponentUid) {
                 const oppCore = await getUserCore(opponentUid);
@@ -4394,6 +4648,11 @@
             } else if (action.type === 'chat') {
                 if (!action.ts || Date.now() - action.ts > 8000) return;   // 이어하기 때 지난 채팅이 한꺼번에 뜨지 않게
                 showChatBubble('opponent', action.msg, false);
+            } else if (action.type === 'hid_ach') {   // 상대가 히든 업적을 달성했다: 이름과 조건을 보여 준다 (지난 알림은 무시, 증강·수 연출이 끝난 뒤에 띄운다)
+                if (!action.ts || Date.now() - action.ts > 10000) return;
+                const d = ACHIEVEMENTS.find(x => x.id === action.id && x.hidden); if (!d) return;
+                const t0 = Date.now(), tryShow = () => { if (isSpectating) return; if ((augIsBusy() || postMovePending > 0) && Date.now() - t0 < 6000) { setTimeout(tryShow, 250); return; } showAchPush(d, true); };
+                setTimeout(tryShow, 400);
             }
         }
 
@@ -6861,9 +7120,10 @@
         function resolveMines(playFx = true) {   // 지뢰 칸에 기물이 도달하면 피아 구분 없이 파괴 (단, 킹은 폭발만 겪고 살아남는다)
             const hitSq = new Set();
             mines.forEach(mi => { const pc = game.get(mi.sq); if (pc && pc.type !== 'wall' && !(balloons[pc.uid] > 0)) hitSq.add(mi.sq); });   // 떠 있는 기물은 지뢰를 밟지 않는다
-            mineKills = [];
+            mineKills = []; mineHits = [];   // mineHits: 지뢰를 밟은 기물 [{sq, type, color, owners}] (킹 포함, 히든 업적 판정용)
             if (!hitSq.size) return [];
             const hit = Array.from(hitSq);
+            hit.forEach(sq => { const pc = game.get(sq); if (pc) mineHits.push({ sq, type: pc.type, color: pc.color, owners: mines.filter(x => x.sq === sq).map(x => x.owner) }); });
             hit.forEach(sq => { const pc = game.get(sq); if (pc && pc.type !== 'k') { mineKills.push({ sq, uid: pc.uid }); game.remove(sq); } });
             mines = mines.filter(mi => !hitSq.has(mi.sq));
             if (playFx) playBlasts(hit);
@@ -6885,13 +7145,13 @@
             for (const uid in balloons) {
                 balloons[uid]--; if (balloons[uid] > 0) continue;
                 delete balloons[uid];
-                let sq = null, ft = null; for (let r = 0; r < 8 && !sq; r++) for (let c = 0; c < 8; c++) { const q = game.board()[r][c]; if (q && String(q.uid) === String(uid)) { sq = game.rcToSq(r, c); ft = q.type; break; } }
+                let sq = null, ft = null, fc = null; for (let r = 0; r < 8 && !sq; r++) for (let c = 0; c < 8; c++) { const q = game.board()[r][c]; if (q && String(q.uid) === String(uid)) { sq = game.rcToSq(r, c); ft = q.type; fc = q.color; break; } }
                 if (!sq) continue;
                 const en = balloonUnder[sq];
                 if (!en || String(en.uid) !== String(uid)) { out.push({ sq, kind: 'land', ft }); continue; }
                 delete balloonUnder[sq];
                 const u = en.piece;
-                if (u.type === 'k') { game.remove(sq); game.put(u, sq); out.push({ sq, kind: 'king', ft }); }
+                if (u.type === 'k') { game.remove(sq); game.put(u, sq); out.push({ sq, kind: 'king', ft, col: fc }); }
                 else if (u.type === 'wall') { activeWalls = activeWalls.filter(w => w.sq !== sq); out.push({ sq, kind: 'wall', ft }); }
                 else out.push({ sq, kind: 'crush', ft });
             }
@@ -7012,7 +7272,7 @@
             delete o.activeAugmentOptions; o.activeAugmentPlayerColor = null; o.selectedAugmentIdx = -1; o.pendingAugments = [];
             return JSON.stringify(o);
         }
-        let mineKills = [], postFx = null;   // v3.80: 지뢰로 파괴된 기물 [{sq, uid}] / 수 직후 처리(덩굴 해제·벽 소멸)에서 일어난 효과 (리플레이 재생용)
+        let mineKills = [], mineHits = [], postFx = null;   // v3.80: 지뢰로 파괴된 기물 [{sq, uid}] / 수 직후 처리(덩굴 해제·벽 소멸)에서 일어난 효과 (리플레이 재생용)
         function elToSq(uid, sq) {   // 파괴되는 기물의 요소를 그 칸으로 옮겨, 사라지는 연출(파편)이 그 칸에서 나오게 한다
             const el = pieceEls.get(uid); if (!el || !sq) return;
             el.dataset.square = sq; el.style.translate = `${(sq.charCodeAt(0) - 97) * 100}% ${(8 - parseInt(sq[1])) * 100}%`;
@@ -9657,93 +9917,95 @@
             if (whiteKings !== 1 || blackKings !== 1) throw new Error('각 퍼즐에는 백·흑 킹이 하나씩 있어야 합니다.');
             return board.map(row => { let out = '', empty = 0; row.forEach(piece => { if (!piece) { empty++; return; } if (empty) { out += empty; empty = 0; } out += piece; }); if (empty) out += empty; return out; }).join('/');
         };
-        const PZ_STAGE_IDS = [371,373,311,383,377,394,387,372,393,395,374,304,390,397,375,332,403,409,327,333,335,386,408,379,380,378,399,376,400,381,384,391,326,328,336,307,406,334,398,382,385,305,322,308,329,396,301,302,303,309,323,324,325,392,388,407,402,405,318,314,404,312,306,401,315,310,319,320,317,321,313,316,389,339,337,330,331,338,340];
+        const PZ_STAGE_IDS = [371,403,341,399,408,307,305,322,407,327,308,334,405,402,342,401,332,302,313,406,323,325,330,306,320,317,321,404,389,304,314,316,310,312,315,331,339,337,338,340];
         const PZ_STAGE_DATA = [
             { fen: pzFen([['h5','k'],['e2','K'],['a5','R'],['f5','n'],['b6','p']]), cards: ['암살'], augs: 1, moves: 1, hints: ['룩(a5)이 h5의 킹을 노리고 있는데, f5의 나이트가 길을 막고 있어요. 「증강 고르기」를 눌러 [암살]을 발동해 보세요! (카드는 한 번 눌러 선택, 한 번 더 눌러 발동)', '암살이 가장 약한 흑 기물 2개(폰과 나이트)를 없앴어요! 이제 룩(a5)으로 흑 킹(h5)을 잡으세요.'], sol: '[암살] a5h5' }, // 정답: [암살] a5h5
-            { fen: pzFen([['a5','k'],['f5','K'],['b6','R'],['a6','p'],['e6','p']]), cards: ['파도'], augs: 1, moves: 1, sol: '[파도] b6a6' }, // 정답: [파도] b6a6
-            { fen: pzFen([['b6','K'],['d8','R'],['g7','k'],['f7','p'],['d2','N'],['c5','p'],['g5','b'],['e5','b'],['g3','P']]), cards: ['파도','차원 장벽','암살','신의 심판'], augs: 2, moves: 1, sol: '[파도] [암살] d8g8' }, // 정답: [파도] [암살] d8g8
-            { fen: pzFen([['a6','k'],['e5','K'],['h7','R'],['f3','N'],['h6','b'],['e6','n'],['f1','r'],['f4','p'],['g1','b']]), cards: ['앙파상+','나이트 클럽','암살','파도'], augs: 2, moves: 1, sol: '[암살] [파도] h7a7' }, // 정답: [암살] [파도] h7a7
-            { fen: pzFen([['a6','k'],['e8','K'],['h8','R'],['d3','n'],['f2','p'],['h7','b']]), cards: ['암살','진군 명령'], augs: 1, moves: 2, sol: '[암살] h8h6 h6a6' }, // 정답: [암살] h8h6 h6a6
-            { fen: pzFen([['a5','k'],['a1','K'],['g7','R'],['a2','B'],['c5','r'],['d6','p'],['d7','r'],['e2','p']]), cards: ['파도','진군 명령','업!','신의 심판'], augs: 1, moves: 2, sol: '[파도] a2c4 c4a6' }, // 정답: [파도] a2c4 c4a6
-            { fen: pzFen([['h1','k'],['a8','K'],['c3','R'],['d3','p'],['b3','n'],['e7','p'],['c2','n'],['b5','b'],['d4','b'],['f2','n']]), cards: ['차원 장벽','암살','신성한 폭발'], augs: 1, moves: 2, sol: '[암살] c3h3 h3h1' }, // 정답: [암살] c3h3 h3h1
-            { fen: pzFen([['c3','k'],['f7','K'],['a2','R'],['b4','p'],['h6','r']]), cards: ['나이트 클럽'], augs: 1, moves: 1, sol: '[나이트 클럽] a2c3' }, // 정답: [나이트 클럽] a2c3
-            { fen: pzFen([['g1','k'],['a3','K'],['c7','R'],['f7','B'],['b2','b'],['g3','p'],['f3','b'],['g5','p'],['h8','n'],['c1','n'],['b3','n']]), cards: ['차원 장벽','진군 명령','파도'], augs: 1, moves: 2, sol: '[파도] c7c2 c2g2' }, // 정답: [파도] c7c2 c2g2
-            { fen: pzFen([['h2','k'],['b4','K'],['c8','R'],['e3','N'],['c3','n'],['e2','n'],['f4','b'],['d6','p'],['c4','r'],['g4','p']]), cards: ['진군 명령','나이트 클럽','파도','차원 장벽'], augs: 1, moves: 2, sol: '[파도] c8h8 h8h3' }, // 정답: [파도] c8h8 h8h3
-            { fen: pzFen([['a1','k'],['c8','K'],['h1','R'],['c1','r'],['g2','p']]), cards: ['연계 분쇄','나이트 클럽'], augs: 1, moves: 1, sol: '[연계 분쇄] h1a1' }, // 정답: [연계 분쇄] h1a1
-            { fen: pzFen([['f6','K'],['c6','R'],['f4','B'],['h8','k'],['h6','b'],['e2','N'],['b2','p'],['a7','N'],['a2','P']]), cards: ['덩굴','암살','파도','나이트 클럽'], augs: 2, moves: 1, sol: 'c6c8 [덩굴] [파도]' }, // 정답: c6c8 [덩굴] [파도]
-            { fen: pzFen([['a3','k'],['d3','K'],['b1','R'],['b5','B'],['d4','P'],['a7','P'],['d2','b'],['e3','n'],['h4','n'],['b7','p'],['h7','b'],['a2','b']]), cards: ['앙파상+','신의 심판','업!','암살'], augs: 1, moves: 2, sol: '[암살] b1b3 b3a3' }, // 정답: [암살] b1b3 b3a3
-            { fen: pzFen([['a8','k'],['d7','K'],['g3','R'],['e5','B'],['h6','R'],['b4','B'],['d6','p'],['d3','p'],['e3','p'],['e8','r'],['f1','b'],['c4','b']]), cards: ['암살','나이트 클럽','진군 명령','앙파상+'], augs: 1, moves: 2, sol: '[암살] h6a6 a6a8' }, // 정답: [암살] h6a6 a6a8
-            { fen: pzFen([['h7','k'],['c5','K'],['d3','R'],['g4','P'],['g3','p'],['a7','p'],['h8','r']]), cards: ['암살','진군 명령'], augs: 1, moves: 1, sol: '[진군 명령] g6h7' }, // 정답: [진군 명령] g6h7
-            { fen: pzFen([['b7','K'],['f4','R'],['b4','B'],['d1','k'],['g2','n'],['c6','N'],['a3','N'],['a5','b'],['e5','p'],['h2','p']]), cards: ['업!','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: '[차원 장벽@a6] [파도] b4d2' }, // 정답: [차원 장벽@a6] [파도] b4d2 (파도를 먼저 쓰면 a5 비숍이 a6으로 올라와 b7 킹에 체크가 걸려 킹을 잡을 수 없다)
             { fen: pzFen([['a2','k'],['f2','K'],['f8','R'],['g3','P'],['d4','n'],['g8','n'],['a6','n'],['b7','b']]), cards: ['앙파상+','캐슬링+'], augs: 1, moves: 2, sol: '[캐슬링+] g3a3 a3a2' }, // 정답: [캐슬링+] g3a3 a3a2
-            { fen: pzFen([['h2','k'],['d6','K'],['c6','R'],['c5','P'],['c3','N'],['f4','p'],['g3','b'],['b6','b']]), cards: ['캐슬링+','업!'], augs: 1, moves: 2, sol: '[캐슬링+] c5h5 h5h2' }, // 정답: [캐슬링+] c5h5 h5h2
-            { fen: pzFen([['a2','K'],['e2','R'],['h6','P'],['h7','P'],['g5','k'],['d2','p'],['e6','n'],['c5','b'],['f7','P'],['h5','b']]), cards: ['앙파상+','파도','차원 장벽','암살'], augs: 2, moves: 1, sol: '[앙파상+=n] [파도] h8g6' }, // 정답: [앙파상+=n] [파도] h8g6
-            { fen: pzFen([['a8','K'],['e3','N'],['f4','B'],['h7','k'],['a3','p'],['c6','p'],['a5','b'],['f3','P'],['d4','p']]), cards: ['파도','차원 장벽','암살'], augs: 1, moves: 2, sol: 'f4e5 [파도] e5h8' }, // 정답: f4e5 [파도] e5h8
-            { fen: pzFen([['d2','K'],['d4','N'],['f3','B'],['g8','k'],['f7','p'],['a5','n'],['e5','r'],['h4','p'],['a4','p']]), cards: ['암살','차원 장벽','파도'], augs: 1, moves: 2, sol: 'f3d5 [암살] d5g8' }, // 정답: f3d5 [암살] d5g8
-            { fen: pzFen([['h1','k'],['f1','K'],['a4','R'],['d4','P'],['a5','n'],['c2','b'],['d5','b'],['g4','b'],['e7','b'],['f7','p']]), cards: ['차원 장벽','신의 심판','앙파상+','파도'], augs: 1, moves: 2, sol: 'a4a2 [파도] a2h2' }, // 정답: a4a2 [파도] a2h2
-            { fen: pzFen([['h8','k'],['h5','K'],['c3','R'],['c5','R'],['g6','b'],['c7','r'],['d4','b']]), cards: ['연계 분쇄','공성전','진군 명령'], augs: 1, moves: 2, sol: '[공성전] h5g6 c5c8' }, // 정답: [공성전] h5g6 c5c8
-            { fen: pzFen([['a5','k'],['e7','K'],['c7','R'],['c6','b']]), cards: ['파도','나이트 클럽'], augs: 2, moves: 1, sol: '[파도] [나이트 클럽] c7a6' }, // 정답: [파도] [나이트 클럽] c7a6
-            { fen: pzFen([['h4','k'],['c6','K'],['g7','R'],['d3','p']]), cards: ['나이트 클럽','파도'], augs: 2, moves: 1, sol: '[나이트 클럽] [파도] g7h5' }, // 정답: [나이트 클럽] [파도] g7h5
-            { fen: pzFen([['a2','k'],['a6','K'],['c7','R'],['h3','n'],['b7','b']]), cards: ['연계 분쇄','진군 명령'], augs: 1, moves: 2, sol: '[연계 분쇄] c7c2 c2a2' }, // 정답: [연계 분쇄] c7c2 c2a2
+            { fen: pzFen([['c7','K'],['b6','P'],['a8','k'],['b7','p']]), cards: ['앙파상+','파도','암살','나이트 클럽'], augs: 1, moves: 0, sol: '[앙파상+=q]' }, // 정답: [앙파상+=q] (이동 없이 체크메이트)
             { fen: pzFen([['h5','k'],['f3','K'],['g1','R'],['f4','b'],['h3','r']]), cards: ['그림자 교체','진군 명령'], augs: 1, moves: 2, sol: '[그림자 교체] f3h3 h3h5' }, // 정답: [그림자 교체] f3h3 h3h5
-            { fen: pzFen([['a5','k'],['d2','K'],['f1','R'],['d5','N'],['d1','n'],['c5','b'],['a7','p']]), cards: ['나이트 클럽','신성한 폭발'], augs: 1, moves: 2, sol: '[신성한 폭발] f1a1 a1a5' }, // 정답: [신성한 폭발] f1a1 a1a5
-            { fen: pzFen([['a4','k'],['e6','K'],['f6','R'],['e3','p'],['f7','p'],['b5','n'],['b4','n'],['d1','r']]), cards: ['그림자 교체','진군 명령'], augs: 1, moves: 2, sol: '[그림자 교체] e6a6 a6a4' }, // 정답: [그림자 교체] e6a6 a6a4
-            { fen: pzFen([['e2','k'],['h3','K'],['g4','R'],['d6','b'],['h1','b'],['a2','b'],['c5','r']]), cards: ['나이트 클럽','운명의 수레바퀴','진군 명령','앙파상+'], augs: 1, moves: 2, sol: 'g4f4 [나이트 클럽] f4e2' }, // 정답: g4f4 [나이트 클럽] f4e2
-            { fen: pzFen([['a3','k'],['d2','K'],['b8','R'],['a7','P'],['e3','p'],['f6','p'],['f7','b'],['h6','r'],['a8','n']]), cards: ['진군 명령','나이트 클럽','신성한 폭발'], augs: 1, moves: 2, sol: '[신성한 폭발] b8b3 b3a3' }, // 정답: [신성한 폭발] b8b3 b3a3
-            { fen: pzFen([['d3','k'],['h4','K'],['a6','R'],['h5','B'],['b7','B'],['a5','r'],['f4','r'],['b2','r'],['h7','p']]), cards: ['진군 명령','업!','연계 분쇄'], augs: 1, moves: 2, sol: '[연계 분쇄] b7e4 e4d3' }, // 정답: [연계 분쇄] b7e4 e4d3
-            { fen: pzFen([['d8','K'],['a7','N'],['a3','B'],['g1','k'],['a5','p'],['c8','r'],['e7','N'],['e4','r'],['b7','P'],['g5','p']]), cards: ['신성한 폭발','차원 장벽','파도'], augs: 1, moves: 2, sol: '[신성한 폭발] a3c5 c5g1' }, // 정답: [신성한 폭발] a3c5 c5g1
-            { fen: pzFen([['a6','K'],['b5','R'],['b2','P'],['e5','P'],['g1','k'],['h6','p'],['f6','n'],['f8','b'],['b7','n'],['g7','b']]), cards: ['진군 명령','차원 장벽','파도'], augs: 1, moves: 2, sol: '[진군 명령] b5g5 g5g1' }, // 정답: [진군 명령] b5g5 g5g1
-            { fen: pzFen([['e6','K'],['g8','N'],['e4','B'],['b8','k'],['a3','p'],['e1','n'],['a8','r'],['c3','P'],['g6','N'],['g4','P']]), cards: ['나이트 클럽','차원 장벽','파도'], augs: 1, moves: 2, sol: 'e4c6 [나이트 클럽] c6b8' }, // 정답: e4c6 [나이트 클럽] c6b8
+            { fen: pzFen([['h8','k'],['h5','K'],['c3','R'],['c5','R'],['g6','b'],['c7','r'],['d4','b']]), cards: ['연계 분쇄','공성전','진군 명령'], augs: 1, moves: 2, sol: '[공성전] h5g6 c5c8' }, // 정답: [공성전] h5g6 c5c8
             { fen: pzFen([['g6','K'],['d6','R'],['h6','P'],['h2','P'],['e7','k'],['h7','b'],['b5','n'],['d7','N']]), cards: ['진군 명령','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: '[암살] [진군 명령=q] h8f8' }, // 정답: [암살] [진군 명령=q] h8f8
-            { fen: pzFen([['d3','k'],['f7','K'],['a6','R'],['a7','N'],['c3','p'],['g6','b'],['f3','n'],['f1','n']]), cards: ['업!','파도','마인드 컨트롤','연계 분쇄'], augs: 2, moves: 1, sol: '[마인드 컨트롤] [파도] c3d4' }, // 정답: [마인드 컨트롤] [파도] c3d4
-            { fen: pzFen([['b1','K'],['g7','R'],['g5','P'],['f7','P'],['g3','k'],['a2','n'],['g8','b'],['h1','b'],['e2','P'],['h2','n']]), cards: ['앙파상+','차원 장벽','파도'], augs: 1, moves: 2, sol: 'g7g6 [앙파상+] g6g3' }, // 정답: g7g6 [앙파상+] g6g3
-            { fen: pzFen([['h1','k'],['d4','K'],['g3','R'],['h4','P'],['h2','n'],['a6','r'],['f3','p'],['a4','n'],['b6','b'],['c3','b'],['a2','n']]), cards: ['차원 장벽','연계 분쇄','업!'], augs: 1, moves: 2, sol: '[연계 분쇄] g3g1 g1h1' }, // 정답: [연계 분쇄] g3g1 g1h1
-            { fen: pzFen([['g5','k'],['g3','K'],['h4','R'],['h5','n'],['c1','b'],['f4','p'],['b4','p'],['f5','r'],['b6','n']]), cards: ['진군 명령','신성한 폭발','차원 장벽','운명의 수레바퀴'], augs: 1, moves: 2, sol: '[신성한 폭발] h4h5 h5g5' }, // 정답: [신성한 폭발] h4h5 h5g5
-            { fen: pzFen([['a4','k'],['d3','K'],['e3','R'],['g3','b'],['h7','p'],['a8','n'],['c1','b'],['g8','n'],['e2','b']]), cards: ['신성한 폭발','운명의 수레바퀴','차원 장벽','앙파상+'], augs: 1, moves: 2, sol: '[신성한 폭발] e3e4 e4a4' }, // 정답: [신성한 폭발] e3e4 e4a4
             { fen: pzFen([['g6','K'],['e6','R'],['e2','k'],['h6','p'],['e5','n'],['a1','n'],['d1','n'],['h8','N'],['g8','b']]), cards: ['신성한 폭발','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: '[신성한 폭발] [암살] e6e2' }, // 정답: [신성한 폭발] [암살] e6e2
             { fen: pzFen([['e8','K'],['f6','P'],['g5','P'],['e5','k'],['h7','p'],['f2','b'],['c5','p'],['e2','N'],['a7','p']]), cards: ['진군 명령','앙파상+','차원 장벽','파도'], augs: 2, moves: 1, sol: '[진군 명령=n] [파도] f8e6' }, // 정답: [진군 명령=n] [파도] f8e6
-            { fen: pzFen([['a4','K'],['b3','B'],['e4','R'],['b8','k'],['f7','n'],['g5','n'],['e7','P'],['c2','r'],['c8','N'],['b5','N']]), cards: ['신의 심판','파도','암살','나이트 클럽'], augs: 1, moves: 2, sol: '[신의 심판@b3] e4b4 b4b8' }, // 정답: [신의 심판@b3] e4b4 b4b8
-            { fen: pzFen([['c4','K'],['f6','R'],['g1','k'],['h6','r'],['a8','b'],['a5','n'],['b3','P'],['f5','N'],['b7','P'],['b2','p']]), cards: ['연계 분쇄','암살','나이트 클럽','차원 장벽'], augs: 1, moves: 2, sol: '[연계 분쇄] f6g6 g6g1' }, // 정답: [연계 분쇄] f6g6 g6g1
-            { fen: pzFen([['h6','k'],['g4','K'],['h3','R'],['f4','P'],['f2','B'],['b8','B'],['h4','b'],['h5','b'],['g8','r'],['b3','b']]), cards: ['연계 분쇄','진군 명령','차원 장벽','업!'], augs: 1, moves: 2, sol: '[연계 분쇄] h3h4 h4h6' }, // 정답: [연계 분쇄] h3h4 h4h6
-            { fen: pzFen([['e7','K'],['e1','R'],['a1','k'],['g5','p'],['c1','n'],['h4','b'],['h7','N'],['g7','P'],['c6','N'],['d4','r']]), cards: ['마인드 컨트롤','암살','파도','나이트 클럽'], augs: 2, moves: 1, sol: '[마인드 컨트롤] [암살] e1a1' }, // 정답: [마인드 컨트롤] [암살] e1a1
-            { fen: pzFen([['g6','K'],['b8','B'],['c8','R'],['b7','k'],['c1','N'],['h1','n'],['c5','p'],['e5','N'],['c3','N'],['d4','b']]), cards: ['신의 심판','파도','암살','나이트 클럽'], augs: 2, moves: 1, sol: '[신의 심판@b8] [파도] c8b8' }, // 정답: [신의 심판@b8] [파도] c8b8
-            { fen: pzFen([['c6','K'],['c3','B'],['b3','R'],['g3','k'],['d3','p'],['e7','P'],['f8','b'],['g7','P'],['h5','b'],['h4','p']]), cards: ['신의 심판','파도','암살','나이트 클럽'], augs: 2, moves: 1, sol: '[신의 심판@c3] [암살] b3g3' }, // 정답: [신의 심판@c3] [암살] b3g3
-            { fen: pzFen([['a1','K'],['f8','R'],['b8','k'],['e8','r'],['g6','b'],['b3','n'],['e3','N'],['d4','N'],['a4','N'],['e7','P']]), cards: ['연계 분쇄','암살','나이트 클럽','차원 장벽'], augs: 2, moves: 1, sol: '[연계 분쇄] [암살] f8b8' }, // 정답: [연계 분쇄] [암살] f8b8
-            { fen: pzFen([['f1','K'],['f2','R'],['d1','B'],['e7','k'],['a3','n'],['e6','p'],['h7','P'],['c4','N'],['d2','r'],['g5','n']]), cards: ['운명의 수레바퀴','파도','차원 장벽','암살'], augs: 2, moves: 1, sol: '[파도] [운명의 수레바퀴] f2f8' }, // 정답: [파도] [운명의 수레바퀴] f2f8
-            { fen: pzFen([['b8','K'],['h7','R'],['e5','B'],['d2','k'],['g3','p'],['c6','p'],['d7','N'],['e6','P'],['e2','r'],['c2','p']]), cards: ['파도','나이트 클럽','차원 장벽','암살'], augs: 2, moves: 1, sol: '[파도] [나이트 클럽] e5d3' }, // 정답: [파도] [나이트 클럽] e5d3
-            { fen: pzFen([['c8','K'],['h4','R'],['f4','B'],['d3','k'],['e3','p'],['a3','N'],['h2','p'],['c5','b'],['g6','P'],['g4','N']]), cards: ['운명의 수레바퀴','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: '[운명의 수레바퀴] [암살] h3d3' }, // 정답: [운명의 수레바퀴] [암살] h3d3
-            { fen: pzFen([['h1','k'],['h8','K'],['b3','R'],['d4','B'],['e8','R'],['f4','p'],['a5','b'],['f6','p'],['h2','p'],['e6','p'],['g7','b'],['h3','p']]), cards: ['나이트 클럽','신성한 폭발','앙파상+','연계 분쇄'], augs: 1, moves: 2, sol: '[신성한 폭발] b3b1 b1h1' }, // 정답: [신성한 폭발] b3b1 b1h1
-            { fen: pzFen([['h1','k'],['d7','K'],['d4','R'],['h4','P'],['f3','R'],['e6','P'],['d3','n'],['c1','b'],['g1','n'],['f6','n'],['h5','r'],['a6','n'],['e4','p']]), cards: ['차원 장벽','나이트 클럽','연계 분쇄','진군 명령'], augs: 1, moves: 2, sol: '[연계 분쇄] f3h3 h3h1' }, // 정답: [연계 분쇄] f3h3 h3h1
             { fen: pzFen([['f5','k'],['h1','K'],['b7','R'],['b2','N'],['c5','n'],['f8','b'],['g6','n'],['d8','n'],['h7','n'],['e6','r'],['f4','r'],['f6','b'],['e5','n'],['g4','r'],['g5','b']]), cards: ['암살','강제 이주','앙파상+'], augs: 1, moves: 2, sol: '[강제 이주] b7b4 b4e4' }, // 정답: [강제 이주] b7b4 b4e4
-            { fen: pzFen([['g4','k'],['f2','K'],['d7','R'],['d4','p'],['b7','n'],['b5','r']]), cards: ['그림자 교체','연계 분쇄','진군 명령','나이트 클럽'], augs: 2, moves: 1, sol: '[그림자 교체] [나이트 클럽] f2g4' }, // 정답: [그림자 교체] [나이트 클럽] f2g4
+            { fen: pzFen([['a2','K'],['e2','R'],['h6','P'],['h7','P'],['g5','k'],['d2','p'],['e6','n'],['c5','b'],['f7','P'],['h5','b']]), cards: ['앙파상+','파도','차원 장벽','암살'], augs: 2, moves: 1, sol: '[앙파상+=n] [파도] h8g6' }, // 정답: [앙파상+=n] [파도] h8g6
+            { fen: pzFen([['a4','K'],['b3','B'],['e4','R'],['b8','k'],['f7','n'],['g5','n'],['e7','P'],['c2','r'],['c8','N'],['b5','N']]), cards: ['신의 심판','파도','암살','나이트 클럽'], augs: 1, moves: 2, sol: '[신의 심판@b3] e4b4 b4b8' }, // 정답: [신의 심판@b3] e4b4 b4b8
+            { fen: pzFen([['b1','K'],['g7','R'],['g5','P'],['f7','P'],['g3','k'],['a2','n'],['g8','b'],['h1','b'],['e2','P'],['h2','n']]), cards: ['앙파상+','차원 장벽','파도'], augs: 1, moves: 2, sol: 'g7g6 [앙파상+] g6g3' }, // 정답: g7g6 [앙파상+] g6g3
             { fen: pzFen([['f1','k'],['h3','K'],['e2','R'],['h4','P'],['h2','P'],['d3','b'],['d2','b'],['c3','n'],['b6','b'],['b8','n']]), cards: ['암살','캐슬링+','나이트 클럽'], augs: 2, moves: 1, sol: '[캐슬링+] [나이트 클럽] h2f1' }, // 정답: [캐슬링+] [나이트 클럽] h2f1
-            { fen: pzFen([['c7','K'],['g6','R'],['d4','B'],['a4','k'],['g5','p'],['b2','n'],['g7','P'],['f3','p'],['b5','P'],['d1','b']]), cards: ['연계 분쇄','파도','차원 장벽','암살'], augs: 2, moves: 1, sol: 'c7b6 [파도] [연계 분쇄]' }, // 정답: c7b6 [파도] [연계 분쇄]
-            { fen: pzFen([['d2','K'],['a3','R'],['f7','k'],['e6','p'],['f6','p'],['g2','n'],['h6','p'],['c2','P'],['g5','p'],['f4','N']]), cards: ['파도','차원 장벽','암살','신의 심판'], augs: 2, moves: 1, sol: 'a3a8 [파도] [차원 장벽@g7]' }, // 정답: a3a8 [파도] [차원 장벽@g7]
-            { fen: pzFen([['a6','k'],['b4','K'],['h5','R'],['d6','P'],['h7','P'],['d3','P'],['d8','B'],['a8','b'],['d2','b']]), cards: ['파도','연계 분쇄','네크로맨서'], augs: 2, moves: 1, sol: '[연계 분쇄] [네크로맨서] h5a5' }, // 정답: [연계 분쇄] [네크로맨서] h5a5
-            { fen: pzFen([['c8','K'],['h2','R'],['h1','B'],['h7','k'],['a4','n'],['f6','n'],['h4','p'],['e6','p'],['g7','b']]), cards: ['여신의 가호','신의 심판','차원 장벽','파도'], augs: 2, moves: 1, sol: '[여신의 가호] [신의 심판@h1] h2h7' }, // 정답: [여신의 가호] [신의 심판@h1] h2h7
-            { fen: pzFen([['c5','K'],['b8','R'],['a4','k'],['g2','b'],['b4','b'],['f3','P'],['d4','p'],['e5','P'],['f7','p']]), cards: ['연계 분쇄','암살','나이트 클럽','차원 장벽'], augs: 2, moves: 1, sol: '[연계 분쇄] b8a8 [차원 장벽@b3]' }, // 정답: [연계 분쇄] b8a8 [차원 장벽@b3]
+            { fen: pzFen([['g4','k'],['f2','K'],['d7','R'],['d4','p'],['b7','n'],['b5','r']]), cards: ['그림자 교체','연계 분쇄','진군 명령','나이트 클럽'], augs: 2, moves: 1, sol: '[그림자 교체] [나이트 클럽] f2g4' }, // 정답: [그림자 교체] [나이트 클럽] f2g4
+            { fen: pzFen([['g1','K'],['g2','P'],['h2','P'],['a8','k']]), cards: ['캐슬링+','파도','암살','연계 분쇄'], augs: 1, moves: 2, sol: '[캐슬링+] h2h7 g2g8' }, // 정답: [캐슬링+] h2h7 g2g8 (사다리 체크메이트)
             { fen: pzFen([['a8','k'],['d1','K'],['c1','R'],['b5','B'],['c8','b'],['a3','b'],['g1','n'],['b8','r'],['b7','r']]), cards: ['앙파상+','업!','나이트 클럽','강제 이주'], augs: 2, moves: 1, sol: '[나이트 클럽] [강제 이주] b5a7' }, // 정답: [나이트 클럽] [강제 이주] b5a7
-            { fen: pzFen([['f4','K'],['d5','R'],['f1','k'],['c6','p'],['c5','r'],['d8','N'],['b3','p'],['e3','n'],['c1','b']]), cards: ['차원 장벽','운명의 수레바퀴','파도','암살'], augs: 2, moves: 1, sol: '[차원 장벽@e1] [운명의 수레바퀴] d5d1' }, // 정답: [차원 장벽@e1] [운명의 수레바퀴] d5d1
-            { fen: pzFen([['d8','K'],['d6','R'],['f5','B'],['f8','k'],['a6','p'],['e4','p'],['a1','n'],['b5','r'],['c4','n'],['d3','P']]), cards: ['나이트 클럽','차원 장벽','연계 분쇄','암살'], augs: 2, moves: 1, sol: 'f5e6 [나이트 클럽] [차원 장벽@g8]' }, // 정답: f5e6 [나이트 클럽] [차원 장벽@g8]
-            { fen: pzFen([['b3','K'],['c1','R'],['a6','k'],['e3','n'],['c8','b'],['d6','p'],['g4','N'],['h3','p'],['e4','n'],['e2','P']]), cards: ['차원 장벽','운명의 수레바퀴','파도','암살'], augs: 2, moves: 1, sol: '[차원 장벽@b1] [운명의 수레바퀴] a1a7' }, // 정답: [차원 장벽@b1] [운명의 수레바퀴] a1a7
+            { fen: pzFen([['b7','K'],['f4','R'],['b4','B'],['d1','k'],['g2','n'],['c6','N'],['a3','N'],['a5','b'],['e5','p'],['h2','p']]), cards: ['업!','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: '[차원 장벽@a6] [파도] b4d2' }, // 정답: [차원 장벽@a6] [파도] b4d2 (파도를 먼저 쓰면 a5 비숍이 a6으로 올라와 b7 킹에 체크가 걸려 킹을 잡을 수 없다)
+            { fen: pzFen([['g6','K'],['b8','B'],['c8','R'],['b7','k'],['c1','N'],['h1','n'],['c5','p'],['e5','N'],['c3','N'],['d4','b']]), cards: ['신의 심판','파도','암살','나이트 클럽'], augs: 2, moves: 1, sol: '[신의 심판@b8] [파도] c8b8' }, // 정답: [신의 심판@b8] [파도] c8b8
+            { fen: pzFen([['d7','K'],['e2','P'],['h2','P'],['g7','k'],['h3','p'],['f1','r'],['f3','N'],['c4','b'],['d5','P'],['g3','P']]), cards: ['앙파상+','진군 명령','차원 장벽','암살'], augs: 2, moves: 1, sol: '[앙파상+] [진군 명령] h6g7' }, // 정답: [앙파상+] [진군 명령] h6g7
+            { fen: pzFen([['d3','k'],['f7','K'],['a6','R'],['a7','N'],['c3','p'],['g6','b'],['f3','n'],['f1','n']]), cards: ['업!','파도','마인드 컨트롤','연계 분쇄'], augs: 2, moves: 1, sol: '[마인드 컨트롤] [파도] c3d4' }, // 정답: [마인드 컨트롤] [파도] c3d4
+            { fen: pzFen([['f1','K'],['f2','R'],['d1','B'],['e7','k'],['a3','n'],['e6','p'],['h7','P'],['c4','N'],['d2','r'],['g5','n']]), cards: ['운명의 수레바퀴','파도','차원 장벽','암살'], augs: 2, moves: 1, sol: '[파도] [운명의 수레바퀴] f2f8' }, // 정답: [파도] [운명의 수레바퀴] f2f8
+            { fen: pzFen([['c8','K'],['h4','R'],['f4','B'],['d3','k'],['e3','p'],['a3','N'],['h2','p'],['c5','b'],['g6','P'],['g4','N']]), cards: ['운명의 수레바퀴','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: '[운명의 수레바퀴] [암살] h3d3' }, // 정답: [운명의 수레바퀴] [암살] h3d3
+            { fen: pzFen([['b8','K'],['e5','R'],['c6','B'],['e2','k'],['h2','p'],['g2','n'],['e4','p'],['f6','p'],['c3','P'],['d1','b']]), cards: ['업!','나이트 클럽','차원 장벽','파도'], augs: 2, moves: 1, sol: '[업!@e5] e5e2 [나이트 클럽]' }, // 정답: [업!@e5] e5e2 [나이트 클럽]
+            { fen: pzFen([['c5','K'],['b8','R'],['a4','k'],['g2','b'],['b4','b'],['f3','P'],['d4','p'],['e5','P'],['f7','p']]), cards: ['연계 분쇄','암살','나이트 클럽','차원 장벽'], augs: 2, moves: 1, sol: '[연계 분쇄] b8a8 [차원 장벽@b3]' }, // 정답: [연계 분쇄] b8a8 [차원 장벽@b3]
             { fen: pzFen([['h2','K'],['c8','R'],['e7','B'],['e6','k'],['c6','p'],['h3','n'],['e1','N'],['a3','n'],['d5','r'],['h8','n']]), cards: ['운명의 수레바퀴','나이트 클럽','차원 장벽','파도'], augs: 2, moves: 1, sol: '[운명의 수레바퀴] [나이트 클럽] d8e6' }, // 정답: [운명의 수레바퀴] [나이트 클럽] d8e6
             { fen: pzFen([['d6','K'],['e3','R'],['a4','B'],['c8','k'],['e6','p'],['g8','n'],['f7','N'],['h4','N'],['f5','P'],['b3','N']]), cards: ['신성한 폭발','연계 분쇄','차원 장벽','파도'], augs: 2, moves: 1, sol: '[신성한 폭발] e3e8 [차원 장벽@b7]' }, // 정답: [신성한 폭발] e3e8 [차원 장벽@b7]
             { fen: pzFen([['h6','K'],['e6','P'],['d3','P'],['a6','k'],['d8','n'],['g3','p'],['b7','b'],['h4','p'],['e5','N'],['a4','r']]), cards: ['진군 명령','앙파상+','차원 장벽','파도'], augs: 2, moves: 1, sol: '[진군 명령=q] e8a4 [차원 장벽@b6]' }, // 정답: [진군 명령=q] e8a4 [차원 장벽@b6]
-            { fen: pzFen([['d7','K'],['e2','P'],['h2','P'],['g7','k'],['h3','p'],['f1','r'],['f3','N'],['c4','b'],['d5','P'],['g3','P']]), cards: ['앙파상+','진군 명령','차원 장벽','암살'], augs: 2, moves: 1, sol: '[앙파상+] [진군 명령] h6g7' }, // 정답: [앙파상+] [진군 명령] h6g7
-            { fen: pzFen([['b4','K'],['h1','R'],['f4','P'],['g7','P'],['e7','k'],['b2','p'],['d5','b'],['e5','N'],['b1','n'],['g2','N']]), cards: ['앙파상+','차원 장벽','파도','암살'], augs: 2, moves: 1, sol: '[차원 장벽@f5] [앙파상+] f6e7' }, // 정답: [차원 장벽@f5] [앙파상+] f6e7
+            { fen: pzFen([['a6','k'],['b4','K'],['h5','R'],['d6','P'],['h7','P'],['d3','P'],['d8','B'],['a8','b'],['d2','b']]), cards: ['파도','연계 분쇄','네크로맨서'], augs: 2, moves: 1, sol: '[연계 분쇄] [네크로맨서] h5a5' }, // 정답: [연계 분쇄] [네크로맨서] h5a5
             { fen: pzFen([['b3','k'],['e1','K'],['c8','R'],['e7','P'],['g6','P'],['d7','p'],['d2','n'],['f4','b'],['b6','n'],['e6','p'],['a1','n'],['h8','r']]), cards: ['파도','업!','진군 명령','신의 심판'], augs: 2, moves: 1, sol: '[진군 명령=b] [신의 심판@e8] g8b3' }, // 정답: [진군 명령=b] [신의 심판@e8] g8b3
+            { fen: pzFen([['f6','K'],['c6','R'],['f4','B'],['h8','k'],['h6','b'],['e2','N'],['b2','p'],['a7','N'],['a2','P']]), cards: ['덩굴','암살','파도','나이트 클럽'], augs: 2, moves: 1, sol: 'c6c8 [덩굴] [파도]' }, // 정답: c6c8 [덩굴] [파도]
+            { fen: pzFen([['d2','K'],['a3','R'],['f7','k'],['e6','p'],['f6','p'],['g2','n'],['h6','p'],['c2','P'],['g5','p'],['f4','N']]), cards: ['파도','차원 장벽','암살','신의 심판'], augs: 2, moves: 1, sol: 'a3a8 [파도] [차원 장벽@g7]' }, // 정답: a3a8 [파도] [차원 장벽@g7]
+            { fen: pzFen([['b4','K'],['h1','R'],['f4','P'],['g7','P'],['e7','k'],['b2','p'],['d5','b'],['e5','N'],['b1','n'],['g2','N']]), cards: ['앙파상+','차원 장벽','파도','암살'], augs: 2, moves: 1, sol: '[차원 장벽@f5] [앙파상+] f6e7' }, // 정답: [차원 장벽@f5] [앙파상+] f6e7
+            { fen: pzFen([['d8','K'],['d6','R'],['f5','B'],['f8','k'],['a6','p'],['e4','p'],['a1','n'],['b5','r'],['c4','n'],['d3','P']]), cards: ['나이트 클럽','차원 장벽','연계 분쇄','암살'], augs: 2, moves: 1, sol: 'f5e6 [나이트 클럽] [차원 장벽@g8]' }, // 정답: f5e6 [나이트 클럽] [차원 장벽@g8]
+            { fen: pzFen([['c8','K'],['h2','R'],['h1','B'],['h7','k'],['a4','n'],['f6','n'],['h4','p'],['e6','p'],['g7','b']]), cards: ['여신의 가호','신의 심판','차원 장벽','파도'], augs: 2, moves: 1, sol: '[여신의 가호] [신의 심판@h1] h2h7' }, // 정답: [여신의 가호] [신의 심판@h1] h2h7
+            { fen: pzFen([['f4','K'],['d5','R'],['f1','k'],['c6','p'],['c5','r'],['d8','N'],['b3','p'],['e3','n'],['c1','b']]), cards: ['차원 장벽','운명의 수레바퀴','파도','암살'], augs: 2, moves: 1, sol: '[차원 장벽@e1] [운명의 수레바퀴] d5d1' }, // 정답: [차원 장벽@e1] [운명의 수레바퀴] d5d1
+            { fen: pzFen([['c3','K'],['c8','R'],['a3','B'],['a1','k'],['d7','n'],['e2','p'],['e3','n'],['c2','p'],['g5','b'],['b7','N']]), cards: ['업!','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: 'c8a8 [업!@a3] [차원 장벽@b1]' }, // 정답: c8a8 [업!@a3] [차원 장벽@b1]
             { fen: pzFen([['b6','K'],['c6','R'],['g8','k'],['h4','p'],['g6','n'],['h1','b']]), cards: ['차원 장벽','운명의 수레바퀴','파도','암살'], augs: 3, moves: 1, sol: '[운명의 수레바퀴] [차원 장벽@g8] [파도] c6h6' }, // 정답: [운명의 수레바퀴] [차원 장벽@g8] [파도] c6h6
             { fen: pzFen([['h7','K'],['d2','R'],['b8','k'],['f3','p'],['c4','n'],['d5','b'],['d1','n']]), cards: ['차원 장벽','운명의 수레바퀴','나이트 클럽','암살'], augs: 3, moves: 1, sol: '[차원 장벽@c8] [운명의 수레바퀴] [암살] d2d8' }, // 정답: [차원 장벽@c8] [운명의 수레바퀴] [암살] d2d8
-            { fen: pzFen([['b8','K'],['e5','R'],['c6','B'],['e2','k'],['h2','p'],['g2','n'],['e4','p'],['f6','p'],['c3','P'],['d1','b']]), cards: ['업!','나이트 클럽','차원 장벽','파도'], augs: 2, moves: 1, sol: '[업!@e5] e5e2 [나이트 클럽]' }, // 정답: [업!@e5] e5e2 [나이트 클럽]
-            { fen: pzFen([['c3','K'],['c8','R'],['a3','B'],['a1','k'],['d7','n'],['e2','p'],['e3','n'],['c2','p'],['g5','b'],['b7','N']]), cards: ['업!','암살','차원 장벽','파도'], augs: 2, moves: 1, sol: 'c8a8 [업!@a3] [차원 장벽@b1]' }, // 정답: c8a8 [업!@a3] [차원 장벽@b1]
             { fen: pzFen([['d8','K'],['b6','R'],['a2','k'],['d4','p'],['c3','n'],['f5','b'],['h4','n']]), cards: ['차원 장벽','운명의 수레바퀴','나이트 클럽','암살'], augs: 3, moves: 1, sol: '[차원 장벽@a3] [운명의 수레바퀴] [나이트 클럽] b6a4' }, // 정답: [차원 장벽@a3] [운명의 수레바퀴] [나이트 클럽] b6a4
             { fen: pzFen([['f5','K'],['g2','R'],['b1','k'],['b3','n'],['b2','b'],['a1','n'],['f3','N']]), cards: ['차원 장벽','운명의 수레바퀴','나이트 클럽','암살'], augs: 3, moves: 1, sol: 'g2c2 [운명의 수레바퀴] [차원 장벽@b1] [나이트 클럽]' } // 정답: g2c2 [운명의 수레바퀴] [차원 장벽@b1] [나이트 클럽]
         ];
         if (PZ_STAGE_DATA.length !== PZ_STAGE_IDS.length) throw new Error('퍼즐 데이터와 저장 ID 수가 일치하지 않습니다.');
-        // 스테이지 컨셉 제목: 정답(쓰는 증강·기물)이 추측되지 않도록 분위기만 담았다
-        const PZ_TITLES = ['신입의 첫 의뢰', '월요일 아침의 평화', '선택지가 너무 많아', '수상한 초대장', '퇴근 10분 전', '계단은 건강에 좋아요', '도시락 도난 사건', '동네 목욕탕 풍경', '지도에 없는 길', '지름길 공사 중', '다락방의 먼지', '비밀 레시피 노트', '조용한 도서관', '고양이는 알고 있다', '한 장의 비밀 카드', '마술사의 소매', '아침형 인간의 하루', '치킨 한 마리의 행복', '도서관 대출 연체', '모퉁이를 돌면', '느긋한 산책로', '마지막 열차', '성문 앞의 협상', '두 개의 열쇠', '쌍둥이 서커스', '붕어빵 굽는 시간', '비 오는 수요일', '새벽 네 시의 종소리', '점심 메뉴 토론회', '옆집 아저씨의 부탁', '숨바꼭질 챔피언', '수상한 과학 시간', '밤하늘 예약석', '끝없는 복도', '달리는 기차 위에서', '수학여행 전날 밤', '소문의 진원지', '시계탑의 비밀', '얼음 위의 대화', '별이 쏟아지던 밤', '놀이공원 폐장 시간', '번개 배달부', '골목대장의 귀환', '택배 기사의 하루', '하루 만의 반란', '꿈속의 체스판', '낯선 손님', '침묵의 연회', '옥상에서 먹는 라면', '마지막 한 입', '구름 위의 낮잠', '비밀 통로 입구', '시간 여행자의 영수증', '낡은 지도 한 장', '폭풍 전의 고요', '보물섬 탐험대', '모래시계의 속삭임', '가면무도회', '열두 번째 손님', '막다른 골목의 미소', '한밤의 라디오 사연', '손님은 왕이다', '완벽한 알리바이', '신데렐라의 자정', '여름 밤의 괴담', '도깨비 방망이 한 번', '심야 식당', '파티는 끝나지 않아', '퍼즐 가게 사장님', '영웅의 은퇴식', '눈 내리는 전장', '가장 긴 하루', '마법사의 도서관', '최후의 만찬', '새벽의 대결', '왕관의 무게', '마지막 문제', '전설의 끝자락', '그리고 아무도 없었다'];
-        if (PZ_TITLES.length !== PZ_STAGE_IDS.length) throw new Error('퍼즐 제목 수와 스테이지 수가 일치하지 않습니다.');
-        const PZ_STAGES = PZ_STAGE_DATA.map((stage, i) => ({ n: i + 1, id: PZ_STAGE_IDS[i], title: PZ_TITLES[i], ...stage }));
+        // 스테이지 제목: 증강이 추측되지 않도록 보드 상황 묘사나 가벼운 농담만 담았다
+        const PZ_TITLES = {   // 스테이지 고유 id → 제목
+            371: '신입의 첫 의뢰',
+            403: '말이 너무 많은 동네',
+            399: '문 앞의 불청객',
+            408: '룩이 이렇게 많아도 되나',
+            307: '킹 둘, 어색한 침묵',
+            305: '말 떼의 습격',
+            322: '폰 세일 중',
+            407: '흑 진영 대가족 모임',
+            327: '왕은 오늘 휴가',
+            308: '회전목마 같은 판',
+            334: '일가친척 총출동',
+            405: '옆집 폰들이 시끄럽다',
+            402: '혼자 사는 킹',
+            401: '룩 형제는 붙어 다닌다',
+            332: '장거리 연애 중',
+            302: '빽빽한 동네',
+            313: '폰들의 출근길',
+            406: '구석 자리가 인기다',
+            323: '백 삼총사',
+            325: '킹은 오늘도 평화롭다',
+            330: '룩 하나가 바쁘다',
+            306: '외딴집 킹',
+            320: '눈치 없는 비숍',
+            317: '막다른 골목의 킹',
+            321: '킹 둘이 먼 산 보는 중',
+            404: '이웃사촌 킹',
+            389: '수적 열세는 기본 옵션',
+            304: '얌전한 이웃',
+            314: '폰 파티',
+            316: '나이트 둘이 구경 중',
+            310: '킹 둘이 나란히 앉았다',
+            312: '줄 서시오',
+            315: '위아래층 킹',
+            331: '구석방 손님',
+            339: '썰렁한 판의 마지막 손님',
+            337: '멀리서 눈 마주친 킹들',
+            338: '쓸쓸한 아침',
+            340: '킹과 그 친구들',
+            341: '이 정도면 소꿉놀이',
+            342: '가진 건 폰 둘뿐'
+        };
+        if (PZ_STAGE_IDS.some(id => !PZ_TITLES[id])) throw new Error('퍼즐 제목이 없는 스테이지가 있습니다.');
+        const PZ_STAGES = PZ_STAGE_DATA.map((stage, i) => ({ n: i + 1, id: PZ_STAGE_IDS[i], title: PZ_TITLES[PZ_STAGE_IDS[i]], ...stage }));
         // ---- 이번 플레이의 시간 / 실패 횟수 (저장하지 않는다) ----
         try { localStorage.removeItem('augChessPuzzleRecordsV1'); } catch (e) {}   // 이전 버전이 남긴 기록 정리
         const pzFailMem = {};   // 스테이지 id → 이번에 목록에서 들어온 뒤 실패한 횟수 (메모리에만 둔다)
@@ -9827,14 +10089,26 @@
         // ---- HUD ----
         // ---- 스테이지 1 코치: 강조(스포트라이트) + 떠 있는 안내 카드 ----
         let pzCoachTarget = null, pzCoachTimer = 0;
+        let pzTrackOn = false;
+        function pzTrackStart() {
+            if (pzTrackOn) return; pzTrackOn = true;
+            const vis = id => { const e = document.getElementById(id); return !!e && e.style.display === 'block'; };
+            const tick = () => {
+                const t = vis('pz-tutorial'), c = vis('pz-coach'), n = vis('pz-new');
+                if (!t && !c && !n) { pzTrackOn = false; return; }
+                try { if (t) pzTutorialPlace(); if (c) pzCoachPlace(); if (n) pzNewPlace(); } catch (e) {}
+                requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+        }
         function pzCoachPlace() {
             const box = document.getElementById('pz-coach'); if (!box || box.style.display === 'none') return;
             let el = pzCoachTarget; if (typeof el === 'function') el = el();
             if (!el || !el.isConnected) return;
             const r = el.getBoundingClientRect(); if (!r.width && !r.height) return;
             const spot = document.getElementById('pz-coach-spot'), card = document.getElementById('pz-coach-card');
-            spot.style.left = Math.max(4, r.left - 6) + 'px'; spot.style.top = Math.max(4, r.top - 6) + 'px';
-            spot.style.width = Math.min(window.innerWidth - 8, r.width + 12) + 'px'; spot.style.height = Math.min(window.innerHeight - 8, r.height + 12) + 'px';
+            spot.style.left = (r.left - 6) + 'px'; spot.style.top = (r.top - 6) + 'px';
+            spot.style.width = (r.width + 12) + 'px'; spot.style.height = (r.height + 12) + 'px';
             const cr = card.getBoundingClientRect(), gap = 14, margin = 10;
             let top = r.bottom + gap; if (top + cr.height > window.innerHeight - margin) top = r.top - cr.height - gap;
             top = Math.max(margin, Math.min(top, window.innerHeight - cr.height - margin));
@@ -9848,7 +10122,7 @@
             box.style.display = 'block'; box.setAttribute('aria-hidden', 'false');
             const card = document.getElementById('pz-coach-card'); card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';   // 단계가 바뀔 때마다 다시 떠오르게
             window.removeEventListener('resize', pzCoachPlace); window.addEventListener('resize', pzCoachPlace);
-            requestAnimationFrame(pzCoachPlace); clearTimeout(pzCoachTimer); pzCoachTimer = setTimeout(pzCoachPlace, 260);
+            requestAnimationFrame(pzCoachPlace); pzTrackStart(); clearTimeout(pzCoachTimer); pzCoachTimer = setTimeout(pzCoachPlace, 260);
         }
         function pzCoachHide() {
             const box = document.getElementById('pz-coach'); if (box) { box.style.display = 'none'; box.setAttribute('aria-hidden', 'true'); }
@@ -9865,18 +10139,16 @@
             } else pzCoachHide();
         }
         function pzDesc(txt) { const el = document.getElementById('pz-desc'); if (!el) return; el.textContent = txt || ''; el.style.display = txt ? '' : 'none'; if (!txt) pzCoachHide(); try { scheduleFit(); } catch (e) {} }
-        function pzTutorialSeen() {
-            if (pzTutorialShownThisSession) return true;
-            try { return localStorage.getItem(PZ_TUTORIAL_KEY) === '1'; } catch (e) { return false; }
-        }
+        function pzTutorialSeen() { return pzTutorialShownThisSession; }   // v4.00: 퍼즐 메뉴에 들어온 뒤 한 번만 (다시 풀어보기·다음 스테이지에서는 안 나온다)
+        function pzMenuLeave() { pzTutorialShownThisSession = false; }      // 퍼즐 메뉴에서 완전히 나가면 다음 입장 때 다시 보여 준다
         function pzTutorialPlace() {
             const step = PZ_TUTORIAL_STEPS[pzTutorialIndex], target = step && document.querySelector(step.target);
             if (!target) return;
             const r = target.getBoundingClientRect(), spot = document.getElementById('pz-tutorial-spot');
-            spot.style.left = Math.max(8, r.left - 7) + 'px';
-            spot.style.top = Math.max(8, r.top - 7) + 'px';
-            spot.style.width = Math.min(window.innerWidth - 16, r.width + 14) + 'px';
-            spot.style.height = Math.min(window.innerHeight - 16, r.height + 14) + 'px';
+            spot.style.left = (r.left - 7) + 'px';
+            spot.style.top = (r.top - 7) + 'px';
+            spot.style.width = (r.width + 14) + 'px';
+            spot.style.height = (r.height + 14) + 'px';
             const card = document.getElementById('pz-tutorial-card'), cr = card.getBoundingClientRect(), gap = 14, margin = 12;
             let top = r.bottom + gap;
             if (top + cr.height > window.innerHeight - margin) top = r.top - cr.height - gap;
@@ -9892,12 +10164,11 @@
             document.getElementById('pz-tutorial-text').textContent = step.text;
             document.getElementById('pz-tutorial-next').textContent = pzTutorialIndex === PZ_TUTORIAL_STEPS.length - 1 ? '시작하기' : '다음';
             overlay.style.display = 'block'; overlay.setAttribute('aria-hidden', 'false'); pzTPause(puzzleSt);
-            requestAnimationFrame(pzTutorialPlace);
+            requestAnimationFrame(pzTutorialPlace); pzTrackStart();
         }
         function pzShowTutorial() {
             if (!puzzleSt || puzzleSt.stage.n !== 1 || pzTutorialSeen()) return;
             pzTutorialShownThisSession = true;
-            try { localStorage.setItem(PZ_TUTORIAL_KEY, '1'); } catch (e) {}
             pzCoachHide(); pzTutorialIndex = 0; pzTutorialRender();
             window.addEventListener('resize', pzTutorialPlace);
         }
@@ -10235,11 +10506,11 @@
                 pzHideDone();
                 const b = document.getElementById('btn-return-lobby'); if (b && b.onclick) await b.onclick();
                 mainLobbyOverlay.style.display = 'none'; modeSelectOverlay.style.display = 'flex'; selectMsTab('practice');   // 연습 메뉴로 복귀
-                if (toStages) pzOpenStages(); else pzCloseStages();
+                if (toStages) pzOpenStages(); else { pzCloseStages(); pzMenuLeave(); }
             } finally { pzExiting = false; }
         }
         document.getElementById('btn-puzzle-mode').onclick = pzOpenStages;
-        document.getElementById('pzs-close').onclick = pzCloseStages;
+        document.getElementById('pzs-close').onclick = () => { pzCloseStages(); pzMenuLeave(); };
         document.getElementById('pz-tutorial-skip').onclick = () => { pzTutorialClose(); pzHint(); };
         document.getElementById('pz-tutorial-next').onclick = () => {
             if (pzTutorialIndex >= PZ_TUTORIAL_STEPS.length - 1) { pzTutorialClose(); pzHint(); return; }
@@ -10318,6 +10589,7 @@
             const delay = opts.delay || 0;
             if (!isSpectating) { saveGameToHistory(resultType, reasonStr); stopLive(true); stopAwayWatch(); clearRoomSession(); }   // 끝난 경기는 다시 불러오지 않는다
 
+            if (isBotMode && !isSpectating && myUid) { try { recordStatsGame(resultType, { human: false }); } catch (e) {} }   // 통계: 봇 대전은 전적만
             if (isBotMode && resultType === '승리' && !isSpectating) { try { reportWinAch({ kind: 'bot', level: botDifficulty }, delay); } catch (e) {} }
             if(!isBotMode && myUid && !statsRecorded) {
                 statsRecorded = true;
@@ -10325,6 +10597,7 @@
                 else if(resultType === '패배') userProfile.stats.l++;
                 else userProfile.stats.d++;
                 if (profileSynced) update(ref(db, `users/${myUid}/stats`), userProfile.stats).catch(() => {});
+                try { recordStatsGame(resultType, { human: true, color: myColor, plies: (typeof replayFrames !== 'undefined' && replayFrames) ? Math.max(0, replayFrames.length - 1) : 0, oppUid: curOppUid, oppName: lastOppName, oppIcon: (typeof chatOpp !== 'undefined' && chatOpp && chatOpp.icon) || '👤' }); } catch (e) {}   // 통계 기록
                 lastRank = applyRanking(resultType);
             }
 
@@ -10647,14 +10920,16 @@
                     showToast('⛓️ 동귀어진! 잡은 기물도 함께 사라졌습니다', '#ff5a4d', 2200);
                 }
             }
-            let poisonAtMove = null;
+            let poisonAtMove = null, invOnPoison = false;
             const pieceNow = game.get(to);
             if (pieceNow) {
                 let poisoned = false;
                 activePoison.forEach(p => { if (p.squares.includes(to) && p.owner !== pieceNow.color) poisoned = true; });
+                if (poisoned && pieceNow.type !== 'k' && pieceNow.type !== 'wall' && invinciblePieces[pieceNow.uid] > 0) invOnPoison = true;   // 무적이라 독구름에서 살아남았다
                 if (poisoned && pieceNow.type !== 'k' && pieceNow.type !== 'wall' && !invinciblePieces[pieceNow.uid]) { poisonAtMove = to; game.remove(to); spawnFloatingText(to, '☠️'); triggerVFX([to], 'vfx-explosion'); }
             }
             const { blasts: moveBlasts, mk: moveMk, fated: fateAtMove, babyBroken: moveBaby } = settleBoard();
+            try { hiddenMoveAch(moveResult.color, mineHits.slice(), invOnPoison); } catch (e) {}   // 히든 업적 (내가 둔 수만)
             if (fateAtMove.length) { fateAtMove.forEach(q => FX.fateSever(q)); showToast('🔔 운명공동체! 연결된 기물도 함께 사라졌습니다', '#7c82ff', 2200); }   // v3.80: 지뢰로 죽은 기물은 지뢰 칸에서 사라지고, 리플레이용으로 함께 기록한다
 
             previousMove = { from, to, color: moveResult.color };
@@ -10701,6 +10976,7 @@
             const babyBorn = processBaby();
             const promotedSq = promoteProspects();
             const balloonLanded = landBalloons();
+            try { balloonLanded.forEach(b => { if (b.kind === 'king' && b.col === myColor) reportEventAch('hid_balloon_king', 1500); }); } catch (e) {}   // 히든 업적: 내 풍선 기물이 킹 위에 내려앉아 희생됐다
             const { blasts: postBlasts, mk: postMk, fated: fateKilled } = settleBoard();
             
             ['w', 'b'].forEach(c => { if (reversedPawns[c] > 0) { reversedPawns[c]--; if (reversedPawns[c] <= 0) reversedUids[c] = {}; } });
@@ -11597,9 +11873,9 @@ self.onmessage = function (e) {
               apply: (m, e) => {
                   const ranks = e === 'b' ? [5, 6, 7, 8] : [1, 2, 3, 4], pool = [];
                   'abcdefgh'.split('').forEach(f => ranks.forEach(r => pool.push(f + r)));
-                  const strikes = shuffle(pool).slice(0, 3), hit = [];
-                  strikes.forEach(sq => { const p = game.get(sq); if (p && p.color === e && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { game.remove(sq); hit.push(sq); spawnFloatingText(sq, '⚡'); } });
-                  return { t: strikes, vfx: 'vfx-lightning', msg: hit.length > 0 ? `🌩️ 벼락이 적 ${hit.length}개를 강타했습니다!` : '🌩️ 벼락이 빗나갔습니다...' }; } },
+                  const strikes = shuffle(pool).slice(0, 3), hit = [], kinds = [];
+                  strikes.forEach(sq => { const p = game.get(sq); if (p && p.color === e && p.type !== 'k' && p.type !== 'wall' && !invinciblePieces[p.uid]) { kinds.push(p.type); game.remove(sq); hit.push(sq); spawnFloatingText(sq, '⚡'); } });
+                  return { t: strikes, vfx: 'vfx-lightning', strikeKinds: kinds, msg: hit.length > 0 ? `🌩️ 벼락이 적 ${hit.length}개를 강타했습니다!` : '🌩️ 벼락이 빗나갔습니다...' }; } },
             { name: '독구름', icon: '☠️', desc: '무작위 위치에 {2×2} 크기의 [맹독 지대]를 {12수} 동안 생성합니다. 지대 안에 있는 적 기물은 킹을 제외하고 [파괴]됩니다.', globalVfx: 'vfx-global-void', isKillType: true, condition: () => true,
               apply: (m, e) => { const fIdx = Math.floor(Math.random() * 7), r = 2 + Math.floor(Math.random() * 6), fc = String.fromCharCode(97 + fIdx), fn = String.fromCharCode(98 + fIdx);
                   const squares = [fc + r, fc + (r + 1), fn + r, fn + (r + 1)]; activePoison.push({ squares: squares, owner: m, duration: 12 }); updateBoardVisuals();
@@ -11695,7 +11971,7 @@ self.onmessage = function (e) {
               target: { mode: 'square', ghost: 'wall', prompt: '장벽을 세울 빈칸을 선택하세요', valid: () => getEmptySquares() },
               condition: () => getEmptySquares().length > 0,
               apply: (m, e, target) => { const sq = (target && !game.get(target)) ? target : shuffle(getEmptySquares())[0];
-                  if (mines.some(x => x.sq === sq)) { mines = mines.filter(x => x.sq !== sq); return { t: [sq], vfx: 'vfx-heal', blasts: [sq], msg: '💥 장벽이 지뢰와 함께 폭발했습니다!' }; }   // 지뢰 위에 세우면 벽과 지뢰가 모두 사라진다
+                  if (mines.some(x => x.sq === sq)) { mines = mines.filter(x => x.sq !== sq); return { t: [sq], vfx: 'vfx-heal', blasts: [sq], minePurge: true, msg: '💥 장벽이 지뢰와 함께 폭발했습니다!' }; }   // 지뢰 위에 세우면 벽과 지뢰가 모두 사라진다
                   game.put({ type: 'wall', color: 'none' }, sq); activeWalls.push({ sq: sq, duration: 10, owner: m }); return { t: [sq], vfx: 'vfx-heal', msg: '차원 장벽이 생성되었습니다!' }; } },
             { name: '자아 분열', icon: '😵‍💫', desc: '적 폰이 {6수} 동안 [반대 방향]으로 이동합니다.', globalVfx: 'vfx-global-void', isKillType: false, condition: (m, e) => findPieces(e, 'p').length > 0,
               apply: (m, e) => { reversedPawns[e] = 6; reversedUids[e] = {}; findPieces(e, 'p').forEach(sq => { reversedUids[e][game.get(sq).uid] = true; }); return { t: findPieces(e, 'p'), vfx: 'vfx-void', msg: '😵‍💫 적 폰들이 방향 감각을 잃었습니다!' }; } },
@@ -12677,6 +12953,7 @@ self.onmessage = function (e) {
             stopAugTimer(); augBusy = true; augBusyAt = Date.now(); const gs0 = gameEpoch;
             const offeredNames = (augOfferedNow && augOfferedNow.color === pColor && augOfferedNow.names.includes(selectedAug.name)) ? augOfferedNow.names.slice() : null;
             addAugmentLog(pColor === myColor ? 'mine' : 'opp', selectedAug);
+            try { if (pColor === myColor && !isSpectating && !isPracticeMode && !isBotMode && !(typeof __AUG_DEMO !== 'undefined' && __AUG_DEMO)) statAugs[selectedAug.name] = (statAugs[selectedAug.name] || 0) + 1; } catch (e) {}   // 통계: 내가 쓴 증강 (사람 대전만)
             let botSnapBefore = null; try { if (isBotMode) botSnapBefore = botSnap(); } catch (e) {}   // 봇 반응용: 증강 적용 전 상태
             activeAugmentOptions = null;
             activeAugmentPlayerColor = null;
@@ -12687,8 +12964,9 @@ self.onmessage = function (e) {
                 const byMe = pColor === myColor || proxyPick[pColor] === myColor;   // 법정 대리인: 승급할 기물도 대신 고른 사람이 정한다
                 let res, capBefore = false;
                 try { if (pColor === myColor && !isSpectating) capBefore = canCaptureKing(pColor); } catch (e) {}   // 증강 전부터 킹을 잡을 수 있었다면 증강 덕이 아니다
-                try { res = selectedAug.apply(pColor, eColor, target); const { poisoned, blasts, fated } = settleBoard({ fx: false, poison: true, sanitize: true, fateFx: true }); if (poisoned.length) res.t = [...new Set([...(res.t || []), ...poisoned])]; if (fated.length) res.t = [...new Set([...(res.t || []), ...fated])]; res.blasts = [...new Set([...(res.blasts || []), ...blasts])]; if (res.blasts.length) res.t = [...new Set([...(res.t || []), ...res.blasts])]; }
+                try { res = selectedAug.apply(pColor, eColor, target); const { poisoned, blasts, fated } = settleBoard({ fx: false, poison: true, sanitize: true, fateFx: true }); var augMineHits = mineHits.slice(); if (poisoned.length) res.t = [...new Set([...(res.t || []), ...poisoned])]; if (fated.length) res.t = [...new Set([...(res.t || []), ...fated])]; res.blasts = [...new Set([...(res.blasts || []), ...blasts])]; if (res.blasts.length) res.t = [...new Set([...(res.t || []), ...res.blasts])]; }
                 finally { var floats = floatLog; floatLog = null; }
+                try { hiddenAugAch(selectedAug, pColor, eColor, res, augMineHits || [], selectedAug.delay || 1200); } catch (e) {}   // 히든 업적 (내가 쓴 증강만)
                 try { if (proxyPick[pColor] && selectedAug.name !== '법정 대리인') proxyPick[pColor] = null; } catch (e) {}   // 법정 대리인으로 고른 증강이 적용되면 대리 선택은 끝
                 const augWinCheck = () => {   // 내가 쓴 증강으로 상대가 체크메이트 되거나 킹이 사라졌으면 업적 (관전·상대·봇의 증강은 제외)
                     try {
