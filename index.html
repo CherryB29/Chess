@@ -4078,11 +4078,12 @@
         function finDebug(msg) { if (FIN_DEBUG_UNLOCK_ALL) { try { showToast('🎬 ' + msg, '#7c82ff', 2200); } catch (e) {} } }
         const FIN_IDS_PV = id => id !== 'basic' && FINISHERS.some(f => f.id === id);
         // 꾸미기 효과 미리보기 팝업: 별도 팝업 안에 판을 잠깐 옮겨 와서(연습 모드 아님) 선택한 효과를 재생한다. 닫으면 판은 원래 자리로 돌아간다.
-        let fxpv = null;
+        let fxpv = null, fxpvGuard = false;   // fxpvGuard: 미리보기 중·직후엔 킹이 없는 판을 '종료'로 오인하지 않게 승패 판정을 건너뛴다
         function previewFinisher(id) {
             if (typeof isGameStarted !== 'undefined' && isGameStarted) { showToast('게임 중에는 미리보기를 할 수 없어요', '#e67e22', 2000); return; }
             if (fxpv) closeFinisherPreview();
-            const bc = document.getElementById('board-container'); if (!bc) return;
+            fxpvGuard = true;
+            const bc = document.getElementById('board-container'); if (!bc) { fxpvGuard = false; return; }
             const f = FINISHERS.find(x => x.id === id), d = f && f.ach ? ACHIEVEMENTS.find(x => x.id === f.ach) : null, nm = d ? d.title : (f ? f.name : '');
             const ov = document.createElement('div'); ov.id = 'fxpv';
             ov.innerHTML = `<div class="fxpv-panel"><div class="fxpv-hd"><div class="fxpv-t">${stEsc(nm)} · 미리보기</div><button type="button" class="fxpv-x" data-a="close" aria-label="닫기">✕</button></div><div class="fxpv-stage"></div><div class="fxpv-ft"><button type="button" data-a="replay">↻ 다시 보기</button><button type="button" data-a="pov">상대 시점으로</button></div></div>`;
@@ -4112,6 +4113,7 @@
             try { for (const sq of Array.from(squareEls.keys())) if (game.get(sq)) game.remove(sq); practiceRepaint(); } catch (e) {}
             p.ph.parentNode.insertBefore(p.bc, p.ph); p.ph.remove(); p.bc.className = p.old.cls; if (p.old.style === null) p.bc.removeAttribute('style'); else p.bc.setAttribute('style', p.old.style);
             document.body.classList.toggle('black-pov', p.hadBlack); p.ov.remove();
+            setTimeout(() => { if (!fxpv) fxpvGuard = false; }, 3500);
         }
         function renderCos() {
             const body = document.getElementById('cos-body'); if (!body) return;
@@ -8872,7 +8874,6 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 };
                 const jJuice = (sq, T, c) => {
                     const { x, y } = ctr(sq), WH = [255, 255, 255];
-                    jBars(T);
                     try { boardEl.animate([{ scale: '1' }, { scale: '1.045' }], { duration: T, easing: 'cubic-bezier(.5,0,.9,.6)' }); } catch (e) {}   // 서서히 다가오는 크리프 줌
                     later(T - 40, () => finVeil('rgb(255,255,255)', 0.9, 130, 'difference'));   // 임팩트 프레임(색 반전 번쩍)
                     later(T, () => {
@@ -13214,6 +13215,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             if (!ok) FX.checkmate(kSq, checkers);
         }
         function updateCheckStatus() {
+            if (fxpvGuard) return;
             squareList.forEach(s => s.classList.remove('in-check'));
             try { ['w', 'b'].forEach(c => { const k = findPieces(c, 'k')[0]; if (k) lastKS[c] = k; }); } catch (e) {}   // 킹이 사라져도 어느 칸이었는지 알 수 있게
             let wKing = false, bKing = false;
