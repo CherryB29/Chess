@@ -7,6 +7,61 @@
         (function () { try { if (window.top !== window.self) return; if (location.protocol !== 'http:' && location.protocol !== 'https:') return; if (sessionStorage.getItem('aug_fresh_load')) return; sessionStorage.setItem('aug_fresh_load', '1'); location.reload(); } catch (e) {} })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-visual">
+    <!-- 앱 아이콘 / 파비콘: index.html과 같은 폴더에 icon.png 를 두면 적용됩니다 (정사각형 512×512 이상 권장) -->
+    <link rel="icon" type="image/png" href="icon.png?v=2">
+    <link rel="shortcut icon" type="image/png" href="icon.png?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png?v=2">
+    <meta name="theme-color" content="#0a0a10">
+    <link id="app-manifest" rel="manifest" href="manifest.webmanifest?v=2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="증강 체스">
+    <script>
+        // 앱 아이콘 / 파비콘 보정: icon.png 를 불러와 정사각형(64·180·192·512)으로 다시 그려 data URL로 연결한다.
+        //  - 이미지 크기·비율이 달라도 manifest 에 적은 크기와 항상 맞는다
+        //  - 파비콘 캐시에 막히지 않는다
+        //  - icon.png 를 못 찾으면 기본 아이콘(♞)을 대신 쓴다
+        // manifest.webmanifest 파일이 같은 폴더에 있으면 그것을 쓰고, 없거나 icon.png 가 없으면 즉석에서 만든 매니페스트로 대신한다.
+        (function () {
+            var SIZES = [64, 180, 192, 512];
+            function render(img, size, opaque) {
+                try {
+                    var c = document.createElement('canvas'); c.width = c.height = size; var g = c.getContext('2d');
+                    if (opaque || !img) { g.fillStyle = '#0a0a10'; g.fillRect(0, 0, size, size); }
+                    if (img) {
+                        var k = size / Math.max(img.naturalWidth, img.naturalHeight), w = img.naturalWidth * k, h = img.naturalHeight * k;
+                        g.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+                    } else {
+                        g.fillStyle = '#f39c12'; g.font = Math.round(size * 0.62) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+                        g.fillText('\u265E', size / 2, size / 2 + size * 0.04);
+                    }
+                    return c.toDataURL('image/png');
+                } catch (e) { return null; }   // 캔버스를 못 쓰는 환경(file:// 등)이면 원래 icon.png 링크를 그대로 둔다
+            }
+            function apply(img) {
+                var u = {}; SIZES.forEach(function (s) { u[s] = render(img, s, s === 180); });
+                if (u[64]) document.querySelectorAll('link[rel="icon"],link[rel="shortcut icon"]').forEach(function (l) { l.href = u[64]; });
+                if (u[180]) document.querySelectorAll('link[rel="apple-touch-icon"]').forEach(function (l) { l.href = u[180]; });
+                var link = document.getElementById('app-manifest');
+                function useBlob() {
+                    try {
+                        if (!u[192] || !u[512] || !link) return;
+                        var m = { name: '증강 : 체스', short_name: '증강체스', start_url: location.href.split('#')[0], scope: location.href.split('#')[0].replace(/[^\/]*$/, ''), display: 'standalone', background_color: '#0a0a10', theme_color: '#0a0a10',
+                            icons: [{ src: u[192], sizes: '192x192', type: 'image/png', purpose: 'any' }, { src: u[512], sizes: '512x512', type: 'image/png', purpose: 'any' }] };
+                        link.href = URL.createObjectURL(new Blob([JSON.stringify(m)], { type: 'application/manifest+json' }));
+                    } catch (e) {}
+                }
+                if (!img) { useBlob(); return; }   // icon.png 가 없으면 파일 매니페스트도 쓸 수 없다
+                try { fetch('manifest.webmanifest?v=2', { cache: 'no-store' }).then(function (r) { if (!r.ok) useBlob(); }).catch(useBlob); } catch (e) { useBlob(); }
+            }
+            try {
+                var im = new Image();
+                im.onload = function () { apply(im.naturalWidth > 0 ? im : null); };
+                im.onerror = function () { apply(null); };
+                im.src = 'icon.png?v=2';
+            } catch (e) {}
+        })();
+    </script>
     <title>증강 : 체스</title>
     <style>
         :root {
@@ -3495,6 +3550,7 @@
             }
             
             { const remote = achSnap && achSnap.exists() ? achSnap.val() : null; const achChanged = mergeAch(remote, uid); if (achChanged || ((remote && remote.title) || '') !== (ensureAch().title || '')) syncAchRemote(uid); try { localStorage.setItem(LOCAL_ACH_KEY + uid, JSON.stringify(achPayload())); } catch (e) {} renderTitleUI(); }
+            pzPullRemote(uid);   // 퍼즐 클리어 기록: 서버와 이 기기를 합친다
             try { renderAccount(auth.currentUser); } catch (e) {}
             document.getElementById('profile-name-input').value = userProfile.name;
             document.getElementById('selected-icon-display').innerText = userProfile.icon;
@@ -12550,8 +12606,45 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             { target: '#pz-pick', title: '증강 사용하기', text: '증강 고르기를 눌러 카드를 선택하세요. 선택한 카드를 한 번 더 누르면 발동합니다.' },
             { target: '#board', title: '백 기물만 움직여요', text: '백 기물만 직접 움직입니다. 적(흑) 기물은 움직이지 않아요. 흑 킹을 잡거나 체크메이트하면 클리어예요.' }
         ];
-        function pzLoad() { try { let o = JSON.parse(localStorage.getItem(PZ_KEY) || 'null'); if (!o) { o = { cleared: {} }; const old = JSON.parse(localStorage.getItem(PZ_KEY_OLD) || '{}'); if (old && old.cleared) Object.keys(old.cleared).forEach(k => { if (old.cleared[k]) o.cleared[k] = 1; }); } return { cleared: (o && o.cleared) || {} }; } catch (e) { return { cleared: {} }; } }
-        function pzSave(o) { try { localStorage.setItem(PZ_KEY, JSON.stringify(o)); } catch (e) {} }
+        // 퍼즐 클리어 기록: 이 기기(localStorage, 계정별) + 서버(users/{uid}/pz/cleared/{스테이지ID}: 1)에 함께 저장한다.
+        // 기기 간 이어하기는 서버 기록과 이 기기 기록의 합집합으로 맞춘다.
+        const PZ_CLAIM_KEY = 'augChessPuzzleClaimedV1';   // 계정별 저장으로 바뀌기 전의 기기 기록을 이어받은 계정
+        function pzKey() { return myUid ? PZ_KEY + '_' + myUid : PZ_KEY; }
+        function pzRaw(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+        function pzLoad() {
+            try {
+                let o = pzRaw(pzKey());
+                if (!o) {
+                    o = { cleared: {} };
+                    if (!myUid || !localStorage.getItem(PZ_CLAIM_KEY)) {   // 예전 기기 공용 기록은 처음 로그인한 계정 하나만 이어받는다
+                        [pzRaw(PZ_KEY), pzRaw(PZ_KEY_OLD)].forEach(s => { if (s && s.cleared) Object.keys(s.cleared).forEach(k => { if (s.cleared[k]) o.cleared[k] = 1; }); });
+                        if (myUid) { try { localStorage.setItem(PZ_CLAIM_KEY, myUid); localStorage.setItem(pzKey(), JSON.stringify({ cleared: o.cleared })); } catch (e) {} }
+                    }
+                }
+                return { cleared: (o && o.cleared) || {} };
+            } catch (e) { return { cleared: {} }; }
+        }
+        function pzSaveLocal(o) { try { localStorage.setItem(pzKey(), JSON.stringify({ cleared: o.cleared })); } catch (e) {} }
+        function pzPushRemote(uid, o) {
+            try {
+                const c = {}; Object.keys(o.cleared || {}).forEach(k => { if (o.cleared[k]) c[k] = 1; });
+                if (uid && Object.keys(c).length) update(ref(db, `users/${uid}/pz`), { cleared: c }).catch(e => console.warn('[puzzle] 서버 저장 실패', e && (e.code || e.message)));
+            } catch (e) {}
+        }
+        function pzSave(o) { pzSaveLocal(o); if (myUid && profileSynced) pzPushRemote(myUid, o); }
+        async function pzPullRemote(uid) {   // 로그인 직후: 서버 기록과 이 기기 기록을 합쳐 양쪽에 맞춘다
+            try {
+                const sn = await get(ref(db, `users/${uid}/pz/cleared`));
+                if (myUid !== uid) return;   // 그 사이 다른 계정으로 바뀌었으면 건너뛴다
+                const remote = sn.exists() ? sn.val() : {}, o = pzLoad();
+                let localNew = false, remoteNew = false;
+                Object.keys(remote).forEach(k => { if (remote[k] && !o.cleared[k]) { o.cleared[k] = 1; localNew = true; } });
+                Object.keys(o.cleared).forEach(k => { if (o.cleared[k] && !remote[k]) remoteNew = true; });
+                if (localNew) pzSaveLocal(o);
+                if (remoteNew) pzPushRemote(uid, o);
+                if (localNew) pzCardRefresh();
+            } catch (e) { console.warn('[puzzle] 서버 기록을 불러오지 못했습니다', e && (e.code || e.message)); }
+        }
         function pzSqName(i) { return PZ_FILES[i & 7] + (8 - (i >> 3)); }
         function pzCardRefresh() {
             const el = document.getElementById('puzzle-card-desc'); if (!el) return;
