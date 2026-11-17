@@ -2010,7 +2010,15 @@
         #fxpv .fxpv-ft { display: flex; gap: 8px; padding-top: 10px; }
         #fxpv .fxpv-ft button { flex: 1; height: 40px; border-radius: 12px; border: 0; background: rgba(124,130,255,0.2); color: #cfd2ff; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
 
-    </style>
+    
+        /* ===== 연습/퍼즐 모드: 제목 영역 높이 확대 + 햄버거 ===== */
+        body.practice-mode #game-frame > .header { min-height: 52px; justify-content: center; padding-top: 0; }
+        body.practice-mode #game-frame .header-logo { margin: 0; }
+        body.practice-mode #game-frame .header h1 { font-size: 1.5rem; }
+        body.practice-mode #btn-settings-game { top: 50%; transform: translateY(-50%); width: 40px; height: 40px; }
+        body.practice-mode #btn-settings-game .ico { margin: 9px auto; }
+        body.puzzle-mode #history-strip { display: none !important; }
+</style>
 </head>
 <body>
 
@@ -3962,7 +3970,7 @@
         function openSettings() { selectSettingsTab(settingsTab); try { renderAccount(auth.currentUser); markSelectedEmoji(); } catch (e) {} settingsOverlay.style.display = 'flex'; }
         document.querySelectorAll('#settings-overlay .stab').forEach(b => b.addEventListener('click', () => selectSettingsTab(b.dataset.tab)));
         const openMenu = () => document.body.classList.add('menu-open'), closeMenu = () => document.body.classList.remove('menu-open');
-        const syncLeaveItem = () => { const b = document.getElementById('btn-menu-leave'); if (b) b.style.display = ((isBotMode || isPracticeMode) && isGameStarted && !isSpectating) ? '' : 'none'; };   // 컴퓨터 대국 중에만 보인다
+        const syncLeaveItem = () => { const b = document.getElementById('btn-menu-leave'); if (b) b.style.display = ((isBotMode || isPracticeMode) && isGameStarted && !isSpectating && !document.body.classList.contains('puzzle-mode')) ? '' : 'none'; };   // 컴퓨터 대국 중에만 보인다
         document.getElementById('btn-settings').addEventListener('click', () => { syncLeaveItem(); openMenu(); });
         document.getElementById('btn-settings-game').addEventListener('click', () => { syncLeaveItem(); openMenu(); });
         document.getElementById('btn-menu-leave').addEventListener('click', async () => {
@@ -4073,15 +4081,15 @@
         const FINISHERS = [
             { id: 'basic', icon: '👟', name: '기본', desc: '공격 기물이 킹을 걷어차는 기본 마무리' },
             { id: 'ninja', icon: '🥷', name: '닌자의 검무', desc: '눈 깜짝할 새 적 킹을 열 번 베고 X자로 가릅니다', ach: 'aug_assassin' },
-            { id: 'sprout', icon: '🌱', name: '새싹 축포', desc: '킹이 웅크렸다 쑥 솟구쳐 빙글 돌며 커다랗게 피어나고, 꽃잎으로 흩어집니다', ach: 'bot_easy' },
-            { id: 'thorn', icon: '🌵', name: '가시 폭풍', desc: '가시에 맞을 때마다 킹이 점점 크게 휘청이다, 아래서 솟은 가시에 하늘로 튕겨 올라 터집니다', ach: 'bot_mid' },
-            { id: 'leaf', icon: '🍂', name: '낙엽 회오리', desc: '킹이 낙엽 회오리에 말려 빙글빙글 오르며 커지다가, 옆으로 휙 날려 갑니다', ach: 'bot_hard' },
+            { id: 'sprout', icon: '🌱', name: '새싹 축포', desc: '아군이 씨앗을 쏘아 킹 둘레에 꽃밭이 피어나고, 킹이 대포알처럼 쏘아 올려져 꽃잎과 색종이 축포로 터집니다', ach: 'bot_easy' },
+            { id: 'thorn', icon: '🌵', name: '가시 폭풍', desc: '땅에서 가시가 세 겹으로 점점 조여 오며 솟고, 마지막에 발밑의 거대한 가시가 킹을 꿰어 올려 가시 파편으로 터뜨립니다', ach: 'bot_mid' },
+            { id: 'leaf', icon: '🍂', name: '낙엽 회오리', desc: '돌풍이 판을 세 번 휩쓸어 적 기물이 쓸려 기울고, 깔때기 회오리가 킹을 감아 올려 빙글빙글 돌리다 옆으로 날려 보냅니다', ach: 'bot_hard' },
             { id: 'avalanche', icon: '🏔️', name: '눈사태', desc: '거대한 눈덩이가 킹을 들이받아 벽까지 굴려 가고, 얼음처럼 와르르 부서집니다', ach: 'bot_hard3' },
-            { id: 'spore', icon: '🌫️', name: '포자 구름', desc: '킹이 독버섯처럼 세 번 크게 부풀어 떠오르다 펑 터지며 포자가 퍼집니다', ach: 'pvp_win' },
-            { id: 'shroom', icon: '🍄', name: '버섯구름', desc: '폭발에 킹이 하늘로 쏘아 올려져 커지며 빙글 돌다, 공중에서 터져 버섯구름이 핍니다', ach: 'pvp_win10' },
+            { id: 'spore', icon: '🌫️', name: '포자 구름', desc: '독버섯이 솟아 킹이 버섯 갓 위에서 점점 더 높이 튕기며 포자를 뿜다가, 마지막 도약 끝에 펑 터져 포자가 쏟아집니다', ach: 'pvp_win' },
+            { id: 'shroom', icon: '🍄', name: '버섯구름', desc: '하얗게 번쩍이며 충격파가 판을 쓸고, 불기둥 위로 버섯구름 갓이 퍼집니다. 킹은 기둥을 타고 올라가 갓 속에서 터집니다', ach: 'pvp_win10' },
             { id: 'thunder', icon: '⚡', name: '천둥 강림', desc: '벼락이 칠 때마다 킹이 납작해졌다 튀고, 마지막 벼락에 비스듬히 날아가 공중에서 터집니다', ach: 'aug_thunder' },
-            { id: 'poison', icon: '☠️', name: '맹독 융해', desc: '독구름 속에서 킹이 비틀대며 부풀다가 푹 주저앉아 녹아내립니다', ach: 'aug_poison' },
-            { id: 'judge', icon: '⚖️', name: '천상의 심판', desc: '금빛 기둥이 킹을 들어 올려 돌리며 키우고, 번개와 함께 빛으로 사라집니다', ach: 'aug_judge' },
+            { id: 'poison', icon: '☠️', name: '맹독 융해', desc: '잡은 기물이 독병을 기울여 독방울을 쏟아붓고, 킹이 초록으로 물들어 부풀다 녹아내리며 번지는 독 웅덩이가 근처 적 기물을 삼킵니다', ach: 'aug_poison' },
+            { id: 'judge', icon: '⚖️', name: '천상의 심판', desc: '하늘이 어두워지고 황금 저울이 킹의 죄를 답니다. 거대한 판사봉이 세 번 내리쳐 \'유죄\' 도장이 찍히면 킹이 빛으로 부서집니다', ach: 'aug_judge' },
             { id: 'necro', icon: '💀', name: '망자의 손길', desc: '아군 폰들의 영혼이 킹에게 차례로 스며들고, 영혼이 빠져나간 몸은 잿빛으로 무너집니다', ach: 'aug_necro' },
             { id: 'siege', icon: '🏹', name: '공성전', desc: '아군 기물이 모두 룩으로 변해 활을 당기고, 화살이 킹에게 쏟아집니다', ach: 'aug_siege' },
             { id: 'chain', icon: '⛓️', name: '연계 분쇄', desc: '아군의 사슬이 킹을 사방으로 잡아당기고, 폭발과 함께 하늘로 튕겨 부서집니다', ach: 'aug_chain' },
@@ -9319,6 +9327,275 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                     later(TR, () => { const s = rs(); finFly(fr, [{ transform: T3(s.dx, s.up, 0, 0, 0, 1) }, { transform: T3(s.dx, s.up, 0, 0, 8, 1.1), offset: .15 }, { transform: T3(s.dx, s.up, 0, 0, -8, 1.2), offset: .3 }, { transform: T3(s.dx, s.up, 0, 0, 10, 1.35), offset: .5 }, { transform: T3(s.dx, s.up, 0, 0, -10, 1.5), offset: .7 }, { transform: T3(s.dx, s.up, 0, 0, 0, 1.7) }], 620, 'linear'); for (let k = 0; k < 4; k++) later(k * 150, () => shake(3 + k * 2, 100)); });
                     later(TR + 640, () => { const s = rs(); finBoom(x + s.dx, y + u * s.up, CL.concat([C.white]), fr, { start: s.up, bx: s.dx, mode: 'burst', power: 1.6, s0: 1.7 }); });
                 };
+
+                // ===== v11 재작업: 신의 심판 · 새싹 축포 · 포자 구름 (판 전체와 아군 기물을 쓰는 연출) =====
+                const blkP = () => document.body.classList.contains('black-pov');
+                const wrapAt = (px, py, low) => (low ? finLow : finTop)('left:' + px + 'px;top:' + py + 'px;width:0;height:0;' + (blkP() ? 'transform:rotate(180deg);' : ''));   // 흑 시점에서도 소품이 바로 서도록
+                const kid = (par, css) => { const d = document.createElement('div'); d.style.cssText = 'position:absolute;' + css; par.appendChild(d); return d; };
+                const anim = (el, fr, ms, o) => { try { return el.animate(fr, Object.assign({ duration: ms, fill: 'forwards', easing: 'linear' }, o || {})); } catch (e) { return null; } };
+                const kseq = pts => { const T = pts[pts.length - 1][0]; return pts.map(p => { const f = { transform: T3(p[5] || 0, p[1], 0, 0, p[2], p[3], p[4]), offset: Math.min(1, p[0] / T), easing: p[6] || 'linear' }; if (p[7]) f.filter = p[7]; return f; }); };
+
+                // ⚖️ 신의 심판: 하늘이 어두워지고 황금 저울이 내려와 킹의 죄를 단다. 아군이 증거의 빛을 올리고, 거대한 판사봉이 세 번 내리쳐 '유죄' 도장이 찍히면 킹이 빛 조각으로 부서진다
+                FIN.judge = (sq, atk) => {
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), GD = [255, 215, 110], RD = [255, 80, 80], HK = Math.min(1.1 * cell, spaceUp(y)), FO = finFoes(sq), AL = finMine(sq), AA = atk && atk.pos;
+                    if (!fr) return;
+                    const F = (b, s) => 'brightness(' + b + ') sepia(' + s + ')';
+                    const cy = u < 0 ? Math.max(cell * 1.35, y - cell * 1.2) : Math.min(H - cell * 1.35, y + cell * 1.2);
+                    const ky = y + u * HK, hitY = ky + u * cell * 0.38;   // 킹이 떠 있는 높이 / 판사봉이 내려치는 높이
+                    dims.push({ a: 0.42, dur: 4.6, t: 0 }); finVeil('rgb(255,225,150)', 0.16, 4400);
+                    flash(x, y, cell * 1.6, GD, 0.5, 0.7); ring(x, y, cell * 0.1, cell * 1.3, GD, 0.5, 3);
+                    later(180, () => { beam(x, cell * 1.3, GD, 3.4); rayBurst(x, y, GD, 0.8, cell * 1.9); scales.push({ x, y: cy, dur: 3.3, t: 0 }); shake(3, 200); });
+                    // 킹이 저울에 올라 흔들리며 점점 떠오른다
+                    finFly(fr, kseq([[0, 0, 0, 1, 1, 0, 'ease-in-out', F(1, 0)], [350, HK * 0.5, -9, 1.08, 1, 0, 'ease-in-out', F(1.2, 0.2)], [750, HK * 0.9, 9, 1.14, 1, 0, 'ease-in-out', F(1.4, 0.35)], [1150, HK * 0.8, -6, 1.18, 1, 0, 'ease-in-out', F(1.5, 0.45)], [1500, HK, 0, 1.2, 1, 0, 'linear', F(1.7, 0.5)]]), 1500, 'linear');
+                    // 아군 기물이 증거의 빛을 저울로 쏘아 올린다
+                    AL.slice(0, 8).forEach((o, i) => { const p = ctr(o.sq); later(480 + i * 120, () => { orb(p.x, p.y, x, cy, GD, 600, 0.22); ring(p.x, p.y, cell * 0.1, cell * 0.8, GD, 0.4, 3, 0.8); finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, u * cell * 0.22, 0, 0, 0, 1.15), offset: 0.4 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 420, 'ease-out'); }); });
+                    FO.forEach((o, i) => later(700 + (i % 8) * 60, () => finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, cell * 0.12, 0, 0, 14, 0.9, 0.88), offset: 0.3 }, { transform: TR(0, cell * 0.12, 0, 0, 14, 0.9, 0.88), offset: 0.85 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 2600, 'ease-in-out')));   // 고개를 숙이고 무릎 꿇는다
+                    if (atk) finEl(atk.el, [{ transform: TR(0, 0, 0, 0, 0, 1), filter: F(1, 0) }, { transform: TR(0, u * cell * 0.45, 0, 0, 0, 1.25), filter: F(1.5, 0.4), offset: 0.2 }, { transform: TR(0, u * cell * 0.45, 0, 0, 0, 1.25), filter: F(1.6, 0.5), offset: 0.8 }, { transform: TR(0, 0, 0, 0, 0, 1), filter: F(1, 0) }], 3400, 'ease-in-out');
+                    // 판사봉: 킹 옆 허공에 나타나 세 번 내리친다 (한 번마다 더 세게)
+                    const TG = 1300, CY = 560, D = 300 + 3 * CY + 300, o = ms => ms / D, mir = x > W * 0.6;
+                    const gw = wrapAt(x, hitY, false); if (mir) gw.style.transform += ' scaleX(-1)'; finGone(gw, TG + D + 400); gw.style.opacity = 0;
+                    const pv = kid(gw, 'left:' + (cell * 1.5) + 'px;top:0;width:0;height:0;');
+                    kid(pv, 'left:' + (-cell * 1.5) + 'px;top:' + (-cell * 0.05) + 'px;width:' + (cell * 1.5) + 'px;height:' + (cell * 0.1) + 'px;border-radius:4px;background:linear-gradient(#b3803f,#5a3714);box-shadow:0 0 6px rgba(0,0,0,.5);');
+                    kid(pv, 'left:' + (-cell * 1.8) + 'px;top:' + (-cell * 0.19) + 'px;width:' + (cell * 0.6) + 'px;height:' + (cell * 0.38) + 'px;border-radius:9px;border:2px solid rgba(60,36,6,.9);background:linear-gradient(#fff1b0,#dcab3c 55%,#8a5f14);box-shadow:0 0 ' + (cell * 0.35) + 'px rgba(255,215,110,.85);');
+                    const kf = [{ offset: 0, transform: 'rotate(100deg)', opacity: 0 }, { offset: o(300), transform: 'rotate(62deg)', opacity: 1 }];
+                    for (let k = 0; k < 3; k++) { const b = 300 + k * CY; kf.push({ offset: o(b + 250), transform: 'rotate(66deg)', opacity: 1, easing: 'cubic-bezier(.9,0,1,.5)' }); kf.push({ offset: o(b + 330), transform: 'rotate(0deg)', opacity: 1, easing: 'ease-out' }); kf.push({ offset: o(b + 400), transform: 'rotate(9deg)', opacity: 1 }); if (k < 2) kf.push({ offset: o(b + CY), transform: 'rotate(62deg)', opacity: 1 }); }
+                    kf.push({ offset: 1, transform: 'rotate(0deg)', opacity: 0 });
+                    later(TG, () => { gw.style.opacity = 1; anim(pv, kf, D); anim(gw, [{ opacity: 1 }, { opacity: 1, offset: 0.9 }, { opacity: 0 }], D); });
+                    const stamp = () => {   // '유죄' 도장이 쾅 찍힌다
+                        const sw = wrapAt(x, ky, false); finGone(sw, 2600);
+                        const sd = kid(sw, 'left:' + (-cell * 0.95) + 'px;top:' + (-cell * 0.42) + 'px;width:' + (cell * 1.9) + 'px;height:' + (cell * 0.84) + 'px;display:flex;align-items:center;justify-content:center;font:900 ' + (cell * 0.56) + 'px/1 system-ui,sans-serif;letter-spacing:.08em;color:rgb(255,80,80);border:' + Math.max(3, cell * 0.06) + 'px solid rgb(255,80,80);border-radius:' + (cell * 0.1) + 'px;background:rgba(40,0,0,.4);text-shadow:0 0 ' + (cell * 0.2) + 'px rgba(255,60,60,.9);box-shadow:0 0 ' + (cell * 0.3) + 'px rgba(255,60,60,.7),inset 0 0 ' + (cell * 0.2) + 'px rgba(255,60,60,.5);opacity:0;');
+                        sd.textContent = '유죄';
+                        anim(sd, [{ opacity: 0, transform: 'rotate(-14deg) scale(3.4)' }, { opacity: 1, transform: 'rotate(-14deg) scale(.92)', offset: 0.16 }, { opacity: 1, transform: 'rotate(-14deg) scale(1)', offset: 0.26 }, { opacity: 1, transform: 'rotate(-14deg) scale(1)', offset: 0.8 }, { opacity: 0, transform: 'rotate(-14deg) scale(1.12)' }], 1300);
+                    };
+                    for (let k = 0; k < 3; k++) {   // 내리칠 때마다 충격과 킹이 눌린다
+                        later(TG + 300 + k * CY + 330, () => {
+                            shake(7 + k * 5, 240 + k * 60); flash(x, ky, cell * (1.5 + k * 0.4), GD, 0.35, 0.8); ring(x, ky, cell * 0.1, cell * (1.4 + k * 0.5), k === 2 ? RD : GD, 0.5, 4 + k * 2, 0.9);
+                            radial(x, ky, 10 + k * 8, 100, 360 + k * 80, [GD, C.white], { p: { kind: 'spark', size: rnd(1.6, 3.2), dur: 0.5 } });
+                            if (AA) ring(AA.x, AA.y, cell * 0.1, cell * 0.9, GD, 0.4, 3, 0.8);
+                            if (k < 2) finFly(fr, kseq([[0, HK, 0, 1.2, 1, 0], [90, HK * 0.8, k ? 5 : -5, 1.5, 0.55, 0, 'ease-out'], [320, HK * (0.95 - k * 0.1), 0, 1.22, 0.95, 0]]), 320, 'linear');
+                            else { finFly(fr, kseq([[0, HK * 0.9, 0, 1.2, 1, 0], [100, HK * 0.45, 0, 1.75, 0.34, 0]]), 100, 'ease-in'); stamp(); }
+                        });
+                    }
+                    later(TG + 300 + 2 * CY + 330 + 380, () => {   // 판결: 번개와 함께 빛으로 부서진다
+                        lightning(x, ky); finVeil('rgb(255,255,255)', 0.7, 450); ring(x, ky, cell * 0.1, cell * 2.5, GD, 0.6, 6, 0.9); shake(12, 400);
+                        finBoom(x, y + u * HK * 0.45, [GD, C.white, [255, 240, 170]], fr, { start: HK * 0.45, mode: 'rise', power: 1.3, s0: 1.6, filter: 'brightness(1.9) sepia(.6)' });
+                        feathers(x, ky, 10, cell * 0.9);
+                    });
+                };
+
+                // 🌱 새싹 축포: 아군이 씨앗을 쏘아 킹 둘레에 꽃밭이 피어나고, 킹이 대포알처럼 쏘아 올려져 꽃잎·색종이 축포로 터진다
+                FIN.sprout = (sq, atk) => {
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), AL = finMine(sq), FO = finFoes(sq), AA = atk && atk.pos, HK = Math.min(1.7 * cell, spaceUp(y));
+                    const CL = [[255, 120, 170], [255, 210, 90], [175, 140, 255], [255, 255, 255], [120, 220, 255]], GR = [[120, 230, 110], [200, 255, 150]];
+                    if (!fr) return;
+                    finVeil('rgb(190,255,170)', 0.18, 3600);
+                    const N = 8, spots = [];
+                    for (let i = 0; i < N; i++) { const a = i / N * TAU + 0.3; spots.push({ px: Math.min(W - cell * 0.3, Math.max(cell * 0.3, x + Math.cos(a) * cell * 1.2)), py: Math.min(H - cell * 0.35, Math.max(cell * 0.35, y + Math.sin(a) * cell * 1.0)) }); }
+                    spots.forEach((s, i) => {
+                        const t0 = 350 + i * 90, c = CL[i % CL.length], from = AL.length ? ctr(AL[i % AL.length].sq) : { x: x + cell * 2, y }, gy = s.py - u * cell * 0.3;
+                        later(t0 - 90, () => { if (AL.length) finEl(AL[i % AL.length].el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, 0, 0, 0, 0, 1.2, 0.85), offset: 0.3 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 300, 'ease-out'); });
+                        later(t0, () => orb(from.x, from.y, s.px, gy, GR[0], 480, 0.2));
+                        later(t0 + 480, () => {   // 씨앗이 박히고 줄기·잎·꽃이 차례로 돋는다
+                            const w = wrapAt(s.px, gy, true); finGone(w, 5600);
+                            const st = kid(w, 'left:' + (-cell * 0.025) + 'px;bottom:0;width:' + (cell * 0.05) + 'px;height:' + (cell * 0.5) + 'px;transform-origin:50% 100%;border-radius:3px;background:linear-gradient(#6fdc62,#2f8f3a);');
+                            const l1 = kid(w, 'left:' + (-cell * 0.17) + 'px;bottom:' + (cell * 0.16) + 'px;width:' + (cell * 0.17) + 'px;height:' + (cell * 0.09) + 'px;border-radius:100% 0;background:#6fdc62;transform-origin:100% 100%;');
+                            const l2 = kid(w, 'left:' + (cell * 0.025) + 'px;bottom:' + (cell * 0.26) + 'px;width:' + (cell * 0.17) + 'px;height:' + (cell * 0.09) + 'px;border-radius:0 100%;background:#58c553;transform-origin:0 100%;');
+                            const fl = kid(w, 'left:' + (-cell * 0.14) + 'px;bottom:' + (cell * 0.4) + 'px;width:' + (cell * 0.28) + 'px;height:' + (cell * 0.28) + 'px;border-radius:50%;background:radial-gradient(circle,#fff3a0 0 24%,rgb(' + c.join(',') + ') 26%);box-shadow:0 0 ' + (cell * 0.16) + 'px rgb(' + c.join(',') + ');');
+                            anim(st, [{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], 380, { easing: 'ease-out' });
+                            anim(l1, [{ transform: 'rotate(-20deg) scale(0)' }, { transform: 'rotate(-20deg) scale(1)' }], 260, { delay: 180, easing: 'ease-out' }); anim(l2, [{ transform: 'rotate(20deg) scale(0)' }, { transform: 'rotate(20deg) scale(1)' }], 260, { delay: 240, easing: 'ease-out' });
+                            anim(fl, [{ transform: 'scale(0)' }, { transform: 'scale(1.3)', offset: 0.6 }, { transform: 'scale(1)' }], 380, { delay: 330, easing: 'ease-out' });
+                            for (let k = 0; k < 3; k++) anim(fl, [{ transform: 'scale(1)' }, { transform: 'scale(1.12) rotate(6deg)' }, { transform: 'scale(1)' }], 600, { delay: 800 + k * 650, fill: 'none', easing: 'ease-in-out' });
+                            radial(s.px, gy, 6, 40, 150, [GR[0], GR[1], c], { p: { size: rnd(1.6, 3), dur: 0.6 } }); ring(s.px, gy, cell * 0.05, cell * 0.55, GR[0], 0.35, 3, 0.8);
+                        });
+                    });
+                    const TC = 350 + N * 90 + 700, TL = TC + 450;   // 킹이 웅크렸다가 대포알처럼 발사
+                    finFly(fr, kseq([[0, 0, 0, 1, 1, 0], [TC * 0.3, 0, -4, 1.06, 0.95, 0], [TC * 0.5, 0, 4, 1.1, 0.9, 0], [TC * 0.7, 0, -6, 1.18, 0.82, 0], [TC * 0.9, 0, 6, 1.26, 0.74, 0], [TC + 450, -cell * 0.04, 0, 1.45, 0.52, 0, 'cubic-bezier(0,.8,.2,1)']]), TC + 450, 'linear');
+                    for (let k = 1; k <= 5; k++) later(TC * (0.18 + 0.15 * k), () => { shake(1.5 + k * 0.6, 100); radial(x, y, 3, 30, 110, GR, { p: { size: rnd(1.4, 2.6), dur: 0.5 } }); });
+                    later(TL, () => {
+                        shake(10, 300); ring(x, y, cell * 0.1, cell * 2.2, [255, 235, 140], 0.5, 6, 0.9); flash(x, y, cell * 2, [255, 245, 190], 0.35, 0.8);
+                        finFly(fr, kseq([[0, 0, 0, 1.45, 0.52, 0], [250, HK * 0.8, 0, 0.82, 1.4, 0, 'ease-out'], [520, HK, 360, 1.3, 1.3, 0]]), 520, 'ease-out');
+                        spots.forEach((s, i) => later(i * 30, () => ring(s.px, s.py, cell * 0.05, cell * 0.8, CL[i % CL.length], 0.4, 3, 0.8)));
+                        if (AA) { ring(AA.x, AA.y, cell * 0.1, cell * 1.2, [255, 235, 140], 0.4, 4, 0.8); finEl(atk.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, u * cell * 0.7, 0, 360, 0, 1.2), offset: 0.5 }, { transform: TR(0, 0, 0, 720, 0, 1) }], 800, 'ease-out'); }
+                    });
+                    later(TL + 520, () => {   // 정점: 꽃잎과 색종이 축포
+                        const py = y + u * HK; finVeil('rgb(255,240,200)', 0.5, 420);
+                        finBoom(x, py, CL, fr, { start: HK, mode: 'burst', power: 1.5, s0: 1.3, filter: 'hue-rotate(-40deg) saturate(1.5) brightness(1.1)' });
+                        petals(x, py, 26, cell * 1.4, CL, 1.9);
+                        radial(x, py, 50, 120, 520, CL, { p: { kind: 'petal', size: rnd(3, 6.5), rot: rnd(0, TAU), vr: rnd(-12, 12), g: DOWN() * 220, dur: 1.9 } });
+                        spots.forEach((s, i) => later(i * 25, () => { radial(s.px, s.py, 8, 60, 220, [CL[i % CL.length], C.white], { p: { kind: 'petal', size: rnd(2.4, 4.4), rot: rnd(0, TAU), vr: rnd(-9, 9), g: UP() * -60, dur: 1.4 } }); }));
+                    });
+                    FO.forEach((o, i) => later(500 + (i % 8) * 70, () => finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, 0, 0, 0, i % 2 ? 8 : -8, 1.05, 0.95), offset: 0.3 }, { transform: TR(0, 0, 0, 0, i % 2 ? -8 : 8, 1.05, 0.95), offset: 0.65 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 1200, 'ease-in-out')));
+                };
+
+                // 🍄 포자 구름: 킹 발밑에서 독버섯이 쑥 솟아, 킹이 버섯 갓 위에서 트램펄린처럼 점점 더 높이 튕기며 포자를 뿜다가, 마지막 도약 끝에 펑 터져 포자가 쏟아진다
+                FIN.spore = (sq, atk) => {
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), FO = finFoes(sq), AA = atk && atk.pos, SP = [[195, 155, 255], [235, 205, 155], [160, 235, 205], [255, 170, 235]];
+                    if (!fr) return;
+                    const L0 = cell * 0.34, Bs = [0.75, 1.25, 1.85].map(k => Math.min(k * cell, spaceUp(y) - L0)), gy = y - u * cell * 0.34;
+                    const F = k => 'hue-rotate(' + (k * 30) + 'deg) saturate(' + (1 + 0.4 * k).toFixed(1) + ')';
+                    finVeil('rgb(150,100,210)', 0.2, 4000);
+                    const mush = (px, py, s, delay) => {   // 독버섯: 대 · 소
+                        const w = wrapAt(px, py, true); finGone(w, 5200);
+                        const stem = kid(w, 'left:' + (-cell * 0.16 * s) + 'px;bottom:0;width:' + (cell * 0.32 * s) + 'px;height:' + (cell * 0.42 * s) + 'px;border-radius:30% 30% 20% 20%;background:linear-gradient(90deg,#d9cdb3,#f4ead2 50%,#cfc1a2);transform-origin:50% 100%;');
+                        const cap = kid(w, 'left:' + (-cell * 0.5 * s) + 'px;bottom:' + (cell * 0.32 * s) + 'px;width:' + (cell * 1.0 * s) + 'px;height:' + (cell * 0.56 * s) + 'px;border-radius:50% 50% 14% 14% / 100% 100% 0 0;background:radial-gradient(circle at 28% 40%,#fff 0 8%,transparent 9%),radial-gradient(circle at 68% 30%,#fff 0 7%,transparent 8%),radial-gradient(circle at 52% 66%,#fff 0 6%,transparent 7%),linear-gradient(#b65be0,#6a2a9c);box-shadow:0 0 ' + (cell * 0.3) + 'px rgba(190,120,255,.7);transform-origin:50% 100%;');
+                        later(delay, () => { anim(stem, [{ transform: 'scaleY(0)' }, { transform: 'scaleY(1.15)', offset: 0.7 }, { transform: 'scaleY(1)' }], 380, { easing: 'ease-out' }); anim(cap, [{ transform: 'translateY(' + (cell * 0.4 * s) + 'px) scale(0.2)' }, { transform: 'translateY(0) scale(1.15,.9)', offset: 0.7 }, { transform: 'translateY(0) scale(1)' }], 380, { easing: 'ease-out' }); ring(px, py, cell * 0.05, cell * 0.8 * s, SP[0], 0.4, 3, 0.8); puffs(px, py, 3, [150, 110, 200], 0.5); });
+                        w.style.opacity = 0; later(delay, () => { w.style.opacity = 1; });
+                        return { w, cap, stem };
+                    };
+                    const big = mush(x, gy, 1, 80); mush(Math.max(cell * 0.4, x - cell * 0.95), gy + cell * 0.1, 0.55, 220); mush(Math.min(W - cell * 0.4, x + cell * 0.95), gy + cell * 0.1, 0.55, 300);
+                    const pts = [[0, 0, 0, 1, 1, 0, 'linear', F(0)], [400, L0, 0, 0.9, 1.15, 0, 'ease-out', F(0)]]; let tb = 400; const TB = [];
+                    for (let k = 0; k < 3; k++) { TB.push(tb); pts.push([tb + 90, L0, 0, 1.22, 0.72, 0, 'cubic-bezier(0,.7,.3,1)', F(k)]); pts.push([tb + 470, L0 + Bs[k], (k % 2 ? -1 : 1) * (14 + k * 8), 0.88, 1.22, 0, 'cubic-bezier(.7,0,1,.4)', F(k + 1)]); tb += 880; }
+                    pts.pop(); pts.push([tb - 410, L0 + Bs[2], 0, 1.1, 1.1, 0, 'linear', F(3)]);
+                    const TA = tb - 410;   // 마지막 도약의 정점
+                    finFly(fr, kseq(pts), TA, 'linear');
+                    TB.forEach((t, k) => later(t + 90, () => {   // 착지·도약마다 갓이 찌그러지며 포자를 뿜는다
+                        shake(3 + k * 2.5, 160); anim(big.cap, [{ transform: 'scale(1.25,.55)' }, { transform: 'scale(.92,1.14)', offset: 0.5 }, { transform: 'scale(1)' }], 380, { fill: 'none', easing: 'ease-out' });
+                        ring(x, gy - u * cell * 0.1, cell * 0.1, cell * (1.3 + k * 0.5), SP[k % 4], 0.55, 4, 0.8); haze(x, y, 5 + k * 3, cell * 0.4, [135, 95, 190], 0.5, { size: cell * rnd(0.25, 0.4), grow: 2.6, dur: 1.2 });
+                        radial(x, y + u * L0, 14 + k * 6, 70, 260 + k * 80, SP, { p: { tw: true, size: rnd(2, 4), dur: rnd(0.9, 1.5), drag: 1.0, g: UP() * 40 } });
+                        if (AA) { puffs(AA.x, AA.y, 2, [150, 110, 200], 0.45); finEl(atk.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, 0, 0, 0, 0, 1.3 + k * 0.1), offset: 0.4 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 420, 'ease-out'); }
+                    }));
+                    FO.forEach((o, i) => later(300 + (i % 8) * 60, () => finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1), filter: 'hue-rotate(0deg) saturate(1)' }, { transform: TR(-4, 0, 0, 0, -11, 1), filter: 'hue-rotate(70deg) saturate(1.6)', offset: 0.3 }, { transform: TR(4, 0, 0, 0, 11, 1), filter: 'hue-rotate(70deg) saturate(1.6)', offset: 0.65 }, { transform: TR(0, 0, 0, 0, 0, 1), filter: 'hue-rotate(0deg) saturate(1)' }], 2400, 'ease-in-out')));
+                    later(TA, () => {   // 정점에서 펑: 포자 구름이 쏟아지고 버섯들은 쪼그라든다
+                        const py = y + u * (L0 + Bs[2]); shake(16, 460); finVeil('rgb(200,160,255)', 0.5, 480); ring(x, py, cell * 0.1, cell * 2.8, [200, 160, 255], 0.8, 6, 0.8);
+                        haze(x, py, 24, cell * 0.8, [150, 110, 200], 0.65, { size: cell * rnd(0.35, 0.6), grow: 2.8, dur: rnd(1.2, 1.7) });
+                        radial(x, py, 90, 120, 660, SP, { p: { tw: true, size: rnd(2.2, 5), dur: rnd(1.2, 1.9), drag: 1.0, g: DOWN() * 90 } });
+                        finTiles(fr, { start: L0 + Bs[2], s0: 1.3, mode: 'puff', cols: 5, rows: 5, filter: 'hue-rotate(90deg) saturate(2.2) brightness(1.3)', power: 1.7, ms: 1400 });
+                    });
+                };
+
+                // ===== v11-b 재작업: 낙엽 회오리 · 맹독 융해 =====
+                // 🍂 낙엽 회오리: 돌풍이 판을 세 번 휩쓸며 낙엽이 날리고 적 기물이 쓸려 기울고, 킹 발밑에서 깔때기 회오리가 솟아 킹을 감아 올려 빙글빙글 돌리다 옆으로 날려 보낸다
+                FIN.leaf = (sq, atk) => {
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), FO = finFoes(sq), AA = atk && atk.pos, side = x > W / 2 ? -1 : 1, HK = Math.min(1.5 * cell, spaceUp(y)), gy = y - u * cell * 0.35;
+                    const LC = [[245, 155, 45], [205, 75, 40], [125, 175, 65], [255, 215, 85], [160, 90, 50]];
+                    if (!fr) return;
+                    finVeil('rgb(255,190,100)', 0.2, 3800);
+                    [0, 1, 2].forEach(g => later(g * 340, () => {   // 돌풍: 판을 가로지르는 바람줄기와 낙엽
+                        shake(2 + g * 1.5, 220);
+                        for (let i = 0; i < 8; i++) { const yy = rnd(cell * 0.3, H - cell * 0.3); slash(side < 0 ? W + cell : -cell, yy, side < 0 ? -cell : W + cell, yy + rnd(-1, 1) * cell * 0.4, [255, 225, 175], 0.3, 2); }
+                        for (let i = 0; i < 26; i++) P({ x: side < 0 ? W + 10 : -10, y: rnd(0, H), vx: side * rnd(550, 900), vy: rnd(-80, 80), drag: 0, size: rnd(3.5, 7), dur: 1.3, kind: 'petal', rot: rnd(0, TAU), vr: rnd(-9, 9), color: LC[Math.floor(rnd(0, LC.length))] });
+                    }));
+                    // 판 위 기물이 바람에 쓸려 기울었다 돌아온다 (적은 크게, 아군은 살짝)
+                    FO.forEach((o, i) => later(150 + (i % 8) * 50, () => finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(-side * cell * 0.4, -cell * 0.08, 0, 0, -side * 22, 1), offset: 0.35 }, { transform: TR(-side * cell * 0.15, 0, 0, 0, -side * 8, 1), offset: 0.7 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 1100, 'ease-in-out')));
+                    // 깔때기 회오리: 겹겹의 타원이 출렁이며 솟는다
+                    const fw = wrapAt(x, gy, false); finGone(fw, 4600); fw.style.opacity = 0;
+                    const rings = [];
+                    for (let i = 0; i < 7; i++) { const w = cell * (0.4 + i * 0.2), e = kid(fw, 'left:' + (-w / 2) + 'px;bottom:' + (i * cell * 0.24) + 'px;width:' + w + 'px;height:' + (cell * 0.16 + i * cell * 0.02) + 'px;border-radius:50%;border:2px solid rgba(255,205,130,.6);box-shadow:0 0 ' + (cell * 0.12) + 'px rgba(255,170,70,.45);'); rings.push(e); anim(e, [{ transform: 'translateX(' + (-cell * 0.1) + 'px)' }, { transform: 'translateX(' + (cell * 0.1) + 'px)' }], 260 + i * 25, { iterations: 12, direction: 'alternate', easing: 'ease-in-out' }); }
+                    later(330, () => { fw.style.opacity = 1; anim(fw, [{ transform: (blkP() ? 'rotate(180deg) ' : '') + 'scaleY(0)', opacity: 0 }, { transform: (blkP() ? 'rotate(180deg) ' : '') + 'scaleY(1)', opacity: 1, offset: 0.12 }, { transform: (blkP() ? 'rotate(180deg) ' : '') + 'scaleY(1)', opacity: 1, offset: 0.82 }, { transform: (blkP() ? 'rotate(180deg) ' : '') + 'scaleY(1.1)', opacity: 0 }], 2200, { easing: 'ease-out' }); });
+                    for (let i = 0; i < 90; i++) later(350 + i * 18, () => P({ orbit: true, cx: x, cy: y + u * cell * 0.6, a: rnd(0, TAU), va: rnd(7, 11), r: rnd(cell * 0.2, cell * 0.8), rd: -rnd(0.3, 0.8), size: rnd(3.5, 7.5), dur: rnd(1, 1.5), kind: 'petal', rot: rnd(0, TAU), vr: rnd(-7, 7), color: LC[Math.floor(rnd(0, LC.length))] }));
+                    // 킹: 회오리에 감겨 빙글빙글 오르다 옆으로 날아간다
+                    const N1 = 14, N2 = 8, MS = 2300, tot = N1 + N2, fm = [];
+                    for (let i = 0; i <= N1; i++) { const t = i / N1, ang = t * TAU * 2.4, rad = cell * 0.5 * Math.sin(Math.min(1, t * 1.2) * Math.PI * 0.8); fm.push({ transform: T3(Math.cos(ang) * rad, HK * t, Math.sin(ang) * 18, t * 720, Math.sin(ang) * 10, 1 + 0.5 * t), opacity: 1, offset: i / tot }); }
+                    for (let j = 1; j <= N2; j++) { const q = j / N2; fm.push({ transform: T3(side * cell * 8 * Math.pow(q, 1.6), HK + cell * 0.9 * q, 20 * q, 720 + q * 540, side * q * 360, 1.5 - 0.7 * q), opacity: q > 0.75 ? 1 - (q - 0.75) * 4 : 1, offset: (N1 + j) / tot }); }
+                    later(330, () => finFly(fr, fm, MS, 'linear'));
+                    later(330 + MS * N1 / tot, () => { shake(8, 320); radial(x, y + u * HK, 40, 200, 560, LC.slice(0, 4), { p: { kind: 'petal', size: rnd(3.5, 7), rot: rnd(0, TAU), vr: rnd(-9, 9), g: DOWN() * 100, dur: 1.5 } }); ring(x, y + u * HK, cell * 0.1, cell * 2, [255, 210, 140], 0.5, 5, 0.8); });
+                    for (let i = 0; i < 22; i++) later(330 + MS * N1 / tot + i * 40, () => { const q = Math.min(1, 0.2 + i / 22); P({ x: x + side * cell * 8 * Math.pow(q * 0.75, 1.6), y: y + u * HK, vx: side * rnd(100, 260), vy: rnd(-60, 60), drag: 1, size: rnd(3, 6), dur: 0.8, kind: 'petal', rot: rnd(0, TAU), vr: rnd(-8, 8), color: LC[Math.floor(rnd(0, LC.length))] }); });
+                    if (atk) finEl(atk.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, u * cell * 0.3, 0, 360, 0, 1.2), offset: 0.3 }, { transform: TR(0, u * cell * 0.35, 0, 1080, 0, 1.3), offset: 0.75 }, { transform: TR(0, 0, 0, 1440, 0, 1) }], 2000, 'ease-in-out');
+                    if (AA) for (let i = 0; i < 20; i++) later(400 + i * 70, () => P({ orbit: true, cx: AA.x, cy: AA.y, a: rnd(0, TAU), va: rnd(8, 12), r: rnd(cell * 0.2, cell * 0.5), rd: -rnd(0.3, 0.7), size: rnd(3, 6), dur: rnd(0.8, 1.2), kind: 'petal', rot: rnd(0, TAU), vr: rnd(-7, 7), color: LC[Math.floor(rnd(0, LC.length))] }));
+                    later(330 + MS + 100, () => { for (let i = 0; i < 40; i++) later(i * 25, () => P({ x: rnd(0, W), y: u < 0 ? -10 : H + 10, vx: rnd(-40, 40), vy: DOWN() * rnd(60, 120), g: 0, drag: 0.2, size: rnd(3, 6), dur: 1.6, kind: 'petal', rot: rnd(0, TAU), vr: rnd(-6, 6), color: LC[Math.floor(rnd(0, LC.length))] })); });
+                };
+
+                // ☠️ 맹독 융해: 잡은 기물이 독병을 기울여 독방울을 쏟아붓고, 킹이 독에 물들어 부풀다 푹 녹아내려 번지는 독 웅덩이가 근처 적 기물까지 삼킨다
+                FIN.poison = (sq, atk) => {
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), FO = finFoes(sq), AA = atk && atk.pos, gy = y - u * cell * 0.3;
+                    const TX = [[110, 230, 90], [160, 255, 130], [60, 170, 70], [220, 255, 170]], PZ = (h, s, b) => 'hue-rotate(' + h + 'deg) saturate(' + s + ') brightness(' + b + ')';
+                    if (!fr) return;
+                    finVeil('rgb(90,200,80)', 0.22, 3900);
+                    // 독병을 기울이는 잡은 기물
+                    if (atk) finEl(atk.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, u * cell * 0.3, 0, 0, -38, 1.15), offset: 0.2 }, { transform: TR(0, u * cell * 0.3, 0, 0, -48, 1.15), offset: 0.7 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 2000, 'ease-in-out');
+                    // 독방울이 하늘에서 킹 위로 뚝뚝 떨어진다 (맞을 때마다 더 물든다)
+                    const DR = 10;
+                    for (let i = 0; i < DR; i++) later(300 + i * 110, () => {
+                        const dx = rnd(-cell * 0.2, cell * 0.2); P({ x: x + dx + (AA ? (AA.x - x) * 0.25 : 0), y: y + u * cell * 2.6, vx: 0, vy: DOWN() * 700, g: 0, drag: 0, size: rnd(3, 5), dur: 0.32, kind: 'glow', color: TX[i % 4] });
+                        later(300, () => { ring(x + dx, y + u * cell * 0.3, cell * 0.05, cell * 0.5, TX[i % 4], 0.3, 3, 0.8); radial(x + dx, y + u * cell * 0.3, 4, 30, 110, TX, { p: { size: rnd(1.6, 2.8), dur: 0.5 } }); shake(1 + i * 0.3, 90); });
+                    });
+                    // 킹: 비틀대며 점점 초록으로 부풀다가 푹 녹아내린다
+                    const TM = 1900, fm = [], N = 12;
+                    for (let i = 0; i <= N; i++) { const t = i / N; fm.push({ transform: T3(Math.sin(i * 1.4) * cell * 0.13 * (0.3 + t), cell * 0.04 * Math.abs(Math.sin(i * 2.2)), Math.sin(i * 1.1) * 12 * t, 0, Math.sin(i * 1.4) * (6 + 20 * t), 1 + 0.3 * Math.sin(t * Math.PI * 0.8), 1 - 0.08 * t), filter: PZ((t * 90).toFixed(0), (1 + t * 1.6).toFixed(2), (1 - 0.2 * t).toFixed(2)), offset: i / N }); }
+                    finFly(fr, fm, TM, 'linear');
+                    // 독 웅덩이: 킹 칸 밑에서 번져 나간다
+                    const pw = wrapAt(x, gy, true); finGone(pw, 5200);
+                    const pud = kid(pw, 'left:' + (-cell * 1.7) + 'px;top:' + (-cell * 0.42) + 'px;width:' + (cell * 3.4) + 'px;height:' + (cell * 0.84) + 'px;border-radius:50%;background:radial-gradient(ellipse,rgba(170,255,120,.9),rgba(70,180,70,.85) 55%,rgba(30,110,50,0) 74%);box-shadow:0 0 ' + (cell * 0.4) + 'px rgba(110,230,90,.7);opacity:0;');
+                    later(900, () => anim(pud, [{ transform: 'scale(.05)', opacity: 0 }, { transform: 'scale(.5)', opacity: 1, offset: 0.3 }, { transform: 'scale(1)', opacity: 1, offset: 0.55 }, { transform: 'scale(1.05)', opacity: 1, offset: 0.85 }, { transform: 'scale(1.1)', opacity: 0 }], 3000, { easing: 'ease-out' }));
+                    for (let i = 0; i < 16; i++) later(900 + i * 150, () => { const bx = x + rnd(-cell * 1.3, cell * 1.3), by = gy + rnd(-cell * 0.25, cell * 0.25); rising(bx, by, cell * 0.1, 2, [[150, 255, 130], [220, 255, 190]], 40, 120, [0.6, 1]); if (i % 3 === 0) ring(bx, by, cell * 0.05, cell * 0.28, TX[1], 0.3, 2, 0.8); });
+                    for (let i = 0; i < 7; i++) later(300 + i * 220, () => rising(x + rnd(-cell * 0.3, cell * 0.3), y, cell * 0.2, 3, [[150, 255, 130], [220, 255, 190]], 40, 110, [0.7, 1.1]));
+                    // 녹아내림
+                    later(TM, () => {
+                        shake(9, 360); ring(x, y, cell * 0.1, cell * 2, [150, 255, 120], 0.5, 5, 0.8);
+                        finFly(fr, [{ transform: T3(0, 0, 0, 0, 0, 1.25, 0.95), filter: PZ(90, 2.6, 0.75), opacity: 1 }, { transform: T3(0, -cell * 0.18, 0, 0, 0, 1.6, 0.5), filter: PZ(90, 2.6, 0.75), opacity: 1, offset: 0.35, easing: 'ease-in' }, { transform: T3(0, -cell * 0.36, 0, 0, 0, 2.2, 0.08), filter: PZ(90, 2.6, 0.7), opacity: 1, offset: 0.75 }, { transform: T3(0, -cell * 0.38, 0, 0, 0, 2.6, 0.02), filter: PZ(90, 2.6, 0.7), opacity: 0 }], 900, 'ease-in');
+                        for (let i = 0; i < 24; i++) later(i * 25, () => P({ kind: 'smoke', x: x + rnd(-cell * 0.6, cell * 0.6), y: gy - u * cell * 0.05, vx: rnd(-80, 80), vy: rnd(-20, 20), drag: 1.6, size: cell * rnd(0.12, 0.24), grow: 2, dur: rnd(0.7, 1.1), color: TX[Math.floor(rnd(0, 3))], alpha: 0.8 }));
+                        radial(x, gy, 20, 50, 220, TX, { p: { kind: 'glow', size: rnd(2, 4.5), g: DOWN() * 220, dur: 0.9 } });
+                    });
+                    // 웅덩이 가까이 있는 적 기물은 독에 발이 빠져 가라앉았다 올라오고, 나머지는 메스꺼워 비틀댄다
+                    FO.forEach((o, i) => { const pp = ctr(o.sq), d = Math.hypot(pp.x - x, pp.y - y), near = d < cell * 1.7;
+                        later(TM + (near ? d / cell * 120 : 0) + (i % 6) * 40, () => finEl(o.el, near ? [{ transform: TR(0, 0, 0, 0, 0, 1), filter: PZ(0, 1, 1) }, { transform: TR(0, cell * 0.16, 0, 0, 0, 1.05, 0.7), filter: PZ(85, 2, 0.8), offset: 0.3 }, { transform: TR(0, cell * 0.16, 0, 0, 0, 1.05, 0.7), filter: PZ(85, 2, 0.8), offset: 0.7 }, { transform: TR(0, 0, 0, 0, 0, 1), filter: PZ(0, 1, 1) }] : [{ transform: TR(0, 0, 0, 0, 0, 1), filter: PZ(0, 1, 1) }, { transform: TR(-3, 0, 0, 0, -9, 1.04, 0.96), filter: PZ(80, 1.8, 0.9), offset: 0.3 }, { transform: TR(3, 0, 0, 0, 9, 1.04, 0.96), filter: PZ(80, 1.8, 0.9), offset: 0.6 }, { transform: TR(0, 0, 0, 0, 0, 1), filter: PZ(0, 1, 1) }], near ? 1500 : 1100, 'ease-in-out')); });
+                };
+
+                // ===== v11-c 재작업: 버섯구름 · 가시 폭풍 =====
+                // 🍄 버섯구름: 하얗게 번쩍이며 충격파가 판을 쓸고, 킹 칸에서 불기둥이 솟아 진짜 버섯구름 모양으로 갓이 퍼진다. 킹은 기둥을 타고 올라가 갓 속에서 터진다
+                FIN.shroom = (sq, atk) => {
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), FO = finFoes(sq), AL = finMine(sq), HK = Math.min(2.1 * cell, spaceUp(y)), gy = y - u * cell * 0.3;
+                    const FC = [[255, 150, 55], [215, 95, 40], [125, 62, 42], [255, 205, 100], [255, 255, 255]];
+                    if (!fr) return;
+                    dims.push({ a: 0.3, dur: 3.6, t: 0 }); finVeil('rgb(255,255,255)', 0.85, 380); flash(x, gy, cell * 3, [255, 235, 170], 0.45, 0.9); shake(14, 600);
+                    for (let i = 0; i < 4; i++) ring(x, gy, cell * 0.1, cell * (3 + i * 1.2), [255, 200, 110], 0.5 + i * 0.1, 6 - i, 0.9 - i * 0.15);   // 충격파
+                    const blast = (o, m, spin) => { const pp = ctr(o.sq), dx = pp.x - x, dy = pp.y - y, d = Math.hypot(dx, dy) || 1, k = Math.max(0.15, 1.5 - d / (cell * 4)) * m; finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(dx / d * cell * k, dy / d * cell * k - cell * 0.25 * k, 0, 0, spin ? spin * 0.5 : dx / d * 26 * k, 1.05), offset: 0.3 }, { transform: TR(dx / d * cell * k * 0.4, dy / d * cell * k * 0.4, 0, 0, spin || 0, 1), offset: 0.65 }, { transform: TR(0, 0, 0, 0, spin || 0, 1.1, 0.85), offset: 0.9 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 1300, 'ease-out'); };
+                    FO.forEach(o => later(40, () => blast(o, 1, 0))); AL.forEach(o => { if (!atk || o.el !== atk.el) later(40, () => blast(o, 0.8, 0)); }); if (atk) later(40, () => blast({ sq: atk.sq, el: atk.el }, 1.6, 360));
+                    // 불기둥 + 버섯 갓
+                    const cw = wrapAt(x, gy, false); finGone(cw, 4400);
+                    const stem = kid(cw, 'left:' + (-cell * 0.3) + 'px;bottom:0;width:' + (cell * 0.6) + 'px;height:' + HK + 'px;transform-origin:50% 100%;border-radius:40% 40% 10% 10%;background:linear-gradient(90deg,rgba(110,55,35,.95),rgba(255,170,70,.95) 50%,rgba(110,55,35,.95));box-shadow:0 0 ' + (cell * 0.4) + 'px rgba(255,150,55,.8);opacity:0;');
+                    const cap = kid(cw, 'left:' + (-cell * 1.2) + 'px;bottom:' + (HK - cell * 0.45) + 'px;width:' + (cell * 2.4) + 'px;height:' + (cell * 1.1) + 'px;border-radius:50%;transform-origin:50% 60%;background:radial-gradient(ellipse at 50% 62%,#fff0b0 0,#ffb040 30%,#c4562a 58%,#4a2a22 100%);box-shadow:0 0 ' + (cell * 0.6) + 'px rgba(255,140,50,.85);opacity:0;');
+                    anim(stem, [{ transform: 'scaleY(0)', opacity: 1 }, { transform: 'scaleY(1)', opacity: 1, offset: 0.2 }, { transform: 'scaleY(1)', opacity: 1, offset: 0.72 }, { transform: 'scaleY(1)', opacity: 0 }], 3600, { easing: 'ease-out' });
+                    anim(cap, [{ transform: 'translateY(' + HK * 0.9 + 'px) scale(.1)', opacity: 0 }, { transform: 'translateY(0) scale(.5,.4)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0) scale(1.1,1)', opacity: 1, offset: 0.35 }, { transform: 'translateY(' + (-cell * 0.1) + 'px) scale(1.25,1.05)', opacity: 1, offset: 0.7 }, { transform: 'translateY(' + (-cell * 0.2) + 'px) scale(1.4,1.1)', opacity: 0 }], 3600, { easing: 'ease-out' });
+                    for (let i = 0; i < 40; i++) later(100 + i * 18, () => P({ kind: 'smoke', x: x + rnd(-cell * 0.2, cell * 0.2), y: gy, vx: rnd(-20, 20), vy: UP() * rnd(300, 560), drag: 1.1, size: rnd(5, 9), grow: 1.6, dur: rnd(0.9, 1.2), color: FC[Math.floor(rnd(0, 4))], alpha: 0.85 }));
+                    // 킹: 기둥을 타고 올라가 갓 안에서 터진다
+                    finFly(fr, kseq([[0, 0, 0, 1, 1, 0], [90, cell * 0.1, -8, 1.2, 0.75, 0, 'ease-out'], [560, HK * 0.8, 240, 1.7, 1.9, 0, 'ease-out'], [820, HK, 400, 2.1, 2.1, 0]]), 820, 'cubic-bezier(.15,.8,.3,1)');
+                    later(820, () => {
+                        const ay = y + u * HK; shake(11, 440); ring(x, ay, cell * 0.1, cell * 2.8, [255, 190, 100], 0.6, 5, 0.9); flash(x, ay, cell * 2.4, [255, 235, 170], 0.35, 0.8);
+                        embers(x, ay, 40, 180, 640, [[255, 150, 55], [255, 205, 100], [255, 255, 255]], 320, { size: rnd(2, 4.5) });
+                        finTiles(fr, { start: HK, s0: 2.1, mode: 'burst', cols: 5, rows: 5, filter: 'brightness(1.3) sepia(0.5)', power: 1.5, ms: 1600 });
+                        for (let i = 0; i < 50; i++) { const sp = rnd(-1, 1); P({ kind: 'smoke', x, y: ay, vx: sp * 300, vy: UP() * rnd(20, 120), g: DOWN() * 170, drag: 1.3, size: rnd(8, 13), grow: 1.3, dur: rnd(0.8, 1.3), color: FC[Math.floor(rnd(0, 4))], alpha: 0.85 }); }
+                        anim(cap, [{ transform: 'scale(1.1)' }, { transform: 'scale(1.35)' }], 300, { fill: 'none', easing: 'ease-out' });
+                    });
+                    for (let i = 0; i < 30; i++) later(900 + i * 60, () => P({ x: rnd(0, W), y: rnd(0, H), vx: rnd(-20, 20), vy: DOWN() * rnd(30, 90), g: 0, drag: 0.3, size: rnd(1.6, 3.2), dur: 1.2, kind: 'glow', color: FC[3], tw: true }));   // 낙진
+                };
+
+                // 🌵 가시 폭풍: 킹 둘레 땅에서 가시가 세 겹으로 점점 조여 오며 솟고, 마지막에 발밑에서 거대한 가시가 킹을 꿰어 올린 뒤 가시 파편으로 터진다
+                FIN.thorn = (sq, atk) => {
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), FO = finFoes(sq), AL = finMine(sq), AA = atk && atk.pos, HK = Math.min(1.5 * cell, spaceUp(y)), G = [[120, 225, 90], [235, 255, 140], [255, 255, 255]];
+                    if (!fr) return;
+                    finVeil('rgb(160,235,110)', 0.18, 3600);
+                    const spike = (px, py, w, h, delay, life) => {
+                        const wr = wrapAt(px, py - u * cell * 0.3, true); finGone(wr, delay + life + 300);
+                        const s = kid(wr, 'left:' + (-w / 2) + 'px;bottom:0;width:' + w + 'px;height:' + h + 'px;transform-origin:50% 100%;clip-path:polygon(50% 0,100% 100%,0 100%);background:linear-gradient(90deg,#2f8f3a,#a8f070 50%,#2f8f3a);filter:drop-shadow(0 0 ' + (cell * 0.08) + 'px rgba(150,255,110,.8));opacity:0;');
+                        later(delay, () => { anim(s, [{ transform: 'scaleY(0)', opacity: 1 }, { transform: 'scaleY(1.15)', opacity: 1, offset: 0.15 }, { transform: 'scaleY(1)', opacity: 1, offset: 0.25 }, { transform: 'scaleY(1)', opacity: 1, offset: 0.72 }, { transform: 'scaleY(0)', opacity: 1 }], life); embers(px, py, 3, 60, 200, G, 200, { size: rnd(1.4, 2.4) }); });
+                    };
+                    const WV = [[2.1, 10, 0.5], [1.4, 9, 0.62], [0.78, 8, 0.74]];
+                    WV.forEach(([R, n, hh], k) => {
+                        const t0 = 200 + k * 560;
+                        for (let i = 0; i < n; i++) { const a = i / n * TAU + k * 0.4, px = Math.min(W - cell * 0.25, Math.max(cell * 0.25, x + Math.cos(a) * cell * R)), py = Math.min(H - cell * 0.3, Math.max(cell * 0.3, y + Math.sin(a) * cell * R * 0.85)); spike(px, py, cell * 0.2, cell * hh, t0 + i * 22, 900); }
+                        later(t0 + 260, () => { shake(3 + k * 2, 160); ring(x, y, cell * (R + 0.4), cell * 0.3, G[0], 0.4, 3 + k, 0.8); finFly(fr, kseq([[0, 0, 0, 1 + k * 0.08, 1, 0], [90, 0, (k % 2 ? 6 : -6), 1.15 + k * 0.08, 0.88, 0, 'ease-out'], [260, 0, 0, 1.08 + k * 0.08, 1, 0]]), 260, 'linear'); });
+                    });
+                    AL.slice(0, 8).forEach((o, i) => later(260 + i * 110, () => { const p = ctr(o.sq); slash(p.x, p.y, x, y, G[0], 0.14, 3); finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, 0, 0, 0, 0, 1.2, 0.86), offset: 0.3 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 300, 'ease-out'); }));
+                    FO.forEach((o, i) => later(220 + (i % 7) * 90, () => finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, cell * 0.08, 0, 0, i % 2 ? 6 : -6, 0.88), offset: 0.3 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 800, 'ease-in-out')));
+                    if (atk) finEl(atk.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, u * cell * 0.3, 0, 0, 0, 1.2, 0.85), offset: 0.3 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 600, 'ease-out');
+                    const TF = 200 + 3 * 560 + 200;   // 마지막: 발밑에서 거대한 가시
+                    later(TF - 150, () => { finFly(fr, kseq([[0, 0, 0, 1.24, 1, 0], [150, 0, 0, 1.35, 0.7, 0, 'ease-out']]), 150, 'linear'); ring(x, y, cell * 1.5, cell * 0.2, G[0], 0.3, 4, 0.9); });
+                    const bw = wrapAt(x, y - u * cell * 0.3, true); finGone(bw, TF + 2200);
+                    const big = kid(bw, 'left:' + (-cell * 0.3) + 'px;bottom:0;width:' + (cell * 0.6) + 'px;height:' + (HK + cell * 0.5) + 'px;transform-origin:50% 100%;clip-path:polygon(50% 0,100% 100%,0 100%);background:linear-gradient(90deg,#2a7a34,#b6f57e 50%,#2a7a34);filter:drop-shadow(0 0 ' + (cell * 0.15) + 'px rgba(150,255,110,.9));opacity:0;');
+                    later(TF, () => {
+                        shake(9, 300); flash(x, y, cell * 1.8, G[0], 0.3, 0.7); ring(x, y, cell * 0.1, cell * 1.9, G[0], 0.5, 5, 0.9);
+                        anim(big, [{ transform: 'scaleY(0)', opacity: 1 }, { transform: 'scaleY(1.05)', opacity: 1, offset: 0.2 }, { transform: 'scaleY(1)', opacity: 1, offset: 0.8 }, { transform: 'scaleY(1)', opacity: 0 }], 1100, { easing: 'ease-out' });
+                        finFly(fr, kseq([[0, 0, 0, 1.35, 0.7, 0], [220, HK, 14, 0.95, 1.2, 0, 'ease-out'], [380, HK * 0.96, 10, 1.08, 1.02, 0]]), 380, 'cubic-bezier(.2,.9,.3,1)');
+                    });
+                    for (let i = 0; i < 6; i++) later(TF + 450 + i * 70, () => P({ x: x + rnd(-cell * 0.15, cell * 0.15), y: y + u * HK * 0.6, vx: rnd(-15, 15), vy: DOWN() * rnd(80, 160), g: DOWN() * 300, drag: 0.5, size: rnd(2, 3.6), dur: 0.7, kind: 'glow', color: G[0] }));   // 꿰인 킹에서 물방울
+                    later(TF + 1100, () => {
+                        const cy = y + u * HK * 0.96; shake(12, 420); ring(x, cy, cell * 0.1, cell * 2.2, G[0], 0.5, 6, 0.9);
+                        const n = 24; for (let i = 0; i < n; i++) { const a = i / n * TAU, sp = rnd(520, 900); P({ x, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, drag: 0.7, size: rnd(2.4, 4.2), dur: 0.6, kind: 'spark', color: G[Math.floor(rnd(0, 3))] }); }
+                        shardBurst(x, cy, 20, 160, 440, [180, 235, 140], 'rgb(60,120,50)', { lift: 80 });
+                        finTiles(fr, { start: HK * 0.96, s0: 1.08, mode: 'burst', cols: 4, rows: 4, filter: 'hue-rotate(60deg) saturate(1.4)', power: 1.3, ms: 1250 });
+                    });
+                };
             }
 
 
@@ -9365,15 +9642,15 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             // 마무리별 조합. a: 잡는 기물 동작 / f: 적 기물 동작 / af·ff: 색 필터 / fd: 적 기물 시작 지연 / ams: 길이 / gh: 잔상 수 / ic: 충격 색
             const STY = {
                 ninja:     { a: 'blink',  gh: 2, f: 'cower',  ff: 'brightness(.4) saturate(.6)' },
-                sprout:    { a: 'tower',  ic: [140, 235, 120], f: 'bury', ff: 'hue-rotate(60deg) saturate(1.5)' },
-                thorn:     { a: 'recoil', n: 9, ams: 1900, ic: [150, 235, 110], f: 'ripple', ff: 'brightness(1.35) hue-rotate(40deg)' },
-                leaf:      { a: 'orbit',  gh: 3, f: 'blown' },
+                sprout:    {},
+                thorn:     {},
+                leaf:      {},
                 avalanche: { a: 'leap',   ic: [220, 238, 255], f: 'bury', ff: 'saturate(.3) brightness(1.4) hue-rotate(170deg)' },
-                spore:     { a: 'puff',   af: 'hue-rotate(60deg) saturate(1.6)', ic: [200, 160, 255], f: 'float', ff: 'hue-rotate(70deg) saturate(1.6)' },
+                spore:     {},
                 siege:     { a: 'recoil', n: 6, ams: 2300, ic: [255, 215, 110], f: 'cower' },
                 wave:      { a: 'ride',   gh: 3, ic: [170, 220, 255], f: 'sweep', fd: pp => Math.max(0, 700 + (H + cell * .75 - pp.y) / (H + cell * 1.5) * WAVE_TRAVEL * 1000 - 90) },
-                poison:    { a: 'retch',  af: 'hue-rotate(80deg) saturate(1.8)', ic: [150, 255, 130], f: 'bury', ff: 'hue-rotate(80deg) saturate(1.8) brightness(.8)' },
-                judge:     { a: 'rise',   ams: 2000, af: 'brightness(1.6) sepia(.5)', gh: 2, ic: [255, 215, 110], f: 'bury', ff: 'sepia(.6) brightness(1.2)' },
+                poison:    {},
+                judge:     {},
                 necro:     { a: 'sky',    af: 'hue-rotate(250deg) saturate(1.5)', f: 'cower', ff: 'grayscale(.8)', circle: [165, 105, 255] },
                 chain:     { f: 'pull' },
                 blackdeath: { a: 'retch',  af: 'sepia(.6) hue-rotate(50deg) saturate(1.6)', ic: [140, 210, 80] },
@@ -13102,7 +13379,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 document.body.classList.remove('black-pov', 'practice-editing'); document.body.classList.add('practice-mode', 'puzzle-mode');
                 document.getElementById('game-controls').style.display = 'flex';
                 document.getElementById('btn-resign').style.display = 'none';
-                document.getElementById('btn-settings-game').style.display = 'none';
+                document.getElementById('btn-settings-game').style.display = 'block';
                 puzzleSt = pzFresh(stage); showBoardContainer(); practiceSyncUI();
                 pzSetup(null);
             });
