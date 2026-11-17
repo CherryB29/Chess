@@ -1936,12 +1936,25 @@
         .cos-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 4px 2px 10px; }
         .cos-item { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; padding: 8px 8px 8px 8px; border-radius: 14px; border: 1px solid var(--panel-border); background: var(--input-bg); color: var(--text-color); font: inherit; text-align: left; cursor: pointer; transition: transform .15s, border-color .2s, background .2s, box-shadow .2s; -webkit-tap-highlight-color: transparent; }
         .cos-item:active { transform: scale(0.97); }
+        .cos-item .ci-pv { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; background: rgba(124,130,255,0.22); color: #aab0ff; cursor: pointer; }
+        .cos-item .ci-pv:active { transform: scale(0.88); }
         .cos-item .ci-ic { width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; background: rgba(128,128,128,0.14); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; line-height: 1; }
         .cos-item .ci-nm { flex: 1; min-width: 0; font-size: 0.86rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .cos-item .ci-st { width: 16px; flex-shrink: 0; text-align: center; font-size: 0.85rem; font-weight: 900; color: #e8b923; }
         .cos-item.on { border-color: rgba(232,185,35,0.9); background: linear-gradient(90deg, rgba(232,185,35,0.18), rgba(232,185,35,0.05)); box-shadow: inset 0 0 0 1px rgba(232,185,35,0.5); }
         .cos-item.on .ci-ic { background: rgba(232,185,35,0.22); }
         .cos-item.lock { opacity: 0.45; cursor: default; }
+        #fxpv { position: fixed; inset: 0; z-index: 9500; background: rgba(5,6,12,0.78); display: flex; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box; }
+        #fxpv .fxpv-panel { width: 100%; max-width: 440px; background: #1b1c25; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 12px; box-sizing: border-box; box-shadow: 0 18px 50px rgba(0,0,0,0.6); }
+        #fxpv .fxpv-hd { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 10px; }
+        #fxpv .fxpv-t { font-weight: 800; font-size: 0.95rem; color: #fff; }
+        #fxpv .fxpv-x { width: 30px; height: 30px; border-radius: 50%; border: 0; background: rgba(255,255,255,0.08); color: #fff; font-size: 0.9rem; cursor: pointer; }
+        #fxpv .fxpv-stage { width: 100%; border-radius: 14px; overflow: hidden; background: #0c0d13; }
+        #fxpv .fxpv-stage #board-container.fxpv-board { position: relative; width: 100%; max-width: none; padding: 0; margin: 0; opacity: 1; visibility: visible; }
+        #fxpv .fxpv-stage #chat-bubble-opponent, #fxpv .fxpv-stage #chat-bubble-mine { display: none; }
+        #fxpv .fxpv-ft { display: flex; gap: 8px; padding-top: 10px; }
+        #fxpv .fxpv-ft button { flex: 1; height: 40px; border-radius: 12px; border: 0; background: rgba(124,130,255,0.2); color: #cfd2ff; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+
     </style>
 </head>
 <body>
@@ -4063,12 +4076,49 @@
             return isBotMode ? '' : curOppFin;
         }
         function finDebug(msg) { if (FIN_DEBUG_UNLOCK_ALL) { try { showToast('🎬 ' + msg, '#7c82ff', 2200); } catch (e) {} } }
+        const FIN_IDS_PV = id => id !== 'basic' && FINISHERS.some(f => f.id === id);
+        // 꾸미기 효과 미리보기 팝업: 별도 팝업 안에 판을 잠깐 옮겨 와서(연습 모드 아님) 선택한 효과를 재생한다. 닫으면 판은 원래 자리로 돌아간다.
+        let fxpv = null;
+        function previewFinisher(id) {
+            if (typeof isGameStarted !== 'undefined' && isGameStarted) { showToast('게임 중에는 미리보기를 할 수 없어요', '#e67e22', 2000); return; }
+            if (fxpv) closeFinisherPreview();
+            const bc = document.getElementById('board-container'); if (!bc) return;
+            const f = FINISHERS.find(x => x.id === id), d = f && f.ach ? ACHIEVEMENTS.find(x => x.id === f.ach) : null, nm = d ? d.title : (f ? f.name : '');
+            const ov = document.createElement('div'); ov.id = 'fxpv';
+            ov.innerHTML = `<div class="fxpv-panel"><div class="fxpv-hd"><div class="fxpv-t">${stEsc(nm)} · 미리보기</div><button type="button" class="fxpv-x" data-a="close" aria-label="닫기">✕</button></div><div class="fxpv-stage"></div><div class="fxpv-ft"><button type="button" data-a="replay">↻ 다시 보기</button><button type="button" data-a="pov">상대 시점으로</button></div></div>`;
+            document.body.appendChild(ov);
+            const stage = ov.querySelector('.fxpv-stage'), ph = document.createElement('div'); ph.style.display = 'none'; bc.parentNode.insertBefore(ph, bc); stage.appendChild(bc);
+            const hadBlack = document.body.classList.contains('black-pov'); document.body.classList.remove('black-pov');
+            const old = { cls: bc.className, style: bc.getAttribute('style') }; bc.classList.add('visible', 'fxpv-board');
+            fxpv = { ov, bc, ph, old, hadBlack, tm: [] };
+            const setup = () => {
+                for (const sq of Array.from(squareEls.keys())) if (game.get(sq)) game.remove(sq);
+                const put = (t2, c, s) => s.forEach(q => game.put({ type: t2, color: c }, q));
+                put('k', 'b', ['e5']); put('q', 'b', ['d8']); put('r', 'b', ['a8', 'h8']); put('b', 'b', ['c8', 'f8']); put('n', 'b', ['b8', 'g8']); put('p', 'b', ['a7', 'b7', 'c7', 'f7', 'g7', 'h7']);
+                put('k', 'w', ['e1']); put('q', 'w', ['e3']); put('r', 'w', ['a1', 'h1']); put('b', 'w', ['c1', 'f1']); put('n', 'w', ['b1', 'g1']); put('p', 'w', ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2']);
+                practiceRepaint();
+            };
+            const play = () => { fxpv.tm.forEach(clearTimeout); fxpv.tm = []; try { setup(); } catch (e) { console.warn('[preview]', e); } fxpv.tm.push(setTimeout(() => { try { FX.finisher(id, 'e5', ['e3']); } catch (e) { console.warn('[preview]', e); } }, 600)); };
+            ov.addEventListener('click', e => {
+                const a = e.target.closest('[data-a]'); if (!a) { if (e.target === ov) closeFinisherPreview(); return; }
+                if (a.dataset.a === 'close') closeFinisherPreview();
+                else if (a.dataset.a === 'replay') play();
+                else if (a.dataset.a === 'pov') { const on = document.body.classList.toggle('black-pov'); a.textContent = on ? '내 시점으로' : '상대 시점으로'; play(); }
+            });
+            setTimeout(play, 150);
+        }
+        function closeFinisherPreview() {
+            if (!fxpv) return; const p = fxpv; fxpv = null; p.tm.forEach(clearTimeout);
+            try { for (const sq of Array.from(squareEls.keys())) if (game.get(sq)) game.remove(sq); practiceRepaint(); } catch (e) {}
+            p.ph.parentNode.insertBefore(p.bc, p.ph); p.ph.remove(); p.bc.className = p.old.cls; if (p.old.style === null) p.bc.removeAttribute('style'); else p.bc.setAttribute('style', p.old.style);
+            document.body.classList.toggle('black-pov', p.hadBlack); p.ov.remove();
+        }
         function renderCos() {
             const body = document.getElementById('cos-body'); if (!body) return;
             const cur = myFinisherId();
             body.innerHTML = '<div class="cos-list">' + FINISHERS.map(f => {
                 const ok = finUnlocked(f), d = f.ach ? ACHIEVEMENTS.find(x => x.id === f.ach) : null, ic = d ? d.icon : f.icon, nm = d ? d.title : f.name;
-                return `<button type="button" class="cos-item${f.id === cur ? ' on' : ''}${ok ? '' : ' lock'}" data-id="${f.id}" aria-pressed="${f.id === cur}"${ok ? '' : ' disabled'}><span class="ci-ic">${ic}</span><span class="ci-nm">${stEsc(nm)}</span><span class="ci-st">${ok ? (f.id === cur ? '✓' : '') : '🔒'}</span></button>`;
+                return `<button type="button" class="cos-item${f.id === cur ? ' on' : ''}${ok ? '' : ' lock'}" data-id="${f.id}" aria-pressed="${f.id === cur}"><span class="ci-ic">${ic}</span><span class="ci-nm">${stEsc(nm)}</span>${FIN_IDS_PV(f.id) ? `<span class="ci-pv" role="button" aria-label="미리보기" data-pv="${f.id}">▶</span>` : ''}<span class="ci-st">${ok ? (f.id === cur ? '✓' : '') : '🔒'}</span></button>`;
             }).join('') + '</div>';
         }
         function equipFinisher(id) {
@@ -4079,7 +4129,7 @@
         document.getElementById('btn-menu-cos').addEventListener('click', () => { closeMenu(); renderCos(); document.getElementById('cos-overlay').style.display = 'flex'; const b = document.getElementById('cos-body'); if (b) b.scrollTop = 0; });
         document.getElementById('btn-close-cos').addEventListener('click', () => { document.getElementById('cos-overlay').style.display = 'none'; });
         document.getElementById('cos-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
-        document.getElementById('cos-body').addEventListener('click', e => { const b = e.target.closest('button[data-id]'); if (b && !b.disabled) equipFinisher(b.dataset.id); });
+        document.getElementById('cos-body').addEventListener('click', e => { const pv = e.target.closest('[data-pv]'); if (pv) { e.stopPropagation(); previewFinisher(pv.dataset.pv); return; } const b = e.target.closest('button[data-id]'); if (!b) return; if (b.classList.contains('lock')) { showToast('아직 해금되지 않았어요 (▶ 로 미리볼 수 있어요)', '#e67e22', 1800); return; } equipFinisher(b.dataset.id); });
         document.getElementById('btn-close-settings').addEventListener('click', () => { settingsOverlay.style.display = 'none'; });
         settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) settingsOverlay.style.display = 'none'; });
         document.getElementById('theme-toggle').addEventListener('change', (e) => { if(e.target.checked) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode'); saveUserSettings(); });
@@ -5840,6 +5890,18 @@
         // FX 엔진 (Canvas 2D) — 파티클/충격파/번개/빛기둥/슬래시
         // 캔버스는 보드와 함께 회전하므로, '화면 기준 위쪽'은 UP()으로 계산한다.
         // ==========================================
+        // 흑 시점 보정: 기물 등은 CSS rotate:180deg 로 세워져 있어서(개별 속성) transform의 이동 방향이 뒤집혀 보였다.
+        // 애니메이션 동안만 rotate를 0으로 두고 transform 끝에 rotate(180deg)를 붙여, 글자는 그대로 서 있고 이동은 판 좌표 그대로(= 백 시점과 똑같이) 보이게 한다.
+        (function () {
+            const _an = Element.prototype.animate;
+            Element.prototype.animate = function (kf, opt) {
+                try {
+                    if (document.body && document.body.classList.contains('black-pov') && Array.isArray(kf) && getComputedStyle(this).rotate === '180deg')
+                        kf = kf.map(f => Object.assign({}, f, { transform: ((f.transform && f.transform !== 'none') ? f.transform : '') + ' rotate(180deg)', rotate: '0deg' }));
+                } catch (e) {}
+                return _an.call(this, kf, opt);
+            };
+        })();
         const FX = (() => {
             const canvas = document.getElementById('fx-canvas');
             const ctx = canvas.getContext('2d');
@@ -9081,7 +9143,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                     const loop = now => {
                         if (t0 === null) t0 = now; const t = now - t0; if (t > TOT) return;
                         const { k, p } = poses(Math.min(t, TD)), tp = poses(t).p;
-                        const kp = t < TD ? k : poses(TD).k; fr.style.transform = T3(kp.dx, kp.up, 0, 0, kp.rz, kp.sx, kp.sy);
+                        const kp = t < TD ? k : poses(TD).k; setT(fr, T3(kp.dx, kp.up, 0, 0, kp.rz, kp.sx, kp.sy));
                         const pq = t < TD ? p : { dx: 0, up: tp.up, rz: 0, s: 1.25 }; const pv = t < TD ? pq : { dx: 0, up: Hp + cell * (.5 + Math.min(1, (t - TD) / 700) * 1.2), rz: 0, s: 1.25 };
                         pp.d.style.transform = tf(pv.dx, u * pv.up, pv.rz, pv.s);
                         const op = t < 300 ? t / 300 : t < TC + 90 ? 1 : 0;
@@ -9090,12 +9152,13 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                             for (let i = 0; i < 4; i++) seg(ST[i], pc[0] + Pn[i][0], pc[1] + Pn[i][1], kc[0] + A[i][0], kc[1] + A[i][1], op * (t > TC - 200 && t < TC + 90 ? 1 : .85));
                         } else ST.forEach(s => s.style.opacity = 0);
                         if (t >= TC + 90 && !done) { done = true; shake(8, 220); finVeil('rgb(255,255,255)', .55, 160); radial(x, y + u * Hp * .5, 18, 80, 260, [C.white, MC], { p: { kind: 'spark', size: rnd(1.4, 3), dur: .5 } }); }
-                        if (t >= TD && !hit) { hit = true; shake(16, 360); ring(x, y + cell * .3, cell * .1, cell * 2.2, MC, .5, 6, .9); puffs(x, y + cell * .3, 8, C.dust, .6); fr.style.transform = T3(0, 0, 0, 0, 80, 1.2, .8); finTiles(fr, { start: 0, mode: 'fall', cols: 4, rows: 4, power: 1.1, ms: 1100, filter: 'grayscale(.5)' }); pp.d.animate([{ opacity: 1 }, { opacity: 1, offset: .5 }, { opacity: 0 }], { duration: TOT - TD, fill: 'forwards' }); }
+                        if (t >= TD && !hit) { hit = true; shake(16, 360); ring(x, y + cell * .3, cell * .1, cell * 2.2, MC, .5, 6, .9); puffs(x, y + cell * .3, 8, C.dust, .6); fr.style.rotate = ''; fr.style.transform = T3(0, 0, 0, 0, 80, 1.2, .8); finTiles(fr, { start: 0, mode: 'fall', cols: 4, rows: 4, power: 1.1, ms: 1100, filter: 'grayscale(.5)' }); pp.d.animate([{ opacity: 1 }, { opacity: 1, offset: .5 }, { opacity: 0 }], { duration: TOT - TD, fill: 'forwards' }); }
                         requestAnimationFrame(loop);
                     };
                     requestAnimationFrame(loop); later(TOT, () => { if (hid) hid.style.visibility = ''; });
                 };
 
+                const setT = (el, s) => { if (document.body.classList.contains('black-pov')) { el.style.rotate = '0deg'; el.style.transform = s + ' rotate(180deg)'; } else el.style.transform = s; };
                 const drive = (TOT, fn) => { let t0 = null; const lp = now => { if (t0 === null) t0 = now; const t = now - t0; if (t > TOT) return; try { fn(t); } catch (e) { console.warn('[finisher]', e); } requestAnimationFrame(lp); }; requestAnimationFrame(lp); };
                 const line = css => { const d = finTop('height:3px;width:0;transform-origin:0 50%;opacity:0;z-index:149;' + css); finGone(d, 6000); return d; };
                 const seg = (el, x1, y1, x2, y2, op) => { el.style.left = x1 + 'px'; el.style.top = (y1 - 1.5) + 'px'; el.style.width = Math.hypot(x2 - x1, y2 - y1) + 'px'; el.style.transform = `rotate(${Math.atan2(y2 - y1, x2 - x1)}rad)`; el.style.opacity = op; };
@@ -9114,9 +9177,9 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                         let r = t < 500 ? R0 * e0 : t < 2700 ? R0 * (1 - .72 * Math.pow((t - 500) / 2200, 1.4)) : t < TC ? R0 * (.28 + .5 * ease3((t - 2700) / 550)) : 0;
                         if (t >= TC) r = 0;
                         const dx = Math.cos(spin) * r / 2, dy = Math.sin(spin) * r / 2 * .8;
-                        if (t < TC + 40) { fr.style.transform = T3(-dx, -dy * u, 0, 0, Math.sin(spin) * 12, 1 + .05 * Math.sin(t / 60)); pp.d.style.transform = tf(dx, dy, Math.cos(spin) * 10, 1); seg(th, x - dx, y - dy, x + dx, y + dy, t > 200 && t < TC ? 1 : 0); }
+                        if (t < TC + 40) { setT(fr, T3(-dx, -dy * u, 0, 0, Math.sin(spin) * 12, 1 + .05 * Math.sin(t / 60))); pp.d.style.transform = tf(dx, dy, Math.cos(spin) * 10, 1); seg(th, x - dx, y - dy, x + dx, y + dy, t > 200 && t < TC ? 1 : 0); }
                         if (t < TC && Math.floor(t / 110) !== Math.floor((t - 16) / 110)) radial(x + dx, y + dy, 2, 20, 70, [PK, RD], { p: { kind: 'petal', size: rnd(2, 3.6), g: DOWN() * 60, dur: 1.1, rot: rnd(0, TAU), vr: rnd(-8, 8) } });
-                        if (t >= TC && !burst) { burst = true; th.style.opacity = 0; fr.style.transform = T3(0, 0, 0, 0, 0, 1.15); shake(14, 360); finVeil('rgb(255,200,220)', .6, 300); ring(x, y, cell * .1, cell * 2.4, RD, .55, 7, .9); ring(x, y, cell * .1, cell * 1.6, PK, .5, 5, .9); radial(x, y, 40, 70, 380, [PK, RD, C.white], { p: { kind: 'petal', size: rnd(3, 6.5), g: DOWN() * 90, dur: 1.9, rot: rnd(0, TAU), vr: rnd(-9, 9) } }); finTiles(fr, { start: 0, mode: 'rise', cols: 4, rows: 4, power: 1.1, ms: 1400, filter: 'saturate(1.3) hue-rotate(-30deg)' }); pp.d.animate([{ transform: tf(0, 0, 0, 1.2, .8), opacity: 1 }, { transform: tf(0, 0, 0, 1, 1.1), opacity: 1, offset: .3 }, { transform: tf(0, u * cell * 1.2, 0, .8), opacity: 0 }], { duration: 700, fill: 'forwards' }); later(700, () => { if (hid) hid.style.visibility = ''; }); }
+                        if (t >= TC && !burst) { burst = true; th.style.opacity = 0; fr.style.rotate = ''; fr.style.transform = T3(0, 0, 0, 0, 0, 1.15); shake(14, 360); finVeil('rgb(255,200,220)', .6, 300); ring(x, y, cell * .1, cell * 2.4, RD, .55, 7, .9); ring(x, y, cell * .1, cell * 1.6, PK, .5, 5, .9); radial(x, y, 40, 70, 380, [PK, RD, C.white], { p: { kind: 'petal', size: rnd(3, 6.5), g: DOWN() * 90, dur: 1.9, rot: rnd(0, TAU), vr: rnd(-9, 9) } }); finTiles(fr, { start: 0, mode: 'rise', cols: 4, rows: 4, power: 1.1, ms: 1400, filter: 'saturate(1.3) hue-rotate(-30deg)' }); pp.d.animate([{ transform: tf(0, 0, 0, 1.2, .8), opacity: 1 }, { transform: tf(0, 0, 0, 1, 1.1), opacity: 1, offset: .3 }, { transform: tf(0, u * cell * 1.2, 0, .8), opacity: 0 }], { duration: 700, fill: 'forwards' }); later(700, () => { if (hid) hid.style.visibility = ''; }); }
                     });
                 };
 
@@ -9135,9 +9198,9 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                             if (p >= 1 && !land[k]) { land[k] = true; shake(5 + k * 2, 140); ring(x + bx, y + by + cell * .3, cell * .05, cell * 1.0, GD, .4, 4, .8); puffs(x + bx, y + by + cell * .3, 2, C.dust, .5); }
                         });
                         ls.forEach((l, k) => { const a1 = a0 + k * Math.PI / 2 + spin, a2 = a1 + Math.PI / 2, on = t > 220 * k + 300 ? 1 : 0; seg(l, x + Math.cos(a1) * R, y + Math.sin(a1) * R, x + Math.cos(a2) * R, y + Math.sin(a2) * R, t < T2 + 60 ? on * (.7 + .3 * Math.sin(t / 50)) : 0); });
-                        const lift = t < T1 ? 0 : cell * .5 * e, sc = t < T1 ? 1 : 1 - .45 * e; fr.style.transform = T3(Math.sin(t / 40) * cell * .03 * e, lift, 0, 0, e * 400 + (t < T1 ? 0 : 0), sc); fr.style.filter = `brightness(${1 + e * 1.4}) drop-shadow(0 0 ${6 + e * 14}px rgb(255,235,160))`;
+                        const lift = t < T1 ? 0 : cell * .5 * e, sc = t < T1 ? 1 : 1 - .45 * e; if (!cross) setT(fr, T3(Math.sin(t / 40) * cell * .03 * e, lift, 0, 0, e * 400, sc)); fr.style.filter = `brightness(${1 + e * 1.4}) drop-shadow(0 0 ${6 + e * 14}px rgb(255,235,160))`;
                         if (t > T1 && Math.floor(t / 130) !== Math.floor((t - 16) / 130)) radial(x, y, 3, 40, 150, [GD, C.white], { p: { kind: 'spark', size: rnd(1.4, 2.6), dur: .5 } });
-                        if (t >= T2 && !cross) { cross = true; shake(18, 460); finVeil('rgb(255,255,255)', .8, 400); ring(x, y, cell * .1, cell * 3, GD, .6, 8, .9); [[W * 2, 6, 0], [6, H * 2, 0]].forEach(([w, h]) => finShape(0, `left:${x - w / 2}px;top:${y - h / 2}px;width:${w}px;height:${h}px;background:linear-gradient(90deg,transparent,#fff 50%,transparent);mix-blend-mode:screen;`, [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: w > h ? 'scale(1,6)' : 'scale(6,1)' }], 600)); fr.style.filter = ''; fr.style.transform = T3(0, cell * .5, 0, 0, 0, .55); finBoom(x, y + u * cell * .5, [GD, C.white, [255, 200, 120]], fr, { start: cell * .5, mode: 'puff', power: 1.5, s0: .6 }); }
+                        if (t >= T2 && !cross) { cross = true; shake(18, 460); finVeil('rgb(255,255,255)', .8, 400); ring(x, y, cell * .1, cell * 3, GD, .6, 8, .9); [[W * 2, 6, 0], [6, H * 2, 0]].forEach(([w, h]) => finShape(0, `left:${x - w / 2}px;top:${y - h / 2}px;width:${w}px;height:${h}px;background:linear-gradient(90deg,transparent,#fff 50%,transparent);mix-blend-mode:screen;`, [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: w > h ? 'scale(1,6)' : 'scale(6,1)' }], 600)); fr.style.filter = ''; fr.style.rotate = ''; fr.style.transform = T3(0, cell * .5, 0, 0, 0, .55); finBoom(x, y + u * cell * .5, [GD, C.white, [255, 200, 120]], fr, { start: cell * .5, mode: 'puff', power: 1.5, s0: .6 }); }
                     });
                 };
 
