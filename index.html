@@ -1922,6 +1922,10 @@
         .pz-chip { width: 22px; height: 22px; border: 0; border-radius: 6px; background: transparent; font-size: .95rem; }
         .pz-chip svg, .pz-chip img { width: 100%; height: 100%; }
         .pz-chip.used { opacity: .28; }
+        .pz-chip.locked { opacity: .5; filter: grayscale(1); }   /* 지금은 조건이 안 맞아 못 쓰지만, 조건이 갖춰지면 쓸 수 있는 증강 */
+        .cards-container .augment-card.pz-locked, .cards-container .augment-card.pz-locked:hover { filter: grayscale(1); opacity: .6; cursor: default; border-color: var(--panel-border); transform: none; }
+        .cards-container .augment-card.pz-locked::before { background: linear-gradient(90deg, transparent, rgba(150,150,160,.7), transparent); }
+        .augment-card.pz-locked .aug-lock { color: #bbb; border: 1px solid rgba(180,180,190,.4); border-radius: 999px; padding: 0 6px; font-size: .6rem; font-weight: 700; line-height: 1.6; }
 
         /* ===== PLAY 메뉴 · 연습 탭 (v2) ===== */
         #ms-tabs { gap: 0; padding: 3px; border-radius: 12px; background: color-mix(in srgb, var(--text-color) 7%, var(--panel-bg)); border: 1px solid var(--panel-border); margin-bottom: 16px; }
@@ -13184,8 +13188,8 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 `<div class="pz-stat ${L.m <= 0 ? 'zero' : ''}" title="사용 횟수 / 최대 횟수">${pzIc('_move')}<em>이동 사용</em>${pzPips(st.movesUsed, S.moves)}</div>`;
             const chips = document.getElementById('pz-cards');
             if (chips) {
-                const list = S.cards.map((nm, i) => ({ nm, i })).filter(c => st.cardUsed[c.i] || pzUsable(c.nm));
-                chips.innerHTML = list.length ? '<span class="pz-bub-l">쓸 수 있는 증강</span>' + list.map(c => { const ag = AUGMENT_POOL.find(a => a.name === c.nm); return `<span class="pz-chip${st.cardUsed[c.i] ? ' used' : ''}" aria-label="${c.nm}">${ag ? ag.icon : '?'}</span>`; }).join('') : '';
+                const list = S.cards.map((nm, i) => ({ nm, i }));   // 조건이 안 맞는 증강도 흑백으로 함께 보여 준다
+                chips.innerHTML = list.length ? '<span class="pz-bub-l">쓸 수 있는 증강</span>' + list.map(c => { const ag = AUGMENT_POOL.find(a => a.name === c.nm); const locked = !st.cardUsed[c.i] && !pzUsable(c.nm); return `<span class="pz-chip${st.cardUsed[c.i] ? ' used' : locked ? ' locked' : ''}" aria-label="${c.nm}${locked ? ' (지금은 사용 불가)' : ''}"${locked ? ' title="지금은 사용 불가 · 조건이 갖춰지면 사용 가능"' : ''}>${ag ? ag.icon : '?'}</span>`; }).join('') : '';
             }
             const pk = document.getElementById('pz-pick');
             if (pk) {
@@ -13201,17 +13205,19 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
         function pzOpenPicker() {   // 실제 게임과 같은 증강 선택 화면: 카드를 한 번 누르면 선택, 한 번 더 누르면 발동. 카드 바깥을 누르고 있으면 판이 보인다.
             const st = puzzleSt; if (!st || st.done || st.busy || st.demo || targeting || isSystemLocked || augBusy) return;
             if (pzLeft().a <= 0) { showToast('증강 횟수를 모두 썼어요', 'var(--danger)', 1400); return; }
-            const ids = [], opts = [];
-            st.stage.cards.forEach((nm, i) => { const ag = AUGMENT_POOL.find(a => a.name === nm); if (ag && !st.cardUsed[i] && pzUsable(nm)) { ids.push(i); opts.push(ag); } });
+            const ids = [], opts = [], lockedFlags = [];
+            st.stage.cards.forEach((nm, i) => { const ag = AUGMENT_POOL.find(a => a.name === nm); if (ag && !st.cardUsed[i]) { ids.push(i); opts.push(ag); lockedFlags.push(!pzUsable(nm)); } });   // 조건이 안 맞는 증강도 목록에 넣고 흑백·선택 불가로 표시
             if (!opts.length) { showToast('지금 판에서 쓸 수 있는 증강이 없어요', 'var(--danger)', 1600); return; }
+            const anyUsable = lockedFlags.some(f => !f);
             pzDesc('');
             const ov = document.getElementById('augment-overlay');
             let html = `<h2>증강 선택</h2><div class="cards-container cards-n${opts.length}">`;
             opts.forEach((aug, k) => {
                 const typeLabel = getAugmentCategoryLabel(aug), riskLabel = getAugmentRiskLabel(aug), typeClass = getAugmentCategoryClass(aug);
-                html += `<div class="augment-card ${typeClass}" data-idx="${k}"><button type="button" class="aug-info" data-aug="${aug.name}" aria-label="${aug.name} 정보">i</button><div class="augment-icon">${augIconHtml(aug.name, aug.icon)}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${typeLabel}</span>${riskLabel ? `<span class="aug-risk">${riskLabel}</span>` : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
+                const lk = lockedFlags[k];
+                html += `<div class="augment-card ${typeClass}${lk ? ' pz-locked' : ''}" data-idx="${k}"${lk ? ' aria-disabled="true"' : ''}><button type="button" class="aug-info" data-aug="${aug.name}" aria-label="${aug.name} 정보">i</button><div class="augment-icon">${augIconHtml(aug.name, aug.icon)}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${typeLabel}</span>${riskLabel ? `<span class="aug-risk">${riskLabel}</span>` : ''}${lk ? '<span class="aug-lock">지금은 사용 불가</span>' : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
             });
-            html += `</div><div class="augment-hint">카드 바깥쪽을 눌러 필드를 확인하세요.</div><button type="button" class="pz-pick-cancel">취소</button>`;
+            html += `</div><div class="augment-hint">${anyUsable ? '' : '지금은 쓸 수 있는 증강이 없어요. '}${lockedFlags.some(f => f) ? '흑백 카드는 조건이 갖춰지면 쓸 수 있어요.<br>' : ''}카드 바깥쪽을 눌러 필드를 확인하세요.</div><button type="button" class="pz-pick-cancel">취소</button>`;
             ov.innerHTML = html; ov.dataset.pz = '1'; ov.style.display = 'flex'; bindAugInfo(ov);
             const closeOv = () => { ov.style.display = 'none'; ov.dataset.pz = ''; pzCoachHide(); };
             let sel = -1;
@@ -13221,6 +13227,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             cards.forEach((card, k) => {
                 card.onclick = () => {
                     if (!puzzleSt || puzzleSt !== st) { closeOv(); return; }
+                    if (lockedFlags[k]) { showToast('지금은 쓸 수 없어요. 조건이 갖춰지면 사용할 수 있어요.', 'var(--danger)', 1600); return; }   // 흑백 카드는 선택 불가
                     if (sel !== k) {
                         sel = k; cards.forEach(c => c.classList.remove('selected')); card.classList.add('selected');
                         if (coachOn) pzCoachShow(() => ov.querySelector('.augment-card'), '한 번 더 눌러 발동!', '선택됐어요. 같은 카드를 <em>한 번 더 눌러</em> 암살을 발동하세요.');
