@@ -1948,25 +1948,74 @@
         #pz-pick.none { background: transparent; border-color: var(--panel-border); color: #8d8d9b; }
 
         /* ---- 통계 창 ---- */
-        #stats-overlay .help-box { width: 100%; max-width: 440px; padding: 0 !important; overflow: hidden; display: flex; flex-direction: column; max-height: min(88vh, 680px); text-align: left; }
-        .st-sec { margin: 0 0 18px; }
-        .st-sec h3 { margin: 0 0 8px; font-size: 0.9rem; }
-        .st-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .st-card { padding: 10px 4px; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--panel-border); text-align: center; min-width: 0; }
-        .st-card b { display: block; font-size: 1.05rem; white-space: nowrap; }
-        .st-card small { color: #8a8a96; font-size: 0.7rem; }
-        .st-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; font-size: 0.84rem; border-bottom: 1px solid rgba(128,128,128,0.14); }
+        /* ===== 통계: 화면 폭이 줄어도 잘리지 않도록 줄바꿈·컨테이너 쿼리로 배치 ===== */
+        #stats-overlay .help-box { width: 100%; max-width: min(440px, 100%); padding: 0 !important; overflow: hidden; display: flex; flex-direction: column; max-height: min(88vh, 88dvh, 700px); text-align: left; }
+        #stats-overlay .help-body { height: auto; padding: 6px clamp(12px, 4vw, 20px) 20px; container-type: inline-size; container-name: st; overscroll-behavior: contain; }
+        .st-sec { margin: 0 0 20px; }
+        .st-sec h3 { margin: 0 0 10px; font-size: 0.86rem; letter-spacing: 0.01em; display: flex; align-items: center; gap: 8px; }
+        .st-sec h3::after { content: ''; flex: 1; height: 1px; background: var(--panel-border); }
+        .st-hero { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px 18px; padding: 14px; border-radius: 16px; background: linear-gradient(160deg, rgba(124,130,255,0.13), rgba(124,130,255,0.03)); border: 1px solid var(--panel-border); }
+        .st-ring { --p: 0; position: relative; flex: 0 0 auto; width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center; align-content: center; background: conic-gradient(#2ecc71 calc(var(--p) * 1%), rgba(128,128,128,0.24) 0); }
+        .st-ring::before { content: ''; position: absolute; inset: 9px; border-radius: 50%; background: var(--panel-bg, var(--input-bg)); }
+        .st-ring > * { position: relative; z-index: 1; line-height: 1.15; }
+        .st-ring b { font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+        .st-ring small { color: #8a8a96; font-size: 0.68rem; }
+        .st-tiles { flex: 1 1 170px; min-width: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+        .st-tile { min-width: 0; padding: 9px 2px 7px; border-radius: 12px; text-align: center; background: rgba(128,128,128,0.1); border: 1px solid transparent; }
+        .st-tile b { display: block; font-size: clamp(1.05rem, 6cqi, 1.4rem); line-height: 1.15; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+        .st-tile small { display: block; margin-top: 2px; font-size: 0.7rem; color: #8a8a96; font-weight: 700; }
+        .st-tile.w { background: rgba(46,204,113,0.12); } .st-tile.w b { color: #2ecc71; }
+        .st-tile.l { background: rgba(255,71,87,0.12); } .st-tile.l b { color: #ff5a69; }
+        .st-tile.d { background: rgba(241,196,15,0.13); } .st-tile.d b { color: #e5b90e; }
+        .st-hero .st-bar { flex: 1 1 100%; }
+        .st-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 8px; }
+        .st-mini { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 10px 12px; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--panel-border); }
+                .st-mini div { min-width: 0; line-height: 1.25; }
+        .st-mini b { display: block; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+        .st-mini small { color: #8a8a96; font-size: 0.7rem; }
+        .st-rec { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px; }
+        .st-rec i { font-style: normal; font-weight: 800; font-size: 0.74rem; line-height: 1; padding: 4px 7px; border-radius: 99px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .st-rec i u { text-decoration: none; font-weight: 700; opacity: 0.8; margin-left: 1px; }
+        .st-rec i.w { background: rgba(46,204,113,0.16); color: #2ecc71; }
+        .st-rec i.l { background: rgba(255,71,87,0.16); color: #ff5a69; }
+        .st-rec i.d { background: rgba(241,196,15,0.18); color: #e5b90e; }
+        .st-rec em { font-style: normal; font-weight: 800; font-size: 0.78rem; margin-left: 4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        body.light-mode .st-rec i.w, body.light-mode .st-tile.w b { color: #1f9d55; }
+        body.light-mode .st-rec i.l, body.light-mode .st-tile.l b { color: #d92d3f; }
+        body.light-mode .st-rec i.d, body.light-mode .st-tile.d b { color: #a37f00; }
+        .st-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; column-gap: 10px; row-gap: 5px; padding: 9px 0; font-size: 0.86rem; border-bottom: 1px solid rgba(128,128,128,0.14); }
         .st-row:last-child { border-bottom: 0; }
-        .st-row .ic { width: 1.5em; text-align: center; }
-        .st-row .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
-        .st-row .vl { color: #8a8a96; font-size: 0.76rem; white-space: nowrap; }
-        .st-side { display: flex; flex-direction: column; gap: 4px; margin-bottom: 9px; font-size: 0.82rem; }
-        .st-side > div:first-child { display: flex; justify-content: space-between; gap: 8px; }
-        .st-side span { color: #8a8a96; font-size: 0.76rem; }
+        .st-row .ic { width: 1.7em; text-align: center; font-size: 1.1rem; }
+        .st-row .nm { min-width: 0; font-weight: 700; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; }
+        .st-row .vl { color: #8a8a96; font-size: 0.78rem; font-weight: 700; white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; }
+        .st-row.noic { grid-template-columns: minmax(0, 1fr) auto; }
+        .st-side { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; font-size: 0.86rem; }
+        .st-side > div:first-child { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; }
+        .st-side > div:first-child > b { white-space: nowrap; }
         .st-bar { height: 8px; border-radius: 99px; background: rgba(128,128,128,0.22); overflow: hidden; display: flex; }
-        .st-bar i { display: block; height: 100%; }
-        .st-note { color: #8a8a96; font-size: 0.72rem; line-height: 1.5; margin: 0; }
-        .st-empty { color: #8a8a96; font-size: 0.8rem; padding: 4px 0; }
+        .st-bar i { display: block; height: 100%; min-width: 0; }
+        .st-note { color: #8a8a96; font-size: 0.72rem; line-height: 1.55; margin: 0; word-break: keep-all; }
+        .st-svg { width: 1.15em; height: 1.15em; }
+        .st-lb { display: inline-flex; align-items: center; gap: 6px; }
+        .st-mini .ic { display: inline-flex; width: 34px; height: 34px; border-radius: 10px; align-items: center; justify-content: center; background: rgba(128,128,128,0.14); }
+        .st-mini .ic .st-svg { width: 20px; height: 20px; }
+        .st-mini .ic.flame { color: #ff8a3d; background: rgba(255,138,61,0.16); }
+        .st-mini .ic.trophy { color: #e8b923; background: rgba(232,185,35,0.16); }
+        .st-row .ic { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9px; background: rgba(128,128,128,0.12); }
+        .st-row .ic svg { width: 18px; height: 18px; }
+        .st-row .ic.st-av { font-size: 1.05rem; line-height: 1; }
+        .st-empty { color: #8a8a96; font-size: 0.8rem; line-height: 1.55; padding: 4px 0; word-break: keep-all; }
+        @container st (max-width: 330px) {
+            .st-hero { padding: 12px 10px; gap: 12px; }
+            .st-ring { width: 80px; height: 80px; } .st-ring::before { inset: 8px; } .st-ring b { font-size: 1.15rem; }
+            .st-tiles { flex-basis: 100%; }
+            .st-row { grid-template-columns: auto minmax(0, 1fr); }
+            .st-row .vl { grid-column: 2 / -1; text-align: left; white-space: normal; }
+            .st-row.noic .vl { grid-column: 1 / -1; }
+            .st-row .st-rec { justify-content: flex-start; }
+            .st-side > div:first-child { flex-direction: column; align-items: flex-start; }
+            .st-side .st-rec { justify-content: flex-start; }
+        }
     
         /* ---- 꾸미기 창 ---- */
         #cos-overlay .help-box { width: 100%; max-width: 440px; padding: 0 !important; overflow: hidden; display: flex; flex-direction: column; max-height: min(88vh, 680px); text-align: left; }
@@ -1998,16 +2047,21 @@
         .cos-item .ci-st { width: 16px; flex-shrink: 0; text-align: center; font-size: 0.85rem; font-weight: 900; color: #e8b923; }
         .cos-item.on { border-color: rgba(232,185,35,0.9); background: linear-gradient(90deg, rgba(232,185,35,0.18), rgba(232,185,35,0.05)); box-shadow: inset 0 0 0 1px rgba(232,185,35,0.5); }
         .cos-item.on .ci-ic { background: rgba(232,185,35,0.22); }
-        .cos-item.lock { opacity: 0.45; cursor: default; }
+        .cos-item.lock { cursor: pointer; }
+        .cos-item.lock > :not(.ci-pv) { opacity: 0.45; }
         #fxpv { position: fixed; inset: 0; z-index: 9500; background: rgba(5,6,12,0.78); display: flex; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box; }
-        #fxpv .fxpv-panel { width: 100%; max-width: 440px; background: #1b1c25; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 12px; box-sizing: border-box; box-shadow: 0 18px 50px rgba(0,0,0,0.6); }
+        #fxpv .fxpv-panel { width: 100%; max-width: 440px; max-height: 100%; overflow: auto; background: #1b1c25; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 12px; box-sizing: border-box; box-shadow: 0 18px 50px rgba(0,0,0,0.6); }
         #fxpv .fxpv-hd { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 10px; }
         #fxpv .fxpv-t { font-weight: 800; font-size: 0.95rem; color: #fff; }
         #fxpv .fxpv-x { width: 30px; height: 30px; border-radius: 50%; border: 0; background: rgba(255,255,255,0.08); color: #fff; font-size: 0.9rem; cursor: pointer; }
-        #fxpv .fxpv-stage { width: 100%; border-radius: 14px; overflow: hidden; background: #0c0d13; }
-        #fxpv .fxpv-stage #board-container.fxpv-board { position: relative; width: 100%; max-width: none; padding: 0; margin: 0; opacity: 1; visibility: visible; }
-        #fxpv .fxpv-stage #chat-bubble-opponent, #fxpv .fxpv-stage #chat-bubble-mine { display: none; }
-        #fxpv .fxpv-ft { display: flex; gap: 8px; padding-top: 10px; }
+        #fxpv .fxpv-stage { position: relative; width: min(100%, calc(100vh - 210px), calc(100dvh - 210px)); min-width: 220px; aspect-ratio: 1 / 1; margin: 0 auto; border-radius: 14px; overflow: hidden; background: #0c0d13; }
+        #fxpv .fxpv-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: transparent; pointer-events: none; }
+        #fxpv .fxpv-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; color: #9a9aa8; font-size: 0.85rem; z-index: 1; pointer-events: none; }
+        #fxpv .fxpv-cap { min-height: 2.6em; display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px 6px 0; font-size: 0.85rem; font-weight: 700; color: #e8e9ff; line-height: 1.35; word-break: keep-all; }
+        #fxpv .fxpv-cap.pop { animation: fxpvCap .35s ease-out; }
+        @keyframes fxpvCap { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+        #fxpv .fxpv-ft button.ready { background: rgba(124,130,255,0.42); color: #fff; }
+        #fxpv .fxpv-ft { display: flex; gap: 8px; padding-top: 8px; }
         #fxpv .fxpv-ft button { flex: 1; height: 40px; border-radius: 12px; border: 0; background: rgba(124,130,255,0.2); color: #cfd2ff; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
 
     
@@ -4040,17 +4094,34 @@
         }
         function stEsc(t) { return String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
         function stPct(w, t) { return t > 0 ? Math.round(w / t * 100) + '%' : '-'; }
-        function stBar(a) { const t = a[0] + a[1] + a[2]; if (!t) return '<div class="st-bar"></div>'; return `<div class="st-bar"><i style="width:${a[0] / t * 100}%;background:#2ecc71"></i><i style="width:${a[2] / t * 100}%;background:#f1c40f"></i><i style="width:${a[1] / t * 100}%;background:#ff4757"></i></div>`; }
-        function stAugIcon(n) { try { const w = AUGMENT_SPEC[n] && AUGMENT_SPEC[n].win; return (w && w[1]) || '✨'; } catch (e) { return '✨'; } }
+        function stBar(a) { const t = a[0] + a[1] + a[2]; if (!t) return '<div class="st-bar"></div>'; return `<div class="st-bar" role="img" aria-label="${a[0]}승 ${a[2]}무 ${a[1]}패"><i style="width:${a[0] / t * 100}%;background:#2ecc71"></i><i style="width:${a[2] / t * 100}%;background:#f1c40f"></i><i style="width:${a[1] / t * 100}%;background:#ff4757"></i></div>`; }
+        const ST_SVG = {
+            flame: '<path d="M12 22c4 0 7-2.7 7-6.8 0-2.6-1.4-4.6-3-6.2-.4 1.6-1.2 2.6-2.3 3 .3-3.3-1.2-6.4-4.2-8-.2 2.6-1.5 4.3-3 6C5.2 11.7 5 13.4 5 15.2 5 19.3 8 22 12 22z"/>',
+            trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',
+            white: '<circle cx="12" cy="12" r="8" fill="none"/>',
+            black: '<circle cx="12" cy="12" r="8" fill="currentColor"/>',
+            cpu: '<rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/>',
+            user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
+            bolt: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>',
+            dmg: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',
+            summon: '<path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"/>',
+            move: '<path d="M4 12h16M15 7l5 5-5 5M9 7l-5 5 5 5"/>',
+            util: '<path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.4 2.4-2.6-.6-.6-2.6z"/>',
+            etc: '<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>'
+        };
+        const stSvg = k => `<svg class="ico st-svg" viewBox="0 0 24 24" aria-hidden="true">${ST_SVG[k] || ST_SVG.bolt}</svg>`;
+        function stAugIcon(n) { try { const w = AUGMENT_SPEC[n] && AUGMENT_SPEC[n].win; return augIconHtml(n, (w && w[1]) || '✨'); } catch (e) { return '✨'; } }
+        function stRec(w, l, d, extra) { return `<span class="st-rec"><i class="w">${w}<u>승</u></i><i class="l">${l}<u>패</u></i><i class="d">${d}<u>무</u></i>${extra ? `<em>${extra}</em>` : ''}</span>`; }
         function renderStats() {
             const body = document.getElementById('stats-body'); if (!body) return;
-            const s = myStats || emptyStats(), us = userProfile.stats || { w: 0, l: 0, d: 0 }, tot = (us.w || 0) + (us.l || 0) + (us.d || 0);
-            const ht = s.h[0] + s.h[1] + s.h[2];
-            let h = `<div class="st-sec"><h3>전적</h3><div class="st-cards"><div class="st-card"><b>${us.w || 0}승 ${us.l || 0}패 ${us.d || 0}무</b><small>사람 대전</small></div><div class="st-card"><b>${stPct(us.w || 0, tot)}</b><small>승률</small></div><div class="st-card"><b>${s.streak.cur}연승</b><small>최고 ${s.streak.best}연승</small></div></div></div>`;
+            const s = myStats || emptyStats(), us = userProfile.stats || { w: 0, l: 0, d: 0 }, W = us.w || 0, L = us.l || 0, D = us.d || 0, tot = W + L + D;
+            const ht = s.h[0] + s.h[1] + s.h[2], pct = tot > 0 ? Math.round(W / tot * 100) : 0;
+            let h = `<div class="st-sec"><h3>전적</h3><div class="st-hero"><div class="st-ring" style="--p:${pct}"><div><b>${tot > 0 ? pct + '%' : '-'}</b><br><small>승률 · ${tot}판</small></div></div><div class="st-tiles"><div class="st-tile w"><b>${W}</b><small>승</small></div><div class="st-tile l"><b>${L}</b><small>패</small></div><div class="st-tile d"><b>${D}</b><small>무</small></div></div>${tot > 0 ? stBar([W, L, D]) : ''}</div>` +
+                `<div class="st-meta"><div class="st-mini"><span class="ic flame">${stSvg('flame')}</span><div><b>${s.streak.cur}연승</b><small>현재</small></div></div><div class="st-mini"><span class="ic trophy">${stSvg('trophy')}</span><div><b>${s.streak.best}연승</b><small>최고 기록</small></div></div></div></div>`;
             if (!ht) {
                 h += '<div class="st-sec"><p class="st-empty">아직 쌓인 기록이 없어요. 사람과 대전하면 증강·진영·상대별 통계가 여기에 쌓입니다.</p></div>';
             } else {
-                h += '<div class="st-sec"><h3>진영별</h3>' + [['w', '⚪ 백'], ['b', '⚫ 흑']].map(([k, lb]) => { const a = s.c[k], t = a[0] + a[1] + a[2]; return `<div class="st-side"><div><b>${lb}</b><span>${a[0]}승 ${a[1]}패 ${a[2]}무 · ${stPct(a[0], t)}</span></div>${stBar(a)}</div>`; }).join('') + (s.pn ? `<p class="st-note">한 판 평균 ${Math.round(s.plies / s.pn)}수 (양쪽 합산)</p>` : '') + '</div>';
+                h += '<div class="st-sec"><h3>진영별</h3>' + [['w', 'white', '백'], ['b', 'black', '흑']].map(([k, ik, lb]) => { const a = s.c[k], t = a[0] + a[1] + a[2]; return `<div class="st-side"><div><b class="st-lb">${stSvg(ik)}${lb}</b>${stRec(a[0], a[1], a[2], stPct(a[0], t))}</div>${stBar(a)}</div>`; }).join('') + (s.pn ? `<p class="st-note">한 판 평균 ${Math.round(s.plies / s.pn)}수 (양쪽 합산)</p>` : '') + '</div>';
                 const augs = Object.keys(s.aug).map(n => ({ n, u: s.aug[n][0], g: s.aug[n][1], w: s.aug[n][2] }));
                 if (augs.length) {
                     const top = augs.slice().sort((a, b) => b.u - a.u || b.g - a.g).slice(0, 5);
@@ -4059,10 +4130,10 @@
                     h += '<div class="st-sec"><h3>승률 높은 증강</h3>' + (best.length ? best.map(a => `<div class="st-row"><span class="ic">${stAugIcon(a.n)}</span><span class="nm">${stEsc(a.n)}</span><span class="vl">${stPct(a.w, a.g)} · ${a.g}판</span></div>`).join('') : '<p class="st-empty">증강을 3판 이상 써야 집계돼요.</p>') + '</div>';
                 }
                 const opps = Object.keys(s.opp).map(k => s.opp[k]).sort((a, b) => (b[2] + b[3] + b[4]) - (a[2] + a[3] + a[4]) || b[5] - a[5]).slice(0, 5);
-                if (opps.length) h += '<div class="st-sec"><h3>자주 만난 상대</h3>' + opps.map(e => `<div class="st-row"><span class="ic">${stEsc(e[1])}</span><span class="nm">${stEsc(e[0])}</span><span class="vl">${e[2]}승 ${e[3]}패 ${e[4]}무</span></div>`).join('') + '</div>';
+                if (opps.length) h += '<div class="st-sec"><h3>자주 만난 상대</h3>' + opps.map(e => `<div class="st-row"><span class="ic st-av">${stEsc(e[1])}</span><span class="nm">${stEsc(e[0])}</span><span class="vl">${stRec(e[2], e[3], e[4])}</span></div>`).join('') + '</div>';
             }
             const bt = s.b[0] + s.b[1] + s.b[2];
-            if (bt) h += `<div class="st-sec"><h3>컴퓨터 대전</h3><div class="st-row"><span class="nm">전적</span><span class="vl">${s.b[0]}승 ${s.b[1]}패 ${s.b[2]}무 · ${stPct(s.b[0], bt)}</span></div></div>`;
+            if (bt) h += `<div class="st-sec"><h3>컴퓨터 대전</h3><div class="st-side"><div><b class="st-lb">${stSvg('cpu')}전적</b>${stRec(s.b[0], s.b[1], s.b[2], stPct(s.b[0], bt))}</div>${stBar(s.b)}</div></div>`;
             h += '<p class="st-note">진영·증강·상대 통계는 통계 기능이 추가된 뒤의 사람 대전 기준입니다.</p>';
             body.innerHTML = h;
         }
@@ -4128,56 +4199,66 @@
             curOppFin = ''; if (!uid) return;
             try { const sn = await get(ref(db, `users/${uid}/settings/finisher`)); const v = sn && sn.exists() ? String(sn.val()) : ''; if (curOppUid === uid && FINISHERS.some(f => f.id === v)) curOppFin = v; } catch (e) {}
         }
+        const finDemoId = () => (typeof __AUG_DEMO !== 'undefined' && __AUG_DEMO && window.__AUG_DEMO__ && window.__AUG_DEMO__.finisher) || '';   // 꾸미기 미리보기용 내장 화면: 고른 효과를 그대로 쓴다
         function finisherForResult(r) {   // 체크메이트를 건 쪽(이긴 쪽)의 효과. 관전·봇이 이긴 경우는 기본
+            if (finDemoId()) return finDemoId();
             if (isSpectating) return '';
             if (r === '승리') return myFinisherId();
             if (r === '패배' && !isBotMode) return curOppFin;
             return '';
         }
         function finisherForColor(c) {   // c 색 기물이 킹을 잡았을 때(이긴 쪽)의 효과. 관전·봇이 이긴 경우는 기본
+            if (finDemoId()) return finDemoId();
             if (isSpectating) return '';
             if (c === myColor) return myFinisherId();
             return isBotMode ? '' : curOppFin;
         }
         function finDebug(msg) { if (FIN_DEBUG_UNLOCK_ALL) { try { showToast('🎬 ' + msg, '#7c82ff', 2200); } catch (e) {} } }
         const FIN_IDS_PV = id => id !== 'basic' && FINISHERS.some(f => f.id === id);
-        // 꾸미기 효과 미리보기 팝업: 별도 팝업 안에 판을 잠깐 옮겨 와서(연습 모드 아님) 선택한 효과를 재생한다. 닫으면 판은 원래 자리로 돌아간다.
-        let fxpv = null, fxpvGuard = false;   // fxpvGuard: 미리보기 중·직후엔 킹이 없는 판을 '종료'로 오인하지 않게 승패 판정을 건너뛴다
+        // 꾸미기 효과 미리보기 팝업: 앱을 한 번 더 띄우는 독립된 내장 화면(iframe)에서 재생한다.
+        // 진행 중인 판(퍼즐·연습·대전·관전 등 어떤 모드든)을 전혀 건드리지 않으므로 어디서든 같은 모습으로 재생된다.
+        // 내장 화면에서는 백 퀸이 흑 킹을 실제로 '잡는 수'를 두고, 그 순간 선택한 마무리 효과가 이어진다.
+        let fxpv = null, fxpvGuard = false;   // fxpvGuard: (예전 방식 호환용) 항상 false
+        window.__finDemoSrc = (id, pov) => __APP_SRC.replace(/<head[^>]*>/i, m => m + '<script>window.__AUG_DEMO__=' + JSON.stringify({ finisher: id, pov: !!pov }).replace(/</g, '\\u003c') + ';<\/script>');
         function previewFinisher(id) {
-            if (typeof isGameStarted !== 'undefined' && isGameStarted) { showToast('게임 중에는 미리보기를 할 수 없어요', '#e67e22', 2000); return; }
             if (fxpv) closeFinisherPreview();
-            fxpvGuard = true;
-            const bc = document.getElementById('board-container'); if (!bc) { fxpvGuard = false; return; }
+            if (!FINISHERS.some(x => x.id === id)) return;
             const f = FINISHERS.find(x => x.id === id), d = f && f.ach ? ACHIEVEMENTS.find(x => x.id === f.ach) : null, nm = d ? d.title : (f ? f.name : '');
-            const ov = document.createElement('div'); ov.id = 'fxpv';
-            ov.innerHTML = `<div class="fxpv-panel"><div class="fxpv-hd"><div class="fxpv-t">${stEsc(nm)} · 미리보기</div><button type="button" class="fxpv-x" data-a="close" aria-label="닫기">✕</button></div><div class="fxpv-stage"></div><div class="fxpv-ft"><button type="button" data-a="replay">↻ 다시 보기</button><button type="button" data-a="pov">상대 시점으로</button></div></div>`;
+            const ov = document.createElement('div'); ov.id = 'fxpv'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+            ov.innerHTML = `<div class="fxpv-panel"><div class="fxpv-hd"><div class="fxpv-t">${stEsc(nm)} · 미리보기</div><button type="button" class="fxpv-x" data-a="close" aria-label="닫기">✕</button></div><div class="fxpv-stage"><div class="fxpv-loading">불러오는 중…</div></div><div class="fxpv-cap"></div><div class="fxpv-ft"><button type="button" data-a="replay">↻ 다시 보기</button><button type="button" data-a="pov">상대 시점으로</button></div></div>`;
             document.body.appendChild(ov);
-            const stage = ov.querySelector('.fxpv-stage'), ph = document.createElement('div'); ph.style.display = 'none'; bc.parentNode.insertBefore(ph, bc); stage.appendChild(bc);
-            const hadBlack = document.body.classList.contains('black-pov'); document.body.classList.remove('black-pov');
-            const old = { cls: bc.className, style: bc.getAttribute('style') }; bc.classList.add('visible', 'fxpv-board');
-            fxpv = { ov, bc, ph, old, hadBlack, tm: [] };
-            const setup = () => {
-                for (const sq of Array.from(squareEls.keys())) if (game.get(sq)) game.remove(sq);
-                const put = (t2, c, s) => s.forEach(q => game.put({ type: t2, color: c }, q));
-                put('k', 'b', ['e5']); put('q', 'b', ['d8']); put('r', 'b', ['a8', 'h8']); put('b', 'b', ['c8', 'f8']); put('n', 'b', ['b8', 'g8']); put('p', 'b', ['a7', 'b7', 'c7', 'f7', 'g7', 'h7']);
-                put('k', 'w', ['e1']); put('q', 'w', ['e3']); put('r', 'w', ['a1', 'h1']); put('b', 'w', ['c1', 'f1']); put('n', 'w', ['b1', 'g1']); put('p', 'w', ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2']);
-                practiceRepaint();
+            const stage = ov.querySelector('.fxpv-stage'), load = ov.querySelector('.fxpv-loading'), cap = ov.querySelector('.fxpv-cap'), rp = ov.querySelector('[data-a="replay"]');
+            fxpv = { ov, frame: null, pov: false, timer: null, onMsg: null };
+            const setCap = t => { cap.textContent = t || ''; cap.classList.remove('pop'); void cap.offsetWidth; cap.classList.add('pop'); };
+            const play = () => {
+                const p = fxpv; if (!p) return; clearTimeout(p.timer);
+                stage.querySelectorAll('iframe').forEach(x => x.remove());
+                cap.textContent = ''; rp.classList.remove('ready'); load.style.display = ''; load.textContent = '불러오는 중…';
+                const fr = document.createElement('iframe'); fr.className = 'fxpv-frame'; fr.setAttribute('scrolling', 'no'); fr.setAttribute('title', nm + ' 미리보기');
+                p.frame = fr; stage.insertBefore(fr, load);
+                try { fr.srcdoc = window.__finDemoSrc(id, p.pov); } catch (e) { load.textContent = '미리보기를 불러오지 못했어요.'; return; }
+                p.timer = setTimeout(() => { if (fxpv === p && load.style.display !== 'none') load.textContent = '미리보기를 불러오지 못했어요. 다시 보기를 눌러 주세요.'; }, 12000);
             };
-            const play = () => { fxpv.tm.forEach(clearTimeout); fxpv.tm = []; try { setup(); } catch (e) { console.warn('[preview]', e); } fxpv.tm.push(setTimeout(() => { try { FX.finisher(id, 'e5', ['e3']); } catch (e) { console.warn('[preview]', e); } }, 600)); };
+            fxpv.onMsg = e => {
+                const m = e.data, p = fxpv; if (!p || !m || m.aug !== 'findemo' || !p.frame || e.source !== p.frame.contentWindow) return;
+                if (m.type === 'ready') { clearTimeout(p.timer); load.style.display = 'none'; }
+                else if (m.type === 'cap') setCap(m.text);
+                else if (m.type === 'done') rp.classList.add('ready');
+            };
+            window.addEventListener('message', fxpv.onMsg);
             ov.addEventListener('click', e => {
                 const a = e.target.closest('[data-a]'); if (!a) { if (e.target === ov) closeFinisherPreview(); return; }
                 if (a.dataset.a === 'close') closeFinisherPreview();
                 else if (a.dataset.a === 'replay') play();
-                else if (a.dataset.a === 'pov') { const on = document.body.classList.toggle('black-pov'); a.textContent = on ? '내 시점으로' : '상대 시점으로'; play(); }
+                else if (a.dataset.a === 'pov') { fxpv.pov = !fxpv.pov; a.textContent = fxpv.pov ? '내 시점으로' : '상대 시점으로'; play(); }
             });
-            setTimeout(play, 150);
+            play();
         }
         function closeFinisherPreview() {
-            if (!fxpv) return; const p = fxpv; fxpv = null; p.tm.forEach(clearTimeout);
-            try { for (const sq of Array.from(squareEls.keys())) if (game.get(sq)) game.remove(sq); practiceRepaint(); } catch (e) {}
-            p.ph.parentNode.insertBefore(p.bc, p.ph); p.ph.remove(); p.bc.className = p.old.cls; if (p.old.style === null) p.bc.removeAttribute('style'); else p.bc.setAttribute('style', p.old.style);
-            document.body.classList.toggle('black-pov', p.hadBlack); p.ov.remove();
-            setTimeout(() => { if (!fxpv) fxpvGuard = false; }, 3500);
+            if (!fxpv) return; const p = fxpv; fxpv = null; clearTimeout(p.timer);
+            try { window.removeEventListener('message', p.onMsg); } catch (e) {}
+            try { p.ov.querySelectorAll('iframe').forEach(x => x.remove()); } catch (e) {}
+            p.ov.remove();
         }
         function renderCos() {
             const body = document.getElementById('cos-body'); if (!body) return;
@@ -4195,7 +4276,7 @@
         document.getElementById('btn-menu-cos').addEventListener('click', () => { closeMenu(); renderCos(); document.getElementById('cos-overlay').style.display = 'flex'; const b = document.getElementById('cos-body'); if (b) b.scrollTop = 0; });
         document.getElementById('btn-close-cos').addEventListener('click', () => { document.getElementById('cos-overlay').style.display = 'none'; });
         document.getElementById('cos-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
-        document.getElementById('cos-body').addEventListener('click', e => { const pv = e.target.closest('[data-pv]'); if (pv) { e.stopPropagation(); previewFinisher(pv.dataset.pv); return; } const b = e.target.closest('button[data-id]'); if (!b) return; if (b.classList.contains('lock')) { showToast('아직 해금되지 않았어요 (▶ 로 미리볼 수 있어요)', '#e67e22', 1800); return; } equipFinisher(b.dataset.id); });
+        document.getElementById('cos-body').addEventListener('click', e => { const pv = e.target.closest('[data-pv]'); if (pv) { e.stopPropagation(); previewFinisher(pv.dataset.pv); return; } const b = e.target.closest('button[data-id]'); if (!b) return; if (b.classList.contains('lock')) { if (FIN_IDS_PV(b.dataset.id)) previewFinisher(b.dataset.id); else showToast('아직 해금되지 않았어요', '#e67e22', 1800); return; } equipFinisher(b.dataset.id); });
         document.getElementById('btn-close-settings').addEventListener('click', () => { settingsOverlay.style.display = 'none'; });
         settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) settingsOverlay.style.display = 'none'; });
         document.getElementById('theme-toggle').addEventListener('change', (e) => { if(e.target.checked) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode'); saveUserSettings(); });
@@ -9383,83 +9464,105 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                     });
                 };
 
-                // 🌱 새싹 축포: 아군이 씨앗을 쏘아 킹 둘레에 꽃밭이 피어나고, 킹이 대포알처럼 쏘아 올려져 꽃잎·색종이 축포로 터진다
+                // 칸 단위 연출 도우미: 판의 칸이 한 장씩 번쩍이며 물결처럼 퍼진다 (게임 판 자체를 무대로 쓴다)
+                const sqRing = (cx, cy, r) => { const out = []; for (let dx = -r; dx <= r; dx++) for (let dy = -r; dy <= r; dy++) { if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; const px = cx + dx * cell, py = cy + dy * cell; if (px < cell * 0.4 || px > W - cell * 0.4 || py < cell * 0.4 || py > H - cell * 0.4) continue; out.push({ px, py, dx, dy }); } return out; };
+                const sqPulse = (px, py, col, delay, life, a, pop) => {
+                    const w = wrapAt(px, py, true); finGone(w, delay + life + 300); const c = col.join(',');
+                    const t = kid(w, 'left:' + (-cell / 2) + 'px;top:' + (-cell / 2) + 'px;width:' + cell + 'px;height:' + cell + 'px;box-sizing:border-box;border:2px solid rgba(' + c + ',.85);background:rgba(' + c + ',.3);opacity:0;');
+                    later(delay, () => anim(t, [{ opacity: 0, transform: 'scale(' + (pop ? 1.25 : 0.7) + ')' }, { opacity: a, transform: 'scale(1)', offset: 0.22 }, { opacity: 0, transform: 'scale(1.04)' }], life, { easing: 'ease-out' }));
+                };
+                const sqWave = (cx, cy, r, col, delay, a, life) => sqRing(cx, cy, r).forEach(q => sqPulse(q.px, q.py, col, delay, life || 560, a));
+
+                // 🌱 새싹 축포: 아군이 씨앗을 쏘아 맞출 때마다 킹이 한 번씩 '쑥' 자라고 칸이 물결처럼 번쩍인다. 다 자란 킹이 쪼그라들었다 대포알처럼 발사돼, 정점에서 빛줄기와 조각 축포로 터진다
                 FIN.sprout = (sq, atk) => {
-                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), AL = finMine(sq), FO = finFoes(sq), AA = atk && atk.pos, HK = Math.min(1.7 * cell, spaceUp(y));
-                    const CL = [[255, 120, 170], [255, 210, 90], [175, 140, 255], [255, 255, 255], [120, 220, 255]], GR = [[120, 230, 110], [200, 255, 150]];
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), AL = finMine(sq), FO = finFoes(sq), AA = atk && atk.pos, HK = Math.min(1.8 * cell, spaceUp(y));
+                    const GR = [[120, 235, 120], [190, 255, 140], [255, 240, 150]], CF = [[255, 120, 170], [255, 215, 90], [150, 200, 255], [255, 255, 255], [150, 240, 150]];
                     if (!fr) return;
-                    finVeil('rgb(190,255,170)', 0.18, 3600);
-                    const N = 8, spots = [];
-                    for (let i = 0; i < N; i++) { const a = i / N * TAU + 0.3; spots.push({ px: Math.min(W - cell * 0.3, Math.max(cell * 0.3, x + Math.cos(a) * cell * 1.2)), py: Math.min(H - cell * 0.35, Math.max(cell * 0.35, y + Math.sin(a) * cell * 1.0)) }); }
-                    spots.forEach((s, i) => {
-                        const t0 = 350 + i * 90, c = CL[i % CL.length], from = AL.length ? ctr(AL[i % AL.length].sq) : { x: x + cell * 2, y }, gy = s.py - u * cell * 0.3;
-                        later(t0 - 90, () => { if (AL.length) finEl(AL[i % AL.length].el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, 0, 0, 0, 0, 1.2, 0.85), offset: 0.3 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 300, 'ease-out'); });
-                        later(t0, () => orb(from.x, from.y, s.px, gy, GR[0], 480, 0.2));
-                        later(t0 + 480, () => {   // 씨앗이 박히고 줄기·잎·꽃이 차례로 돋는다
-                            const w = wrapAt(s.px, gy, true); finGone(w, 5600);
-                            const st = kid(w, 'left:' + (-cell * 0.025) + 'px;bottom:0;width:' + (cell * 0.05) + 'px;height:' + (cell * 0.5) + 'px;transform-origin:50% 100%;border-radius:3px;background:linear-gradient(#6fdc62,#2f8f3a);');
-                            const l1 = kid(w, 'left:' + (-cell * 0.17) + 'px;bottom:' + (cell * 0.16) + 'px;width:' + (cell * 0.17) + 'px;height:' + (cell * 0.09) + 'px;border-radius:100% 0;background:#6fdc62;transform-origin:100% 100%;');
-                            const l2 = kid(w, 'left:' + (cell * 0.025) + 'px;bottom:' + (cell * 0.26) + 'px;width:' + (cell * 0.17) + 'px;height:' + (cell * 0.09) + 'px;border-radius:0 100%;background:#58c553;transform-origin:0 100%;');
-                            const fl = kid(w, 'left:' + (-cell * 0.14) + 'px;bottom:' + (cell * 0.4) + 'px;width:' + (cell * 0.28) + 'px;height:' + (cell * 0.28) + 'px;border-radius:50%;background:radial-gradient(circle,#fff3a0 0 24%,rgb(' + c.join(',') + ') 26%);box-shadow:0 0 ' + (cell * 0.16) + 'px rgb(' + c.join(',') + ');');
-                            anim(st, [{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], 380, { easing: 'ease-out' });
-                            anim(l1, [{ transform: 'rotate(-20deg) scale(0)' }, { transform: 'rotate(-20deg) scale(1)' }], 260, { delay: 180, easing: 'ease-out' }); anim(l2, [{ transform: 'rotate(20deg) scale(0)' }, { transform: 'rotate(20deg) scale(1)' }], 260, { delay: 240, easing: 'ease-out' });
-                            anim(fl, [{ transform: 'scale(0)' }, { transform: 'scale(1.3)', offset: 0.6 }, { transform: 'scale(1)' }], 380, { delay: 330, easing: 'ease-out' });
-                            for (let k = 0; k < 3; k++) anim(fl, [{ transform: 'scale(1)' }, { transform: 'scale(1.12) rotate(6deg)' }, { transform: 'scale(1)' }], 600, { delay: 800 + k * 650, fill: 'none', easing: 'ease-in-out' });
-                            radial(s.px, gy, 6, 40, 150, [GR[0], GR[1], c], { p: { size: rnd(1.6, 3), dur: 0.6 } }); ring(s.px, gy, cell * 0.05, cell * 0.55, GR[0], 0.35, 3, 0.8);
-                        });
+                    finVeil('rgb(170,255,160)', 0.16, 3600);
+                    const N = 5, T0 = 520, GAP = 330, RW = [1, 1, 2, 2, 3], hOf = k => cell * 0.045 * (k + 1), gOf = k => 1 + 0.055 * (k + 1);
+                    // 씨앗: 아군이 하나씩 튀어 오르며 킹에게 쏜다
+                    for (let k = 0; k < N; k++) for (let j = 0; j < 2; j++) {
+                        const al = AL.length ? AL[(k * 2 + j) % AL.length] : null, from = al ? ctr(al.sq) : { x: x + (j ? 1 : -1) * cell * 2.2, y: y - u * cell * 0.5 }, tf = T0 + k * GAP - 440 + j * 60;
+                        if (al) later(Math.max(0, tf - 80), () => finEl(al.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, u * cell * 0.3, 0, 0, 0, 0.9, 1.18), offset: 0.4 }, { transform: TR(0, 0, 0, 0, 0, 1.12, 0.9), offset: 0.75 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 380, 'ease-out'));
+                        later(Math.max(0, tf), () => orb(from.x, from.y, x, y - u * cell * 0.1, GR[j], 420, 0.2));
+                    }
+                    // 킹 타임라인: 맞을 때마다 찌그러졌다가 한 단계 더 자란다 → 웅크림
+                    const pts = [[0, 0, 0, 1, 1, 0]];
+                    for (let k = 0; k < N; k++) {
+                        const tk = T0 + k * GAP, hp = k ? hOf(k - 1) : 0, gp = k ? gOf(k - 1) : 1, hn = hOf(k), gn = gOf(k), rz = k % 2 ? -5 : 5;
+                        pts.push([tk, hp, 0, gp, gp, 0]);
+                        pts.push([tk + 80, hp * 0.4, rz, gp + 0.22, gp - 0.2, 0, 'cubic-bezier(.3,0,.5,1)']);
+                        pts.push([tk + 200, hn + cell * 0.07, -rz * 0.6, gn - 0.06, gn + 0.16, 0, 'cubic-bezier(.2,.9,.3,1)']);
+                        pts.push([tk + 315, hn, 0, gn, gn, 0, 'ease-in-out']);
+                    }
+                    const TC = T0 + (N - 1) * GAP + 315 + 60, TL = TC + 430;
+                    pts.push([TC, hOf(N - 1), 0, gOf(N - 1), gOf(N - 1), 0]);
+                    pts.push([TL, 0, 0, 1.6, 0.46, 0, 'cubic-bezier(.5,0,.8,.4)']);
+                    finFly(fr, kseq(pts), TL, 'linear');
+                    for (let k = 0; k < N; k++) later(T0 + k * GAP + 80, () => {
+                        shake(1.2 + k * 0.9, 120); ring(x, y, cell * 0.1, cell * (1.0 + k * 0.35), GR[k % 3], 0.42, 3 + k * 0.5, 0.85);
+                        radial(x, y - u * cell * 0.1, 8 + k * 2, 50, 190 + k * 25, GR, { p: { kind: 'spark', size: rnd(1.6, 3), dur: 0.5 } });
+                        sqWave(x, y, RW[k], GR[k % 3], 0, 0.32 + k * 0.05, 520 + k * 40);
                     });
-                    const TC = 350 + N * 90 + 700, TL = TC + 450;   // 킹이 웅크렸다가 대포알처럼 발사
-                    finFly(fr, kseq([[0, 0, 0, 1, 1, 0], [TC * 0.3, 0, -4, 1.06, 0.95, 0], [TC * 0.5, 0, 4, 1.1, 0.9, 0], [TC * 0.7, 0, -6, 1.18, 0.82, 0], [TC * 0.9, 0, 6, 1.26, 0.74, 0], [TC + 450, -cell * 0.04, 0, 1.45, 0.52, 0, 'cubic-bezier(0,.8,.2,1)']]), TC + 450, 'linear');
-                    for (let k = 1; k <= 5; k++) later(TC * (0.18 + 0.15 * k), () => { shake(1.5 + k * 0.6, 100); radial(x, y, 3, 30, 110, GR, { p: { size: rnd(1.4, 2.6), dur: 0.5 } }); });
+                    later(TC, () => { for (let i = 0; i < 12; i++) P({ orbit: true, cx: x, cy: y, a: rnd(0, TAU), r: rnd(cell * 0.9, cell * 1.5), va: rnd(5, 8), rd: -rnd(1.6, 2.2), size: rnd(2, 3.4), dur: 0.42, kind: 'glow', color: GR[i % 3] }); });   // 힘을 모으는 빨려드는 빛
+                    // 발사
                     later(TL, () => {
-                        shake(10, 300); ring(x, y, cell * 0.1, cell * 2.2, [255, 235, 140], 0.5, 6, 0.9); flash(x, y, cell * 2, [255, 245, 190], 0.35, 0.8);
-                        finFly(fr, kseq([[0, 0, 0, 1.45, 0.52, 0], [250, HK * 0.8, 0, 0.82, 1.4, 0, 'ease-out'], [520, HK, 360, 1.3, 1.3, 0]]), 520, 'ease-out');
-                        spots.forEach((s, i) => later(i * 30, () => ring(s.px, s.py, cell * 0.05, cell * 0.8, CL[i % CL.length], 0.4, 3, 0.8)));
-                        if (AA) { ring(AA.x, AA.y, cell * 0.1, cell * 1.2, [255, 235, 140], 0.4, 4, 0.8); finEl(atk.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, u * cell * 0.7, 0, 360, 0, 1.2), offset: 0.5 }, { transform: TR(0, 0, 0, 720, 0, 1) }], 800, 'ease-out'); }
+                        shake(11, 320); ring(x, y, cell * 0.1, cell * 2.4, GR[2], 0.5, 6, 0.9); flash(x, y, cell * 2, GR[1], 0.35, 0.8); sqWave(x, y, 1, GR[2], 0, 0.5, 520); sqWave(x, y, 2, GR[1], 90, 0.4, 520); sqWave(x, y, 3, GR[0], 180, 0.3, 520);
+                        finFly(fr, kseq([[0, 0, 0, 1.6, 0.46, 0], [140, HK * 0.5, 0, 0.78, 1.4, 0, 'cubic-bezier(0,.8,.2,1)'], [560, HK, 540, 1.25, 1.25, 0, 'cubic-bezier(.2,.6,.3,1)']]), 560, 'linear');
+                        for (let i = 0; i < 16; i++) later(i * 28, () => { const yy = y + u * (HK * (i / 16)); P({ x: x + rnd(-cell * 0.12, cell * 0.12), y: yy, vx: rnd(-25, 25), vy: DOWN() * rnd(30, 90), drag: 0.6, size: rnd(2.2, 4), dur: 0.5, kind: 'glow', color: GR[i % 3] }); });   // 발사 꼬리
+                        if (AA) { ring(AA.x, AA.y, cell * 0.1, cell * 1.2, GR[2], 0.4, 4, 0.8); finEl(atk.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, u * cell * 0.7, 0, 360, 0, 1.2), offset: 0.5 }, { transform: TR(0, 0, 0, 720, 0, 1) }], 800, 'ease-out'); }
+                        AL.forEach((o, i) => { if (!atk || o.el !== atk.el) later(80 + (i % 8) * 45, () => finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, u * cell * 0.4, 0, 0, i % 2 ? 8 : -8, 0.92, 1.12), offset: 0.4 }, { transform: TR(0, 0, 0, 0, 0, 1.1, 0.92), offset: 0.78 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 640, 'ease-out')); });
                     });
-                    later(TL + 520, () => {   // 정점: 꽃잎과 색종이 축포
-                        const py = y + u * HK; finVeil('rgb(255,240,200)', 0.5, 420);
-                        finBoom(x, py, CL, fr, { start: HK, mode: 'burst', power: 1.5, s0: 1.3, filter: 'hue-rotate(-40deg) saturate(1.5) brightness(1.1)' });
-                        petals(x, py, 26, cell * 1.4, CL, 1.9);
-                        radial(x, py, 50, 120, 520, CL, { p: { kind: 'petal', size: rnd(3, 6.5), rot: rnd(0, TAU), vr: rnd(-12, 12), g: DOWN() * 220, dur: 1.9 } });
-                        spots.forEach((s, i) => later(i * 25, () => { radial(s.px, s.py, 8, 60, 220, [CL[i % CL.length], C.white], { p: { kind: 'petal', size: rnd(2.4, 4.4), rot: rnd(0, TAU), vr: rnd(-9, 9), g: UP() * -60, dur: 1.4 } }); }));
+                    // 정점: 빛줄기 + 조각 축포
+                    later(TL + 560, () => {
+                        const py = y + u * HK; finVeil('rgb(255,245,200)', 0.5, 420); shake(13, 420);
+                        finBoom(x, py, CF, fr, { start: HK, mode: 'burst', power: 1.5, s0: 1.25, filter: 'saturate(1.5) brightness(1.1)' });
+                        ring(x, py, cell * 0.1, cell * 3.0, GR[2], 0.7, 5, 0.8);
+                        for (let i = 0; i < 14; i++) { const a = i / 14 * TAU + 0.2, r0 = cell * 0.35, r1 = cell * rnd(1.8, 2.8); slash(x + Math.cos(a) * r0, py + Math.sin(a) * r0, x + Math.cos(a) * r1, py + Math.sin(a) * r1, CF[i % CF.length], 0.28, 3); }
+                        CF.forEach((c, i) => shardBurst(x, py, 7, 160, 520, c, 'rgb(255,255,255)', { lift: 140, g: 700, s0: 3, s1: 6.5 }));
                     });
                     FO.forEach((o, i) => later(500 + (i % 8) * 70, () => finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, 0, 0, 0, i % 2 ? 8 : -8, 1.05, 0.95), offset: 0.3 }, { transform: TR(0, 0, 0, 0, i % 2 ? -8 : 8, 1.05, 0.95), offset: 0.65 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 1200, 'ease-in-out')));
                 };
 
-                // 🍄 포자 구름: 킹 발밑에서 독버섯이 쑥 솟아, 킹이 버섯 갓 위에서 트램펄린처럼 점점 더 높이 튕기며 포자를 뿜다가, 마지막 도약 끝에 펑 터져 포자가 쏟아진다
+                // 🌫️ 포자 구름: 킹이 포자 주머니처럼 세 번 부풀었다 '푸슉' 하고 새어 나올 때마다 포자 파도가 칸을 타고 번지며 적 기물이 차례로 물든다. 마지막엔 한계까지 떨며 부풀다 펑 터져 포자 구름이 판을 덮는다
                 FIN.spore = (sq, atk) => {
-                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), FO = finFoes(sq), AA = atk && atk.pos, SP = [[195, 155, 255], [235, 205, 155], [160, 235, 205], [255, 170, 235]];
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), FO = finFoes(sq), AL = finMine(sq), AA = atk && atk.pos, SP = [[195, 155, 255], [150, 235, 210], [240, 200, 255], [255, 170, 235]];
                     if (!fr) return;
-                    const L0 = cell * 0.34, Bs = [0.75, 1.25, 1.85].map(k => Math.min(k * cell, spaceUp(y) - L0)), gy = y - u * cell * 0.34;
-                    const F = k => 'hue-rotate(' + (k * 30) + 'deg) saturate(' + (1 + 0.4 * k).toFixed(1) + ')';
-                    finVeil('rgb(150,100,210)', 0.2, 4000);
-                    const mush = (px, py, s, delay) => {   // 독버섯: 대 · 소
-                        const w = wrapAt(px, py, true); finGone(w, 5200);
-                        const stem = kid(w, 'left:' + (-cell * 0.16 * s) + 'px;bottom:0;width:' + (cell * 0.32 * s) + 'px;height:' + (cell * 0.42 * s) + 'px;border-radius:30% 30% 20% 20%;background:linear-gradient(90deg,#d9cdb3,#f4ead2 50%,#cfc1a2);transform-origin:50% 100%;');
-                        const cap = kid(w, 'left:' + (-cell * 0.5 * s) + 'px;bottom:' + (cell * 0.32 * s) + 'px;width:' + (cell * 1.0 * s) + 'px;height:' + (cell * 0.56 * s) + 'px;border-radius:50% 50% 14% 14% / 100% 100% 0 0;background:radial-gradient(circle at 28% 40%,#fff 0 8%,transparent 9%),radial-gradient(circle at 68% 30%,#fff 0 7%,transparent 8%),radial-gradient(circle at 52% 66%,#fff 0 6%,transparent 7%),linear-gradient(#b65be0,#6a2a9c);box-shadow:0 0 ' + (cell * 0.3) + 'px rgba(190,120,255,.7);transform-origin:50% 100%;');
-                        later(delay, () => { anim(stem, [{ transform: 'scaleY(0)' }, { transform: 'scaleY(1.15)', offset: 0.7 }, { transform: 'scaleY(1)' }], 380, { easing: 'ease-out' }); anim(cap, [{ transform: 'translateY(' + (cell * 0.4 * s) + 'px) scale(0.2)' }, { transform: 'translateY(0) scale(1.15,.9)', offset: 0.7 }, { transform: 'translateY(0) scale(1)' }], 380, { easing: 'ease-out' }); ring(px, py, cell * 0.05, cell * 0.8 * s, SP[0], 0.4, 3, 0.8); puffs(px, py, 3, [150, 110, 200], 0.5); });
-                        w.style.opacity = 0; later(delay, () => { w.style.opacity = 1; });
-                        return { w, cap, stem };
-                    };
-                    const big = mush(x, gy, 1, 80); mush(Math.max(cell * 0.4, x - cell * 0.95), gy + cell * 0.1, 0.55, 220); mush(Math.min(W - cell * 0.4, x + cell * 0.95), gy + cell * 0.1, 0.55, 300);
-                    const pts = [[0, 0, 0, 1, 1, 0, 'linear', F(0)], [400, L0, 0, 0.9, 1.15, 0, 'ease-out', F(0)]]; let tb = 400; const TB = [];
-                    for (let k = 0; k < 3; k++) { TB.push(tb); pts.push([tb + 90, L0, 0, 1.22, 0.72, 0, 'cubic-bezier(0,.7,.3,1)', F(k)]); pts.push([tb + 470, L0 + Bs[k], (k % 2 ? -1 : 1) * (14 + k * 8), 0.88, 1.22, 0, 'cubic-bezier(.7,0,1,.4)', F(k + 1)]); tb += 880; }
-                    pts.pop(); pts.push([tb - 410, L0 + Bs[2], 0, 1.1, 1.1, 0, 'linear', F(3)]);
-                    const TA = tb - 410;   // 마지막 도약의 정점
+                    const HK = Math.min(1.3 * cell, spaceUp(y)), PT = [0.12, 0.26, 0.46].map(k => k * cell), F = k => 'hue-rotate(' + (k * 28) + 'deg) saturate(' + (1 + 0.45 * k).toFixed(2) + ')';
+                    finVeil('rgb(150,100,210)', 0.2, 4200);
+                    const TP = [350, 1150, 1950], TA = 3150;   // 세 번의 부풀기 시작 / 최종 폭발
+                    const pts = [[0, 0, 0, 1, 1, 0, 'linear', F(0)]];
+                    TP.forEach((t, k) => {
+                        const hp = k ? PT[k - 1] : 0, gp = 1 + (k ? 0.16 * k : 0), gn = 1.28 + 0.12 * k;
+                        pts.push([t, hp, 0, gp, gp, 0, 'cubic-bezier(.35,0,.3,1)', F(k)]);                           // 숨을 들이켜 부풀기
+                        pts.push([t + 430, PT[k] + cell * 0.08, k % 2 ? -4 : 4, gn, gn * 1.08, 0, 'cubic-bezier(.3,.9,.2,1)', F(k + 0.6)]);
+                        pts.push([t + 520, PT[k] + cell * 0.1, 0, gn * 1.06, gn * 1.12, 0, 'cubic-bezier(.6,0,.9,.3)', F(k + 0.8)]);
+                        pts.push([t + 600, PT[k] * 0.9, 0, gn * 0.72, gn * 0.78, 0, 'cubic-bezier(.2,1.8,.4,1)', F(k + 1)]);   // 푸슉: 쪼그라듦
+                        pts.push([t + 780, PT[k], 0, gn * 0.96, gn * 0.96, 0, 'ease-out', F(k + 1)]);
+                    });
+                    for (let i = 0; i <= 10; i++) { const t = TP[2] + 780 + (TA - TP[2] - 780) * (i / 10), q = i / 10, gg = 1.5 + 0.7 * q; pts.push([t, PT[2] + (HK - PT[2]) * q + Math.sin(i * 5.3) * cell * 0.03, Math.sin(i * 3.1) * (6 + 10 * q), gg + (i % 2 ? 0.05 : -0.04), gg - (i % 2 ? 0.04 : -0.05), (i % 2 ? 1 : -1) * cell * 0.03 * q, 'linear', F(3 + q * 1.5)]); }   // 한계까지 떨며 부풀기
                     finFly(fr, kseq(pts), TA, 'linear');
-                    TB.forEach((t, k) => later(t + 90, () => {   // 착지·도약마다 갓이 찌그러지며 포자를 뿜는다
-                        shake(3 + k * 2.5, 160); anim(big.cap, [{ transform: 'scale(1.25,.55)' }, { transform: 'scale(.92,1.14)', offset: 0.5 }, { transform: 'scale(1)' }], 380, { fill: 'none', easing: 'ease-out' });
-                        ring(x, gy - u * cell * 0.1, cell * 0.1, cell * (1.3 + k * 0.5), SP[k % 4], 0.55, 4, 0.8); haze(x, y, 5 + k * 3, cell * 0.4, [135, 95, 190], 0.5, { size: cell * rnd(0.25, 0.4), grow: 2.6, dur: 1.2 });
-                        radial(x, y + u * L0, 14 + k * 6, 70, 260 + k * 80, SP, { p: { tw: true, size: rnd(2, 4), dur: rnd(0.9, 1.5), drag: 1.0, g: UP() * 40 } });
-                        if (AA) { puffs(AA.x, AA.y, 2, [150, 110, 200], 0.45); finEl(atk.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, 0, 0, 0, 0, 1.3 + k * 0.1), offset: 0.4 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 420, 'ease-out'); }
-                    }));
-                    FO.forEach((o, i) => later(300 + (i % 8) * 60, () => finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1), filter: 'hue-rotate(0deg) saturate(1)' }, { transform: TR(-4, 0, 0, 0, -11, 1), filter: 'hue-rotate(70deg) saturate(1.6)', offset: 0.3 }, { transform: TR(4, 0, 0, 0, 11, 1), filter: 'hue-rotate(70deg) saturate(1.6)', offset: 0.65 }, { transform: TR(0, 0, 0, 0, 0, 1), filter: 'hue-rotate(0deg) saturate(1)' }], 2400, 'ease-in-out')));
-                    later(TA, () => {   // 정점에서 펑: 포자 구름이 쏟아지고 버섯들은 쪼그라든다
-                        const py = y + u * (L0 + Bs[2]); shake(16, 460); finVeil('rgb(200,160,255)', 0.5, 480); ring(x, py, cell * 0.1, cell * 2.8, [200, 160, 255], 0.8, 6, 0.8);
+                    TP.forEach((t, k) => {
+                        for (let i = 0; i < 6; i++) later(t + i * 60, () => P({ orbit: true, cx: x, cy: y - u * cell * 0.1, a: rnd(0, TAU), r: rnd(cell * 0.9, cell * 1.4), va: rnd(5, 8), rd: -rnd(1.8, 2.4), size: rnd(2, 3.4), dur: 0.42, kind: 'glow', color: SP[(i + k) % 4] }));   // 포자를 빨아들임
+                        later(t + 600, () => {   // 푸슉: 포자 파도가 칸을 타고 번진다
+                            shake(3 + k * 2.5, 170); ring(x, y - u * cell * 0.1, cell * 0.1, cell * (1.5 + k * 0.6), SP[k], 0.6, 4 + k, 0.85);
+                            haze(x, y, 5 + k * 3, cell * 0.4, [135, 95, 190], 0.5, { size: cell * rnd(0.25, 0.4), grow: 2.6, dur: 1.2 });
+                            radial(x, y, 16 + k * 8, 60, 260 + k * 90, SP, { p: { tw: true, kind: 'glow', size: rnd(2, 4), dur: rnd(1.0, 1.7), drag: 1.1, g: UP() * 30 } });
+                            for (let r = 1; r <= 2 + k; r++) sqWave(x, y, r, SP[(k + r) % 4], r * 110, 0.3, 620);
+                            if (AA) { puffs(AA.x, AA.y, 2, [150, 110, 200], 0.45); finEl(atk.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, 0, 0, 0, 0, 1.3 + k * 0.08, 0.9), offset: 0.4 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 420, 'ease-out'); }
+                        });
+                    });
+                    // 적 기물: 포자 파도가 닿는 순서대로 물들며 비틀거린다
+                    FO.forEach((o, i) => { const pp = ctr(o.sq), d = Math.hypot(pp.x - x, pp.y - y) / cell; later(TP[0] + 600 + d * 100 + (i % 3) * 30, () => finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1), filter: 'hue-rotate(0deg) saturate(1)' }, { transform: TR(-4, 0, 0, 0, -11, 1), filter: 'hue-rotate(70deg) saturate(1.6)', offset: 0.3 }, { transform: TR(4, 0, 0, 0, 11, 1), filter: 'hue-rotate(70deg) saturate(1.6)', offset: 0.65 }, { transform: TR(0, 0, 0, 0, 0, 1), filter: 'hue-rotate(0deg) saturate(1)' }], 1500, 'ease-in-out')); });
+                    AL.forEach((o, i) => { if (atk && o.el === atk.el) return; later(TA - 300 + (i % 8) * 30, () => finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, 0, 0, 0, 0, 0.92, 1.1), offset: 0.3 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 500, 'ease-out')); });
+                    later(TA, () => {   // 펑: 포자 구름이 쏟아진다
+                        const py = y + u * HK; shake(16, 460); finVeil('rgb(200,160,255)', 0.5, 480);
+                        ring(x, py, cell * 0.1, cell * 2.8, [200, 160, 255], 0.8, 6, 0.8); ring(x, py, cell * 0.1, cell * 1.6, SP[1], 0.5, 4, 0.7);
                         haze(x, py, 24, cell * 0.8, [150, 110, 200], 0.65, { size: cell * rnd(0.35, 0.6), grow: 2.8, dur: rnd(1.2, 1.7) });
-                        radial(x, py, 90, 120, 660, SP, { p: { tw: true, size: rnd(2.2, 5), dur: rnd(1.2, 1.9), drag: 1.0, g: DOWN() * 90 } });
-                        finTiles(fr, { start: L0 + Bs[2], s0: 1.3, mode: 'puff', cols: 5, rows: 5, filter: 'hue-rotate(90deg) saturate(2.2) brightness(1.3)', power: 1.7, ms: 1400 });
+                        radial(x, py, 90, 120, 660, SP, { p: { tw: true, kind: 'glow', size: rnd(2.2, 5), dur: rnd(1.2, 1.9), drag: 1.0, g: DOWN() * 90 } });
+                        for (let r = 1; r <= 4; r++) sqWave(x, y, r, SP[r % 4], r * 90, 0.34, 640);
+                        finTiles(fr, { start: HK, s0: 2.2, mode: 'puff', cols: 5, rows: 5, filter: 'hue-rotate(90deg) saturate(2.2) brightness(1.3)', power: 1.7, ms: 1400 });
+                        for (let i = 0; i < 36; i++) later(300 + i * 40, () => P({ x: rnd(0, W), y: u < 0 ? rnd(0, H * 0.5) : rnd(H * 0.5, H), vx: rnd(-14, 14), vy: DOWN() * rnd(20, 60), drag: 0.3, size: rnd(1.6, 3.4), dur: 1.5, kind: 'glow', color: SP[i % 4], tw: true }));   // 내려앉는 포자
                     });
                 };
 
@@ -9532,43 +9635,45 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 };
 
                 // ===== v11-c 재작업: 버섯구름 · 가시 폭풍 =====
-                // 🍄 버섯구름: 하얗게 번쩍이며 충격파가 판을 쓸고, 킹 칸에서 불기둥이 솟아 진짜 버섯구름 모양으로 갓이 퍼진다. 킹은 기둥을 타고 올라가 갓 속에서 터진다
+                // 🍄 버섯구름: 하얗게 번쩍이며 충격파가 판을 쓸고 기물이 날아간다. 킹 칸에서 솟은 연기 기둥 끝에서 연기가 갓 모양으로 말려 내려오고, 킹은 기둥을 타고 올라가 갓 속에서 터진다 (전부 게임의 연기·불씨·링으로 그린다)
                 FIN.shroom = (sq, atk) => {
-                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), FO = finFoes(sq), AL = finMine(sq), HK = Math.min(2.1 * cell, spaceUp(y)), gy = y - u * cell * 0.3;
-                    const FC = [[255, 150, 55], [215, 95, 40], [125, 62, 42], [255, 205, 100], [255, 255, 255]];
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), FO = finFoes(sq), AL = finMine(sq), HK = Math.min(2.0 * cell, spaceUp(y)), gy = y - u * cell * 0.3;
+                    const FC = [[255, 150, 55], [215, 95, 40], [125, 62, 42], [255, 205, 100]], CAP = [[255, 190, 100], [225, 120, 55], [150, 80, 55], [95, 60, 52]];
                     if (!fr) return;
                     dims.push({ a: 0.3, dur: 3.6, t: 0 }); finVeil('rgb(255,255,255)', 0.85, 380); flash(x, gy, cell * 3, [255, 235, 170], 0.45, 0.9); shake(14, 600);
                     for (let i = 0; i < 4; i++) ring(x, gy, cell * 0.1, cell * (3 + i * 1.2), [255, 200, 110], 0.5 + i * 0.1, 6 - i, 0.9 - i * 0.15);   // 충격파
+                    for (let r = 1; r <= 5; r++) sqWave(x, y, r, [255, 190, 100], r * 70, 0.34, 520);   // 충격파가 칸을 타고 번진다
                     const blast = (o, m, spin) => { const pp = ctr(o.sq), dx = pp.x - x, dy = pp.y - y, d = Math.hypot(dx, dy) || 1, k = Math.max(0.15, 1.5 - d / (cell * 4)) * m; finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(dx / d * cell * k, dy / d * cell * k - cell * 0.25 * k, 0, 0, spin ? spin * 0.5 : dx / d * 26 * k, 1.05), offset: 0.3 }, { transform: TR(dx / d * cell * k * 0.4, dy / d * cell * k * 0.4, 0, 0, spin || 0, 1), offset: 0.65 }, { transform: TR(0, 0, 0, 0, spin || 0, 1.1, 0.85), offset: 0.9 }, { transform: TR(0, 0, 0, 0, 0, 1) }], 1300, 'ease-out'); };
                     FO.forEach(o => later(40, () => blast(o, 1, 0))); AL.forEach(o => { if (!atk || o.el !== atk.el) later(40, () => blast(o, 0.8, 0)); }); if (atk) later(40, () => blast({ sq: atk.sq, el: atk.el }, 1.6, 360));
-                    // 불기둥 + 버섯 갓
-                    const cw = wrapAt(x, gy, false); finGone(cw, 4400);
-                    const stem = kid(cw, 'left:' + (-cell * 0.3) + 'px;bottom:0;width:' + (cell * 0.6) + 'px;height:' + HK + 'px;transform-origin:50% 100%;border-radius:40% 40% 10% 10%;background:linear-gradient(90deg,rgba(110,55,35,.95),rgba(255,170,70,.95) 50%,rgba(110,55,35,.95));box-shadow:0 0 ' + (cell * 0.4) + 'px rgba(255,150,55,.8);opacity:0;');
-                    const cap = kid(cw, 'left:' + (-cell * 1.2) + 'px;bottom:' + (HK - cell * 0.45) + 'px;width:' + (cell * 2.4) + 'px;height:' + (cell * 1.1) + 'px;border-radius:50%;transform-origin:50% 60%;background:radial-gradient(ellipse at 50% 62%,#fff0b0 0,#ffb040 30%,#c4562a 58%,#4a2a22 100%);box-shadow:0 0 ' + (cell * 0.6) + 'px rgba(255,140,50,.85);opacity:0;');
-                    anim(stem, [{ transform: 'scaleY(0)', opacity: 1 }, { transform: 'scaleY(1)', opacity: 1, offset: 0.2 }, { transform: 'scaleY(1)', opacity: 1, offset: 0.72 }, { transform: 'scaleY(1)', opacity: 0 }], 3600, { easing: 'ease-out' });
-                    anim(cap, [{ transform: 'translateY(' + HK * 0.9 + 'px) scale(.1)', opacity: 0 }, { transform: 'translateY(0) scale(.5,.4)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0) scale(1.1,1)', opacity: 1, offset: 0.35 }, { transform: 'translateY(' + (-cell * 0.1) + 'px) scale(1.25,1.05)', opacity: 1, offset: 0.7 }, { transform: 'translateY(' + (-cell * 0.2) + 'px) scale(1.4,1.1)', opacity: 0 }], 3600, { easing: 'ease-out' });
-                    for (let i = 0; i < 40; i++) later(100 + i * 18, () => P({ kind: 'smoke', x: x + rnd(-cell * 0.2, cell * 0.2), y: gy, vx: rnd(-20, 20), vy: UP() * rnd(300, 560), drag: 1.1, size: rnd(5, 9), grow: 1.6, dur: rnd(0.9, 1.2), color: FC[Math.floor(rnd(0, 4))], alpha: 0.85 }));
-                    // 킹: 기둥을 타고 올라가 갓 안에서 터진다
-                    finFly(fr, kseq([[0, 0, 0, 1, 1, 0], [90, cell * 0.1, -8, 1.2, 0.75, 0, 'ease-out'], [560, HK * 0.8, 240, 1.7, 1.9, 0, 'ease-out'], [820, HK, 400, 2.1, 2.1, 0]]), 820, 'cubic-bezier(.15,.8,.3,1)');
-                    later(820, () => {
-                        const ay = y + u * HK; shake(11, 440); ring(x, ay, cell * 0.1, cell * 2.8, [255, 190, 100], 0.6, 5, 0.9); flash(x, ay, cell * 2.4, [255, 235, 170], 0.35, 0.8);
-                        embers(x, ay, 40, 180, 640, [[255, 150, 55], [255, 205, 100], [255, 255, 255]], 320, { size: rnd(2, 4.5) });
-                        finTiles(fr, { start: HK, s0: 2.1, mode: 'burst', cols: 5, rows: 5, filter: 'brightness(1.3) sepia(0.5)', power: 1.5, ms: 1600 });
-                        for (let i = 0; i < 50; i++) { const sp = rnd(-1, 1); P({ kind: 'smoke', x, y: ay, vx: sp * 300, vy: UP() * rnd(20, 120), g: DOWN() * 170, drag: 1.3, size: rnd(8, 13), grow: 1.3, dur: rnd(0.8, 1.3), color: FC[Math.floor(rnd(0, 4))], alpha: 0.85 }); }
-                        anim(cap, [{ transform: 'scale(1.1)' }, { transform: 'scale(1.35)' }], 300, { fill: 'none', easing: 'ease-out' });
+                    // 연기 기둥: 킹 칸에서 위로 뿜어져 올라간다 (아래로 갈수록 굵게)
+                    for (let i = 0; i < 60; i++) later(80 + i * 14, () => { const q = i / 60; P({ kind: 'smoke', x: x + rnd(-cell * 0.14, cell * 0.14), y: gy, vx: rnd(-18, 18), vy: UP() * rnd(HK * 1.1, HK * 1.7), drag: 1.5, size: rnd(cell * 0.14, cell * 0.24) * (1 + q * 0.4), grow: 1.5, dur: rnd(0.8, 1.1), color: FC[Math.floor(rnd(0, 4))], alpha: 0.85 }); });
+                    for (let i = 0; i < 24; i++) later(200 + i * 30, () => P({ x: x + rnd(-cell * 0.2, cell * 0.2), y: gy, vx: rnd(-30, 30), vy: UP() * rnd(HK * 0.9, HK * 1.5), drag: 1.4, size: rnd(1.8, 3.4), dur: 0.9, kind: 'glow', color: FC[3] }));   // 기둥 속 불씨
+                    // 갓: 기둥 끝에서 연기가 바깥으로 퍼지며 아래로 말려 내려온다
+                    const TCAP = 760, ay = y + u * HK;
+                    later(TCAP, () => {
+                        flash(x, ay, cell * 2.2, [255, 220, 150], 0.5, 0.8); ring(x, ay, cell * 0.2, cell * 2.6, [255, 190, 100], 0.7, 6, 0.8); ring(x, ay - u * cell * 0.25, cell * 0.2, cell * 1.9, [255, 160, 80], 0.6, 4, 0.7);
+                        for (let i = 0; i < 90; i++) { const a = rnd(0, TAU), sx = Math.cos(a), top = Math.max(0, Math.sin(a)); P({ kind: 'smoke', x: x + sx * cell * 0.25, y: ay + u * cell * 0.1 * Math.abs(Math.sin(a)), vx: sx * rnd(260, 470), vy: UP() * rnd(40, 150) * (0.4 + top), g: DOWN() * 190, drag: 1.7, size: rnd(cell * 0.2, cell * 0.34), grow: 1.7, dur: rnd(1.0, 1.5), color: CAP[Math.floor(rnd(0, 4))], alpha: 0.88 }); }
+                        for (let i = 0; i < 40; i++) later(i * 22, () => P({ kind: 'smoke', x: x + rnd(-cell * 0.3, cell * 0.3), y: ay - u * cell * rnd(0, 0.5), vx: rnd(-60, 60), vy: UP() * rnd(60, 160), drag: 1.5, size: rnd(cell * 0.2, cell * 0.3), grow: 1.6, dur: 1.0, color: CAP[Math.floor(rnd(0, 3))], alpha: 0.8 }));   // 갓 안쪽 솟구침
                     });
-                    for (let i = 0; i < 30; i++) later(900 + i * 60, () => P({ x: rnd(0, W), y: rnd(0, H), vx: rnd(-20, 20), vy: DOWN() * rnd(30, 90), g: 0, drag: 0.3, size: rnd(1.6, 3.2), dur: 1.2, kind: 'glow', color: FC[3], tw: true }));   // 낙진
+                    // 킹: 기둥을 타고 올라가 갓 안에서 터진다
+                    finFly(fr, kseq([[0, 0, 0, 1, 1, 0], [90, cell * 0.1, -8, 1.2, 0.75, 0, 'ease-out'], [560, HK * 0.8, 240, 1.7, 1.9, 0, 'ease-out'], [TCAP + 60, HK, 400, 2.1, 2.1, 0]]), TCAP + 60, 'cubic-bezier(.15,.8,.3,1)');
+                    later(TCAP + 60, () => {
+                        shake(11, 440); flash(x, ay, cell * 2.4, [255, 235, 170], 0.35, 0.8);
+                        embers(x, ay, 44, 180, 700, [[255, 150, 55], [255, 205, 100], [255, 255, 255]], 320, { size: rnd(2, 4.5) });
+                        finTiles(fr, { start: HK, s0: 2.1, mode: 'burst', cols: 5, rows: 5, filter: 'brightness(1.3) sepia(0.5)', power: 1.5, ms: 1600 });
+                    });
+                    for (let i = 0; i < 30; i++) later(1000 + i * 60, () => P({ x: rnd(0, W), y: rnd(0, H), vx: rnd(-20, 20), vy: DOWN() * rnd(30, 90), g: 0, drag: 0.3, size: rnd(1.6, 3.2), dur: 1.2, kind: 'glow', color: FC[3], tw: true }));   // 낙진
                 };
 
                 // 🌵 가시 폭풍: 킹 둘레 땅에서 가시가 세 겹으로 점점 조여 오며 솟고, 마지막에 발밑에서 거대한 가시가 킹을 꿰어 올린 뒤 가시 파편으로 터진다
                 FIN.thorn = (sq, atk) => {
-                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), FO = finFoes(sq), AL = finMine(sq), AA = atk && atk.pos, HK = Math.min(1.5 * cell, spaceUp(y)), G = [[120, 225, 90], [235, 255, 140], [255, 255, 255]];
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), FO = finFoes(sq), AL = finMine(sq), AA = atk && atk.pos, HK = Math.min(1.5 * cell, spaceUp(y)), G = [[200, 235, 150], [240, 250, 200], [255, 255, 255]], BONE = 'linear-gradient(90deg,#1d1d24 0 50%,#f1e8d6 50%)', EDGE = 'drop-shadow(0 3px 4px rgba(0,0,0,.45)) drop-shadow(0 0 ' + (cell * 0.05) + 'px rgba(235,255,190,.9))';
                     if (!fr) return;
-                    finVeil('rgb(160,235,110)', 0.18, 3600);
+                    finVeil('rgb(215,240,170)', 0.16, 3600);
                     const spike = (px, py, w, h, delay, life) => {
                         const wr = wrapAt(px, py - u * cell * 0.3, true); finGone(wr, delay + life + 300);
-                        const s = kid(wr, 'left:' + (-w / 2) + 'px;bottom:0;width:' + w + 'px;height:' + h + 'px;transform-origin:50% 100%;clip-path:polygon(50% 0,100% 100%,0 100%);background:linear-gradient(90deg,#2f8f3a,#a8f070 50%,#2f8f3a);filter:drop-shadow(0 0 ' + (cell * 0.08) + 'px rgba(150,255,110,.8));opacity:0;');
-                        later(delay, () => { anim(s, [{ transform: 'scaleY(0)', opacity: 1 }, { transform: 'scaleY(1.15)', opacity: 1, offset: 0.15 }, { transform: 'scaleY(1)', opacity: 1, offset: 0.25 }, { transform: 'scaleY(1)', opacity: 1, offset: 0.72 }, { transform: 'scaleY(0)', opacity: 1 }], life); embers(px, py, 3, 60, 200, G, 200, { size: rnd(1.4, 2.4) }); });
+                        const s = kid(wr, 'left:' + (-w / 2) + 'px;bottom:0;width:' + w + 'px;height:' + h + 'px;transform-origin:50% 100%;clip-path:polygon(50% 0,100% 100%,0 100%);background:' + BONE + ';filter:' + EDGE + ';opacity:0;');
+                        later(delay, () => { anim(s, [{ transform: 'scaleY(0)', opacity: 1 }, { transform: 'scaleY(1.3)', opacity: 1, offset: 0.1, easing: 'cubic-bezier(.3,0,.5,1)' }, { transform: 'scaleY(1)', opacity: 1, offset: 0.2 }, { transform: 'scaleY(1)', opacity: 1, offset: 0.72 }, { transform: 'scaleY(0)', opacity: 1 }], life); sqPulse(px, py + u * cell * 0.3, [235, 245, 200], 0, 420, 0.28, true); embers(px, py, 4, 60, 220, G, 200, { size: rnd(1.4, 2.4) }); });
                     };
                     const WV = [[2.1, 10, 0.5], [1.4, 9, 0.62], [0.78, 8, 0.74]];
                     WV.forEach(([R, n, hh], k) => {
@@ -9582,7 +9687,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                     const TF = 200 + 3 * 560 + 200;   // 마지막: 발밑에서 거대한 가시
                     later(TF - 150, () => { finFly(fr, kseq([[0, 0, 0, 1.24, 1, 0], [150, 0, 0, 1.35, 0.7, 0, 'ease-out']]), 150, 'linear'); ring(x, y, cell * 1.5, cell * 0.2, G[0], 0.3, 4, 0.9); });
                     const bw = wrapAt(x, y - u * cell * 0.3, true); finGone(bw, TF + 2200);
-                    const big = kid(bw, 'left:' + (-cell * 0.3) + 'px;bottom:0;width:' + (cell * 0.6) + 'px;height:' + (HK + cell * 0.5) + 'px;transform-origin:50% 100%;clip-path:polygon(50% 0,100% 100%,0 100%);background:linear-gradient(90deg,#2a7a34,#b6f57e 50%,#2a7a34);filter:drop-shadow(0 0 ' + (cell * 0.15) + 'px rgba(150,255,110,.9));opacity:0;');
+                    const big = kid(bw, 'left:' + (-cell * 0.3) + 'px;bottom:0;width:' + (cell * 0.6) + 'px;height:' + (HK + cell * 0.5) + 'px;transform-origin:50% 100%;clip-path:polygon(50% 0,100% 100%,0 100%);background:' + BONE + ';filter:' + EDGE + ';opacity:0;');
                     later(TF, () => {
                         shake(9, 300); flash(x, y, cell * 1.8, G[0], 0.3, 0.7); ring(x, y, cell * 0.1, cell * 1.9, G[0], 0.5, 5, 0.9);
                         anim(big, [{ transform: 'scaleY(0)', opacity: 1 }, { transform: 'scaleY(1.05)', opacity: 1, offset: 0.2 }, { transform: 'scaleY(1)', opacity: 1, offset: 0.8 }, { transform: 'scaleY(1)', opacity: 0 }], 1100, { easing: 'ease-out' });
@@ -9592,8 +9697,8 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                     later(TF + 1100, () => {
                         const cy = y + u * HK * 0.96; shake(12, 420); ring(x, cy, cell * 0.1, cell * 2.2, G[0], 0.5, 6, 0.9);
                         const n = 24; for (let i = 0; i < n; i++) { const a = i / n * TAU, sp = rnd(520, 900); P({ x, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, drag: 0.7, size: rnd(2.4, 4.2), dur: 0.6, kind: 'spark', color: G[Math.floor(rnd(0, 3))] }); }
-                        shardBurst(x, cy, 20, 160, 440, [180, 235, 140], 'rgb(60,120,50)', { lift: 80 });
-                        finTiles(fr, { start: HK * 0.96, s0: 1.08, mode: 'burst', cols: 4, rows: 4, filter: 'hue-rotate(60deg) saturate(1.4)', power: 1.3, ms: 1250 });
+                        shardBurst(x, cy, 22, 160, 460, [241, 232, 214], 'rgb(29,29,36)', { lift: 80 }); shardBurst(x, cy, 10, 120, 380, [29, 29, 36], 'rgb(241,232,214)', { lift: 60 });
+                        finTiles(fr, { start: HK * 0.96, s0: 1.08, mode: 'burst', cols: 4, rows: 4, filter: 'grayscale(.5) brightness(1.1)', power: 1.3, ms: 1250 });
                     });
                 };
             }
@@ -13463,6 +13568,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
         }
 
         function showEndScreen(resultType, reasonStr, opts = {}) {
+            if (finDemoId()) return;   // 꾸미기 미리보기 내장 화면: 결과 화면·전적 저장 없이 연출만
             if (isPracticeMode) {   // 연습 모드는 끝나지 않는다: 알림만 띄우고 계속한다
                 try { practiceAnnounce(resultType, reasonStr); } catch (e) {}
                 return;
@@ -15179,6 +15285,32 @@ self.onmessage = function (e) {
             await wait(1200); post('done');
         }
 
+        // ---- 꾸미기(마무리 효과) 미리보기: 백 퀸이 흑 킹을 실제로 잡는 수를 두고, 이어서 선택한 효과를 재생한다 ----
+        async function startFinDemo(cfg) {
+            const post = (type, extra) => { try { parent.postMessage(Object.assign({ aug: 'findemo', type }, extra || {}), '*'); } catch (e) {} };
+            const wait = ms => new Promise(r => __nativeSetTimeout(r, ms));
+            document.body.classList.add('demo-mode'); if (cfg.pov) document.body.classList.add('black-pov');
+            myColor = 'w'; isBotMode = false; isGameStarted = true; currentRoomId = null;
+            helpResetState();
+            helpPlace('Ra1 Nb1 Bc1 Ke1 Bf1 Ng1 Rh1 Pa2 Pc2 Pd2 Pe2 Pf2 Pg2 Ph2 Qb2', 'w');   // 퀸은 b2에서 대각선으로 e5까지
+            helpPlace('Ra8 Nb8 Bc8 Qd8 Bf8 Ng8 Rh8 Ke5 Pa7 Pb7 Pc7 Pf7 Pg7 Ph7', 'b');
+            game._turn = 'w'; moveCount = 1; lastCheckKey = '';
+            showBoardContainer(); muteShatter = true; drawPieces(false); muteShatter = false; updateBoardVisuals(); updateTurnIndicator();
+            isSystemLocked = true;
+            post('ready'); post('cap', { text: '백 퀸이 흑 킹을 노립니다' });
+            try { const k = squareEls.get('e5'); if (k) k.classList.add('in-check'); } catch (e) {}
+            await wait(1300);
+            { const q = game.get('b2'), qe = q && pieceEls.get(q.uid); if (qe) qe.style.transition = 'translate 0.6s cubic-bezier(.45,0,.2,1)'; }   // 퀸이 천천히 다가오는 모습
+            executeMoveLocal('b2', 'd4'); post('cap', { text: '백 퀸이 킹에게 다가갑니다' });
+            await wait(1500);
+            { const q = game.get('d4'), qe = q && pieceEls.get(q.uid); if (qe) qe.style.transition = 'translate 0.16s ease-in'; }   // 덮치듯 빠르게
+            game._turn = 'w'; isSystemLocked = true;
+            post('cap', { text: '퀸이 킹을 잡습니다!' });
+            executeMoveLocal('d4', 'e5');
+            await wait(900); post('cap', { text: ((FINISHERS.find(f => f.id === cfg.finisher) || {}).desc) || '' });
+            await wait(6500); post('done');
+        }
+
         // ---- 도움말 팝업 ----
         (function setupHelp() {
             const ov = document.getElementById('help-overlay'); if (!ov) return;
@@ -16345,7 +16477,7 @@ self.onmessage = function (e) {
         }
 
         initBoard();
-        if (__AUG_DEMO) startAugDemo((window.__AUG_DEMO__ || {}).name);
+        if (__AUG_DEMO) { const __d = window.__AUG_DEMO__ || {}; if (__d.finisher) startFinDemo(__d); else startAugDemo(__d.name); }
     </script>
 </body>
 </html>
