@@ -459,7 +459,6 @@
         /* ===== 위치 / 개체 지정 ===== */
         .square.target-valid::after { content: ''; position: absolute; inset: 34%; border-radius: 50%; background: rgba(255,255,255,0.6); pointer-events: none; animation: tvPulse 1.4s ease-in-out infinite; }
         .square.target-valid.tv-piece::after { inset: 6%; background: transparent; border: 2px solid rgba(255,90,80,0.85); animation: none; }
-        .square.target-preview { box-shadow: inset 0 0 0 3px var(--primary); }
         .square.target-preview::after { inset: 8%; background: transparent; border: 2px dashed var(--primary); border-radius: 10px; animation: none; }
         @keyframes tvPulse { 0%, 100% { opacity: 0.25; transform: scale(0.85); } 50% { opacity: 0.75; transform: scale(1.1); } }
         .target-ghost { opacity: 0.5; pointer-events: none; }
@@ -470,6 +469,29 @@
         #target-banner .tb-msg { font-size: 0.95rem; font-weight: 600; color: #fff; word-break: keep-all; }
         #target-banner.confirm .tb-msg { color: var(--primary); }
         #target-banner .tb-cancel { flex-shrink: 0; padding: 8px 14px; border: 1px solid var(--panel-border); border-radius: 10px; background: transparent; color: #ccc; font-size: 0.85rem; cursor: pointer; }
+
+        /* 배경을 누른 채 손가락을 움직여도 판 보기가 끊기지 않게 */
+        #augment-overlay { touch-action: none; }
+
+        /* ===== 대상 지정 바 v2: 가로 모드에서는 우측 패널 그리드 안(채팅 기록과 입력줄 사이)에 고정 배치 → 화면 밖으로 나가지 않고 기물도 안 가린다 ===== */
+        #target-banner { flex-wrap: wrap; gap: 10px 12px; border-radius: 18px; }
+        #target-banner .tb-time { font-size: .78rem; color: #9a9aa8; margin-top: 3px; font-variant-numeric: tabular-nums; }
+        #target-banner .tb-time:empty { display: none; }
+        #ai-timer { position: absolute; top: calc(10px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); display: none; align-items: center; padding: 6px 14px; border-radius: 99px; background: rgba(24,24,32,.94); border: 1px solid var(--panel-border); color: #eee; font-size: .85rem; font-weight: 800; font-variant-numeric: tabular-nums; z-index: 5; pointer-events: none; box-shadow: 0 4px 14px rgba(0,0,0,.4); }
+        #ai-timer.low { color: var(--danger); border-color: var(--danger); }
+        #target-banner .tb-actions { display: flex; flex-shrink: 0; margin-left: auto; }
+        #target-banner.confirm { border-color: var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,.45), 0 0 0 3px rgba(243,156,18,.18); }
+        .square.target-preview { box-shadow: inset 0 0 0 3px var(--primary), inset 0 0 20px 5px rgba(243,156,18,.6); }   /* z-index·transform 금지: 칸이 기물 레이어 위로 올라가 기물을 가린다 */
+        .square.target-preview::after { background: rgba(243,156,18,.16); border: 3px solid var(--primary); animation: tpPop .28s ease-out, tpRing 1s ease-in-out .28s infinite; }
+        @keyframes tpPop { 0% { transform: scale(.82); } 60% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes tpRing { 0%, 100% { opacity: .75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.07); } }
+        #target-banner button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        body.targeting-on #squares-layer .square:not(.target-valid):not(.target-preview) { filter: brightness(.7) saturate(.75); transition: filter .2s; }
+        body.targeting-on .piece-wrapper:not(.tgt-ok):not(.target-ghost) > svg { filter: brightness(.7) saturate(.75) drop-shadow(0 3px 4px rgba(0,0,0,0.4)); transition: filter .2s; }   /* 지정 불가능한 칸 위의 기물도 칸과 똑같이 어둡게 (기물은 칸과 다른 레이어라 따로 처리) */
+        body.wide-mode #game-frame > #target-banner { position: relative; left: auto; bottom: auto; transform: none; width: auto; grid-column: 2; grid-row: 4; margin: 0 16px 8px; z-index: 2; box-sizing: border-box; }
+        body.wide-mode.targeting-on #game-frame { grid-template-rows: auto auto minmax(0, 1fr) auto auto auto; }
+        body.wide-mode.targeting-on #game-frame > #game-controls { grid-row: 5; }
+        body.wide-mode.targeting-on #game-frame > #replay-bar { grid-row: 6; }
 
         /* ===== 암전(시야 방해): 암전 대상 플레이어 화면에서만 적용 ===== */
         .square.fog::before { content: ''; position: absolute; inset: 0; background: rgba(8,8,16,0.95); z-index: 1; pointer-events: none; }
@@ -1083,13 +1105,17 @@
 
         /* v3.37: 증강 카드 i 버튼 + 정보 팝업 */
         .aug-info { position: absolute; top: 5px; right: 5px; z-index: 3; width: 19px; height: 19px; padding: 0; border-radius: 50%; border: 1px solid rgba(var(--acc), 0.6); background: rgba(0,0,0,0.38); color: rgb(var(--acc-soft)); font: italic 800 0.72rem/1 Georgia, 'Times New Roman', serif; display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .aug-info::after { content: ''; position: absolute; inset: -7px; }
+        .aug-info::after { content: ''; position: absolute; inset: -2px; }
         .aug-info:active { background: rgba(var(--acc), 0.3); }
         /* 상대가 증강을 고르는 중(흐리게 처리된 카드)에도 i 버튼을 눌러 설명을 볼 수 있다 */
         .augment-card.dimmed .aug-info { pointer-events: auto; }
         /* 증강 설명 창: 배경을 검게 덮지 않고 살짝 흐리게만 보이도록 한다 */
         #aug-info-overlay { background: rgba(10, 10, 15, 0.34); background: color-mix(in srgb, var(--overlay-bg) 38%, transparent); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
         body.aug-info-open #augment-overlay { background: rgba(10, 10, 15, 0.4); background: color-mix(in srgb, var(--overlay-bg) 42%, transparent); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+        /* 증강 선택 중 설명창: 오버레이마다 backdrop-filter가 따로 걸려 일부 요소(카드·배지·타이머·기물 레이어)만 선명하게 남던 문제.
+           이때만 설명창 배경 블러를 끄고, 아래에 깔린 요소들에 같은 블러를 직접 건다(합성 레이어도 빠지지 않는다). */
+        body.augment-picking.aug-info-open #aug-info-overlay, body.augment-picking.aug-info-open #augment-overlay { backdrop-filter: none; -webkit-backdrop-filter: none; }
+        body.augment-picking.aug-info-open #board, body.augment-picking.aug-info-open #augment-overlay, body.augment-picking.aug-info-open #game-frame > :not(#board-container), body.augment-picking.aug-info-open .chat-bubble { filter: blur(3px); }
         #aug-info-overlay .help-box { width: 100%; max-width: 440px; padding: 0 !important; overflow: hidden; display: flex; flex-direction: column; max-height: min(92vh, 720px); text-align: left; --acc: 150,150,170; --acc-soft: 200,200,215; }
         .aug-info-box.augment-type-damage { --acc: 255,107,94; --acc-soft: 255,196,188; }
         .aug-info-box.augment-type-summon { --acc: 61,220,151; --acc-soft: 176,244,212; }
@@ -3208,6 +3234,11 @@
             augmentOverlay.style.pointerEvents = 'none';
             isAugmentPeeked = true;
         });
+        // 터치로 끌어도 브라우저가 스크롤로 가로채 pointercancel을 내지 않도록 배경 터치의 기본 동작을 막는다(손을 뗄 때만 카드가 돌아온다)
+        ['touchstart', 'touchmove'].forEach(ev => augmentOverlay.addEventListener(ev, e => {
+            if (augmentOverlay.style.display !== 'flex' || (e.target.closest && e.target.closest('.augment-card, .pz-pick-cancel'))) return;
+            if (e.cancelable) e.preventDefault();
+        }, { passive: false }));
         augmentOverlay.addEventListener('contextmenu', (e) => { if (augmentOverlay.style.display === 'flex') e.preventDefault(); });
         const endAugmentPeek = () => {
             if (isAugmentPeeked) {
@@ -3218,6 +3249,8 @@
         };
         window.addEventListener('pointerup', endAugmentPeek);
         window.addEventListener('pointercancel', endAugmentPeek);
+        ['touchend', 'touchcancel', 'mouseup', 'blur'].forEach(ev => window.addEventListener(ev, endAugmentPeek));
+        document.addEventListener('visibilitychange', endAugmentPeek);
 
         function loadLocalSettings() {
             try { const raw = localStorage.getItem(LOCAL_SETTINGS_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
@@ -4962,7 +4995,7 @@
                 document.getElementById('augment-overlay').style.display = 'none';
                 deserializeGameState(action.state); 
                 { const ag0 = AUGMENT_POOL.find(x => x.name === action.name); if (ag0) addAugmentLog(action.by === myColor ? 'mine' : 'opp', ag0); }
-                { const ag = AUGMENT_POOL.find(x => x.name === action.name); recordFrame('augment', { name: action.name, icon: ag ? ag.icon : '✨', t: action.t || [], by: action.by || null, offered: action.offered || null, fx: { globalVfx: action.globalVfx || null, t: action.t || [], vfx: action.vfx || '', floats: action.floats || null, fxArg: action.fxArg || null, origin: action.origin || null, fxMoves: action.fxMoves || null, blasts: action.blasts || null, promos: action.promos || null, msg: action.msg || '', delay: action.delay || 1200 } }); }
+                { const ag = AUGMENT_POOL.find(x => x.name === action.name); recordFrame('augment', { name: action.name, icon: ag ? ag.icon : '✨', t: action.t || [], by: action.by || null, via: action.via || null, offered: action.offered || null, fx: { globalVfx: action.globalVfx || null, t: action.t || [], vfx: action.vfx || '', floats: action.floats || null, fxArg: action.fxArg || null, origin: action.origin || null, fxMoves: action.fxMoves || null, blasts: action.blasts || null, promos: action.promos || null, msg: action.msg || '', delay: action.delay || 1200 } }); }
                 persistRoomGameState().catch(() => {});   // 내 커서 기준으로 저장
                 showCastText(action.name || "증강", () => {
                     if (__tok !== specSession) return;   // 그 사이 관전을 나갔다면 이어서 처리하지 않는다
@@ -5682,12 +5715,17 @@
                             const epPc = epCapture ? B[r][m.c] : null;
                             const tsq = this.rcToSq(m.r, m.c); let tmpU = false, prevU;
                             const rvl = (fl && !um) ? balloonUnder[this.rcToSq(r, c)] : null;   // 풍선 기물이 떠나면 그 칸에 깔려 있던 기물이 드러난다
-                            if (fl && !um && tgtPc) { tmpU = true; prevU = balloonUnder[tsq]; balloonUnder[tsq] = { uid: piece.uid, piece: tgtPc }; }   // 풍선 기물이 올라선 적 기물은 잡히지 않고 그 밑에서 여전히 공격할 수 있다
+                            // 업: 풍선이 이번 수 직후 내려앉는다(남은 수 1) → 풍선 기물 밑에 깔린 기물(킹·장벽 제외)은 상대 차례가 되기 전에 파괴된다. 체크를 걸고 있던 기물도 마찬가지라 그 밑에서 공격하는 것으로 세지 않는다.
+                            const crushedU = []; for (const usq in balloonUnder) { const en = balloonUnder[usq]; if (!en || !en.piece || en.piece.type === 'k' || en.piece.type === 'wall' || !(balloons[en.uid] > 0 && balloons[en.uid] <= 1)) continue; if (um && usq === this.rcToSq(r, c)) continue; if (fl && !um && String(en.uid) === String(piece.uid)) continue; crushedU.push([usq, en]); }
+                            crushedU.forEach(x => { delete balloonUnder[x[0]]; });
+                            const landCrush = fl && !um && tgtPc && balloons[piece.uid] <= 1 && tgtPc.type !== 'k' && tgtPc.type !== 'wall';   // 올라선 기물이 바로 내려앉아 밟힌다
+                            if (fl && !um && tgtPc && !landCrush) { tmpU = true; prevU = balloonUnder[tsq]; balloonUnder[tsq] = { uid: piece.uid, piece: tgtPc }; }   // 풍선 기물이 올라선 적 기물은 잡히지 않고 그 밑에서 여전히 공격할 수 있다
                             B[m.r][m.c] = piece; B[r][c] = um ? origAt : ((rvl && String(rvl.uid) === String(piece.uid)) ? rvl.piece : null); if (epCapture) B[r][m.c] = null; if (fP) B[fP.r][fP.c] = null;   // 임시로 둔다 (운명공동체의 짝도 함께 치운다)
                             const kR = piece.type === 'k' ? m.r : kr2, kC = piece.type === 'k' ? m.c : kc2;
                             ok = kR === -1 ? true : !this.isSquareAttacked(kR, kC, enemy, B, true);   // 내 수를 둔 뒤의 상태로 합법 여부를 판단한다
                             B[r][c] = origAt; B[m.r][m.c] = tgtAt; if (epCapture) B[r][m.c] = epPc; if (fP) B[fP.r][fP.c] = fP.p;   // 되돌린다
                             if (tmpU) { if (prevU === undefined) delete balloonUnder[tsq]; else balloonUnder[tsq] = prevU; }
+                            crushedU.forEach(x => { balloonUnder[x[0]] = x[1]; });
                         }
                         if (ok && hidK && !um && hidK.cnt === 2 && piece.uid !== hidK.fuid) {   // 풍선이 상대 수 직후 내려와 킹이 드러난다: 그때 체크메이트가 되는 수는 둘 수 없다
                             const sv = [B[m.r][m.c], B[r][c], B[hidK.r][hidK.c]];
@@ -7281,7 +7319,9 @@
             // ---------- 마무리 효과(꾸미기): 이긴 쪽이 고른 연출을 킹 칸 위에서 재생한다 ----------
             // 킹 요소를 복제해 직접 움직이고(떠오르기·회전·찌그러짐), 마지막에 조각내 떨어뜨린다. 기물 위를 덮는 막은 쓰지 않는다(기물이 흐려 보이던 문제).
             const FIN = {}; let finLoser = null;   // 죽는 킹의 색 (이긴 쪽 기물을 찾는 데 쓴다)
-            const later = (ms, fn) => setTimeout(() => { try { fn(); } catch (e) { console.warn('[finisher]', e); } kick(); }, ms);
+            let finActive = false, finBusyUntil = 0;   // 마무리 효과 진행 추적: 예약된 타이머·애니메이션이 모두 끝나기 전에는 결과창을 띄우지 않는다
+            const finMark = ms => { if (finActive) finBusyUntil = Math.max(finBusyUntil, performance.now() + ms); };
+            const later = (ms, fn) => { finMark(ms + 80); return setTimeout(() => { try { fn(); } catch (e) { console.warn('[finisher]', e); } kick(); }, ms); };
             const TR = (dx, dy, rx, ry, rz, sx, sy) => T3(dx, dy * UP(), rx, ry, rz, sx, sy);   // v4.01: 화면(캔버스) 좌표 그대로의 이동 (dy는 아래가 +)
             const T3 = (dx, up, rx, ry, rz, sx, sy) => `translate(${dx.toFixed(1)}px,${(UP() * up).toFixed(1)}px) perspective(${Math.round(cell * 5)}px) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) rotate(${rz.toFixed(1)}deg) scale(${sx},${sy === undefined ? sx : sy})`;   // v4.01: 입체감 있는 자세 (rx/ry: 3D 기울임·회전)
             const TF = (dx, up, rot, sx, sy) => `translate(${dx}px,${UP() * up}px) rotate(${rot}deg) scale(${sx},${sy === undefined ? sx : sy})`;   // up: 화면 위쪽이 +
@@ -9715,6 +9755,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             const FR = (o, dx, dy, rz, sx, sy, ex) => { ex = ex || {}; const ry = ex.ry || 0; delete ex.ry; const q = v => v < 0 ? v : Math.max(0.15, 1 + (v - 1) * 1.45); return Object.assign({ offset: o, easing: EO, transform: TR(dx, dy, 0, ry, rz * 1.4, q(sx), q(sy === undefined ? sx : sy)) }, ex); };   // 찌그러짐·회전을 과장해 역동적으로
             function act(el, fr, ms, delay) {
                 if (!el || !el.animate) return null;
+                finMark((delay || 0) + ms + 80);
                 try { const z = el.style.zIndex; el.style.zIndex = 61; const an = el.animate(fr, { duration: ms, easing: 'linear', delay: delay || 0, fill: 'backwards' }); const d = () => { el.style.zIndex = z; }; an.onfinish = d; an.oncancel = d; setTimeout(d, ms + (delay || 0) + 150); return an; } catch (e) { return null; }
             }
             function ghosts(el, fr, ms, n) {   // 빠르게 움직일 때 뒤에 남는 잔상
@@ -9866,6 +9907,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             function finisher(id, sq, hint) {
                 if (!sq || !FIN[id]) return false;
                 resize(); if (!W) return false;
+                finActive = true; finBusyUntil = Math.max(finBusyUntil, performance.now() + 800);
                 forceFx = true; canvas.classList.add('fin-force'); clearTimeout(forceTimer); forceTimer = setTimeout(() => { forceFx = false; canvas.classList.remove('fin-force'); }, 4200);
                 let atk = null; try { atk = finAttacker(sq, hint); } catch (e) {}
                 const cfg = STY[id]; muteAtk = (cfg && cfg.a && atk) ? atk.el : null; muteFoes = !!(cfg && cfg.f);
@@ -9873,7 +9915,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 try { if (cfg) finStyle(cfg, sq, atk); } catch (e) { console.warn('[finStyle]', id, e); }
                 kick(); return true;
             }
-            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx, sig, hasSig: n => !!SIG[n], mineBlast, pactBlast, fateSever, heartBreak, crown, kickImpact, mateFocus, finisher, speed: k => { fxSpeed = k; } };
+            return { hit, global, land, capture, shatter, shake, resize, mark, wave, splash, checkmate, stalemate, charge, wheel, vines: vinesFx, leaves: leavesFx, sig, hasSig: n => !!SIG[n], mineBlast, pactBlast, fateSever, heartBreak, crown, kickImpact, mateFocus, finisher, finBusy: () => finActive && (performance.now() < finBusyUntil || (forceFx && lists.some(l => l.length > 0))), speed: k => { fxSpeed = k; } };
         })();
 
         function spawnFloatingText(sq, text) {
@@ -11536,7 +11578,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 else if (nm === '차원 장벽' && target) sc += botWallValue(cloneGameState(game), color, enemy);
                 out = { sc, res };
                 if (!opts.light) out.f = rvAugFeat(color, enemy);
-                if (opts.facts) out.tac = rvAugTacFacts(color, enemy);
+                if (opts.facts) out.tac = opts.swap ? rvAugTacFacts(enemy, color) : rvAugTacFacts(color, enemy);
             } catch (e) { out = null; }
             finally { floatLog = null; updateBoardVisuals = ubv; botRestore(snap); }
             return out;
@@ -11585,8 +11627,8 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
         }
         // 광기: 대상(적 기물)마다, 도착할 수 있는 모든 빈칸(실제 증강과 같은 '안전한 빈칸')을 하나씩 두어 보고 평균을 낸다.
         //  1단계 모든 (대상, 칸) 쌍을 얕게 → 2단계 상위 대상과 실제로 고른 대상을 1수 깊이로 → 3단계 최선 대상(과 실제 대상)을 2수 깊이로.
-        function rvMadnessEval(aug, color, enemy, budget, actual) {
-            const tS = Date.now(), el = () => Date.now() - tS, cl = v => botClampV(v);
+        function rvMadnessEval(aug, color, enemy, budget, actual, sg) {
+            sg = sg || 1; const tS = Date.now(), el = () => Date.now() - tS, cl = v => botClampV(v);
             let cands = []; try { cands = aug.target.valid(color, enemy) || []; } catch (e) {} if (!cands.length) return null;
             cands = cands.slice().sort((a, b) => (BOT_VAL[game.get(b).type] || 0) - (BOT_VAL[game.get(a).type] || 0));   // 값비싼 기물부터 (시간이 모자라도 큰 기물은 본다)
             const T = [];
@@ -11598,7 +11640,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 if (vals.length) { const m = rvMean(vals.map(x => x.v)); T.push({ tg, type: pc.type, vals, mean: m, mean0: m }); }
             }
             if (!T.length) return null;
-            T.sort((a, b) => b.mean - a.mean);
+            T.sort((a, b) => sg * (b.mean - a.mean));
             const deepen = (x, depth, lim) => {   // 모든 도착 칸을 depth로 다시 본다 (시간이 모자라면 바꾸지 않는다)
                 const nv = [];
                 for (const v of x.vals) { if (el() > lim) return false; const raw = rvAugForcedScore(color, enemy, { tg: x.tg, dest: v.d }, depth); nv.push(raw === null ? v : { d: v.d, raw, v: cl(raw) }); }
@@ -11606,12 +11648,12 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             };
             const ax = actual ? T.find(x => x.tg === actual.tg) : null, set = T.slice(0, 3); if (ax && !set.includes(ax)) set.push(ax);
             for (const x of set) deepen(x, 1, budget * 0.7);
-            const deep = T.filter(x => x.depth >= 1).sort((a, b) => b.mean - a.mean), best = deep[0] || T[0];
+            const deep = T.filter(x => x.depth >= 1).sort((a, b) => sg * (b.mean - a.mean)), best = deep[0] || T[0];
             if (deep.length) { const ok = deepen(best, 2, budget * 0.95); if (ok && ax && ax !== best) deepen(ax, 2, budget); }
             const res = Object.assign({ tg: best.tg, type: best.type, dests: best.vals.map(v => v.d), all: T.slice(0, 4).map(x => ({ tg: x.tg, type: x.type, mean: x.mean })) }, rvDistStats(best.vals));
             if (ax) {
                 const d = (best.mean2 !== undefined && ax.mean2 !== undefined) ? 2 : (best.mean1 !== undefined && ax.mean1 !== undefined) ? 1 : 0;
-                res.actTg = ax.tg; res.actType = ax.type; res.actGap = ax === best ? 0 : Math.max(0, best['mean' + d] - ax['mean' + d]);
+                res.actTg = ax.tg; res.actType = ax.type; res.actGap = ax === best ? 0 : Math.max(0, sg * (best['mean' + d] - ax['mean' + d]));
                 if (actual.dest) { const av = ax.vals.find(v => v.d === actual.dest); if (av) { res.actDest = actual.dest; res.luck = av.v - ax.mean; } }
             }
             return res;
@@ -11635,10 +11677,11 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             }
             return n >= 3 ? { n, goodMe, badMe } : null;
         }
-        function rvAugOption(aug, color, enemy, nextEnemy, before, budget, actual) {
+        function rvAugOption(aug, color, enemy, nextEnemy, before, budget, actual, sg) {
+            sg = sg || 1;   // 1: 쓰는 쪽에게 가장 이로운 자리 / -1: 법정 대리인으로 대신 고르는 쪽이 보는 '쓰는 쪽에게 가장 불리한' 자리
             const tS = Date.now(), over = () => Date.now() - tS > budget, FD = 2; let best = null;   // FD: 선택지끼리 견주는 기본 탐색 깊이
             if (aug.name === '광기' && aug.target) {
-                const R = rvMadnessEval(aug, color, enemy, budget, actual);
+                const R = rvMadnessEval(aug, color, enemy, budget, actual, sg);
                 if (R) { const rep = rvAugRun(aug, color, enemy, null, { tg: R.tg, dest: R.rep }, 0, {}); best = { sc: R.mean, f: rep ? rep.f : before, target: R.tg, mad: R, forced: { tg: R.tg, dest: R.rep } }; }
             } else if (aug.name === '강제 이주') {
                 const R = rvKingJumpEval(aug, color, enemy, budget);
@@ -11648,8 +11691,8 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 let cands = []; try { cands = aug.target.valid(color, enemy) || []; } catch (e) {} if (!cands.length) cands = [null];
                 if (cands.length > 24) { const at = actual && actual.tg, keep = at && cands.includes(at) ? [at] : []; cands = keep.concat(shuffle(cands).filter(x => x !== at)).slice(0, 24); }
                 const first = []; for (const t of cands) { if (over() && first.length) break; const r = rvAugRun(aug, color, enemy, t, null, 1, {}); if (r) first.push({ t, r }); }
-                first.sort((x, y) => y.r.sc - x.r.sc);
-                for (const x of first.slice(0, 3)) { const r = over() ? x.r : rvAugRun(aug, color, enemy, x.t, null, FD, {}); if (r && (!best || r.sc > best.sc)) best = { sc: r.sc, f: r.f, target: x.t }; }
+                first.sort((x, y) => sg * (y.r.sc - x.r.sc));
+                for (const x of first.slice(0, 3)) { const r = over() ? x.r : rvAugRun(aug, color, enemy, x.t, null, FD, {}); if (r && (!best || sg * (r.sc - best.sc) > 0)) best = { sc: r.sc, f: r.f, target: x.t }; }
                 if (best && aug.target && aug.name !== '광기' && actual && actual.tg && cands.includes(actual.tg)) {   // 실제로 고른 폰이 얼마나 좋은 자리였는가
                     const ar = actual.tg === best.target ? { sc: best.sc } : rvAugRun(aug, color, enemy, actual.tg, null, FD, { light: true });
                     if (ar) best.act = { tg: actual.tg, sc: ar.sc };
@@ -11665,6 +11708,11 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             const lt = rvAugLong(aug, color, enemy, best.target); return { name: aug.name, aug, sc: best.sc, f: best.f, rk, lt, bonus: (BOT_AUG_BONUS[aug.name] || 0) + lt.v, rand: (!aug.target && !RV_AUG_DET.has(aug.name)) || !!best.mad, det: RV_AUG_DET.has(aug.name), mateLoss: best.mateLoss || 0, target: best.target, forced: best.forced || null, mad: best.mad || null, act: best.act || null };
         }
         // v3.93: 판 평가에 안 잡히는 장기 효과(아기는 어떻게 태어나? 등)와 '어디에 쓰는가'를 말로 풀어 준다
+        function rvProxySwing(color, enemy) {   // 법정 대리인: 상대가 증강을 직접 고를 때와 내가 대신 고를 때의 기대 판세 변화(내 기준, cp)
+            const hidden = mines; mines = mines.filter(x => x.owner === color);
+            try { if (game.moves().length === 0) return null; return { direct: botHumanAugRisk(color, enemy, 380, false), proxy: botHumanAugRisk(color, enemy, 380, true) }; }
+            catch (e) { return null; } finally { mines = hidden; try { botSyncMines(); } catch (e) {} }
+        }
         function rvAugLong(aug, color, enemy, target) {
             try {
                 if (aug.name === '아기는 어떻게 태어나?') {
@@ -11683,7 +11731,20 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                     const lv = (augTimeCut && augTimeCut[enemy]) || 0, T = [30, 15, 8], nx = Math.min(2, lv + 1), em = botMetaEarly();
                     return { v: botAugBonus(aug, color, enemy) - (BOT_AUG_BONUS[aug.name] || 0), t: `상대의 증강 선택 시간이 ${T[lv]}초에서 ${T[nx]}초로 줄어요. 선택이 급해지는 효과가 이후 증강 단계마다 이어져요` };
                 }
-                if (aug.name === '법정 대리인') return { v: botAugBonus(aug, color, enemy) - (BOT_AUG_BONUS[aug.name] || 0), t: '이어지는 상대의 증강 선택권을 가져와요. 상대에게 제시된 선택지 중 나에게 가장 덜 위험한 증강을 내가 고르고, 그 증강의 대상·자리도 상대에게 가장 덜 이로운 곳으로 정할 수 있어요 (상대는 자기가 가장 좋은 증강을 고를 수 없게 돼요)' };
+                if (aug.name === '법정 대리인') {
+                    const sw = rvProxySwing(color, enemy), v0 = botAugBonus(aug, color, enemy) - (BOT_AUG_BONUS[aug.name] || 0), sgn = x => (x >= 0 ? '+' : '−') + rvPawns(x);
+                    let t = '이어지는 상대의 증강 선택권을 한 번 가져와요. 상대에게 제시된 선택지 중 나에게 가장 덜 위험한 증강을 내가 고르고, 대상·자리를 정하는 증강은 상대에게 가장 덜 이로운 곳으로 정할 수 있어요';
+                    if (sw) { const d = sw.proxy - sw.direct; t += `. 상대가 직접 고르면 내 판세가 평균 ${sgn(sw.direct)} 변하지만, 내가 대신 고르면 ${sgn(sw.proxy)}로 바뀌어요 (폰 ${rvPawns(d)}개 가치 ${d >= 0 ? '이득' : '손해'})`; }
+                    return { v: v0, t, show: true };
+                }
+                if (aug.name === '덩굴') return { v: 0, show: true, t: '무작위 적 기물 2개가 8수 동안 움직이지 못해요. 막힌 기물은 공격도 방어도 못 해서 그쪽 진영에 틈이 생겨요' };
+                if (aug.name === '빛의 수호') { const n = findPieces(color, 'p').length; return { v: 0, show: true, t: n ? `내 폰 ${n}개가 2수 동안 잡히지 않아요. 그동안 폰으로 하는 전진·교환이 안전해요` : '지킬 폰이 없어 효과가 거의 없어요' }; }
+                if (aug.name === '여신의 가호') return { v: 0, show: true, t: '나이트·비숍·룩·퀸 중 2개가 2수 동안 잡히지 않아요. 큰 기물이 공격받는 순간에 특히 값져요' };
+                if (aug.name === '암전') return { v: 0, show: true, t: '4수 동안 상대는 자기 기물이 있는 칸 외에는 볼 수 없어요. 내 기물의 위치와 위협을 놓치기 쉬워요 (이 분석은 모든 기물이 보인다고 보고 평가해요)' };
+                if (aug.name === '운명공동체') return { v: 0, show: true, t: '적 기물 2개가 연결돼요. 하나가 잡히면 다른 하나도 함께 사라져서, 한 번의 잡기로 두 기물을 얻을 수 있어요' };
+                if (aug.name === '자아 분열') { const n = findPieces(enemy, 'p').length; return { v: 0, show: true, t: n ? `적 폰 ${n}개가 6수 동안 반대 방향으로 움직여요. 폰의 전진·공격 방향이 뒤집혀 폰 구조가 흐트러져요` : '뒤집을 적 폰이 없어 효과가 거의 없어요' }; }
+                if (aug.name === '독구름') return { v: 0, show: true, t: '12수 동안 2×2 맹독 지대가 남아 있어요. 상대 기물이 그 안에 들어가면 파괴돼서 상대의 움직임이 제한돼요' };
+                if (aug.name === '동귀어진' && typeof target === 'string') { const pc = game.get(target); return { v: 0, show: true, t: `${target}의 ${pc ? (RV_PN[pc.type] || '기물') : '기물'}이 잡히면 잡은 기물도 함께 파괴돼요. 효과는 영구적이라 상대가 그 기물을 건드리기 어려워져요` }; }
                 if (aug.name === '업!' && typeof target === 'string') {
                     const bi = botBalloonInfo(color, enemy, target), pn = t => RV_PN[t] || '기물', b0 = bi.crush[0], pc = game.get(target);
                     let t = `${target}의 ${pc ? pn(pc.type) : '기물'}이 4수 동안 잡히지 않고 길목을 넘어 다닐 수 있어요`;
@@ -11784,7 +11845,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
         }
         function rvAugEval(f, i) {
             const prev = replayFrames[i - 1]; if (!prev || !prev.s || !f.offered || f.offered.length < 2 || !f.by) return null;
-            const color = f.by, enemy = color === 'w' ? 'b' : 'w', nx = replayFrames[i + 1], nextEnemy = !!(nx && nx.kind === 'augment' && nx.by === enemy);
+            const color = f.by, enemy = color === 'w' ? 'b' : 'w', via = (f.via && f.via !== f.by) ? f.via : null, sg = via ? -1 : 1, nx = replayFrames[i + 1], nextEnemy = !via && !!(nx && nx.kind === 'augment' && nx.by === enemy);   // via: 법정 대리인으로 이 증강을 대신 고른 쪽(= enemy)
             const snap = botSnapshot(), sv = { mc: moveCount, pa: pendingAugments, ao: activeAugmentOptions, ap: activeAugmentPlayerColor, si: selectedAugmentIdx }, hidden = mines;
             const svBot = { ana: BOT.ana, owner: BOT.mineOwner, seen: BOT.seen };
             try {
@@ -11797,15 +11858,102 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 const actual = (f.name === '광기' && Array.isArray(f.t) && f.t.length >= 2) ? { tg: f.t[0], dest: f.t[1] } : (f.name === '수퍼 워너비' && Array.isArray(f.t) && f.t.length) ? { tg: f.t[0] } : (f.name === '차원 장벽' && Array.isArray(f.t) && typeof f.t[0] === 'string') ? { tg: f.t[0] } : (f.name === '지뢰 찾기' ? rvActualMine(prev, f, color) : (f.name === '동귀어진' && Array.isArray(f.t) && typeof f.t[0] === 'string') ? { tg: f.t[0] } : null);
                 for (const aug of offered) {
                     const remain = Math.max(500, TOTAL - (Date.now() - tAll)), budget = Math.max(380, remain * wOf(aug) / Math.max(1, wLeft)); wLeft -= wOf(aug);
-                    const r = rvAugOption(aug, color, enemy, nextEnemy, before, budget, aug.name === f.name ? actual : null); if (r) rows.push(r);
+                    const r = rvAugOption(aug, color, enemy, nextEnemy, before, budget, aug.name === f.name ? actual : null, sg); if (r) rows.push(r);
                 }
                 const me = rows.find(r => r.name === f.name); if (!me || rows.length < 2) return null;
                 const cnt = B => { const o = { w: {}, b: {} }; B.forEach(row => row.forEach(p => { if (p && p.type !== 'wall' && o[p.color]) o[p.color][p.type] = (o[p.color][p.type] || 0) + 1; })); return o; };
                 let realized = null;   // 무작위 증강: 운이 모두 정해진 '실제 결과' 판을 직접 평가한다
                 if (me.rand && f.s) {
                     const C0 = cnt(game.board()), sn2 = botSnapshot();
-                    try { deserializeGameState(f.s, true); botSyncMines(); realized = { sc: rvAugScore(color, enemy, 2), f: rvAugFeat(color, enemy), tac: rvAugTacFacts(color, enemy), C1: cnt(game.board()), C0 }; } catch (e) { realized = null; } finally { botRestore(sn2); }
+                    try { deserializeGameState(f.s, true); botSyncMines(); realized = { sc: rvAugScore(color, enemy, 2), f: rvAugFeat(color, enemy), tac: rvAugTacFacts(color, enemy), tacC: via ? rvAugTacFacts(enemy, color) : null, C1: cnt(game.board()), C0 }; } catch (e) { realized = null; } finally { botRestore(sn2); }
                     if (realized) { me.expSc = me.mad ? me.mad.mean : me.sc; me.sc = realized.sc; if (realized.f) me.f = realized.f; me.realized = realized; }
+                }
+                if (via) {   // v3.94 법정 대리인으로 '대신 고른' 증강: 평가는 대신 고른 사람(enemy) 기준 — 쓰는 쪽(color)에게 가장 덜 이로운 증강과 자리가 정답이다
+                    const nmE = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'), pnE = t => RV_PN[t] || '기물';
+                    const eulE = w => hasBatchim(w) ? '을' : '를', iE = w => hasBatchim(w) ? '이' : '가', unE = w => hasBatchim(w) ? '은' : '는';
+                    const CL = v => Math.abs(v) >= BOT_MATE - 1000 ? (v > 0 ? 1 : -1) * 4000 : v, baseC = -base;
+                    const relC = v => { const d = v - baseC; return (d >= 0 ? '+' : '−') + rvPawns(d); };
+                    const ul = a => `<ul class="rv-ul">${a.map(x => `<li>${x}</li>`).join('')}</ul>`;
+                    rows.forEach(r => { r.val = -(CL(r.sc) + r.bonus); r.mateC = r.sc <= -(BOT_MATE - 500); });
+                    rows.sort((x, y) => y.val - x.val);
+                    const top = rows[0], pen = me.mad ? (me.mad.actGap || 0) : (me.act ? Math.max(0, me.act.sc - me.sc) : 0);
+                    const meV = me.val - pen, diff = top.val - meV, V0 = rvVarOf('aug|' + i + '|' + f.name + '|via');
+                    const phr = r => (r.target && typeof r.target === 'string' && r.aug.target && r.name !== '광기') ? `${nmE(r.name)}(${r.target})` : nmE(r.name);
+                    const t0c = (() => { try { return rvAugTacFacts(enemy, color); } catch (e) { return null; } })();
+                    const tacC = r => {   // 대신 고른 사람 눈으로 본 직후 전술 (내 이득 = good, 내 손해 = bad)
+                        if (r.tacCDone) return r.tacC; r.tacCDone = true; r.tacC = null;
+                        try {
+                            if (r === me && me.realized && me.realized.tacC && t0c) r.tacC = rvAugTacText(me.realized.tacC, t0c, enemy, color);
+                            else if (t0c && (r.det || r.forced || r.target)) {
+                                const q = r.forced ? rvAugRun(r.aug, color, enemy, null, r.forced, 0, { light: true, facts: true, swap: true }) : rvAugRun(r.aug, color, enemy, r.target || null, null, 0, { light: true, facts: true, swap: true });
+                                if (q && q.tac) r.tacC = rvAugTacText(q.tac, t0c, enemy, color);
+                            }
+                            if (r.tacC && r.name === '동귀어진') r.tacC = { good: r.tacC.good, bad: [] };
+                        } catch (e) {}
+                        return r.tacC;
+                    };
+                    const eff = r => {   // 판 특징 변화 (쓰는 쪽 기준 수치를 대신 고른 사람 기준 문장으로 바꾼다)
+                        const o = [], dm = r.f.mat - before.mat, db = r.f.mob - before.mob;
+                        if (dm >= 120) o.push(`기물 가치 차가 상대 쪽으로 폰 ${rvPawns(dm)}개만큼 벌어져요`); else if (dm <= -120) o.push(`기물 가치 차가 내 쪽으로 폰 ${rvPawns(dm)}개만큼 벌어져요`);
+                        if (r.f.mChk && !before.mChk) o.push('상대 킹이 체크에 놓여요'); if (r.f.eChk && !before.eChk) o.push('내 킹이 체크를 받아요');
+                        if (db >= 6) o.push('상대 기동력은 늘고 내 기동력은 줄어요'); else if (db <= -6) o.push('내 기동력은 늘고 상대 기동력은 줄어요');
+                        if (r.lt && r.lt.t && r.lt.show) o.push(r.lt.t);
+                        return o;
+                    };
+                    const madC = r => {   // 무작위 이동 증강: 대신 고른 사람 기준 분포
+                        const R = r.mad; if (!R) return ''; const m = CL(-R.mean);
+                        return (r.name === '광기' ? `상대 ${pnE(R.type)} ${R.tg}${eulE(pnE(R.type))} 옮기는 경우 — 도착 가능 ${R.n}곳 평균 ${relC(m)}` : `상대 킹이 갈 수 있는 ${R.n}곳 평균 ${relC(m)}`) + ` (내게 최선 ${R.worstD} ${relC(CL(-R.min))} · 최악 ${R.bestD} ${relC(CL(-R.max))})`;
+                    };
+                    let c, head;
+                    if (top.mateC && !me.mateC) { c = 'miss'; head = `${nmE(top.name)}${eulE(top.name)} 골랐다면 곧바로 체크메이트로 이길 수 있었어요.`; }
+                    else if (diff <= 30) { c = 'best'; head = V0('hb', '상대에게 가장 덜 이로운 증강을 정확히 골랐어요', '법정 대리인의 선택권을 가장 알차게 썼어요', '대신 고른 증강이 후보들 중 최선이에요') + ` (${me.realized ? '실제 결과 기준 ' : '예상 '}판세 ${relC(meV)}).`; }
+                    else if (top === me) { c = diff <= 150 ? 'good' : diff <= 350 ? 'inaccuracy' : 'mistake'; head = `${nmE(me.name)}${unE(me.name)} 맞는 선택이었지만 쓸 자리가 ${c === 'good' ? '조금 ' : ''}아쉬웠어요` + (me.act && me.target && pen >= 30 ? `: ${me.act.tg} 대신 ${me.target}에 쓰게 했다면 폰 ${rvPawns(pen)}개 가치만큼 상대에게 더 불리했어요` : '') + '.'; }
+                    else if (diff <= 150) { c = 'good'; head = `${nmE(top.name)}${iE(top.name)} 조금 더 불리하게 했겠지만 ${nmE(me.name)}도 충분히 좋은 선택이에요 (폰 ${rvPawns(diff)}개 차이).`; }
+                    else if (diff <= 350) { c = 'inaccuracy'; head = `${nmE(top.name)}${eulE(top.name)} 골랐다면 상대에게 더 불리했어요 (폰 ${rvPawns(diff)}개 차이).`; }
+                    else { c = 'mistake'; head = `${nmE(top.name)}${eulE(top.name)} 골랐다면 훨씬 좋았어요 (폰 ${rvPawns(diff)}개 차이).`; }
+                    head = '법정 대리인으로 상대의 증강을 대신 골랐어요. ' + head;
+                    const ctxC = baseC >= 300 ? `내가 폰 ${rvPawns(baseC)}개 가치만큼 앞선 상태` : baseC <= -300 ? `내가 폰 ${rvPawns(baseC)}개 가치만큼 뒤진 상태` : '비슷한 판세';
+                    const lines = [`<b>대신 고르기 전 판세</b> ${ctxC}`];
+                    lines.push('<b>법정 대리인</b>' + ul([`상대에게 제시된 선택지 ${rows.length}개 중 ${nmE(me.name)}${eulE(me.name)} 내가 대신 골랐어요`, '상대에게 가장 덜 이로운 증강(과 그 증강의 자리)을 고르는 것이 목표예요']));
+                    const pick = [`${me.realized ? '실제 결과 기준 ' : ''}이 증강이 쓰이면 예상 판세 ${relC(me.val)}`];
+                    if (me.mad) { const t = madC(me); if (t) pick.push(t); }
+                    eff(me).slice(0, 3).forEach(x => pick.push(x));
+                    if (me.mateLoss >= 0.15) pick.push(`무작위 결과 중 약 ${Math.round(me.mateLoss * 100)}%에서 내가 곧바로 체크메이트로 이길 수 있어요`);
+                    lines.push(`<b>대신 고른 증강: ${phr(me)}</b>` + ul(pick.slice(0, 5)));
+                    const res = [];
+                    if (me.realized) {
+                        const RZ = me.realized;
+                        if (me.mad && me.mad.actDest) res.push(`상대 ${pnE(me.mad.actType)} ${me.mad.actTg}→${me.mad.actDest}`);
+                        else if (me.name === '독구름' && Array.isArray(f.t) && f.t.length) res.push(`맹독 지대가 ${f.t.join('·')}에 생겼어요`);
+                        const lostTxt = who => { const a = []; let val = 0; ['q', 'r', 'b', 'n', 'p'].forEach(t => { const d = (RZ.C0[who][t] || 0) - (RZ.C1[who][t] || 0); if (d > 0) { a.push(`${pnE(t)} ${d}개`); val += d * BOT_VAL[t] / 100; } }); return a.length ? `${a.join(' · ')} (폰 ${val.toFixed(1)}개 가치)` : ''; };
+                        const gone = lostTxt(color), mine = lostTxt(enemy);
+                        if (gone) res.push(`상대 기물이 사라졌어요: ${gone}`); if (mine) res.push(`내 기물이 사라졌어요: ${mine}`);
+                        if (!gone && !mine && !me.mad) res.push('이번에는 사라진 기물이 없어요');
+                    }
+                    try { const tt = tacC(me); if (tt) tt.good.concat(tt.bad).slice(0, 3).forEach(x => res.push(x)); } catch (e) {}
+                    if (me.realized) { const lkC = -(CL(me.realized.sc) - CL(me.expSc)); res.push(lkC >= 80 ? `기대한 평균(${relC(CL(-me.expSc))})보다 폰 ${rvPawns(lkC)}개 좋은 결과 (운이 따랐어요)` : lkC <= -80 ? `기대한 평균(${relC(CL(-me.expSc))})보다 폰 ${rvPawns(lkC)}개 나쁜 결과 (운이 아쉬웠어요)` : `기대한 평균(${relC(CL(-me.expSc))})과 비슷한 결과`); }
+                    else if (me.rand) res.push('실제 결과 기록이 없어 평균 기준으로 평가했어요');
+                    if (res.length) lines.push('<b>결과</b>' + ul(res));
+                    if (me.target && typeof me.target === 'string' && me.aug.target && me.name !== '광기' && me.act) {   // 대상·자리 선택
+                        if (me.act.tg !== me.target && pen >= 30) lines.push(`<b>대상 선택: ${me.act.tg} → ${me.target}</b><div>${me.target}에 쓰게 했다면 폰 ${rvPawns(pen)}개 가치만큼 상대에게 더 불리했어요</div>`);
+                        else lines.push(`<b>대상 선택: ${me.act.tg}</b>${ul(['상대에게 가장 불리한 자리를 골랐어요'])}`);
+                    } else if (me.mad && me.mad.actTg) {
+                        const R = me.mad, bm = CL(-R.mean);
+                        lines.push(`<b>대상 선택</b>${R.actGap >= 40 ? ul([`가장 좋은 대상: 상대 ${pnE(R.type)} ${R.tg} — 평균 ${relC(bm)}`, `고른 대상: 상대 ${pnE(R.actType)} ${R.actTg} — 평균 ${relC(bm - R.actGap)} (폰 ${rvPawns(R.actGap)}개 낮아요)`]) : '<div>대상도 상대에게 가장 불리한 쪽으로 골랐어요</div>'}`);
+                    }
+                    if (c !== 'best') {
+                        const why = [];
+                        if (top !== me) {
+                            if (top.mad) { const t = madC(top); if (t) why.push(t); }
+                            try { const tt = tacC(top); if (tt && tt.good.length) why.push(tt.good[0]); } catch (e) {}
+                            eff(top).slice(0, 2).forEach(x => why.push(x));
+                            why.push(`상대의 판세가 폰 ${rvPawns(diff)}개 가치 더 낮아져요`);
+                        } else if (pen >= 30) why.push(`쓸 자리 하나로 폰 ${rvPawns(pen)}개 가치가 갈렸어요`);
+                        lines.push(`<b>더 좋았던 선택: ${phr(top)}</b>${ul(why.slice(0, 4))}<small>예상 판세 ${relC(top.val)} (대신 고른 증강 ${relC(meV)})</small>`);
+                    }
+                    if (c === 'miss' || c === 'inaccuracy' || c === 'mistake') lines.push('<b>배울 점</b> ' + V0('vt', '법정 대리인으로 고를 때는 \"내가 쓰고 싶은 증강\"이 아니라 \"상대가 쓸 때 가장 덜 아픈 증강\"을 찾으세요. 대상·자리를 정하는 증강이라면 상대에게 가장 불리한 곳까지 내가 정할 수 있어요.', '선택지를 하나씩 \"상대가 이걸 쓰면 내 판이 어떻게 되나\"로 뒤집어 보세요. 체크메이트 위험이나 큰 기물 손실이 보이는 증강을 먼저 피하세요.'));
+                    lines.push('<b>선택지 순위</b>' + rows.map((r, k) => `<div class="rv-rk${r === me ? ' me' : ''}">${k + 1}위 ${nmE(r.name)}${(r.target && typeof r.target === 'string' && r.aug.target && r.name !== '광기') ? ' · ' + r.target : ''}${r.rand ? '*' : ''} <i>${r.sc <= -(BOT_MATE - 1000) ? '체크메이트 승' : r.sc >= BOT_MATE - 1000 ? '체크메이트 패' : relC(r.val)}</i>${r === me ? ' ← 대신 고름' : ''}</div>`).join('') + (rows.some(r => r.rand) ? ' <small>(*는 무작위 결과의 평균)</small>' : ''));
+                    return { c, head, lines };
                 }
                 const rks = rows.filter(r => r.rk !== null).map(r => Math.max(-1500, Math.min(300, r.rk))), avgRk = rks.length ? rks.reduce((x, y) => x + y, 0) / rks.length : 0;
                 rows.forEach(r => { r.raw = r.sc; if (Math.abs(r.sc) >= BOT_MATE - 1000) r.sc = (r.sc > 0 ? 1 : -1) * 4000; r.rkv = Math.max(-1500, Math.min(300, r.rk === null ? avgRk : r.rk)); r.total = r.sc + r.bonus + (nextEnemy ? 0.6 * r.rkv : 0); });
@@ -11838,7 +11986,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 if (me.f.eChk && !before.eChk) st.push(V('s2', '상대 킹에 체크를 걸어 압박해요', '체크로 상대 킹을 곧바로 몰아붙여요', '상대가 킹부터 지켜야 하는 상황을 만들어요'));
                 if (me.f.mob - before.mob >= 6) st.push(V('s3', '내 기동력을 늘리고 상대 기동력은 줄여요', '내 말은 움직일 곳이 늘고 상대는 줄어요', '이동 가능한 수 싸움에서 앞서가요'));
                 if (nextEnemy && me.rkv - othRk >= 80) st.push(V('s4', '이어서 상대가 받을 증강의 피해를 줄여 줘요', '상대의 다음 증강이 터져도 덜 아프게 판을 만들어 둬요', '뒤따르는 상대 증강에 대한 대비가 돼요'));
-                if (me.lt && me.lt.v >= 100) st.push(me.lt.t);
+                if (me.lt && me.lt.t && (me.lt.v >= 100 || me.lt.show)) st.push(me.lt.t);
                 if (tgMe) tgMe.bits.slice(0, 2).forEach(x => st.push(x));
                 if (me.bonus - (me.lt ? me.lt.v : 0) >= 40) st.push(V('s5', '시간이 지날수록 이득이 커지는 장기 효과가 있어요', '몇 수 뒤에 진가가 드러나는 증강이에요', '당장은 티가 안 나도 시간이 갈수록 힘이 붙어요'));
                 if (me.f.mChk && !before.mChk) st.push(V('s6', '다만 내 킹이 체크에 놓여 위험해져요', '다만 바로 내 킹이 체크를 받는 게 부담이에요', '킹이 체크에 놓여 급한 불부터 꺼야 해요'));
@@ -11858,6 +12006,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                     if (top.mad) whyAll.push(`평균 결과가 ${rel(top.mad.mean)}로 더 높아요 (최선 ${rel(top.mad.max)} · 최악 ${rel(top.mad.min)})`);
                     if (tacTop && tacTop.good.length) whyAll.push(tacTop.good[0]);
                     if (top.lt && top.lt.v - (me.lt ? me.lt.v : 0) >= 80) whyAll.push(top.lt.t);
+                    else if (top.lt && top.lt.show && top.lt.t && !(me.lt && me.lt.show)) whyAll.push(top.lt.t);
                     if (tgTop && tgTop.bits.length) whyAll.push(tgTop.bits[0]);
                     const posUp = termTxt(me.f.T, top.f.T, 30, true); if (posUp.length) whyAll.push('기물 가치 말고 배치도 더 좋아요: ' + posUp.slice(0, 2).join(' · '));
                     if (top.f.pw - me.f.pw >= 1) whyAll.push(`폰을 ${Math.round(top.f.pw - me.f.pw)}개 덜 잃어서 지금의 폰 배치를 지켜요`);
@@ -13217,7 +13366,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 const lk = lockedFlags[k];
                 html += `<div class="augment-card ${typeClass}${lk ? ' pz-locked' : ''}" data-idx="${k}"${lk ? ' aria-disabled="true"' : ''}><button type="button" class="aug-info" data-aug="${aug.name}" aria-label="${aug.name} 정보">i</button><div class="augment-icon">${augIconHtml(aug.name, aug.icon)}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${typeLabel}</span>${riskLabel ? `<span class="aug-risk">${riskLabel}</span>` : ''}${lk ? '<span class="aug-lock">지금은 사용 불가</span>' : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
             });
-            html += `</div><div class="augment-hint">${anyUsable ? '' : '지금은 쓸 수 있는 증강이 없어요. '}${lockedFlags.some(f => f) ? '흑백 카드는 조건이 갖춰지면 쓸 수 있어요.<br>' : ''}카드 바깥쪽을 눌러 필드를 확인하세요.</div><button type="button" class="pz-pick-cancel">취소</button>`;
+            html += `</div><div class="augment-hint">${anyUsable ? '' : '지금은 쓸 수 있는 증강이 없어요. '}${lockedFlags.some(f => f) ? '흑백 카드는 조건이 갖춰지면 쓸 수 있어요.<br>' : ''}카드 바깥을 누르고 있으면 판이 보여요. 손가락을 움직여도 되고, 떼면 카드가 돌아와요.</div><button type="button" class="pz-pick-cancel">취소</button>`;
             ov.innerHTML = html; ov.dataset.pz = '1'; ov.style.display = 'flex'; bindAugInfo(ov);
             const closeOv = () => { ov.style.display = 'none'; ov.dataset.pz = ''; pzCoachHide(); };
             let sel = -1;
@@ -13229,9 +13378,9 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                     if (!puzzleSt || puzzleSt !== st) { closeOv(); return; }
                     if (lockedFlags[k]) { showToast('지금은 쓸 수 없어요. 조건이 갖춰지면 사용할 수 있어요.', 'var(--danger)', 1600); return; }   // 흑백 카드는 선택 불가
                     if (sel !== k) {
-                        sel = k; cards.forEach(c => c.classList.remove('selected')); card.classList.add('selected');
+                        sel = k; augMarkSel(cards, card);
                         if (coachOn) pzCoachShow(() => ov.querySelector('.augment-card'), '한 번 더 눌러 발동!', '선택됐어요. 같은 카드를 <em>한 번 더 눌러</em> 암살을 발동하세요.');
-                        else showToast('한 번 더 눌러 발동하세요.', 'var(--primary)', 1500); return;
+                        return;
                     }
                     let ok = true; try { if (typeof opts[k].condition === 'function') ok = !!opts[k].condition('w', 'b'); } catch (e) { ok = true; }
                     if (!ok) { sel = -1; card.classList.remove('selected'); showToast('지금 판에서는 쓸 수 없는 증강이에요', 'var(--danger)', 1600); return; }
@@ -13599,7 +13748,12 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 lastRank = applyRanking(resultType);
             }
 
+            let revealWaited = 0;
             const reveal = () => {
+                if (game.is_game_over && revealWaited < 6000) {   // 마무리 효과(체크메이트·킹 파괴)가 아직 재생 중이면 끝난 뒤에 결과창을 띄운다
+                    let busy = false; try { busy = kickAnimating || FX.finBusy(); } catch (e) {}
+                    if (busy) { revealWaited += 150; clearTimeout(endRevealTimer); endRevealTimer = setTimeout(reveal, 150); return; }
+                }
                 const mb0 = document.getElementById('mate-banner'); if (mb0) mb0.style.display = 'none';
                 if(!game.is_game_over) return;   // 그 사이 새 게임으로 초기화됐다면 표시하지 않음
                 previousMove = null;
@@ -15299,20 +15453,15 @@ self.onmessage = function (e) {
             document.body.classList.add('demo-mode'); if (cfg.pov) document.body.classList.add('black-pov');
             myColor = 'w'; isBotMode = false; isGameStarted = true; currentRoomId = null;
             helpResetState();
-            helpPlace('Ra1 Nb1 Bc1 Ke1 Bf1 Ng1 Rh1 Pa2 Pc2 Pd2 Pe2 Pf2 Pg2 Ph2 Qb2', 'w');   // 퀸은 b2에서 대각선으로 e5까지
+            helpPlace('Ra1 Nb1 Bc1 Ke1 Bf1 Ng1 Rh1 Pa2 Pc2 Pd2 Pe2 Pf2 Pg2 Ph2 Qd4', 'w');   // 퀸이 d4에서 한 번에 e5 킹을 잡는다
             helpPlace('Ra8 Nb8 Bc8 Qd8 Bf8 Ng8 Rh8 Ke5 Pa7 Pb7 Pc7 Pf7 Pg7 Ph7', 'b');
             game._turn = 'w'; moveCount = 1; lastCheckKey = '';
             showBoardContainer(); muteShatter = true; drawPieces(false); muteShatter = false; updateBoardVisuals(); updateTurnIndicator();
             isSystemLocked = true;
-            post('ready'); post('cap', { text: '백 퀸이 흑 킹을 노립니다' });
-            try { const k = squareEls.get('e5'); if (k) k.classList.add('in-check'); } catch (e) {}
-            await wait(1300);
-            { const q = game.get('b2'), qe = q && pieceEls.get(q.uid); if (qe) qe.style.transition = 'translate 0.6s cubic-bezier(.45,0,.2,1)'; }   // 퀸이 천천히 다가오는 모습
-            executeMoveLocal('b2', 'd4'); post('cap', { text: '백 퀸이 킹에게 다가갑니다' });
-            await wait(1500);
+            post('ready');
+            await wait(700);
             { const q = game.get('d4'), qe = q && pieceEls.get(q.uid); if (qe) qe.style.transition = 'translate 0.16s ease-in'; }   // 덮치듯 빠르게
             game._turn = 'w'; isSystemLocked = true;
-            post('cap', { text: '퀸이 킹을 잡습니다!' });
             executeMoveLocal('d4', 'e5');
             await wait(900); post('cap', { text: ((FINISHERS.find(f => f.id === cfg.finisher) || {}).desc) || '' });
             await wait(6500); post('done');
@@ -15395,6 +15544,7 @@ self.onmessage = function (e) {
             const ov = document.getElementById('aug-info-overlay'); if (!ov) return;
             const box = ov.querySelector('.aug-info-box'), stage = ov.querySelector('.hd-stage'), load = ov.querySelector('.hd-loading'), cap = ov.querySelector('.hd-cap'), replay = ov.querySelector('.hd-replay');
             const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+            { const chip = document.createElement('div'); chip.id = 'ai-timer'; ov.appendChild(chip); }
             let curFrame = null, loadTimer = null, curName = null;
             function play() {
                 const aug = AUGMENT_POOL.find(a => a.name === curName); if (!aug) return;
@@ -15406,7 +15556,7 @@ self.onmessage = function (e) {
                 clearTimeout(loadTimer); loadTimer = setTimeout(() => { if (load.style.display !== 'none') load.textContent = '미리보기를 불러오지 못했어요. 다시 보기를 눌러 주세요.'; }, 12000);
             }
             function close() {
-                clearTimeout(loadTimer); stage.querySelectorAll('iframe').forEach(f => f.remove()); curFrame = null; curName = null; ov.style.display = 'none'; document.body.classList.remove('aug-info-open');
+                clearTimeout(loadTimer); stage.querySelectorAll('iframe').forEach(f => f.remove()); curFrame = null; curName = null; ov.style.display = 'none'; document.body.classList.remove('aug-info-open'); paintInfoTimer();
             }
             window.__openAugInfo = function (name) {
                 const aug = AUGMENT_POOL.find(a => a.name === name); if (!aug) return;
@@ -15415,7 +15565,7 @@ self.onmessage = function (e) {
                 document.getElementById('ai-title').innerHTML = '<span class="ai-ic">' + augIconHtml(aug.name, esc(aug.icon)) + '</span> ' + esc(aug.name);
                 document.getElementById('ai-meta').innerHTML = `<span class="help-aug-tag">${esc(getAugmentCategoryLabel(aug))}</span>` + (risk ? `<span class="help-aug-tag risk">${esc(risk)}</span>` : '');
                 document.getElementById('ai-desc').innerHTML = renderAugDesc(aug.desc);
-                ov.style.display = 'flex'; document.body.classList.add('aug-info-open'); play();
+                ov.style.display = 'flex'; document.body.classList.add('aug-info-open'); paintInfoTimer(); play();
             };
             window.addEventListener('message', e => {
                 const d = e.data; if (!d || d.aug !== 'demo' || !curFrame || e.source !== curFrame.contentWindow || ov.style.display === 'none') return;
@@ -15644,7 +15794,7 @@ self.onmessage = function (e) {
                 if (aug.target) {   // 사람이 대상을 고르는 증강: 봇에게 가장 아픈 대상(몇 곳만 확인)
                     let cands = []; try { cands = aug.target.valid(humanC, botC) || []; } catch (e) {}
                     if (!cands.length) cands = [null];
-                    for (const t of shuffle(cands).slice(0, 4)) { const sc = botSimAugment(aug, humanC, botC, t, 0); if (sc === null) continue; const v = botClampV(-sc); if (best === null || v < best) best = v; }
+                    for (const t of shuffle(cands).slice(0, proxy ? 6 : 4)) { const sc = botSimAugment(aug, humanC, botC, t, 0); if (sc === null) continue; const v = botClampV(-sc); if (best === null || (proxy ? v > best : v < best)) best = v; }   // 법정 대리인이면 대상·자리도 고르는 쪽(봇)이 정하므로 봇에게 가장 '이로운' 곳을 본다
                 } else {   // 무작위 요소가 있는 증강은 두 번 보고 평균
                     let sum = 0, n = 0; for (let i = 0; i < 2; i++) { const sc = botSimAugment(aug, humanC, botC, null, 0); if (sc !== null) { sum += botClampV(-sc); n++; } }
                     if (n) best = sum / n;
@@ -15660,7 +15810,7 @@ self.onmessage = function (e) {
                 if (proxy) { const mx = Math.max(...vs); tot += 0.85 * mx + 0.15 * mean; }   // 법정 대리인: 선택지 중 봇에게 가장 덜 아픈 것을 봇이 고른다
                 else tot += 0.65 * mn + 0.35 * mean;   // 사람이 늘 최선을 고르진 않으므로 최선 65% + 평균 35%
             }
-            return Math.max(-400, Math.min(100, tot / R - base));
+            return Math.max(-400, Math.min(proxy ? 260 : 100, tot / R - base));
         }
         // 후보 수 m을 둔 직후 사람의 증강 기대 피해
         function botAugRiskAfterMove(m, botC, humanC, budgetMs) {
@@ -15769,7 +15919,15 @@ self.onmessage = function (e) {
             if (fill && !fill.dataset.run) { fill.dataset.run = '1'; fill.style.animation = `augShrink ${Math.max(0, left)}ms linear forwards`; }   // 남은 시간에 맞춰 한 번 시작하면 브라우저가 부드럽게 줄인다
             if (!bar.dataset.tot) bar.dataset.tot = sec; bar.classList.toggle('low', sec <= Math.min(10, Math.ceil(Number(bar.dataset.tot) / 3))); bar.querySelector('.at-sec').textContent = sec + 's';
         }
+        function paintInfoTimer() {   // 증강 설명 창을 보는 중에도 남은 선택 시간을 위에 띄운다(내 차례면 내 시간, 아니면 상대 시간)
+            const c = document.getElementById('ai-timer'); if (!c) return;
+            const dl = augDeadline || oppAugDeadline;
+            if (!document.body.classList.contains('aug-info-open') || !dl) { c.style.display = 'none'; return; }
+            const sec = Math.max(0, Math.ceil((dl - Date.now()) / 1000));
+            c.style.display = 'flex'; c.textContent = (augDeadline ? '⏱ 남은 선택 시간 ' : '⏱ 상대 선택 시간 ') + sec + '초'; c.classList.toggle('low', sec <= 10);
+        }
         function updateAugTimerUI() {
+            paintInfoTimer();
             if (oppAugDeadline) { const ob = document.getElementById('opp-aug-timer'); if (ob) paintAugBar(ob, Math.max(0, oppAugDeadline - Date.now())); }   // 상대(또는 관전 중인 선수)의 남은 시간
             if (!augDeadline) return;
             const left = Math.max(0, augDeadline - Date.now()), sec = Math.ceil(left / 1000);
@@ -15888,7 +16046,7 @@ self.onmessage = function (e) {
                 const typeClass = getAugmentCategoryClass(aug);
                 html += `<div class="augment-card ${typeClass}" data-idx="${idx}"><button type="button" class="aug-info" data-aug="${aug.name}" aria-label="${aug.name} 정보">i</button><div class="augment-icon">${augIconHtml(aug.name, aug.icon)}</div><div class="augment-title">${aug.name}</div><div class="augment-subtitle"><span class="aug-type">${typeLabel}</span>${riskLabel ? `<span class="aug-risk">${riskLabel}</span>` : ''}</div><div class="augment-desc">${renderAugDesc(aug.desc)}</div></div>`;
             });
-            html += `</div><div class="augment-hint">카드 바깥쪽을 눌러 필드를 확인하세요.${isProxy ? '<br>선택한 증강은 상대가 사용한 것으로 발동됩니다. 대상이나 위치는 내가 직접 지정합니다.' : ''}</div>`;
+            html += `</div><div class="augment-hint">카드 바깥을 누르고 있으면 판이 보여요. 손가락을 움직여도 되고, 떼면 카드가 돌아와요.${isProxy ? '<br>선택한 증강은 상대가 사용한 것으로 발동됩니다. 대상이나 위치는 내가 직접 지정합니다.' : ''}</div>`;
             if (!__AUG_DEMO && !document.body.classList.contains('demo-cards')) {
                 if (!(augKeepDeadline && augDeadline)) augDeadline = Date.now() + augLimitMs(myColor);
                 augKeepDeadline = false; augCtx = { playerColor, enemyColor, options };
@@ -15907,8 +16065,7 @@ self.onmessage = function (e) {
                     } else {
                         selectedAugmentIdx = idx;
                         if (currentRoomId && !isBotMode) pushGameAction({ type: 'augment_select', idx: idx, confirmed: false });   // 상대 화면에 '선택'을 보여 준다
-                        document.querySelectorAll('.augment-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected');
-                        showToast("한 번 더 눌러 발동하세요.", "var(--primary)", 1500);
+                        augMarkSel(document.querySelectorAll('.augment-card'), card);
                     }
                 };
             });
@@ -15916,15 +16073,23 @@ self.onmessage = function (e) {
             // 재접속 시 선택 상태 복원
             if (selectedAugmentIdx !== -1 && selectedAugmentIdx < options.length) {
                 const selectedCard = document.querySelector(`.augment-card[data-idx="${selectedAugmentIdx}"]`);
-                if (selectedCard) {
-                    selectedCard.classList.add('selected');
-                }
+                if (selectedCard) augMarkSel(document.querySelectorAll('.augment-card'), selectedCard);
             }
         }
 
         // 법정 대리인: 증강을 확정할 때 저울 마크가 새겨진 도장이 고른 카드 한가운데에 '쾅' 찍힌다.
         // 고르는 쪽·보는 쪽(상대) 화면 모두에서 같은 연출을 쓴다.
         const STAMP_SVG = '<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="50" cy="50" r="45" stroke-width="4.5"/><circle cx="50" cy="50" r="38" stroke-width="1.6"/><path stroke-width="4" d="M50 24V72M35 76H65M22 35H78"/><circle cx="50" cy="24" r="3.4" fill="currentColor" stroke="none"/><path stroke-width="2.4" d="M22 35L13 57M22 35L31 57M78 35L69 57M78 35L87 57"/><path stroke-width="2.6" d="M10 57Q22 69 34 57ZM66 57Q78 69 90 57Z" fill="currentColor" fill-opacity=".35"/></svg>';
+        function augMarkSel(cards, card) {   // 카드는 원래 선택 스타일 그대로, 아래 안내 문구만 '한 번 더 눌러 발동'으로 바뀐다
+            cards.forEach(c => c.classList.remove('selected')); card.classList.add('selected');
+            const h = (card.closest('.overlay') || document).querySelector('.augment-hint');
+            if (h) {
+                if (h.dataset.orig === undefined) h.dataset.orig = h.innerHTML;
+                const nm = (card.querySelector('.augment-title') || {}).textContent || '', extra = h.dataset.orig.split('<br>').slice(1).join('<br>');
+                h.innerHTML = '<b style="color:var(--primary);font-size:.92rem">' + nm.replace(/</g, '&lt;') + ' 선택됨 · 같은 카드를 한 번 더 눌러 발동하세요</b>' + (extra ? '<br>' + extra : '');
+            }
+            try { navigator.vibrate && navigator.vibrate(10); } catch (e) {}
+        }
         function gavelConfirm(card, done) {   // (이름은 그대로) 도장 찍기
             done = done || function () {};
             const r = card.getBoundingClientRect();
@@ -15985,6 +16150,7 @@ self.onmessage = function (e) {
 
         function doApplyAugment(selectedAug, pColor, eColor, target) {
             stopAugTimer(); augBusy = true; augBusyAt = Date.now(); const gs0 = gameEpoch;
+            const viaC = (proxyPick[pColor] && proxyPick[pColor] !== pColor) ? proxyPick[pColor] : null;   // 법정 대리인: 이 증강을 대신 고른 쪽 (리플레이 평가가 고른 사람 기준으로 보도록 기록한다)
             const offeredNames = (augOfferedNow && augOfferedNow.color === pColor && augOfferedNow.names.includes(selectedAug.name)) ? augOfferedNow.names.slice() : null;
             addAugmentLog(pColor === myColor ? 'mine' : 'opp', selectedAug);
             try { if (pColor === myColor && !isSpectating && !isPracticeMode && !isBotMode && !(typeof __AUG_DEMO !== 'undefined' && __AUG_DEMO)) statAugs[selectedAug.name] = (statAugs[selectedAug.name] || 0) + 1; } catch (e) {}   // 통계: 내가 쓴 증강 (사람 대전만)
@@ -16017,9 +16183,9 @@ self.onmessage = function (e) {
                 // 끝줄에 닿은 폰(진군 명령): 승급할 기물을 고르는 것까지가 이 증강의 턴이다 (지뢰에 걸려 사라진 폰은 제외)
                 const promoSqs = (res.promos || []).filter(sq => { const p = game.get(sq); return p && p.type === 'p' && p.color === pColor; });
                 const sync = () => {
-                    recordFrame('augment', { name: selectedAug.name, icon: selectedAug.icon, t: res.t || [], by: pColor, offered: offeredNames, fx: { globalVfx: selectedAug.globalVfx || null, t: res.t || [], vfx: res.vfx || '', floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null, blasts: res.blasts || null, promos: res.promoDone || null, msg: res.msg || '', delay: delay } });
+                    recordFrame('augment', { name: selectedAug.name, icon: selectedAug.icon, t: res.t || [], by: pColor, via: viaC, offered: offeredNames, fx: { globalVfx: selectedAug.globalVfx || null, t: res.t || [], vfx: res.vfx || '', floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null, blasts: res.blasts || null, promos: res.promoDone || null, msg: res.msg || '', delay: delay } });
                     pushGameAction({
-                        type: 'augment_sync', by: pColor, name: selectedAug.name, offered: offeredNames, state: serializeGameState(),
+                        type: 'augment_sync', by: pColor, via: viaC, name: selectedAug.name, offered: offeredNames, state: serializeGameState(),
                         globalVfx: selectedAug.globalVfx || null,
                         t: res.t || [], vfx: res.vfx || '', msg: res.msg || '', delay: delay, floats: floats, fxArg: res.fxArg || null, origin: res.origin || null, fxMoves: res.fxMoves || null, blasts: res.blasts || null, promos: res.promoDone || null
                     });
@@ -16054,8 +16220,8 @@ self.onmessage = function (e) {
         function ensureTargetBanner() {
             let b = document.getElementById('target-banner');
             if (!b) {
-                b = document.createElement('div'); b.id = 'target-banner';
-                b.innerHTML = '<div class="tb-text"><div class="tb-title"></div><div class="tb-msg"></div><div class="tb-time"></div></div><button class="tb-cancel" type="button">취소</button>';
+                b = document.createElement('div'); b.id = 'target-banner'; b.setAttribute('role', 'status');
+                b.innerHTML = '<div class="tb-text"><div class="tb-title"></div><div class="tb-msg"></div><div class="tb-time"></div></div><div class="tb-actions"><button class="tb-cancel" type="button">취소</button></div>';
                 document.body.appendChild(b);
                 b.querySelector('.tb-cancel').addEventListener('click', () => cancelTargeting());
             }
@@ -16064,28 +16230,33 @@ self.onmessage = function (e) {
         function setTargetBanner(title, msg, confirm) {
             const b = ensureTargetBanner();
             b.querySelector('.tb-title').innerText = title; b.querySelector('.tb-msg').innerText = msg;
-            b.classList.toggle('confirm', !!confirm); b.style.display = 'flex'; placeTargetBanner();
+            b.classList.toggle('confirm', !!confirm);
+            b.style.display = 'flex'; placeTargetBanner();
         }
-        function placeTargetBanner() {   // 가로 모드에서는 보드 아래가 아니라 오른쪽 패널에 놓아 기물을 가리지 않는다
+        function placeTargetBanner() {   // 가로 모드: 우측 패널 그리드 안으로 옮겨 CSS가 배치한다(좌표 계산 없음). 세로 모드: 화면 하단 고정
             const b = document.getElementById('target-banner'); if (!b || b.style.display === 'none') return;
-            const reset = () => { b.style.left = b.style.bottom = b.style.width = b.style.transform = ''; };
-            if (!document.body.classList.contains('wide-mode')) { reset(); return; }
-            const bd = document.getElementById('board'); if (!bd) { reset(); return; }
-            const r = bd.getBoundingClientRect(), left = r.right + 16, w = Math.min(380, window.innerWidth - left - 16);
-            if (w < 220) { reset(); return; }
-            b.style.left = left + 'px'; b.style.width = w + 'px'; b.style.transform = 'none'; b.style.bottom = Math.max(14, window.innerHeight - r.bottom + 14) + 'px';
+            const fr = document.getElementById('game-frame'), wide = document.body.classList.contains('wide-mode') && !!fr;
+            if (wide) { if (b.parentNode !== fr) fr.appendChild(b); } else if (b.parentNode !== document.body) document.body.appendChild(b);
+            b.style.left = b.style.bottom = b.style.width = b.style.transform = '';
+            const log = document.getElementById('chat-log'); if (wide && log) log.scrollTop = log.scrollHeight;   // 채팅 칸이 줄어도 최신 대화가 보이게
         }
         window.addEventListener('resize', () => { placeTargetBanner(); setTimeout(placeTargetBanner, 150); });
+        const tbBuzz = ms => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} };
         function clearTargetVisuals() {
             squareList.forEach(el => el.classList.remove('target-valid', 'tv-piece', 'target-preview', 'target-file'));
+            pieceEls.forEach(el => el.classList.remove('tgt-ok'));
             document.querySelectorAll('.target-ghost').forEach(e => e.remove());
             const b = document.getElementById('target-banner'); if (b) b.style.display = 'none';
+            document.body.classList.remove('targeting-on');
         }
         function beginTargeting(aug, pColor, eColor, onConfirm, onCancel) {
             const def = aug.target, valid = def.valid(pColor, eColor);
             if (!valid.length) { onConfirm(null); return; }
             targeting = { aug, valid: new Set(valid), preview: null, onConfirm, onCancel };
+            const tbMsg = pColor === myColor ? def.prompt : '(대리 지정) ' + def.prompt.replace(/아군/g, '상대 진영의').replace(/적 기물/g, '내 기물'); targeting.msg = tbMsg;
+            document.body.classList.add('targeting-on');
             valid.forEach(sq => { const el = squareEls.get(sq); if (el) { el.classList.add('target-valid'); if (def.mode === 'piece') el.classList.add('tv-piece'); } });
+            valid.forEach(sq => { try { const pc = game.get(sq), pe = pc && pieceEls.get(pc.uid); if (pe) pe.classList.add('tgt-ok'); } catch (e) {} });   // 지정 가능한 칸 위의 기물만 밝게 둔다
             setTargetBanner(`${aug.icon} ${aug.name}`, pColor === myColor ? def.prompt : '(대리 지정) ' + def.prompt.replace(/아군/g, '상대 진영의').replace(/적 기물/g, '내 기물'), false);
         }
         function handleTargetClick(sq) {
@@ -16094,22 +16265,27 @@ self.onmessage = function (e) {
             if (targeting.preview === sq) { confirmTarget(); return; }
             squareList.forEach(el => el.classList.remove('target-preview', 'target-file'));
             document.querySelectorAll('.target-ghost').forEach(e => e.remove());
-            targeting.preview = sq; squareEls.get(sq).classList.add('target-preview');
+            targeting.preview = sq; squareEls.get(sq).classList.add('target-preview'); tbBuzz(10);
             if (targeting.aug.target.file) for (let r = 1; r <= 8; r++) { const fe = squareEls.get(sq[0] + r); if (fe) fe.classList.add('target-file'); }
             if (targeting.aug.target.ghost === 'wall') {
                 const c = getCoords(sq), g = document.createElement('div');
                 g.className = 'piece-wrapper target-ghost'; g.innerHTML = svgPieces['WALL']; g.style.translate = `${c.x * 8}% ${c.y * 8}%`; piecesLayer.appendChild(g);
             }
-            setTargetBanner(`${targeting.aug.icon} ${targeting.aug.name}`, '한 번 더 누르면 확정됩니다', true);
+            setTargetBanner(`${targeting.aug.icon} ${targeting.aug.name}`, targeting.msg, false);
         }
         function confirmTarget() {
             const t = targeting; if (!t || !t.preview) return;
-            const sq = t.preview; clearTargetVisuals(); targeting = null; t.onConfirm(sq);
+            const sq = t.preview; tbBuzz(18); clearTargetVisuals(); targeting = null; t.onConfirm(sq);
         }
         function cancelTargeting() {
             const t = targeting; clearTargetVisuals(); targeting = null;
             if (t && t.onCancel) t.onCancel();
         }
+        document.addEventListener('keydown', e => {   // Esc = 취소, Enter = 확정
+            if (!targeting) return;
+            if (e.key === 'Escape') { e.preventDefault(); cancelTargeting(); }
+            else if (e.key === 'Enter' && targeting.preview) { e.preventDefault(); confirmTarget(); }
+        });
 
         // ==========================================
         // 연습 모드 v2: 자유 배치·이동 · 증강 체험 · 시점 전환(암전 안개 포함) · 되돌리기/다시하기
