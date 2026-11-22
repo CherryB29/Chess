@@ -489,6 +489,8 @@
         body.targeting-on #squares-layer .square:not(.target-valid):not(.target-preview) { filter: brightness(.7) saturate(.75); transition: filter .2s; }
         body.targeting-on .piece-wrapper:not(.tgt-ok):not(.target-ghost) > svg { filter: brightness(.7) saturate(.75) drop-shadow(0 3px 4px rgba(0,0,0,0.4)); transition: filter .2s; }   /* 지정 불가능한 칸 위의 기물도 칸과 똑같이 어둡게 (기물은 칸과 다른 레이어라 따로 처리) */
         body.wide-mode #game-frame > #target-banner { position: relative; left: auto; bottom: auto; transform: none; width: auto; grid-column: 2; grid-row: 4; margin: 0 16px 8px; z-index: 2; box-sizing: border-box; }
+        body.targeting-on.tgt-nodim #squares-layer .square:not(.target-valid):not(.target-preview) { filter: none; }   /* 차원 장벽·지뢰 찾기는 위치 지정 중 어둡게(흑백) 강조하지 않는다 */
+        body.targeting-on.tgt-nodim .piece-wrapper:not(.tgt-ok):not(.target-ghost) > svg { filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4)); }
         body.wide-mode.targeting-on #game-frame { grid-template-rows: auto auto minmax(0, 1fr) auto auto auto; }
         body.wide-mode.targeting-on #game-frame > #game-controls { grid-row: 5; }
         body.wide-mode.targeting-on #game-frame > #replay-bar { grid-row: 6; }
@@ -4211,13 +4213,13 @@
             { id: 'wheel', icon: '🎡', name: '운명의 수레바퀴', desc: '발밑 룰렛이 점점 느려지다, 킹이 웅크렸다 대포알처럼 쏘아져 날아가 터집니다', ach: 'aug_wheel' },
             { id: 'barrier', icon: '🧱', name: '차원 장벽', desc: '벽돌이 하나씩 쿵쿵 내려앉아 킹을 에워싸고, 조여 오는 벽에 눌린 킹이 와르르 터집니다', ach: 'aug_barrier' },
             { id: 'draft', icon: '', name: '징집관 병사 대열', desc: '폰 일곱이 킹 뒤로 줄을 서고, 킹이 졸병(폰)으로 징집됩니다. 대열이 돌격해 벽에 쾅 부딪혀 찌그러지고, 맨 앞 졸병이 튕겨 터지면 폰들이 도미노처럼 쓰러집니다', ach: 'aug_draft' },
-            { id: 'bless', icon: '', name: '성직자 종소리', desc: '비숍 넷이 킹 둘레를 점점 빠르게 돌고, 킹이 빛 속에서 천천히 떠올라 깃털 빛으로 흩어집니다', ach: 'aug_bless' },
+            { id: 'bless', icon: '', name: '성직자 승천', desc: '마법진이 돌아가는 가운데 비숍 넷이 내려와 기도하고, 비숍의 대각선을 따라 빛줄기가 킹에게 모입니다. 하늘의 빛기둥과 깃털 속에 킹이 떠오르다, 모든 빛이 달아올라 깃털 빛으로 터집니다', ach: 'aug_bless' },
             { id: 'forest', icon: '', name: '숲의 주인', desc: '나무 기둥이 킹을 에워싸 솟아 안으로 기울고, 잎사귀 폭풍으로 터집니다', ach: 'aug_forest' },
             { id: 'knight', icon: '', name: '기사단장', desc: '나이트가 ㄴ자로 킹 주위를 뛰며 베고, 숨 죽인 정적 뒤 일섬. 킹이 사선으로 갈라져 미끄러집니다', ach: 'aug_knight' },
             { id: 'castle', icon: '', name: '성주', desc: '룩이 땅에서 솟아 킹을 높이 떠받치며 탑을 쌓고, 탑이 통째로 쓰러져 킹이 멀리 내던져집니다', ach: 'aug_castle' },
             { id: 'march', icon: '', name: '총사령관', desc: '붉은 병사 대열이 판을 세 번 가로지르고, 킹이 마지막 대열에 휩쓸려 날아갑니다', ach: 'aug_march' },
-            { id: 'shadow', icon: '', name: '그림자 술사', desc: '킹의 그림자들이 자리를 휙휙 바꾸다 한꺼번에 덮쳐, 킹이 제 그림자로 납작해져 사라집니다', ach: 'aug_shadow' },
-            { id: 'chaos', icon: '', name: '혼돈의 지배자', desc: '킹의 정체가 퀸·룩·나이트로 계속 바뀌며 판 위를 점점 빨리 순간이동하고, 멈추는 순간 온갖 기물 모양 파편이 사방으로 터집니다', ach: 'aug_chaos' },
+            { id: 'shadow', icon: '', name: '그림자 술사', desc: '불이 꺼지고, 킹을 잡은 기물의 거대한 그림자가 킹 뒤로 서서히 드리웁니다. 눈이 번뜩이며 세 번 박동한 뒤 그림자가 킹을 내리찍어 먹물 얼룩으로 터집니다', ach: 'aug_shadow' },
+            { id: 'chaos', icon: '', name: '혼돈의 지배자', desc: '킹이 정체를 바꾸며 RGB 잔상을 끌고 순간이동하고, 남겨진 헛기물들이 한꺼번에 킹에게 빨려들어 부풀다가, 온갖 기물 모양 파편으로 폭주해 터집니다', ach: 'aug_chaos' },
             { id: 'madness', icon: '', name: '광대', desc: '킹이 작아지며 셋으로 갈라져 저글링을 하다 하늘로 올라 색종이로 터지고, 풍선 세 개가 둥실 떠오릅니다', ach: 'aug_madness' },
             { id: 'exile', icon: '', name: '추방자', desc: '판 끝에 문이 열리고, 킹이 길게 늘어나 빨려 들어가면 문이 쾅 닫힙니다', ach: 'aug_exile' },
             { id: 'vine', icon: '', name: '자연인', desc: '킹이 씨앗이 되어 심기고 줄기가 쑥 자라 잎이 돋고, 꼭대기에서 꽃이 활짝 피어 킹이 꽃술이 됩니다. 세 번 맥동하다 꽃잎과 함께 터집니다', ach: 'aug_vine' },
@@ -9127,23 +9129,44 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 };
 
                 // 🕊️ 성직자: 아군 비숍 4명이 킹을 돌며 합창하듯 원을 그리고, 점점 빨라질수록 킹이 빛 속에 떠올라, 정점에서 깃털 빛으로 흩어진다
-                FIN.bless = (sq, atk) => {
-                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), G = [255, 230, 150], Hh = Math.min(2.1 * cell, spaceUp(y)), TO = 2800, ST = 48, bs = [];
-                    finVeil('rgb(255,235,170)', .3, TO + 800);
-                    const lift = t => Hh * t * t * (3 - 2 * t);   // 서서히 올라감
-                    finFly(fr, Array.from({ length: ST + 1 }, (_, i) => { const t = i / ST; return { transform: T3(0, lift(t), 0, t * 540, Math.sin(t * 14) * 4 * t, 1 + .1 * Math.sin(t * 22)), offset: t }; }), TO, 'linear');
-                    for (let k = 0; k < 4; k++) {
-                        const b = mk('b', x, y, .74); bs.push(b);
-                        go(b, Array.from({ length: ST + 1 }, (_, i) => {
-                            const t = i / ST, ang = k * TAU / 4 + Math.pow(t, 1.4) * TAU * 3.2, R = cell * (1.5 - .35 * t), cx = Math.cos(ang) * R, cy = u * lift(t) + Math.sin(ang) * R * .42, fz = .85 + .25 * Math.sin(ang);
-                            return { transform: tf(cx, cy, Math.cos(ang) * 8, fz), opacity: Math.min(1, t * 10), offset: t };
-                        }), TO);
-                    }
-                    for (let i = 1; i <= 5; i++) later(i * TO / 6, () => { const yy = y + u * lift(i / 6); ring(x, yy, cell * .2, cell * 1.9, G, .5, 3, .8); radial(x, yy, 8, 30, 110, [G, C.white], { p: { kind: 'spark', size: rnd(1.6, 3), dur: .7 } }); shake(2, 100); });
-                    later(TO, () => {   // 정점: 비숍들이 고개 숙여 인사하고, 킹은 깃털 빛으로
-                        finBoom(x, y + u * Hh, [G, C.white, [255, 200, 220]], fr, { start: Hh, mode: 'rise', power: 1.1, s0: 1.1 }); shake(7, 300);
-                        radial(x, y + u * Hh, 26, 60, 260, [C.white, G], { p: { kind: 'petal', size: rnd(3, 6), g: UP() * -70, dur: 1.8, rot: rnd(0, TAU), vr: rnd(-6, 6) } });
-                        bs.forEach((b, k) => { const ang = k * TAU / 4 + Math.pow(1, 1.4) * TAU * 3.2, R = cell * 1.15, ex = Math.cos(ang) * R, ey = u * Hh + Math.sin(ang) * R * .42; go(b, [{ transform: tf(ex, ey, 0, 1), opacity: 1 }, { transform: tf(ex, ey + cell * .1, 14, 1.1, .8), opacity: 1, offset: .3 }, { transform: tf(ex, ey + u * cell * 1.2, 0, .9), opacity: 0 }], 1100, 'ease-out'); });
+                FIN.bless = (sq, atk) => {   // 성직자 승천: 마법진이 돌아가는 가운데 비숍 넷이 내려와 기도하고, 비숍의 대각선을 따라 빛줄기가 킹에게 모인다. 하늘에서 빛기둥이 내리고 깃털이 흩날리는 속에 킹이 떠오르다, 모든 빛이 하얗게 달아올라 깃털 빛으로 터진다
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), G = [255, 226, 140], Hh = Math.min(1.8 * cell, spaceUp(y)), FO = finFoes(sq), TB = 3850, LF = Hh * .9; if (!fr) return;
+                    const ez = p => { p = Math.max(0, Math.min(1, p)); return p * p * (3 - 2 * p); }, fade = (el, ms, d) => { try { el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: ms, delay: d || 0, fill: 'forwards' }); } catch (e) {} }, lights = [], bs = [], bms = [];
+                    finVeil('rgb(255,236,176)', .24, 5000); finMark(4900);
+                    const cw = cell * 3.4, bt = Math.max(2, cell * .03), circ = finLow(`left:${x - cw / 2}px;top:${y - u * cell * .22 - cw / 2}px;width:${cw}px;height:${cw}px;border-radius:50%;opacity:0;border:${bt}px solid rgb(255,226,140);box-sizing:border-box;box-shadow:0 0 ${cell * .3}px rgba(255,220,120,.8),inset 0 0 ${cell * .3}px rgba(255,220,120,.6);background:radial-gradient(circle,rgba(255,240,190,.35),transparent 70%);`); finGone(circ, 6000); lights.push(circ);   // 마법진 (바닥에 눕혀 돌린다)
+                    circ.innerHTML = '<div style="position:absolute;inset:9%;border-radius:50%;background:repeating-conic-gradient(rgba(255,230,150,.95) 0 3deg,transparent 3deg 15deg);-webkit-mask:radial-gradient(circle,transparent 66%,#000 67% 82%,transparent 83%);mask:radial-gradient(circle,transparent 66%,#000 67% 82%,transparent 83%)"></div><div style="position:absolute;inset:30%;border-radius:50%;border:2px solid rgba(255,230,150,.9)"></div>';
+                    try { circ.animate([{ transform: 'scaleY(.42) rotate(0deg) scale(.2)', opacity: 0 }, { transform: 'scaleY(.42) rotate(120deg) scale(1)', opacity: 1, offset: .15 }, { transform: 'scaleY(.42) rotate(900deg) scale(1)', opacity: 1, offset: .8 }, { transform: 'scaleY(.42) rotate(1200deg) scale(1.15)', opacity: 0 }], { duration: 4700, fill: 'forwards', easing: 'linear' }); } catch (e) {}
+                    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sy], k) => later(200 + k * 120, () => {   // 비숍 넷이 대각선 자리에 내려와 기도한다
+                        const px = Math.max(cell * .5, Math.min(W - cell * .5, x + sx * cell * 2.1)), py = Math.max(cell * .5, Math.min(H - cell * .5, y + sy * cell * 1.9)), b = mk('b', px, py, .74); bs.push(b);
+                        go(b, [{ transform: tf(0, u * cell * 2.6, 0, .8), opacity: 0 }, { transform: tf(0, 0, 0, 1.15, .85), opacity: 1, offset: .72, easing: FBEZ }, { transform: tf(0, 0, 0, 1), opacity: 1 }], 480, 'ease-in');
+                        later(470, () => { ring(px, py - u * cell * .25, cell * .1, cell * .8, G, .35, 3, .7); puffs(px, py - u * cell * .3, 2, C.dust, .4); try { b.d.firstChild.animate([{ translate: '0 0' }, { translate: `0 ${-cell * .05}px` }], { duration: 700 + k * 90, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }); } catch (e) {} });
+                        later(700, () => {   // 비숍의 대각선을 따라 빛줄기가 킹에게 내달린다
+                            const dx = x - px, dy = y - py, L = Math.hypot(dx, dy) + cell * .3, ang = Math.atan2(dy, dx), bh2 = cell * .3;
+                            const bm = finLow(`left:${px}px;top:${py - bh2 / 2}px;width:${L}px;height:${bh2}px;transform-origin:0 50%;opacity:0;border-radius:${bh2}px;background:linear-gradient(90deg,rgba(255,226,140,0),rgba(255,240,180,.9) 55%,rgba(255,255,255,.98));filter:blur(${cell * .02}px);`); finGone(bm, 6000); lights.push(bm); bms.push({ bm, ang });
+                            try { bm.animate([{ transform: `rotate(${ang}rad) scaleX(0)`, opacity: 1 }, { transform: `rotate(${ang}rad) scaleX(1)`, opacity: 1 }], { duration: 380, fill: 'forwards', easing: 'ease-in' }); } catch (e) {}
+                            later(380, () => { ring(x, y, cell * .1, cell * 1.1, G, .4, 3, .8); radial(x, y, 8, 40, 150, [G, C.white], { p: { kind: 'spark', size: rnd(1.6, 3), dur: .6 } }); shake(2, 100); try { bm.animate([{ transform: `rotate(${ang}rad) scaleX(1) scaleY(1)` }, { transform: `rotate(${ang}rad) scaleX(1) scaleY(1.5)` }], { duration: 420, fill: 'forwards', iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }); } catch (e) {} });
+                        });
+                    }));
+                    const cw2 = cell * 1.2, colH = u < 0 ? y + cell * .3 : H - y + cell * .3, col = finLow(`left:${x - cw2 / 2}px;top:${u < 0 ? 0 : y - cell * .3}px;width:${cw2}px;height:${colH}px;transform-origin:50% ${u < 0 ? 0 : 100}%;opacity:0;background:linear-gradient(${u < 0 ? 'to bottom' : 'to top'},rgba(255,250,220,0),rgba(255,240,190,.7) 70%,rgba(255,255,255,.85));filter:blur(${cell * .04}px);`); finGone(col, 6000); lights.push(col);
+                    later(1400, () => { try { col.animate([{ transform: 'scaleY(0)', opacity: 1 }, { transform: 'scaleY(1)', opacity: 1 }], { duration: 800, fill: 'forwards', easing: 'ease-out' }); } catch (e) {} });   // 하늘에서 빛기둥이 내려온다
+                    for (let i = 0; i < 40; i++) later(1400 + i * 55, () => P({ kind: 'feather', x: x + rnd(-cell * .8, cell * .8), y: u < 0 ? -cell * .1 : H + cell * .1, vx: rnd(-20, 20), vy: DOWN() * rnd(70, 130), g: 0, drag: 0, size: rnd(cell * .05, cell * .09), rot: rnd(0, TAU), vr: rnd(-2, 2), dur: rnd(1.5, 2.2), color: [255, 250, 235], alpha: .9 }));
+                    finFly(fr, Array.from({ length: 193 }, (_, i) => { const t = i / 192 * TB, lt = ez((t - 1500) / 1900), glow = Math.min(1, t / 2500), fl = t > 3500 ? Math.min(1, (t - 3500) / 350) : 0;   // 킹이 빛 속에서 서서히 떠오른다
+                        return { transform: T3(Math.sin(t / 300) * cell * .012 * lt, LF * lt, 0, 0, Math.sin(t / 420) * 2.5 * lt + Math.sin(t / 25) * 3 * fl, 1 + .05 * lt + .08 * fl), filter: `brightness(${1 + .55 * glow + .5 * fl}) drop-shadow(0 0 ${6 + 18 * glow}px rgb(255,226,140))`, offset: i / 192 }; }), TB, 'linear');
+                    [1500, 2000, 2500, 3000].forEach((tt, i) => later(tt, () => {   // 성가대의 박자: 울림이 퍼지고 적 기물이 경외하듯 움츠린다
+                        const ly = LF * ez((tt - 1500) / 1900); ring(x, y + u * ly, cell * .2, cell * (1.8 + i * .35), G, .6, 3 + i * .4, .75); later(120, () => ring(x, y + u * ly, cell * .1, cell * (1.2 + i * .3), C.white, .5, 2, .6));
+                        radial(x, y + u * ly, 8 + i * 3, 50, 160 + i * 30, [G, C.white], { p: { kind: 'spark', size: rnd(1.6, 3), dur: .7 } }); shake(2 + i * 1.5, 150);
+                        FO.forEach(o => finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, 0, 0, 0, 0, .94) }, { transform: TR(0, 0, 0, 0, 0, 1) }], 300, 'ease-out'));
+                    }));
+                    later(3500, () => {   // 모든 빛이 하얗게 달아오른다
+                        finVeil('rgb(255,255,255)', .5, 600); shake(8, 400);
+                        bms.forEach(o => { try { o.bm.animate([{ transform: `rotate(${o.ang}rad) scaleX(1) scaleY(1.5)` }, { transform: `rotate(${o.ang}rad) scaleX(1) scaleY(2.8)` }], { duration: 300, fill: 'forwards' }); } catch (e) {} });
+                        try { col.animate([{ transform: 'scaleX(1) scaleY(1)' }, { transform: 'scaleX(2.2) scaleY(1)' }], { duration: 300, fill: 'forwards' }); } catch (e) {}
+                    });
+                    later(TB, () => {   // 승천: 킹이 깃털 빛으로 터지고 비숍은 하늘로 오른다
+                        fr.style.filter = ''; finBoom(x, y + u * LF, [G, C.white, [255, 200, 220]], fr, { start: LF, mode: 'rise', power: 1.2, s0: 1.1 }); shake(16, 500);
+                        ring(x, y + u * LF, cell * .1, cell * 5, G, .9, 9, 1); later(150, () => ring(x, y + u * LF, cell * .1, cell * 3.4, C.white, .7, 5, .9)); try { rayBurst(x, y + u * LF, G, .9, cell * 3.2); } catch (e) {}
+                        for (let q = 0; q < 30; q++) P({ kind: 'feather', x: x + rnd(-cell * .5, cell * .5), y: y + u * LF + rnd(-cell * .3, cell * .3), vx: rnd(-110, 110), vy: UP() * rnd(30, 170), g: UP() * -30, drag: .6, size: rnd(cell * .06, cell * .1), rot: rnd(0, TAU), vr: rnd(-3, 3), dur: rnd(1.4, 2.2), color: [255, 250, 235], alpha: .95 });
+                        lights.forEach(l => fade(l, 700)); bs.forEach(b => go(b, [{ transform: tf(0, 0, 0, 1), opacity: 1 }, { transform: tf(0, u * cell * 1.6, 0, .9), opacity: 0 }], 900, 'ease-in'));
                     });
                 };
 
@@ -9203,21 +9226,37 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 };
 
                 // 🥷 그림자 술사: 킹의 그림자 넷이 나타나 킹과 자리를 휙휙 바꾸며 어느 쪽이 진짜인지 흐리고, 그림자가 한꺼번에 덮쳐 킹이 제 그림자로 납작해져 어둠에 스며든다
-                FIN.shadow = (sq, atk) => {
-                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), PU = [140, 100, 255]; if (!fr) return;
-                    finVeil('rgb(30,10,60)', .5, 3000, 'multiply');
-                    const S = [[-1.2, .4], [1.2, .4], [-.9, -.7], [.9, -.7]].map(([dx, up]) => { const s = fr.cloneNode(true); s.style.filter = 'brightness(0) drop-shadow(0 0 6px rgb(140,100,255))'; s.style.opacity = 0; s.style.zIndex = 199; fr.parentNode.appendChild(s); setTimeout(() => s.remove(), 4200); return { s, dx: dx * cell, up: up * cell }; });
-                    const K = { dx: 0, up: 0 }, put = (o, to, sc, ms) => { try { o.animate([{ transform: T3(o.dx, o.up, 0, 0, 0, 1), opacity: 1 }, { transform: T3((o.dx + to.dx) / 2, (o.up + to.up) / 2, 0, 0, 0, sc || .55, 1.3), opacity: 1, offset: .5 }, { transform: T3(to.dx, to.up, 0, 0, 0, 1), opacity: 1 }], { duration: ms, fill: 'forwards', easing: 'ease-in-out' }); } catch (e) {} };
-                    S.forEach((o, i) => { o.s.animate([{ transform: T3(0, 0, 0, 0, 0, 1), opacity: 0 }, { transform: T3(o.dx, o.up, 0, 0, 0, 1), opacity: 1 }], { duration: 260, delay: i * 90, fill: 'forwards', easing: 'ease-out' }); });
-                    for (let k = 0; k < 7; k++) later(520 + k * Math.max(150, 300 - k * 25), () => {   // 점점 빨라지는 자리 바꾸기
-                        const o = S[k % 4], ms = Math.max(130, 260 - k * 20), kk2 = { dx: K.dx, up: K.up };
-                        ring(x + K.dx, y + u * K.up, cell * .1, cell * .9, PU, .3, 3, .7); ring(x + o.dx, y + u * o.up, cell * .1, cell * .9, PU, .3, 3, .7); puffs(x + K.dx, y + u * K.up, 3, [40, 20, 80], .6);
-                        finFly(fr, [{ transform: T3(K.dx, K.up, 0, 0, 0, 1) }, { transform: T3((K.dx + o.dx) / 2, (K.up + o.up) / 2, 0, 0, 0, .55, 1.3), offset: .5 }, { transform: T3(o.dx, o.up, 0, 0, 0, 1) }], ms, 'ease-in-out');
-                        put(o.s, kk2, .55, ms); const nk = { dx: o.dx, up: o.up }; o.dx = kk2.dx; o.up = kk2.up; K.dx = nk.dx; K.up = nk.up; shake(2 + k * .6, 100);
+                FIN.shadow = (sq, atk) => {   // 그림자 술사: 불이 꺼지고, 킹을 잡은 기물의 거대한 그림자가 킹 뒤로 서서히 드리운다. 두 눈이 번뜩이며 세 번 박동한 뒤 그림자가 킹을 덮쳐 납작하게 짓누르고, 먹물 얼룩으로 터진다
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), PU = [150, 110, 255], ty = (atk && atk.el && atk.el.dataset && atk.el.dataset.type) || 'q', wcol = finLoser === 'w' ? 'b' : 'w', FO = finFoes(sq), TOT = 4300, TS = 2700, TI = 2960, eT = { q: 38, r: 34, b: 32, n: 30, p: 34 }[ty] || 34; if (!fr) return;   // eT: 그림자 눈의 높이(%)
+                    const ez = p => { p = Math.max(0, Math.min(1, p)); return p * p * (3 - 2 * p); }, kf = (N, fn) => Array.from({ length: N + 1 }, (_, i) => Object.assign(fn(i / N * TOT), { offset: i / N }));
+                    finVeil('rgb(22,8,48)', .6, 4700, 'multiply'); finMark(4500);
+                    const sh = finTop(`left:${x - cell / 2}px;top:${y - cell / 2}px;width:${cell}px;height:${cell}px;opacity:0;transform-origin:50% ${u < 0 ? 90 : 10}%;`); finGone(sh, 5600);
+                    sh.innerHTML = `<div style="position:absolute;inset:0;filter:brightness(0) drop-shadow(0 0 ${cell * .12}px rgba(150,110,255,.85)) blur(${cell * .02}px)">${PC(ty, wcol)}</div>`
+                        + `<div class="sh-eyes" style="position:absolute;left:0;right:0;top:${u < 0 ? eT : 90 - eT}%;height:10%;opacity:0">` + [34, 56].map(l => `<div style="position:absolute;left:${l}%;top:0;width:10%;height:100%;border-radius:50%;background:radial-gradient(circle,#fff 25%,rgb(190,150,255) 60%,transparent 75%);box-shadow:0 0 ${cell * .12}px rgb(170,120,255)"></div>`).join('') + '</div>';
+                    const eyes = sh.querySelector('.sh-eyes');
+                    const sS = t => t < 1500 ? 1 + 4.4 * ez(t / 1500) : t < TS ? 5.4 + .6 * (t - 1500) / 1200 : t < TI ? 6 - 4.55 * Math.pow((t - TS) / (TI - TS), 2.2) : 1.45 + .6 * Math.min(1, (t - TI) / 1100);   // 그림자가 점점 커지고, 박동하고, 내리꽂힌다
+                    const sY = t => t < TS ? sS(t) * 1.08 : t < TI ? sS(t) * (1.08 - .5 * Math.pow((t - TS) / (TI - TS), 2.2)) : Math.max(.05, 1.45 * .58 * (1 - Math.min(1, (t - TI) / 1100)));
+                    const sO = t => t < 1500 ? Math.min(.92, t / 500 * .92) : t < TI ? .93 : .93 * (1 - Math.min(1, (t - TI) / 1100));
+                    const HB = [1700, 2150, 2550], pulse = t => HB.reduce((a, tp) => a + .07 * Math.exp(-Math.pow((t - tp) / 110, 2)), 0);
+                    sh.animate(kf(170, t => { const p = 1 + pulse(t), dx = t < TS ? Math.sin(t / 700) * cell * .12 : 0; return { transform: T3(dx, 0, 0, 0, 0, sS(t) * p, sY(t) * p), opacity: sO(t) }; }), { duration: TOT, fill: 'forwards', easing: 'linear' });
+                    finFly(fr, kf(170, t => {   // 킹은 그림자 아래서 점점 어두워지고 움츠러들며 떤다
+                        const q = t < TS ? 0 : Math.min(1, (t - TS) / (TI - TS)), base = t < 1500 ? 1 - .08 * ez(t / 1500) : t < TS ? .92 - .1 * (t - 1500) / 1200 : .82, tr = t < TS ? cell * (t < 1500 ? .006 : .012 + .02 * Math.min(1, (t - 1500) / 1200)) : 0, kb = t < 1500 ? 1 - .45 * ez(t / 1500) : t < TS ? .55 - .3 * (t - 1500) / 1200 : .25;
+                        return { transform: T3((Math.random() - .5) * 2 * tr, 0, 0, 0, t < TS ? (Math.random() - .5) * 4 : 0, base + .5 * q, base - .74 * q), filter: `brightness(${kb})` };
+                    }), TI, 'linear');
+                    later(1500, () => { try { eyes.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: 'forwards' }); } catch (e) {} });   // 그림자의 눈이 떠진다
+                    later(2400, () => { try { eyes.animate([{ transform: 'scaleY(1)' }, { transform: 'scaleY(.08)', offset: .5 }, { transform: 'scaleY(1)' }], { duration: 240 }); } catch (e) {} });
+                    HB.forEach((tp, i) => later(tp, () => { ring(x, y, cell * .3, cell * (2 + i * .4), PU, .6, 4, .55); shake(3 + i * 2, 170); radial(x, y, 6, 30, 100, [PU, [30, 10, 60]], { p: { kind: 'glow', size: rnd(2, 3.6), dur: .7 } });
+                        FO.forEach(o => finEl(o.el, [{ transform: TR(0, 0, 0, 0, 0, 1) }, { transform: TR(0, 0, 0, 0, 0, .94) }, { transform: TR(0, 0, 0, 0, 0, 1) }], 260, 'ease-out')); }));
+                    later(TS, () => { sh.style.zIndex = 210; try { eyes.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }); } catch (e) {} });
+                    later(TI, () => {   // 쿵: 그림자가 킹을 내리찍어 먹물 얼룩으로 터진다
+                        shake(20, 560); finVeil('rgb(140,100,255)', .35, 400);
+                        ring(x, y, cell * .2, cell * 3.2, PU, .7, 7, .9); ring(x, y, cell * .2, cell * 2.1, [30, 10, 60], .7, 9, .9);
+                        const st = finLow(`left:${x - cell * .25}px;top:${y - cell * .06}px;width:${cell * .5}px;height:${cell * .26}px;border-radius:50%;background:radial-gradient(ellipse,rgba(10,3,24,.96) 45%,rgba(110,70,210,.6) 72%,transparent 76%);opacity:0;`); finGone(st, 2400);
+                        try { st.animate([{ transform: 'scale(.4)', opacity: 1 }, { transform: 'scale(6)', opacity: 1, offset: .35, easing: 'ease-out' }, { transform: 'scale(7)', opacity: 0 }], { duration: 1500, fill: 'forwards' }); } catch (e) {}
+                        try { shardBurst(x, y, 22, 140, 420, [40, 20, 80], [200, 170, 255], { lift: 260, g: 700 }); haze(x, y, 7, cell * .4, [40, 20, 80], .6); } catch (e) {}
+                        radial(x, y, 30, 120, 420, [PU, [200, 180, 255], C.white], { p: { kind: 'spark', size: rnd(1.6, 3.2), dur: .8 } });
+                        finBoom(x, y, [PU, [30, 10, 60], [200, 180, 255]], fr, { start: 0, mode: 'puff', power: 1.5, s0: .8, filter: 'brightness(0)' });
                     });
-                    const TC = 520 + 7 * 230 + 300;   // 수렴: 그림자들이 킹을 향해 덮친다
-                    later(TC, () => { S.forEach((o, i) => o.s.animate([{ transform: T3(o.dx, o.up, 0, 0, 0, 1), opacity: 1 }, { transform: T3(K.dx, K.up, 0, 0, 0, 1.15, .8), opacity: 1, offset: .8, easing: 'ease-in' }, { transform: T3(K.dx, K.up, 0, 0, 0, 1.2, .7), opacity: 0 }], { duration: 380, fill: 'forwards' })); finFly(fr, [{ transform: T3(K.dx, K.up, 0, 0, 0, 1) }, { transform: T3(K.dx, K.up, 0, 0, 0, 1.6, .12), offset: 1 }], 420, 'ease-in'); fr.style.filter = 'brightness(0) drop-shadow(0 0 6px rgb(140,100,255))'; shake(9, 280); ring(x + K.dx, y + u * K.up, cell * 1.6, cell * .2, PU, .5, 5, .9); });
-                    later(TC + 480, () => finBoom(x + K.dx, y + u * K.up, [PU, [30, 10, 60], [200, 180, 255]], fr, { start: K.up, mode: 'swirl', power: 1.2, s0: .6, filter: 'brightness(0)' }));
                 };
 
 
@@ -9285,24 +9324,47 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 };
 
                 // 🌀 혼돈의 지배자: 킹의 정체가 계속 바뀌며(퀸·룩·나이트…) 색이 뒤집힌 채 판 위를 점점 빨리 순간이동하고, 지나간 자리마다 헛기물 잔상이 남다가, 멈춘 순간 모든 기물 모양의 파편이 사방으로 터진다
-                FIN.chaos = (sq, atk) => {
-                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), lc = finLoser, CL = [[255, 60, 120], [60, 255, 180], [255, 230, 60], [90, 150, 255], [220, 120, 255]], TY = ['q', 'r', 'b', 'n', 'p'], steps = 14, lim = spaceUp(y); if (!fr) return;
-                    finVeil('rgb(120,40,200)', .25, 4800); let t = 0, pos = { dx: 0, up: 0 };
-                    for (let k = 0; k < steps; k++) { const iv = Math.max(90, 320 - k * 20); t += iv; later(t, () => {
-                        const nx = Math.max(-x + cell * .5, Math.min(W - x - cell * .5, rnd(-2.2, 2.2) * cell)), nu = rnd(-1.4, 1.4) * Math.min(cell, lim / 1.4);
-                        const g = ghost(pick(TY), pick(['w', 'b']), x + pos.dx, y + u * pos.up, .8); g.animate([{ opacity: .9, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(1.5) rotate(' + rnd(-40, 40) + 'deg)' }], { duration: 600, fill: 'forwards' });
-                        fr.innerHTML = PC(pick(TY), pick(['w', 'b'])); fr.style.filter = 'hue-rotate(' + Math.round(rnd(0, 360)) + 'deg) saturate(1.8)';
-                        finFly(fr, [{ transform: T3(pos.dx, pos.up, 0, 0, 0, 1) }, { transform: T3((pos.dx + nx) / 2, (pos.up + nu) / 2 + cell * .3, 0, 0, rnd(-40, 40), .55, 1.35), offset: .5 }, { transform: T3(nx, nu, 0, 0, 0, 1.1) }], iv * .9, 'ease-in-out');
-                        ring(x + nx, y + u * nu, cell * .1, cell * 1.1, pick(CL), .35, 3, .8); shake(2 + k * .5, 90); puffs(x + pos.dx, y + u * pos.up, 2, pick(CL), .5); pos = { dx: nx, up: nu };
+                FIN.chaos = (sq, atk) => {   // 혼돈의 지배자: 킹이 정체를 바꾸며 순간이동하고 RGB로 갈라진 잔상을 끌고 다닌다. 지나간 자리마다 헛기물이 남아 판을 채우다가, 한꺼번에 킹에게 빨려들어 폭주 — 터지는 순간 온갖 기물 모양이 사방으로 튄다
+                    const { x, y } = ctr(sq), fr = finActor(sq), u = UP(), lc = finLoser, CL = [[255, 60, 120], [60, 255, 180], [255, 230, 60], [90, 150, 255], [220, 120, 255]], TY = ['q', 'r', 'b', 'n', 'p'], steps = 15, lim = spaceUp(y); if (!fr) return;
+                    finVeil('rgb(120,40,200)', .28, 6400); let t = 0, pos = { dx: 0, up: 0 }; const gh = [];
+                    const gz = (ty, c, px, py, s) => { const w = cell * (s || .8), g = finTop(`left:${px - w / 2}px;top:${py - w / 2}px;width:${w}px;height:${w}px;`); g.innerHTML = PC(ty, c); finGone(g, 6800); return g; };
+                    const chan = hue => { const c = fr.cloneNode(true); c.style.zIndex = 198; c.style.opacity = .6; c.style.filter = `sepia(1) saturate(7) hue-rotate(${hue}deg)`; fr.parentNode.appendChild(c); setTimeout(() => c.remove(), 6400); return c; };
+                    const cR = chan(-50), cC = chan(150);   // 빨강·청록 채널 잔상
+                    const mv = (el, fm, ms, delay) => { try { el.animate(fm, { duration: ms, delay: delay || 0, fill: 'forwards', easing: 'ease-in-out' }); } catch (e) {} };
+                    for (let k = 0; k < steps; k++) { const iv = Math.max(85, 300 - k * 17); t += iv; later(t, () => {
+                        const nx = Math.max(-x + cell * .5, Math.min(W - x - cell * .5, rnd(-2.3, 2.3) * cell)), nu = rnd(-1.4, 1.4) * Math.min(cell, lim / 1.4), ox = x + pos.dx, oy = y + u * pos.up, ty = pick(TY), cc = pick(['w', 'b']);
+                        const g = gz(pick(TY), pick(['w', 'b']), ox, oy, .8); g.style.filter = `hue-rotate(${Math.round(rnd(0, 360))}deg) saturate(1.8)`; g.animate([{ opacity: 0, transform: 'scale(1.4)' }, { opacity: .85, transform: 'scale(1)' }], { duration: 160, fill: 'forwards' }); gh.push({ g, px: ox, py: oy });   // 잔상은 사라지지 않고 쌓인다
+                        [fr, cR, cC].forEach(e => { e.innerHTML = PC(ty, cc); });
+                        fr.style.filter = 'hue-rotate(' + Math.round(rnd(0, 360)) + 'deg) saturate(1.8)';
+                        const fm = [{ transform: T3(pos.dx, pos.up, 0, 0, 0, 1) }, { transform: T3((pos.dx + nx) / 2, (pos.up + nu) / 2 + cell * .3, 0, 0, rnd(-40, 40), .55, 1.35), offset: .5 }, { transform: T3(nx, nu, 0, 0, 0, 1.1) }];
+                        finFly(fr, fm, iv * .9, 'ease-in-out');
+                        mv(cR, [{ transform: T3(pos.dx - cell * .06, pos.up, 0, 0, 0, 1) }, { transform: T3(nx - cell * .12, nu, 0, 0, 0, 1.1) }], iv * .9, 35); mv(cC, [{ transform: T3(pos.dx + cell * .06, pos.up, 0, 0, 0, 1) }, { transform: T3(nx + cell * .12, nu, 0, 0, 0, 1.1) }], iv * .9, 70);
+                        ring(x + nx, y + u * nu, cell * .1, cell * 1.2, pick(CL), .4, 3, .85); ring(ox, oy, cell * 1, cell * .1, pick(CL), .3, 2, .7); shake(2 + k * .5, 90); puffs(ox, oy, 2, pick(CL), .5);
+                        radial(x + nx, y + u * nu, 6, 40, 160, CL, { p: { kind: 'spark', size: rnd(1.4, 2.6), dur: .5 } });
+                        pos = { dx: nx, up: nu };
                     }); }
-                    t += 320;
-                    later(t, () => {   // 제자리로 돌아와 킹으로 굳고 덜덜 떤다
-                        if (fr) { fr.innerHTML = PC('k', lc); fr.style.filter = ''; } finFly(fr, [{ transform: T3(pos.dx, pos.up, 0, 0, 0, 1) }, { transform: T3(0, 0, 0, 0, 0, 1.25) }, { transform: T3(0, 0, 0, 0, 5, 1.2), offset: .5 }], 220, 'ease-out'); ring(x, y, cell * 1.8, cell * .2, CL[0], .5, 5, .9); shake(8, 240);
-                        finFly(fr, [{ transform: T3(0, 0, 0, 0, 0, 1.2) }, { transform: T3(cell * .05, 0, 0, 0, 5, 1.25), offset: .2 }, { transform: T3(-cell * .05, 0, 0, 0, -5, 1.3), offset: .4 }, { transform: T3(cell * .06, 0, 0, 0, 6, 1.35), offset: .6 }, { transform: T3(-cell * .06, 0, 0, 0, -6, 1.4), offset: .8 }, { transform: T3(0, 0, 0, 0, 0, .5) }], 520, 'linear');
+                    t += 300;
+                    later(t, () => {   // 제자리로 돌아와 킹으로 굳고, 쌓인 잔상이 모두 킹을 향해 빨려든다
+                        fr.innerHTML = PC('k', lc); [cR, cC].forEach(e => { e.innerHTML = PC('k', lc); }); fr.style.filter = '';
+                        const bk = [{ transform: T3(pos.dx, pos.up, 0, 0, 0, 1) }, { transform: T3(0, 0, 0, 0, 0, 1.25) }]; finFly(fr, bk, 240, 'ease-out'); mv(cR, bk, 240, 0); mv(cC, bk, 240, 0);
+                        ring(x, y, cell * 1.8, cell * .2, CL[0], .5, 5, .9); shake(8, 240);
                     });
-                    later(t + 760, () => {   // 터짐: 온갖 기물 모양 파편이 사방으로
-                        for (let i = 0; i < 14; i++) { const a = i / 14 * TAU + rnd(-.2, .2), R = cell * rnd(2, 3.6), g = ghost(pick(['q', 'r', 'b', 'n', 'p', 'k']), pick(['w', 'b']), x, y, rnd(.4, .7)); g.animate([{ transform: 'translate(0,0) rotate(0deg) scale(.4)', opacity: 1 }, { transform: `translate(${Math.cos(a) * R}px,${Math.sin(a) * R * .8}px) rotate(${rnd(-540, 540)}deg) scale(1.1)`, opacity: 1, offset: .6, easing: 'ease-out' }, { transform: `translate(${Math.cos(a) * R * 1.1}px,${Math.sin(a) * R * .8 + cell}px) rotate(${rnd(-700, 700)}deg) scale(.9)`, opacity: 0 }], { duration: 1200, fill: 'forwards' }); }
-                        finBoom(x, y, CL.concat([C.white]), fr, { start: 0, mode: 'swirl', power: 1.4, s0: .5 });
+                    later(t + 320, () => {   // 흡수: 하나씩 빨려들 때마다 킹이 부풀고 떨린다
+                        gh.forEach((o, i) => later(i * 55, () => {
+                            o.g.animate([{ transform: 'translate(0,0) scale(1) rotate(0deg)', opacity: .9 }, { transform: `translate(${x - o.px}px,${y - o.py}px) scale(.3) rotate(${rnd(-320, 320)}deg)`, opacity: 1 }], { duration: 520, fill: 'forwards', easing: 'cubic-bezier(.6,0,.9,.4)' });
+                            later(520, () => { ring(x, y, cell * .1, cell * (.9 + i * .06), pick(CL), .3, 3, .8); shake(2 + i * .5, 90); const sc = 1.25 + (i + 1) * .035, j = cell * .02 * (i + 1); fr.style.filter = 'hue-rotate(' + Math.round(rnd(0, 360)) + 'deg) saturate(1.8)'; finFly(fr, [{ transform: T3(-j, 0, 0, 0, -3, sc) }, { transform: T3(j, 0, 0, 0, 3, sc * 1.04), offset: .5 }, { transform: T3(0, 0, 0, 0, 0, sc) }], 110, 'linear'); });
+                        }));
+                    });
+                    t += 320 + steps * 55 + 700;
+                    later(t, () => {   // 폭주: 부풀어 오른 킹이 터지며 온갖 기물 모양 파편이 사방으로
+                        const sc = 1.25 + (steps + 1) * .035;
+                        finFly(fr, [{ transform: T3(0, 0, 0, 0, 0, sc) }, { transform: T3(cell * .05, 0, 0, 0, 6, sc * 1.1), offset: .3 }, { transform: T3(-cell * .05, 0, 0, 0, -6, sc * 1.2), offset: .6 }, { transform: T3(0, 0, 0, 0, 0, .5) }], 380, 'linear'); [cR, cC].forEach(e => mv(e, [{ opacity: .6 }, { opacity: 0 }], 380, 0));
+                    });
+                    later(t + 400, () => {
+                        shake(16, 460); finVeil('rgb(255,255,255)', .5, 300); try { rayBurst(x, y, CL[0], .8, cell * 3); } catch (e) {}
+                        ring(x, y, cell * .1, cell * 3.2, CL[0], .6, 7, .9); ring(x, y, cell * .1, cell * 2.2, CL[1], .6, 5, .9);
+                        for (let i = 0; i < 20; i++) { const a = i / 20 * TAU + rnd(-.2, .2), R = cell * rnd(2, 3.8), g = gz(pick(['q', 'r', 'b', 'n', 'p', 'k']), pick(['w', 'b']), x, y, rnd(.4, .75)); g.animate([{ transform: 'translate(0,0) rotate(0deg) scale(.4)', opacity: 1 }, { transform: `translate(${Math.cos(a) * R}px,${Math.sin(a) * R * .8}px) rotate(${rnd(-540, 540)}deg) scale(1.1)`, opacity: 1, offset: .6, easing: 'ease-out' }, { transform: `translate(${Math.cos(a) * R * 1.1}px,${Math.sin(a) * R * .8 + cell}px) rotate(${rnd(-700, 700)}deg) scale(.9)`, opacity: 0 }], { duration: 1300, fill: 'forwards' }); }
+                        finBoom(x, y, CL.concat([C.white]), fr, { start: 0, mode: 'swirl', power: 1.5, s0: .5 });
                     });
                 };
 
@@ -15463,7 +15525,7 @@ self.onmessage = function (e) {
             { const q = game.get('d4'), qe = q && pieceEls.get(q.uid); if (qe) qe.style.transition = 'translate 0.16s ease-in'; }   // 덮치듯 빠르게
             game._turn = 'w'; isSystemLocked = true;
             executeMoveLocal('d4', 'e5');
-            await wait(900); post('cap', { text: ((FINISHERS.find(f => f.id === cfg.finisher) || {}).desc) || '' });
+            await wait(900);
             await wait(6500); post('done');
         }
 
@@ -16247,14 +16309,14 @@ self.onmessage = function (e) {
             pieceEls.forEach(el => el.classList.remove('tgt-ok'));
             document.querySelectorAll('.target-ghost').forEach(e => e.remove());
             const b = document.getElementById('target-banner'); if (b) b.style.display = 'none';
-            document.body.classList.remove('targeting-on');
+            document.body.classList.remove('targeting-on', 'tgt-nodim');
         }
         function beginTargeting(aug, pColor, eColor, onConfirm, onCancel) {
             const def = aug.target, valid = def.valid(pColor, eColor);
             if (!valid.length) { onConfirm(null); return; }
             targeting = { aug, valid: new Set(valid), preview: null, onConfirm, onCancel };
             const tbMsg = pColor === myColor ? def.prompt : '(대리 지정) ' + def.prompt.replace(/아군/g, '상대 진영의').replace(/적 기물/g, '내 기물'); targeting.msg = tbMsg;
-            document.body.classList.add('targeting-on');
+            document.body.classList.add('targeting-on'); document.body.classList.toggle('tgt-nodim', aug.name === '차원 장벽' || aug.name === '지뢰 찾기');
             valid.forEach(sq => { const el = squareEls.get(sq); if (el) { el.classList.add('target-valid'); if (def.mode === 'piece') el.classList.add('tv-piece'); } });
             valid.forEach(sq => { try { const pc = game.get(sq), pe = pc && pieceEls.get(pc.uid); if (pe) pe.classList.add('tgt-ok'); } catch (e) {} });   // 지정 가능한 칸 위의 기물만 밝게 둔다
             setTargetBanner(`${aug.icon} ${aug.name}`, pColor === myColor ? def.prompt : '(대리 지정) ' + def.prompt.replace(/아군/g, '상대 진영의').replace(/적 기물/g, '내 기물'), false);
