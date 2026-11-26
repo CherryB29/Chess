@@ -199,6 +199,9 @@
             font-weight: bold; pointer-events: none; z-index: 2;
         }
         
+        .area-counter.pov-b { display: none; }
+        .black-pov .area-counter.pov-w { display: none; }
+        .black-pov .area-counter.pov-b { display: flex; top: 3px; left: 3px; bottom: auto; right: auto; }   /* 판이 180도 돌아가 있으므로 칸의 왼쪽 위가 화면의 오른쪽 아래 */
         .piece-rooted { filter: drop-shadow(0 0 3px rgba(90,200,90,0.6)) saturate(0.9); }
         .piece-rooted::after { content: ''; position: absolute; left: 16%; right: 16%; bottom: 4%; height: 56%; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M20 98C46 78 6 60 40 42S72 22 58 2' stroke='%231d5e28' stroke-width='9'/%3E%3Cpath d='M80 98C54 80 94 62 60 46S28 28 42 4' stroke='%231d5e28' stroke-width='9'/%3E%3Cpath d='M20 98C46 78 6 60 40 42S72 22 58 2' stroke='%2352c25a' stroke-width='5'/%3E%3Cpath d='M80 98C54 80 94 62 60 46S28 28 42 4' stroke='%2373d86a' stroke-width='5'/%3E%3C/g%3E%3Cg fill='%2386e07a' stroke='%231d5e28' stroke-width='1.3'%3E%3Cellipse cx='27' cy='74' rx='9' ry='4.5' transform='rotate(-35 27 74)'/%3E%3Cellipse cx='73' cy='76' rx='9' ry='4.5' transform='rotate(35 73 76)'/%3E%3Cellipse cx='30' cy='52' rx='8' ry='4' transform='rotate(25 30 52)'/%3E%3Cellipse cx='71' cy='54' rx='8' ry='4' transform='rotate(-25 71 54)'/%3E%3Cellipse cx='52' cy='33' rx='7' ry='3.6' transform='rotate(-20 52 33)'/%3E%3Cellipse cx='44' cy='18' rx='6' ry='3.2' transform='rotate(30 44 18)'/%3E%3C/g%3E%3C/svg%3E") center / 100% 100% no-repeat; pointer-events: none; z-index: 4; opacity: 0.85; transform-origin: 50% 92%; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5)); animation: vineGrow 0.7s ease-out, vineSway 2.8s ease-in-out 0.7s infinite; }
         @keyframes vineGrow { from { clip-path: inset(100% 0 0 0); opacity: 0.2; } to { clip-path: inset(0 0 0 0); opacity: 0.85; } }
@@ -2141,7 +2144,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v4.11';
+      var VERSION = 'v4.14';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -5861,7 +5864,7 @@
             { key: 'mines', init: () => [], get: () => mines, set: v => { mines = v; } },
             { key: 'prospects', init: () => ({}), get: () => prospects, set: v => { prospects = v; } },
             { key: 'pactPieces', init: () => ({}), get: () => pactPieces, set: v => { pactPieces = v; } },
-            { key: 'sluggish', init: () => ({}), get: () => sluggish, set: v => { sluggish = v; } },   // 운동 부족: sluggish[uid] = { n: 남은 턴, sq: 걸렸을 때의 칸 }
+            { key: 'sluggish', init: () => ({}), get: () => sluggish, set: v => { sluggish = v; } },   // 운동 부족: sluggish[uid] = { n: 남은 수, sq: 걸렸을 때의 칸 }
             { key: 'balloons', init: () => ({}), get: () => balloons, set: v => { balloons = v; } },   // 업: balloons[uid] = 풍선이 남은 수 (붙은 기물은 잡히지 않고 다른 기물 위에도 올라간다)
             { key: 'balloonUnder', init: () => ({}), get: () => balloonUnder, set: v => { balloonUnder = v; } },   // 풍선 기물 아래 깔린 기물: balloonUnder[칸] = { uid: 풍선 기물 uid, piece }
             { key: 'fateLinks', init: () => [], get: () => fateLinks, set: v => { fateLinks = v; } },
@@ -5884,6 +5887,7 @@
 
         const squareEls = new Map(); const squareList = []; const pieceEls = new Map();
         const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let mateHold = null;   // 체크메이트 연출로 킹 칸에 올라선 공격 기물 { uid, from, to } (판 데이터는 그대로, 보이는 위치만)
         let deadKingHold = null;   // 마무리 효과가 쪼갤 '죽은 킹' 요소 (잡히는 순간 흐려지지 않게 붙잡아 둔다)
         let kickAnimating = false, kickPlanned = false, mineReveal = false; let muteShatter = false; // 새 게임 초기화 때는 산산조각 효과를 끔
         let floatLog = null; // 증강 적용 중 발생한 떠오르는 텍스트를 기록(상대 화면에도 재생하기 위함)
@@ -5962,6 +5966,7 @@
             setTimeout(() => el.classList.remove(cls), 650);
         }
         function drawPieces(isAnimate = false) {
+            if (mateHold && !game.is_game_over) { const el = pieceEls.get(mateHold.uid); if (el) el.style.zIndex = ''; mateHold = null; }
             const boardState = game.board(); const currentIds = new Set(); let addedEls = 0;
             const __cells = []; for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) if (boardState[r][c]) __cells.push({ piece: boardState[r][c], r, c, under: false });
             for (const usq in balloonUnder) { const en = balloonUnder[usq], rc = game.sqToRC(usq); if (en && en.piece && game.isValidRC(rc.r, rc.c)) __cells.push({ piece: en.piece, r: rc.r, c: rc.c, under: true }); }   // 풍선 기물 아래 기물도 그 칸에 흐리게 그린다
@@ -6018,6 +6023,7 @@
                 // 칸 하나 = 기물 크기의 100%. translate는 자기 크기 기준 %라서 (열*100%, 행*100%)
                 if (!kickAnimating) el.classList.remove('piece-kicked');
                 el.dataset.square = sq; el.style.translate = `${c * 100}% ${r * 100}%`;
+                if (mateHold && mateHold.uid === piece.uid && mateHold.from === sq && game.is_game_over && !replayActive) { const to = game.sqToRC(mateHold.to); el.style.translate = `${to.c * 100}% ${to.r * 100}%`; }
                 if (isNew) { void el.offsetWidth; el.style.transition = ''; }
             }
             // v3.74: 기물의 uid가 바뀌었을 뿐(상태 덮어쓰기·재접속·효과 동기화 등) 같은 자리에 같은 기물이 있으면 파괴가 아니므로 파편을 터뜨리지 않는다.
@@ -7411,6 +7417,7 @@
                     const dk = deadKingHold; let loser = (dk && dk.sq === sq && dk.el && Date.now() - dk.t < 6500 && dk.el.dataset.color) || null;
                     const g0 = game.get(sq); if (!loser && g0 && g0.type === 'k') loser = g0.color;
                     let from = null;
+                    if (hint && hint.el) return { sq, el: hint.el, pos: ctr(sq) };   // 체크메이트: 공격 기물이 이미 킹 칸에 올라섰다 → 잡은 수와 똑같이
                     if (hint && hint.length) { const hs = hint.map(h => typeof h === 'string' ? h : h && h.sq).filter(Boolean); from = (typeof previousMove !== 'undefined' && previousMove && hs.includes(previousMove.to)) ? previousMove.to : hs[0]; }
                     if (!from && g0 && g0.type !== 'k' && g0.type !== 'wall') from = sq;
                     const p = from && game.get(from); if (!p || p.type === 'k' || p.type === 'wall' || (loser && p.color === loser)) return null;
@@ -10267,8 +10274,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
         function updateBoardVisuals() {
             squareList.forEach(sqEl => {
                 sqEl.classList.remove('poison-zone-w', 'poison-zone-b');
-                const counter = sqEl.querySelector('.area-counter');
-                if (counter) counter.remove();
+                sqEl.querySelectorAll('.area-counter').forEach(c => c.remove());
             });
             drawPoisonClouds(); queueMicrotask(drawCloudChecks);
             activePoison.forEach(p => {
@@ -10276,10 +10282,16 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                     const el = squareEls.get(sq);
                     if (el) {
                         el.classList.add(p.owner === 'w' ? 'poison-zone-w' : 'poison-zone-b');
-                        let counter = el.querySelector('.area-counter');
-                        if (!counter) { counter = document.createElement('span'); counter.className = 'area-counter'; el.appendChild(counter); }
-                        counter.innerText = p.duration;
                     }
+                });
+                // 남은 수는 지대마다 하나만: 보는 사람 기준 오른쪽 아래 칸. 백 시점용·흑 시점용을 함께 달아 두고 CSS로 하나만 보인다 (시점을 뒤집어도 따라간다)
+                const rcs = p.squares.map(sq => game.sqToRC(sq)), cs = rcs.map(x => x.c), rs = rcs.map(x => x.r);
+                [['pov-w', Math.max(...rs), Math.max(...cs)], ['pov-b', Math.min(...rs), Math.min(...cs)]].forEach(([pov, r, c]) => {
+                    const el = squareEls.get(game.rcToSq(r, c)); if (!el) return;
+                    const n = el.querySelectorAll('.area-counter.' + pov).length, counter = document.createElement('span');
+                    counter.className = 'area-counter ' + pov; counter.innerText = p.duration;
+                    if (n) counter.style.translate = `${(pov === 'pov-w' ? -1 : 1) * n * 110}% 0`;   // 두 지대의 모서리가 겹치면 옆으로 나란히
+                    el.appendChild(counter);
                 });
             });
             const wantMine = new Map(), showOwn = isSpectating || mineReveal || (replayActive && replayMode !== 'live');   // 지뢰는 설치한 사람에게만 보인다 (리플레이에서는 모두 공개, v3.84: 주인(흰/검) 점 표시)
@@ -11956,7 +11968,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 if (aug.name === '빛의 수호') { const n = findPieces(color, 'p').length; return { v: 0, show: true, t: n ? `내 폰 ${n}개가 2수 동안 잡히지 않아요. 그동안 폰으로 하는 전진·교환이 안전해요` : '지킬 폰이 없어 효과가 거의 없어요' }; }
                 if (aug.name === '여신의 가호') return { v: 0, show: true, t: '나이트·비숍·룩·퀸 중 2개가 2수 동안 잡히지 않아요. 큰 기물이 공격받는 순간에 특히 값져요' };
                 if (aug.name === '정화') return { v: 0, show: true, t: '아군에게 걸린 덩굴·자아 분열·운명공동체·암전·운동 부족을 모두 풀어요. 묶이거나 뒤집힌 기물이 많을수록 값져요' };
-                if (aug.name === '운동 부족') return { v: 0, show: true, t: '적 기물 하나가 4턴 안에 움직이지 않으면 사라져요. 상대는 그 기물을 옮기는 데 한 수를 써야 해요' };
+                if (aug.name === '운동 부족') return { v: 0, show: true, t: '적 기물 하나가 4수(양쪽 합산) 안에 움직이지 않으면 사라져요. 상대는 그 기물을 옮기는 데 한 수를 써야 해요' };
                 if (aug.name === '암전') return { v: 0, show: true, t: '4수 동안 상대는 자기 기물이 있는 칸 외에는 볼 수 없어요. 내 기물의 위치와 위협을 놓치기 쉬워요 (이 분석은 모든 기물이 보인다고 보고 평가해요)' };
                 if (aug.name === '운명공동체') return { v: 0, show: true, t: '적 기물 2개가 연결돼요. 하나가 잡히면 다른 하나도 함께 사라져서, 한 번의 잡기로 두 기물을 얻을 수 있어요' };
                 if (aug.name === '자아 분열') { const n = findPieces(enemy, 'p').length; return { v: 0, show: true, t: n ? `적 폰 ${n}개가 6수 동안 반대 방향으로 움직여요. 폰의 전진·공격 방향이 뒤집혀 폰 구조가 흐트러져요` : '뒤집을 적 폰이 없어 효과가 거의 없어요' }; }
@@ -14054,19 +14066,47 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             }, total + 60);
             return true;
         }
-        function startMateKick(kSq, checkers, finId) {   // 체크메이트: 붉은 조준경(1초) → 이긴 쪽이 고른 마무리 효과(없으면 기본: 공격 기물이 킹을 걷어찬다)
-            if (!game.is_game_over) return;
-            try { FX.mateFocus(kSq); } catch (e) {}
-            if (finId && finId !== 'basic') {
-                setTimeout(() => { if (!game.is_game_over) return; let ok = false; try { ok = FX.finisher(finId, kSq, checkers); } catch (e) {} if (!ok) runMateKick(kSq, checkers); }, 1000);
-                return;
-            }
-            setTimeout(() => { if (game.is_game_over) runMateKick(kSq, checkers); }, 1000);
+        // 체크메이트를 건 기물 { sq, piece }. 공격 목록이 비는 경우(승급·덩굴 해제 직전, 풍선 아래 깔린 기물 등)에도 반드시 하나를 찾는다.
+        function mateAttacker(kSq, checkers) {
+            const king = game.get(kSq); if (!king) return null;
+            const enemy = king.color === 'w' ? 'b' : 'w', rc = game.sqToRC(kSq), B = game.board();
+            const ok = p => !!p && p.color === enemy && p.type !== 'wall' && p.type !== 'k';
+            const tops = (checkers || []).filter(sq => ok(game.get(sq)));
+            if (tops.length) { const sq = (previousMove && tops.includes(previousMove.to)) ? previousMove.to : tops[0]; return { sq, piece: game.get(sq) }; }
+            const all = findPieces(enemy).filter(sq => ok(game.get(sq)));
+            const alone = sq => { const t = game.sqToRC(sq); const test = B.map((row, ri) => row.map((q, ci) => (q && q.color === enemy && !(ri === t.r && ci === t.c)) ? { type: 'wall', color: 'none', uid: -1 } : q)); return game.isSquareAttackedBase(rc.r, rc.c, enemy, test, true); };
+            const hit = all.find(alone); if (hit) return { sq: hit, piece: game.get(hit) };
+            for (const sq in balloonUnder) { const p = balloonUnder[sq].piece; if (ok(p)) return { sq, piece: p }; }
+            const dist = sq => { const t = game.sqToRC(sq); return Math.hypot(t.r - rc.r, t.c - rc.c); };
+            const near = (previousMove && all.includes(previousMove.to)) ? previousMove.to : all.sort((x, y) => dist(x) - dist(y))[0];
+            return near ? { sq: near, piece: game.get(near) } : null;
         }
-        function runMateKick(kSq, checkers) {
-            const kp = game.get(kSq), pick = (previousMove && checkers.includes(previousMove.to)) ? previousMove.to : checkers[0], ap = pick && game.get(pick);
-            const ok = kp && ap && playKickFinish({ kingSq: kSq, kingColor: kp.color, atkType: ap.type, atkColor: ap.color, atkFrom: pick, atkHome: pick, els: [pieceEls.get(ap.uid)].filter(Boolean), kingEl: pieceEls.get(kp.uid) });
-            if (!ok) FX.checkmate(kSq, checkers);
+        function mateStepIn(atk, kSq) {   // 공격 기물을 (보이는 위치만) 킹 칸으로 옮긴다
+            const el = pieceEls.get(atk.piece.uid); if (!el) return null;
+            const to = game.sqToRC(kSq); mateHold = { uid: atk.piece.uid, from: atk.sq, to: kSq };
+            el.style.zIndex = 61; el.style.translate = `${to.c * 100}% ${to.r * 100}%`;
+            return el;
+        }
+        function startMateKick(kSq, checkers, finId) {   // 체크메이트: 붉은 조준경(1초) → 공격 기물이 킹을 '잡은 것처럼' 마무리 효과(없으면 기본: 걷어차기)
+            if (!game.is_game_over) return;
+            mateHold = null;
+            try { FX.mateFocus(kSq); } catch (e) {}
+            setTimeout(() => {
+                if (!game.is_game_over) return;
+                if (!finId || finId === 'basic') { runMateKick(kSq, checkers); return; }
+                const atk = mateAttacker(kSq, checkers), el = atk && mateStepIn(atk, kSq);
+                setTimeout(() => {
+                    if (!game.is_game_over) return;
+                    let done = false; try { done = FX.finisher(finId, kSq, el ? { el } : checkers); } catch (e) {}
+                    if (!done) runMateKick(kSq, checkers);
+                }, el ? 280 : 0);
+            }, 1000);
+        }
+        function runMateKick(kSq, checkers) {   // 잡은 수와 같은 걷어차기: 도약해 킹을 차고 그 칸에 남는다
+            const kp = game.get(kSq), atk = mateAttacker(kSq, checkers), el = atk && pieceEls.get(atk.piece.uid);
+            const ok = kp && el && playKickFinish({ kingSq: kSq, kingColor: kp.color, atkType: atk.piece.type, atkColor: atk.piece.color, atkFrom: atk.sq, atkHome: kSq, els: [el], kingEl: pieceEls.get(kp.uid) });
+            if (ok) { el.style.transition = 'none'; mateStepIn(atk, kSq); void el.offsetWidth; el.style.transition = ''; }   // 숨겨진 동안 킹 칸으로 옮겨 둔다
+            else { if (atk) mateStepIn(atk, kSq); FX.checkmate(kSq, checkers); }
         }
         function updateCheckStatus() {
             if (fxpvGuard) return;
@@ -14356,7 +14396,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             const promotedSq = promoteProspects();
             const balloonLanded = landBalloons();
             try { balloonLanded.forEach(b => { if (b.kind === 'king' && b.under === 'k' && b.col === myColor) reportEventAch('hid_balloon_king', 1500); }); } catch (e) {}   // 히든 업적: 내 풍선 기물이 킹 위에 내려앉아 희생됐다
-            const lazyKilled = tickSluggish(game.turn() === 'w' ? 'b' : 'w');
+            const lazyKilled = tickSluggish();
             const { blasts: postBlasts, mk: postMk, fated: fateKilled } = settleBoard();
             
             ['w', 'b'].forEach(c => { if (reversedPawns[c] > 0) { reversedPawns[c]--; if (reversedPawns[c] <= 0) reversedUids[c] = {}; } });
@@ -14393,7 +14433,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             const botC = game.turn();
             for (const uid in sluggish) {
                 const st = sluggish[uid], pc = game.get(st.sq);
-                if (st.n > 1 || !pc || pc.color !== botC || String(pc.uid) !== uid || chosen.from === st.sq) continue;
+                if (st.n > 2 || !pc || pc.color !== botC || String(pc.uid) !== uid || chosen.from === st.sq) continue;
                 const score = m => { const snap = botSnapshot(); try { botMake(game, m); return botStaticValue(botC); } finally { botRestore(snap); botSyncMines(); } };
                 let best = null, bv = score(chosen) - (BOT_VAL[pc.type] || 0);
                 for (const m of moves) { if (m.from !== st.sq) continue; const v = score(m); if (v > bv) { bv = v; best = m; } }
@@ -14476,14 +14516,14 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 if (fx && sq) spawnFloatingText(sq, '💪');
             }
         }
-        // mover가 수를 하나 두었다: mover의 걸린 기물 가운데 움직이지 않은 것은 남은 턴이 줄고, 0이 되면 파괴된다 (무적이면 살아남고 해제만 된다)
-        function tickSluggish(mover) {
+        // 수가 하나 끝날 때마다(양쪽 모두) 움직이지 않은 걸린 기물의 남은 수가 줄고, 0이 되면 파괴된다 (무적이면 살아남고 해제만 된다)
+        function tickSluggish() {
             cureSluggish();
             const killed = [];
             for (const uid in sluggish) {
                 const sq = sluggish[uid].sq, under = balloonUnder[sq] && balloonUnder[sq].piece, top = game.get(sq);
                 const isUnder = !!under && String(under.uid) === uid, pc = isUnder ? under : top;
-                if (!pc || pc.color !== mover || --sluggish[uid].n > 0) continue;
+                if (!pc || --sluggish[uid].n > 0) continue;
                 delete sluggish[uid];
                 if (pc.type === 'k' || invinciblePieces[pc.uid] > 0) continue;
                 if (isUnder) delete balloonUnder[sq]; else { try { elToSq(pc.uid, sq); } catch (e) {} game.remove(sq); }
@@ -15397,7 +15437,7 @@ self.onmessage = function (e) {
                   if (pt.dark) blackout[m] = 0;
                   pt.lazy.forEach(uid => { delete sluggish[uid]; });
                   return { t: pt.sqs, vfx: 'vfx-heal', msg: '💧 아군에게 걸린 나쁜 효과가 모두 씻겨 나갔습니다!' }; } },
-            { name: '운동 부족', icon: '💪', desc: '무작위 적 기물 {하나}에 [운동 부족]을 겁니다. 그 기물이 {4턴} 안에 움직이지 않으면 [파괴]됩니다.', detail: '4턴은 걸린 기물 주인의 차례를 기준으로 셉니다. 직접 움직이거나 증강으로 위치가 바뀌면 해제됩니다. 킹은 걸리지 않으며, 마지막 순간에 무적이면 살아남습니다.', globalVfx: 'vfx-global-void', isKillType: false,
+            { name: '운동 부족', icon: '💪', desc: '무작위 적 기물 {하나}에 [운동 부족]을 겁니다. 그 기물이 {4수} 안에 움직이지 않으면 [파괴]됩니다.', detail: '4수는 두 플레이어의 수를 합쳐 셉니다(걸린 기물의 주인에게는 2번의 기회). 직접 움직이거나 증강으로 위치가 바뀌면 해제됩니다. 킹은 걸리지 않으며, 마지막 순간에 무적이면 살아남습니다.', globalVfx: 'vfx-global-void', isKillType: false,
               condition: (m, e) => sluggishPool(e).length > 0,
               apply: (m, e) => { const sq = shuffle(sluggishPool(e))[0]; if (!sq) return { t: [], vfx: '', msg: '대상이 없습니다.' };
                   sluggish[game.get(sq).uid] = { n: 4, sq }; spawnFloatingText(sq, '💪');
@@ -15638,8 +15678,8 @@ self.onmessage = function (e) {
                 cap: '덩굴·자아 분열·운명공동체·암전처럼 아군에게 걸린 나쁜 효과를 한 번에 풉니다' },
             '운동 부족': { turn: 'b',
                 after: async h => {
-                    const uid = Object.keys(sluggish)[0]; h.cap('걸린 기물이 4턴 동안 움직이지 않으면…'); await h.wait(700);
-                    for (let i = 0; i < 8 && sluggish[uid]; i++) await h.quiet({ protect: [uid], fast: true });
+                    const uid = Object.keys(sluggish)[0]; h.cap('걸린 기물이 4수 동안 움직이지 않으면…'); await h.wait(700);
+                    for (let i = 0; i < 4 && sluggish[uid]; i++) await h.quiet({ protect: [uid], fast: true });
                     h.cap('쓰러집니다. 한 번이라도 움직이면 해제됩니다'); await h.wait(900);
                 } },
             '자아 분열': { b: 'Ra8 Nb8 Bc8 Qd8 Ke8 Bf8 Ng8 Rh8 Pa6 Pb6 Pc6 Pd6 Pe6 Pf6 Pg6 Ph6', turn: 'b',
