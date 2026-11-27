@@ -827,6 +827,21 @@
         .fx-chip { display: inline-flex; align-items: center; gap: 1px; height: 14px; padding: 0 3px; border-radius: 7px; background: rgba(0,0,0,0.74); color: #fff; font-size: 9px; font-weight: 800; line-height: 1; box-shadow: 0 0 0 1px rgba(255,255,255,0.2); }
         .fx-chip i { font-style: normal; font-size: 9px; }
         .fx-chip.c-root { background: rgba(28,105,45,0.94); }
+        /* v4.16: 곧 끝나는 효과(마지막 1수)는 붉은 테두리로 깜빡인다 */
+        .fx-chip.urgent { box-shadow: 0 0 0 1.5px #fff, 0 0 0 3px #ff2d2d, 0 0 8px 3px rgba(255,45,45,.85); animation: chipUrgent .8s ease-in-out infinite; }
+        .area-counter.urgent { background: #d8261c; box-shadow: 0 0 0 1.5px #fff, 0 0 8px 3px rgba(255,45,45,.85); animation: chipUrgent .8s ease-in-out infinite; }
+        @keyframes chipUrgent { 0%, 100% { scale: 1; } 50% { scale: 1.22; } }
+        @media (prefers-reduced-motion: reduce) { .fx-chip.urgent, .area-counter.urgent { animation: none; } }
+        /* v4.16: 기물을 누르면 나오는 효과 설명. v4.17: 끌어서 원하는 곳에 둘 수 있는 떠 있는 창 */
+        #fx-tip { position: fixed; z-index: 40; display: none; width: max-content; max-width: min(270px, 86vw); padding: 8px 10px; border-radius: 10px; background: rgba(24,24,32,.96); border: 1px solid rgba(255,255,255,.18); box-shadow: 0 8px 22px rgba(0,0,0,.45); color: #eee; font-size: 12px; line-height: 1.4; text-align: left; word-break: keep-all; pointer-events: auto; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+        #fx-tip.dragging { cursor: grabbing; border-color: rgba(255,255,255,.5); box-shadow: 0 14px 30px rgba(0,0,0,.55); }
+        #fx-tip .ft-grip { width: 34px; height: 4px; margin: -2px auto 5px; border-radius: 2px; background: rgba(255,255,255,.32); }
+        #fx-tip .ft-close { position: absolute; top: 2px; right: 2px; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 8px; background: none; color: #bbb; font-size: 14px; line-height: 28px; cursor: pointer; }
+        #fx-tip .ft-piece { font-size: 11px; color: #aaa; font-weight: 700; margin-bottom: 2px; padding-right: 26px; }
+        #fx-tip .ft-row { display: flex; gap: 7px; align-items: flex-start; margin-top: 5px; }
+        #fx-tip .ft-row .fx-chip { flex: none; min-width: 26px; justify-content: center; margin-top: 1px; animation: none; }
+        #fx-tip .ft-row b { color: #fff; }
+        #fx-tip .ft-warn { color: #ff7b72; font-weight: 800; }
         .fx-chip.c-inv { background: rgba(150,105,10,0.94); }
         .fx-chip.c-bless { background: rgba(200,80,140,0.94); }
         .fx-chip.c-pro { background: #d4a017; color: #222; }
@@ -877,7 +892,7 @@
         @keyframes pickSwapPop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .fx-chip.c-rev { background: rgba(115,60,170,0.94); }
         .fx-chip.c-pact { background: rgba(170,35,35,0.94); }
-        .fx-chip.c-lazy { background: rgba(139,94,52,0.94); }
+        .fx-chip.c-lazy { background: rgba(48,164,230,0.94); }
         .fx-chip.c-fate { background: rgba(78,74,205,0.94); }
         @keyframes pieceSpawn { 0% { transform: scale(0.35); opacity: 0; filter: brightness(2.2); } 55% { transform: scale(1.12); opacity: 1; filter: brightness(1.45); } 100% { transform: scale(1); opacity: 1; filter: none; } }
         @keyframes pieceMorph { 0% { transform: scale(1); filter: brightness(1); } 28% { transform: scale(0.62) rotate(-8deg); filter: brightness(2.4); } 60% { transform: scale(1.2) rotate(4deg); filter: brightness(1.6); } 100% { transform: scale(1) rotate(0); filter: none; } }
@@ -2144,7 +2159,7 @@
     </div>
     <script>
     (function () {
-      var VERSION = 'v4.14';
+      var VERSION = 'v4.17';
       var SVG = {
       'K': '<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10.5 5 10.5v7" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       'Q': '<svg viewBox="0 0 45 45"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="{fill}" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -5898,7 +5913,7 @@
             for (let r=0; r<8; r++) for (let c=0; c<8; c++) {
                 const sq = String.fromCharCode(97 + c) + (8 - r); const cell = document.createElement('div');
                 cell.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`; cell.dataset.square = sq; squareEls.set(sq, cell); squareList.push(cell);
-                cell.addEventListener('click', () => onSquareClick(sq)); squaresLayer.appendChild(cell);
+                cell.addEventListener('click', () => { try { fxTipTap(sq); } catch (e) {} onSquareClick(sq); }); squaresLayer.appendChild(cell);
                 // 기보 좌표(리플레이 전용): 화이트 시점은 아래변·왼쪽변, 블랙 시점은 위변·오른쪽변에 표시
                 const cl = document.getElementById('coord-layer');
                 if (cl) {
@@ -5960,6 +5975,91 @@
             return out;
         }
 
+        // v4.16: 남은 수가 마지막인 효과. 운동 부족은 주인에게 마지막 기회인 차례(남은 2수 + 주인 차례)부터 강조한다
+        function chipUrgent(ch, piece) {
+            if (ch.n == null) return false;
+            if (ch.cls === 'c-lazy') return !(invinciblePieces[piece.uid] > 0) && (ch.n <= 1 || (ch.n === 2 && game.turn() === piece.color));
+            return ch.n === 1;
+        }
+        const FX_TIP_TEXT = {
+            'c-blind': ['암전', n => `자기 기물이 있는 칸 외에는 볼 수 없어요. ${n}수 남음`],
+            'c-root': ['덩굴', n => `묶여서 움직이거나 공격할 수 없어요. ${n}수 남음`],
+            'c-inv': ['무적', n => `잡히거나 파괴되지 않아요 (신성한 폭발은 예외). ${n}수 남음`],
+            'c-bless': ['아기는 어떻게 태어나?', n => `킹과 퀸이 붙어 있으면 새 기물이 태어나요. 체크를 당하면 사라져요. ${n}수 남음`],
+            'c-wall': ['차원 장벽', n => `이동과 공격선을 막아요. ${n}수 뒤 사라져요`],
+            'c-pro': ['수퍼 워너비', n => `${n}수 뒤 퀸으로 승급해요`],
+            'c-balloon': ['업!', n => `떠 있는 동안은 잡히지 않아요. ${n}수 뒤 내려앉아 밑의 기물을 파괴해요`],
+            'c-rev': ['자아 분열', n => `폰이 반대 방향으로 움직여요. ${n}수 남음`],
+            'c-pact': ['동귀어진', () => '이 기물을 잡은 기물도 함께 파괴돼요. 영구 지속'],
+            'c-lazy': ['운동 부족', n => `${n}수(양쪽 합산) 안에 움직이지 않으면 파괴돼요. 한 번 움직이면 풀려요`],
+            'c-fate': ['운명공동체', () => '연결된 기물 중 하나가 처치되면 나머지도 파괴돼요']
+        };
+        let fxTipSq = null, fxTipPos = null;   // fxTipPos: 끌어다 놓은 자리 { x, y }. 한 번 옮기면 다음부터 그 자리에 뜬다
+        try { const v = JSON.parse(localStorage.getItem('fxTipPos')); if (v && isFinite(v.x) && isFinite(v.y)) fxTipPos = v; } catch (e) {}
+        function fxTipPlace(tip, x, y) {   // 화면 밖으로 나가지 않게 놓는다
+            const nx = Math.max(6, Math.min(window.innerWidth - tip.offsetWidth - 6, x)), ny = Math.max(6, Math.min(window.innerHeight - tip.offsetHeight - 6, y));
+            tip.style.left = nx + 'px'; tip.style.top = ny + 'px'; return { x: nx, y: ny };
+        }
+        function fxTipCreate() {
+            const tip = document.createElement('div'); tip.id = 'fx-tip'; tip.setAttribute('role', 'tooltip'); document.body.appendChild(tip);
+            let drag = null;
+            tip.addEventListener('pointerdown', e => {
+                if (e.target.closest('.ft-close')) return;
+                const r = tip.getBoundingClientRect(); drag = { id: e.pointerId, dx: e.clientX - r.left, dy: e.clientY - r.top, sx: e.clientX, sy: e.clientY, moved: false };
+                try { tip.setPointerCapture(e.pointerId); } catch (err) {}
+                e.preventDefault();
+            });
+            tip.addEventListener('pointermove', e => {
+                if (!drag || e.pointerId !== drag.id) return;
+                if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 4) return;   // 살짝 누른 것은 옮긴 것으로 치지 않는다
+                drag.moved = true; tip.classList.add('dragging'); fxTipPos = fxTipPlace(tip, e.clientX - drag.dx, e.clientY - drag.dy);
+            });
+            const end = e => {
+                if (!drag || e.pointerId !== drag.id) return;
+                if (drag.moved) { try { localStorage.setItem('fxTipPos', JSON.stringify(fxTipPos)); } catch (err) {} }
+                drag = null; tip.classList.remove('dragging');
+            };
+            tip.addEventListener('pointerup', end); tip.addEventListener('pointercancel', end);
+            tip.addEventListener('click', e => { e.stopPropagation(); if (e.target.closest('.ft-close')) fxTipHide(); });
+            return tip;
+        }
+        function fxTipHide() { fxTipSq = null; const t = document.getElementById('fx-tip'); if (t) t.style.display = 'none'; }
+        function fxTipHtml(sq) {
+            const bu = balloonUnder[sq], list = [game.get(sq), bu && bu.piece].filter((p, i, a) => p && a.findIndex(q => q && q.uid === p.uid) === i);
+            const names = { p: '폰', n: '나이트', b: '비숍', r: '룩', q: '퀸', k: '킹', wall: '장벽' };
+            return list.map(piece => {
+                const el = pieceEls.get(piece.uid); if (!el || el.classList.contains('piece-hidden')) return '';   // 암전으로 안 보이는 기물의 효과는 알려 주지 않는다
+                const rev = reversedPawns[piece.color] > 0 && piece.type === 'p' && !!reversedUids[piece.color][piece.uid];
+                const bless = ['w', 'b'].map(c => babyEffect[c]).find(be => be && (piece.uid === be.kUid || piece.uid === be.qUid));
+                const chips = statusChips(piece, sq, rev, bless || null); if (!chips.length) return '';
+                const rows = chips.map(ch => {
+                    const info = FX_TIP_TEXT[ch.cls]; if (!info) return '';
+                    let extra = '';
+                    if (ch.cls === 'c-fate') { const l = fateLinks.find(x => x[0] === piece.uid || x[1] === piece.uid), other = l && (l[0] === piece.uid ? l[1] : l[0]); const at = other !== undefined && other !== null && [...squareEls.keys()].find(s2 => { const q = game.get(s2); return q && q.uid === other; }); if (at && !isFogOn()) extra = ` (연결: ${at} ${names[game.get(at).type] || ''})`; }
+                    const warn = !chipUrgent(ch, piece) ? '' : ch.cls === 'c-lazy' ? (game.turn() === piece.color ? '이번 차례에 안 움직이면 파괴돼요!' : '곧 파괴돼요!') : '마지막 1수예요!';
+                    return `<div class="ft-row"><span class="fx-chip ${ch.cls}"><i>${ch.icon}</i>${ch.n == null ? '' : ch.n}</span><span><b>${info[0]}</b> · ${info[1](ch.n)}${extra}${warn ? `<br><span class="ft-warn">${warn}</span>` : ''}</span></div>`;
+                }).join('');
+                const side = piece.type === 'wall' ? '' : piece.color === 'w' ? '백 ' : '흑 ';
+                return `<div class="ft-piece">${side}${names[piece.type] || ''} · ${sq}</div>${rows}`;
+            }).join('');
+        }
+        function fxTipShow(sq) {
+            const cell = squareEls.get(sq), html = cell ? fxTipHtml(sq) : '';
+            if (!html) { fxTipHide(); return; }
+            let tip = document.getElementById('fx-tip');
+            if (!tip) tip = fxTipCreate();
+            fxTipSq = sq; tip.innerHTML = '<div class="ft-grip" aria-hidden="true"></div><button type="button" class="ft-close" aria-label="닫기">✕</button>' + html; tip.style.display = 'block'; tip.style.left = '0px'; tip.style.top = '0px';
+            if (fxTipPos) { fxTipPlace(tip, fxTipPos.x, fxTipPos.y); return; }
+            const r = cell.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+            tip.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left + r.width / 2 - w / 2)) + 'px';
+            tip.style.top = (r.top - h - 6 >= 6 ? r.top - h - 6 : r.bottom + 6) + 'px';
+        }
+        function fxTipTap(sq) {   // 칸을 누를 때: 효과가 걸린 기물이면 설명을 연다. 같은 칸을 다시 누르거나, 그 칸으로 두는 수·증강 대상 선택 중이면 닫는다
+            if (fxTipSq === sq || targeting || (selectedSquare && selectedSquare !== sq && legalMoves.some(m => m.to === sq)) || (replayActive && replayMode !== 'live')) { fxTipHide(); return; }
+            fxTipShow(sq);
+        }
+        window.addEventListener('pointerdown', e => { if (fxTipSq && !(e.target && e.target.closest && e.target.closest('#squares-layer, #fx-tip'))) fxTipHide(); }, true);
+
         function playPieceEntry(el, isNew) {   // 새 기물은 피어오르고, 모습이 바뀌는 기물은 번쩍이며 바뀐다
             const cls = isNew ? 'piece-spawn' : 'piece-morph';
             el.classList.remove('piece-spawn', 'piece-morph', 'piece-pop'); void el.offsetWidth; el.classList.add(cls);
@@ -6016,8 +6116,8 @@
                 const chips = statusChips(piece, sq, isReversed, isBlessed ? blessEff : null);
                 let box = el.querySelector('.fx-chips');
                 if (!box) { box = document.createElement('div'); box.className = 'fx-chips'; el.appendChild(box); }
-                const sig = chips.map(ch => ch.cls + ch.icon + (ch.n == null ? '' : ch.n) + (ch.own || '')).join('|');
-                if (box.dataset.sig !== sig) { box.dataset.sig = sig; box.innerHTML = chips.map(ch => `<span class="fx-chip ${ch.cls}"><i>${ch.icon}</i>${ch.n == null ? '' : ch.n}${ch.own ? `<b class="own own-${ch.own}"></b>` : ''}</span>`).join(''); }
+                const sig = chips.map(ch => ch.cls + ch.icon + (ch.n == null ? '' : ch.n) + (ch.own || '') + (chipUrgent(ch, piece) ? '!' : '')).join('|');
+                if (box.dataset.sig !== sig) { box.dataset.sig = sig; box.innerHTML = chips.map(ch => `<span class="fx-chip ${ch.cls}${chipUrgent(ch, piece) ? ' urgent' : ''}"><i>${ch.icon}</i>${ch.n == null ? '' : ch.n}${ch.own ? `<b class="own own-${ch.own}"></b>` : ''}</span>`).join(''); }
                 { const wo = piece.type === 'wall' && (replayActive || isSpectating) ? wallOwnerAt(sq) : null; el.classList.toggle('wall-own-w', wo === 'w'); el.classList.toggle('wall-own-b', wo === 'b'); }   // 리플레이: 벽 테두리 빛으로 주인(흰/검) 표시
 
                 // 칸 하나 = 기물 크기의 100%. translate는 자기 크기 기준 %라서 (열*100%, 행*100%)
@@ -6047,6 +6147,7 @@
                 setTimeout(() => el.remove(), 300);
             });
             updateFog(); renderPremove();
+            if (fxTipSq) { try { fxTipShow(fxTipSq); } catch (e) { fxTipHide(); } }   // 판이 바뀌면 설명도 새로 고친다 (효과가 사라졌으면 닫힘)
         }
 
         // 킹을 잡는 수에 얹는 조준점: 체크메이트 때 킹에 잠기는 붉은 조준경(drawScope)과 같은 모양
@@ -10289,7 +10390,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 [['pov-w', Math.max(...rs), Math.max(...cs)], ['pov-b', Math.min(...rs), Math.min(...cs)]].forEach(([pov, r, c]) => {
                     const el = squareEls.get(game.rcToSq(r, c)); if (!el) return;
                     const n = el.querySelectorAll('.area-counter.' + pov).length, counter = document.createElement('span');
-                    counter.className = 'area-counter ' + pov; counter.innerText = p.duration;
+                    counter.className = 'area-counter ' + pov + (p.duration === 1 ? ' urgent' : ''); counter.innerText = p.duration;
                     if (n) counter.style.translate = `${(pov === 'pov-w' ? -1 : 1) * n * 110}% 0`;   // 두 지대의 모서리가 겹치면 옆으로 나란히
                     el.appendChild(counter);
                 });
@@ -10900,6 +11001,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             if (c === 'loss') return V('t_l', '당장 잡히지 않아도 몇 수 뒤에 손해가 이어질 수 있어요. 상대의 응수를 2~3수 앞까지 따라가 보세요.', '한 수만 보면 안전해 보여도 두세 수 뒤에 무너지는 경우가 많아요. 상대의 가장 아픈 응수를 먼저 떠올려 보세요.');
             if (c === 'rev') return V('t_rv', '자아 분열 중에는 폰의 방향이 거꾸로예요. 칸이 안전한지 볼 때 폰의 공격 방향부터 뒤집어서 확인하고, 효과가 끝나는 수도 세어 두세요.', '뒤집힌 폰은 뒤쪽 대각선을 잡아요. 평소 안전하던 칸이 위험해질 수 있으니 폰의 방향을 먼저 확인하세요.');
             if (c === 'baby') return V('t_by', '‘아기는 어떻게 태어나?’가 켜진 동안은 킹과 퀸을 붙여 두는 것만으로도 폰이 공짜로 늘어요. 킹이나 퀸을 움직일 땐 둘이 붙어 있는지부터 확인하세요.', '이 증강이 켜진 동안은 킹·퀸의 거리가 곧 이득이에요. 남은 수가 짧아질수록 한 번의 탄생이 더 소중해요.');
+            if (c === 'lazy') return V('t_lz', '운동 부족에 걸린 기물은 남은 수 안에 한 번만 움직이면 살아요. 수를 두기 전에 💪 숫자부터 확인하세요.', '💪 숫자는 두 사람의 수를 합쳐 줄어요. 내 차례가 몇 번 남았는지는 숫자의 절반으로 세어 보세요.');
             if (c === 'poison') return V('t_ps', '독구름 지대 안의 기물은 한 수도 버티지 못해요. 수를 두기 전에 내 기물이 지대 안에 있는지, 이 수가 그 기물을 빼내는지부터 확인하세요.', '독구름이 걸린 판에서는 지대 위 기물 구하기가 최우선이에요. 지대를 먼저 훑어보는 습관을 들이세요.');
             if (c === 'wall') return V('t_wl', '장벽은 사라지는 순간 숨어 있던 공격선이 열려요. 장벽 뒤에 상대 룩·비숍·퀸이 있는지, 몇 수 뒤에 열리는지 미리 점검하세요.', '장벽이 막아 주던 줄은 장벽이 사라지면 곧바로 위험해져요. 남은 수를 세어 두면 대비할 수 있어요.');
             const K = {
@@ -10983,7 +11085,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             v.ru = o.reversedUids || { w: {}, b: {} };
             const be = o.babyEffect; v.baby = (be && be.color) ? { w: be.color === 'w' ? be : null, b: be.color === 'b' ? be : null } : (be || { w: null, b: null });
             const bo = o.blackout; v.dark = (bo && bo.target) ? { w: bo.target === 'w' ? bo.duration : 0, b: bo.target === 'b' ? bo.duration : 0 } : (bo || { w: 0, b: 0 });
-            v.walls = o.activeWalls || []; v.poison = o.activePoison || []; v.mines = o.mines || []; v.inv = o.invinciblePieces || {}; v.root = o.rootedPieces || {}; v.pros = o.prospects || {}; v.pact = o.pactPieces || {}; v.fate = o.fateLinks || [];
+            v.walls = o.activeWalls || []; v.poison = o.activePoison || []; v.mines = o.mines || []; v.inv = o.invinciblePieces || {}; v.root = o.rootedPieces || {}; v.pros = o.prospects || {}; v.pact = o.pactPieces || {}; v.fate = o.fateLinks || []; v.lazy = o.sluggish || {};
             for (let r = 0; r < 8; r++) for (let cc = 0; cc < 8; cc++) { const q = o.board[r][cc]; if (!q || q.type === 'wall' || q.uid === undefined) continue; const e = { sq: rvSqOf(r, cc), color: q.color, type: q.type, uid: q.uid }; v.byUid[q.uid] = e; v.bySq[e.sq] = e; }
             return v;
         }
@@ -11103,6 +11205,23 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 if (other && m && m.pc !== 'k' && !flo) { const hitM = P.mines.find(x => x.sq === m.to); if (hitM) out.rec.push(`다만 ${m.to} 칸에는 ${hitM.owner === mover ? '내' : '상대'} 지뢰가 있어요. 밟으면 ${N(m.pc)}이 파괴돼요.`); }
             }
 
+            // ⑩ 운동 부족: 걸린 기물을 옮겨 살렸는가 / 마지막 기회를 놓쳤는가
+            { const rs = [], moved = (mv, e) => !!mv && mv.from === e.sq;
+              for (const u in P.lazy) { const st = P.lazy[u], e = P.byUid[u]; if (!e || e.type === 'k') continue;
+                  const safe = P.inv[u] > 0, mine = e.color === mover, turns = mine ? Math.ceil(st.n / 2) : Math.floor(st.n / 2);
+                  rs.push(`${who(e.color)} ${N(e.type)} <b>${e.sq}</b>(${st.n}수)`);
+                  if (safe) continue;
+                  if (mine) {
+                      if (moved(f, e)) out.played.push(`운동 부족에 걸린 ${e.sq}의 ${N(e.type)}을 움직여 디버프를 풀었어요.`);
+                      else if (!A.byUid[u] && f.to !== e.sq) { out.warn.push(`운동 부족에 걸린 내 ${e.sq}의 ${N(e.type)}이 이 수 뒤에 쓰러져요. 움직일 마지막 기회였어요.`); cause('lazy'); }
+                      else if (turns === 2) { out.warn.push(`운동 부족에 걸린 ${e.sq}의 ${N(e.type)}은 다음 내 차례가 움직일 마지막 기회예요 (💪 ${st.n}수 남음).`); }
+                      if (other && moved(m, e) && !moved(f, e)) out.rec.push(`추천 수는 운동 부족에 걸린 ${e.sq}의 ${N(e.type)}을 움직여 살려요 (💪 ${st.n}수 남음).`);
+                  } else {
+                      if (!A.byUid[u] && f.to !== e.sq) out.played.push(`운동 부족에 걸린 상대 ${e.sq}의 ${N(e.type)}이 움직이지 못한 채 쓰러져요.`);
+                  }
+              }
+              if (rs.length) rows.push(['운동 부족', rs.join(', ') + ' — 남은 수(양쪽 합산) 안에 움직이지 않으면 쓰러져요. 한 번이라도 움직이면 풀려요 (무적은 쓰러지지 않아요).']); }
+
             // ⑨ 덩굴·무적·수퍼 워너비·동귀어진 (문장은 rvAugNotes가 따로 만들고, 여기서는 판에 걸린 상태를 풀어 준다)
             { const vs = Object.keys(P.root).filter(u => P.root[u] > 0 && P.byUid[u]);
               if (vs.length) rows.push(['덩굴', vs.slice(0, 4).map(u => `${who(P.byUid[u].color)} ${N(P.byUid[u].type)} ${P.byUid[u].sq}(${P.root[u]}수)`).join(', ') + ' — 묶인 기물은 움직이지도, 공격하지도 못해요. 풀리는 수에 맞춰 수읽기를 해야 해요.']); }
@@ -11115,6 +11234,17 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
               if (pc.length) rows.push(['동귀어진', pc.slice(0, 4).map(u => `${who(P.byUid[u].color)} ${N(P.byUid[u].type)} ${P.byUid[u].sq}`).join(', ') + ' — 잡히면 잡은 기물도 함께 사라져요 (영구, 킹 제외).']); }
 
             (P.fate || []).forEach(l => { const a = P.byUid[l[0]], b = P.byUid[l[1]]; if (a && b) rows.push(['운명공동체', `${who(a.color)} ${N(a.type)} ${a.sq} ↔ ${N(b.type)} ${b.sq} — 한쪽이 잡히면 다른 쪽도 함께 사라져요 (영구, 킹 제외).`]); });
+            { let pi = frames && typeof idx === 'number' ? idx - 1 : -1;   // 정화: 직전에 썼다면 무엇이 풀렸는지
+              while (pi >= 1 && frames[pi] && frames[pi].kind === 'augment' && frames[pi].name !== '정화') pi--;
+              const pf = pi >= 1 ? frames[pi] : null;
+              if (pf && pf.kind === 'augment' && pf.name === '정화' && frames[pi - 1] && frames[pi - 1].s) { try {
+                  const b = rvAugView(frames[pi - 1].s), got = [], col = pf.by || mover, own = u => b.byUid[u] && b.byUid[u].color === col;
+                  const cnt = (o, ok) => Object.keys(o || {}).filter(u => own(u) && ok(o[u], u)).length;
+                  const vine = cnt(b.root, (x, u) => x > 0 && !(P.root[u] > 0)), lazy = cnt(b.lazy, (x, u) => !P.lazy[u] && !!P.byUid[u]);
+                  const links = (b.fate || []).filter(l => (own(l[0]) || own(l[1])) && !(P.fate || []).some(q => q[0] === l[0] && q[1] === l[1])).length;
+                  if (vine) got.push(`덩굴 ${vine}개`); if (b.rev[col] > 0 && !(P.rev[col] > 0)) got.push('자아 분열'); if (links) got.push('운명공동체'); if (b.dark[col] > 0 && !(P.dark[col] > 0)) got.push('암전'); if (lazy) got.push(`운동 부족 ${lazy}개`);
+                  if (got.length) rows.splice(1, 0, ['정화', `정화로 ${who(col)} 기물에 걸린 <b>${got.join('·')}</b> 효과가 풀렸어요. 풀린 기물은 바로 다시 움직이고 공격할 수 있어요.`]);
+              } catch (e) {} } }
             out.rows = head.concat(rows).slice(0, 9);
         }
         function rvAugNotes(c) {   // v3.83: 증강(덩굴·무적(여신의 가호·빛의 수호)·수퍼 워너비·독구름·동귀어진·장벽·자아 분열·지뢰)이 이 수의 평가에 끼친 영향을 말로 풀어 준다. 반환: { played: 둔 수의 장점, warn: 둔 수의 문제, rec: 추천 수의 장점, status: 그 판에 걸려 있던 증강 요약 }
@@ -11128,6 +11258,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 if (q.type === 'p' && prospects[q.uid] > 0) { pros0[q.uid] = { sq, color: q.color, type: 'p', rem: prospects[q.uid] }; stat.push(`${who(q.color)} 수퍼 워너비 폰 ${sq}(${prospects[q.uid]}수 뒤 퀸)`); }
                 if (rootedPieces[q.uid] > 0) { root0[q.uid] = { sq, color: q.color, type: q.type, rem: rootedPieces[q.uid] }; stat.push(`${who(q.color)} ${N(q.type)} ${sq} 덩굴(${rootedPieces[q.uid]}수)`); }
                 if (invinciblePieces[q.uid] > 0) inv0[q.uid] = { sq, color: q.color, type: q.type, rem: invinciblePieces[q.uid] };
+                if (sluggish[q.uid]) stat.push(`${who(q.color)} ${N(q.type)} ${sq} 운동 부족(${sluggish[q.uid].n}수)`);
                 if (pactPieces[q.uid] && q.type !== 'k') { pact0[q.uid] = { sq, color: q.color, type: q.type }; stat.push(`${who(q.color)} ${N(q.type)} ${sq} 동귀어진`); }
             }
             fateLinks.forEach(l => { const a = allU[l[0]], b = allU[l[1]]; if (a && b && a.type !== 'k' && b.type !== 'k') { fate0[l[0]] = Object.assign({ p: b }, a); fate0[l[1]] = Object.assign({ p: a }, b); stat.push(`${who(a.color)} ${N(a.type)} ${a.sq} ↔ ${N(b.type)} ${b.sq} 운명공동체`); } });
@@ -11663,7 +11794,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
         function rvPvSet(k, animate) {   // 예상 진행의 k번째 수까지 둔 판을 보여 준다 (animate: 바로 다음 수만 미끄러지듯 이동)
             const S = rvPvS; if (!S) return;
             const prev = replayFrames[S.i - 1], n = S.mv.length;
-            const step = x => { const all = game.moves(), mo = all.find(y => y.from === x.from && y.to === x.to && (x.p ? y.promotion === x.p : true)) || all.find(y => y.from === x.from && y.to === x.to); if (!mo) return false; botMake(game, mo); return true; };
+            const step = x => { const all = game.moves(), mo = all.find(y => y.from === x.from && y.to === x.to && (x.p ? y.promotion === x.p : true)) || all.find(y => y.from === x.from && y.to === x.to); if (!mo) return false; const pa = BOT.ana, ms = BOT.mineSet; BOT.ana = true; BOT.mineSet = new Set(); try { botMake(game, mo); } finally { BOT.ana = pa; BOT.mineSet = ms; } return true; };
             if (!animate || k !== S.k + 1) {
                 deserializeGameState(prev.s); previousMove = prev.kind === 'move' ? { from: prev.from, to: prev.to } : null;
                 for (let j = 0; j < k; j++) { if (!step(S.mv[j])) { k = j; break; } previousMove = { from: S.mv[j].from, to: S.mv[j].to }; }
@@ -11775,7 +11906,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
         // ② 광기·강제 이주처럼 '고른 뒤 무작위 칸으로 가는' 증강은 가능한 도착 칸을 하나씩 모두 두어 보고 기댓값·최선·최악을 구한다 (한 번 굴려 본 운에 휘둘리지 않는다).
         //    광기는 대상(상대 기물)도 전부 훑어 가장 유리한 대상을 찾고, 실제로 고른 대상·실제로 나온 칸을 평균과 견준다 (대상 선택의 질 / 운).
         // ③ 증강 직후 판에서 곧바로 생기는 잡기·체크메이트·유망주 위협을 읽어 문장으로 풀어 준다 (파도·수레바퀴·광기로 기물이 옮겨진 뒤의 상황 포함).
-        const RV_AUG_DET = new Set(['파도', '운명의 수레바퀴', '진군 명령']);   // 결과가 정해진 증강: 한 번만 두어 본다
+        const RV_AUG_DET = new Set(['파도', '운명의 수레바퀴', '진군 명령', '정화']);   // 결과가 정해진 증강: 한 번만 두어 본다
         const rvEulR = w => hasBatchim(w) ? '을' : '를';
         const rvMean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
         const rvNewCaps = (list, baseList) => { const had = new Set((baseList || []).map(c => c.from + c.to)); return (list || []).filter(c => !had.has(c.from + c.to)); };
@@ -11967,7 +12098,9 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 if (aug.name === '덩굴') return { v: 0, show: true, t: '무작위 적 기물 2개가 8수 동안 움직이지 못해요. 막힌 기물은 공격도 방어도 못 해서 그쪽 진영에 틈이 생겨요' };
                 if (aug.name === '빛의 수호') { const n = findPieces(color, 'p').length; return { v: 0, show: true, t: n ? `내 폰 ${n}개가 2수 동안 잡히지 않아요. 그동안 폰으로 하는 전진·교환이 안전해요` : '지킬 폰이 없어 효과가 거의 없어요' }; }
                 if (aug.name === '여신의 가호') return { v: 0, show: true, t: '나이트·비숍·룩·퀸 중 2개가 2수 동안 잡히지 않아요. 큰 기물이 공격받는 순간에 특히 값져요' };
-                if (aug.name === '정화') return { v: 0, show: true, t: '아군에게 걸린 덩굴·자아 분열·운명공동체·암전·운동 부족을 모두 풀어요. 묶이거나 뒤집힌 기물이 많을수록 값져요' };
+                if (aug.name === '정화') { const pt = purifyTargets(color), got = [];
+                    if (pt.rooted.length) got.push(`덩굴 ${pt.rooted.length}개`); if (pt.reversed) got.push('자아 분열'); if (pt.links.length) got.push('운명공동체'); if (pt.dark) got.push('암전'); if (pt.lazy.length) got.push(`운동 부족 ${pt.lazy.length}개`);
+                    return { v: 0, show: true, t: got.length ? `지금 내게 걸린 ${got.join('·')} 효과를 풀어요${pt.lazy.length ? '. 운동 부족 기물을 옮기는 데 수를 쓰지 않아도 돼요' : ''}` : '아군에게 걸린 덩굴·자아 분열·운명공동체·암전·운동 부족을 모두 풀어요. 묶이거나 뒤집힌 기물이 많을수록 값져요' }; }
                 if (aug.name === '운동 부족') return { v: 0, show: true, t: '적 기물 하나가 4수(양쪽 합산) 안에 움직이지 않으면 사라져요. 상대는 그 기물을 옮기는 데 한 수를 써야 해요' };
                 if (aug.name === '암전') return { v: 0, show: true, t: '4수 동안 상대는 자기 기물이 있는 칸 외에는 볼 수 없어요. 내 기물의 위치와 위협을 놓치기 쉬워요 (이 분석은 모든 기물이 보인다고 보고 평가해요)' };
                 if (aug.name === '운명공동체') return { v: 0, show: true, t: '적 기물 2개가 연결돼요. 하나가 잡히면 다른 하나도 함께 사라져서, 한 번의 잡기로 두 기물을 얻을 수 있어요' };
@@ -14786,6 +14919,11 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                     const pr = prospects[p.uid], rt = rootedPieces[p.uid];
                     if (t === 'p' && pr > 0) pstMg += sg * botProspectBonus(pr);
                     if (rt > 1) pstMg -= sg * Math.round(BOT_VAL[t] * 0.02 * Math.min(rt, 6));
+                    const lz = sluggish[p.uid];
+                    if (lz && !invinciblePieces[p.uid] && lz.sq === String.fromCharCode(97 + c) + (8 - r)) {   // 운동 부족: 옮길 기회가 적을수록 값어치가 깎인다
+                        const turns = S._turn === p.color ? Math.ceil(lz.n / 2) : Math.floor(lz.n / 2);
+                        pstMg -= sg * Math.round(BOT_VAL[t] * (turns <= 0 ? 0.9 : turns === 1 ? 0.18 : 0.08));
+                    }
                 }
                 if (t === 'p') { pf[p.color][c]++; pawns.push({ r, c, w }); }
                 else { npm += BOT_VAL[t]; if (t === 'b') { if (w) wBish++; else bBish++; } if (t === 'r') rooks.push({ r, c, w });
@@ -14857,6 +14995,7 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
                 if (reversedPawns.w > 0 || reversedPawns.b > 0) fx = (Math.imul(fx, 43) + reversedPawns.w * 64 + reversedPawns.b) | 0;
                 for (const w of activeWalls) fx = (Math.imul(fx, 47) + w.duration * 5 + 1) | 0;
                 for (const x of activePoison) fx = (Math.imul(fx, 53) + x.duration * 7 + 3) | 0;
+                for (const k in sluggish) fx = (Math.imul(fx, 59) + (parseInt(k) || 0) * 64 + sluggish[k].n) | 0;
                 if (fx) { h1 ^= Math.imul(fx, 0x9E3779B1) >>> 0; h2 ^= Math.imul(fx, 40503) >>> 0; }
             }
             return (h1 >>> 0) * 2097152 + ((h2 >>> 0) & 0x1FFFFF);
@@ -14869,13 +15008,22 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
             for (const k in rootedPieces) { any = true; break; }
             if (!any) for (const k in invinciblePieces) { any = true; break; }
             if (!any) for (const k in prospects) { any = true; break; }
+            if (!any) for (const k in sluggish) { any = true; break; }
             if (!any && (reversedPawns.w > 0 || reversedPawns.b > 0 || activeWalls.length || activePoison.length)) any = true;
             if (!any) return;
             const fx = {
                 r: Object.assign({}, rootedPieces), i: Object.assign({}, invinciblePieces), p: Object.assign({}, prospects), promo: null,
                 rp: { w: reversedPawns.w, b: reversedPawns.b }, ru: { w: reversedUids.w, b: reversedUids.b },
-                aw: activeWalls.map(w => ({ w, d: w.duration })), ap: activePoison.map(x => ({ x, d: x.duration })), wl: null
+                aw: activeWalls.map(w => ({ w, d: w.duration })), ap: activePoison.map(x => ({ x, d: x.duration })), wl: null,
+                lz: Object.assign({}, sluggish), lk: null
             };
+            for (const k in fx.lz) {   // 운동 부족: 걸린 칸을 벗어나면 낫고, 남아 있으면 수마다 줄어 0이 되면 사라진다 (킹·무적 제외)
+                const st = fx.lz[k], x = S.sqToRC(st.sq), en = balloonUnder[st.sq], isUnder = !!(en && en.piece && String(en.piece.uid) === k), q = isUnder ? en.piece : S._board[x.r][x.c];
+                if (!q || String(q.uid) !== k) { delete sluggish[k]; continue; }
+                if (st.n > 1) { sluggish[k] = { n: st.n - 1, sq: st.sq }; continue; }
+                delete sluggish[k];
+                if (!isUnder && q.type !== 'k' && !invinciblePieces[k]) { (fx.lk || (fx.lk = [])).push({ r: x.r, c: x.c, q }); S._board[x.r][x.c] = null; }
+            }
             for (const k in rootedPieces) if (--rootedPieces[k] <= 0) delete rootedPieces[k];
             for (const k in invinciblePieces) if (--invinciblePieces[k] <= 0) delete invinciblePieces[k];
             const done = [];
@@ -14895,6 +15043,8 @@ const AA = atk && atk.pos, FO = finFoes(sq), AL = finMine(sq);
         }
         function botFxUndo(S, fx) {
             const B = S._board;
+            for (const k in sluggish) delete sluggish[k]; Object.assign(sluggish, fx.lz);
+            if (fx.lk) for (const x of fx.lk) B[x.r][x.c] = x.q;
             if (fx.wl) for (const x of fx.wl) B[x.r][x.c] = x.q;
             if (fx.promo) for (const x of fx.promo) B[x.r][x.c] = x.q;
             for (const k in rootedPieces) delete rootedPieces[k]; Object.assign(rootedPieces, fx.r);
